@@ -1,0 +1,12 @@
+.DS_Store
+.idea/
+.vscode/
+
+.env
+.env.*
+!.env.example
+
+# local data / volumes
+data/
+volumes/
+*.log
