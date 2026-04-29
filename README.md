@@ -2,42 +2,57 @@
 
 Self-hosted n8n под персонального фитнес-ассистента (Telegram + GPT + Google Sheets).
 
+Домен: **n8n-fitness.ru** (HTTPS через Caddy + Let's Encrypt).
+
+## Подготовка домена
+
+1. У регистратора прописать A-record `n8n-fitness.ru` → IP сервера.
+2. Дождаться, пока `dig +short n8n-fitness.ru` вернёт нужный IP.
+
 ## Деплой на сервер
 
 ```bash
 git clone <repo> n8n-fitness && cd n8n-fitness
 
 cp .env.example .env
-# заполнить: N8N_HOST=<IP сервера>, WEBHOOK_URL=http://<IP>:5678/
-# сгенерировать ключ: openssl rand -hex 32  → в N8N_ENCRYPTION_KEY
+# заполнить N8N_ENCRYPTION_KEY: openssl rand -hex 32
 
 docker compose up -d
-docker compose logs -f n8n
+docker compose logs -f
 ```
 
-UI: `http://<IP>:5678` — при первом заходе n8n попросит создать owner-аккаунт.
+UI: `https://n8n-fitness.ru` — при первом заходе n8n попросит создать owner-аккаунт.
 
-Firewall:
+Первый запрос Caddy выпустит TLS-сертификат через Let's Encrypt (нужны открытые
+80 и 443 порты + корректный A-record).
+
+## Firewall
+
 ```bash
-ufw allow 5678/tcp
+ufw allow 80/tcp
+ufw allow 443/tcp
+# порт 5678 наружу НЕ открывать — n8n доступен только через Caddy
 ```
 
 ## Локальный запуск
 
-В `.env`: `N8N_HOST=localhost`, `WEBHOOK_URL=http://localhost:5678/`.
-
-## TODO до боевого использования
-
-- [ ] Купить домен, навесить A-record на IP сервера
-- [ ] Добавить Caddy/Traefik с Let's Encrypt → HTTPS обязателен для:
-  - Telegram webhook
-  - Google OAuth (Sheets/Drive)
-- [ ] Поменять `WEBHOOK_URL` и `N8N_PROTOCOL=https`
-- [ ] Бэкап тома `n8n_data` (там credentials и workflow'ы)
+Локально через https-домен не поднять без подмены DNS. Для разработки можно
+временно вернуть прямой проброс `5678:5678` на сервисе n8n и `N8N_PROTOCOL=http`,
+но в репо этот режим не держим.
 
 ## Бэкап
 
 ```bash
 docker run --rm -v n8n-fitness_n8n_data:/data -v $PWD:/backup alpine \
   tar czf /backup/n8n-backup-$(date +%F).tar.gz -C /data .
+```
+
+В томе `n8n_data` лежат credentials и workflow'ы. `N8N_ENCRYPTION_KEY` из `.env`
+бэкапить отдельно — без него восстановление credentials невозможно.
+
+## Обновление
+
+```bash
+docker compose pull
+docker compose up -d
 ```

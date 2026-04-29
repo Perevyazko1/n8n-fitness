@@ -3,14 +3,15 @@ services:
     image: n8nio/n8n:latest
     container_name: n8n
     restart: unless-stopped
-    ports:
-      - "5678:5678"
+    expose:
+      - "5678"
     environment:
-      - N8N_HOST=${N8N_HOST}
+      - N8N_HOST=${DOMAIN}
       - N8N_PORT=5678
-      - N8N_PROTOCOL=${N8N_PROTOCOL:-http}
-      - WEBHOOK_URL=${WEBHOOK_URL}
-      - N8N_EDITOR_BASE_URL=${WEBHOOK_URL}
+      - N8N_PROTOCOL=https
+      - WEBHOOK_URL=https://${DOMAIN}/
+      - N8N_EDITOR_BASE_URL=https://${DOMAIN}/
+      - N8N_PROXY_HOPS=1
       - GENERIC_TIMEZONE=${TZ:-Europe/Moscow}
       - TZ=${TZ:-Europe/Moscow}
       - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
@@ -25,5 +26,24 @@ services:
       timeout: 5s
       retries: 5
 
+  caddy:
+    image: caddy:2-alpine
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN}
+      - ACME_EMAIL=${ACME_EMAIL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - n8n
+
 volumes:
   n8n_data:
+  caddy_data:
+  caddy_config:
