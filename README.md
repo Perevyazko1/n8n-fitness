@@ -16,87 +16,105 @@ Internet → :443 nginx (host net) ──┬─ dev-rs-auto.store → 127.0.0.1:
 
 ## Шаг 1. DNS
 
-У регистратора `n8n-fitness.ru`:
+У регистратора `n8n-fitness.ru` (Beget):
 
-| Тип | Имя | Значение         | TTL |
-|-----|-----|------------------|-----|
-| A   | `@` | `217.60.61.145`  | 300 |
-| A   | `www` | `217.60.61.145` | 300 |
+| Тип | Имя   | Значение         | TTL |
+|-----|-------|------------------|-----|
+| A   | `@`   | `217.60.61.145`  | 300 |
+| A   | `www` | `217.60.61.145`  | 300 |
 
-Проверка:
+Проверка с локальной машины:
 ```bash
 dig +short n8n-fitness.ru
 # должно вернуть 217.60.61.145
 ```
 
-Не идти дальше, пока DNS не отвечает корректно.
+Не идти дальше, пока DNS не отвечает корректно через публичные резолверы.
 
 ## Шаг 2. Файлы на сервере
 
 ```bash
 cd /root/n8n-fitness
-git pull   # если уже клонировано, иначе git clone
+git pull
 
 cp .env.example .env
 # заполнить N8N_ENCRYPTION_KEY: openssl rand -hex 32
 ```
 
-## Шаг 3. Временный HTTP-vhost для ACME-challenge
+## Шаг 3. Выпуск TLS-сертификата (standalone)
 
-Чтобы certbot смог получить сертификат, в существующем nginx должен быть
-server-блок на 80 порту с `location /.well-known/acme-challenge/`. В файле
-`nginx-n8n.conf` (этот репо) такой блок уже есть.
-
-1. Открыть на сервере `/root/vacuum_remote/nginx/nginx.conf`.
-2. **Внутрь** существующего `http { ... }` вставить server-блоки из
-   `nginx-n8n.conf` этого репо. Пока **временно** закомментировать оба
-   `listen 443 ssl` блока — сертификата ещё нет, nginx с ними не стартует.
-3. Применить:
-   ```bash
-   docker exec nginx nginx -t
-   docker exec nginx nginx -s reload
-   ```
-
-## Шаг 4. Выпуск сертификата
+certbot работает в режиме standalone — он сам поднимает временный HTTP-сервер
+на 80 порту. Поэтому общий nginx нужно остановить на ~30 секунд (`dev-rs-auto.store`
+будет недоступен это время).
 
 ```bash
-certbot certonly --webroot -w /var/www/certbot \
+docker stop nginx
+
+certbot certonly --standalone \
   -d n8n-fitness.ru -d www.n8n-fitness.ru \
   --email a.perevyazko@gmail.com --agree-tos --no-eff-email
+
+docker start nginx
 ```
 
 После успеха: `/etc/letsencrypt/live/n8n-fitness.ru/fullchain.pem` существует.
 
-## Шаг 5. Включить HTTPS-vhost и поднять n8n
+## Шаг 4. nginx vhost
 
-1. В `/root/vacuum_remote/nginx/nginx.conf` раскомментировать оба `443`-блока.
-2. Релоад nginx:
-   ```bash
-   docker exec nginx nginx -t
-   docker exec nginx nginx -s reload
-   ```
-3. Поднять n8n:
-   ```bash
-   cd /root/n8n-fitness
-   docker compose up -d
-   docker compose logs -f n8n
-   ```
+В файле `/root/vacuum_remote/nginx/nginx.conf` внутрь `http { ... }` рядом с
+существующими блоками для `dev-rs-auto.store` вставить server-блоки из
+`nginx-n8n.conf` этого репо.
+
+Применить:
+```bash
+docker exec nginx nginx -t
+docker exec nginx nginx -s reload
+```
+
+## Шаг 5. Запуск n8n
+
+```bash
+cd /root/n8n-fitness
+docker compose up -d
+docker compose logs -f n8n
+```
 
 UI: `https://n8n-fitness.ru` — при первом заходе n8n попросит создать
 owner-аккаунт.
 
 ## Авто-обновление сертификата
 
-certbot уже стоит в системе (`/usr/bin/certbot`). Проверить таймер:
+Сертификат живёт 90 дней, certbot автоматически обновляет за 30 дней до
+истечения через `systemd` таймер `certbot.timer`. Но в standalone-режиме
+обновление падает, если 80 порт занят nginx.
+
+Решение — добавить hook'и для остановки/старта nginx во время renewal:
+
+```bash
+sudo mkdir -p /etc/letsencrypt/renewal-hooks/{pre,post}
+
+sudo tee /etc/letsencrypt/renewal-hooks/pre/stop-nginx.sh <<'EOF'
+#!/bin/sh
+docker stop nginx
+EOF
+
+sudo tee /etc/letsencrypt/renewal-hooks/post/start-nginx.sh <<'EOF'
+#!/bin/sh
+docker start nginx
+EOF
+
+sudo chmod +x /etc/letsencrypt/renewal-hooks/pre/stop-nginx.sh \
+              /etc/letsencrypt/renewal-hooks/post/start-nginx.sh
+```
+
+Проверить таймер:
 ```bash
 systemctl list-timers | grep certbot
 ```
-После рефреша nginx нужно перезагрузить — добавить deploy-hook:
+
+Симуляция renewal без реального запроса в LE:
 ```bash
-echo '#!/bin/sh
-docker exec nginx nginx -s reload' \
-  | sudo tee /etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh
-sudo chmod +x /etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh
+sudo certbot renew --dry-run
 ```
 
 ## Бэкап
