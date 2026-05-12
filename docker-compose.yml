@@ -18,8 +18,13 @@ services:
       - TZ=${TZ:-Europe/Moscow}
       - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
       - N8N_RUNNERS_ENABLED=true
-      - N8N_BLOCK_ENV_ACCESS_IN_NODE=true
+      # Снято с true: Code-нодам нужен доступ к TELEGRAM_BOT_TOKEN
+      # для HMAC-валидации initData мини-аппа (см. Fitness_Bot_Barcode.json).
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
       - N8N_DIAGNOSTICS_ENABLED=false
+      # Токен Telegram-бота — нужен Code-ноде в Fitness_Bot_Barcode для проверки
+      # подписи initData от Telegram Web App. Значение в .env.
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
     volumes:
       - n8n_data:/home/node/.n8n
     healthcheck:
