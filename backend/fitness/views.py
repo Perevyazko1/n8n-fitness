@@ -99,7 +99,9 @@ def repeat_food(request):
 
 def workout_today(request):
     day = parse_date(request.payload.get("date")) or today()
-    return ok(calc.compute_workout_today(request.tg_user, day))
+    raw_block = request.payload.get("block")
+    forced_block = int(raw_block) if raw_block else None
+    return ok(calc.compute_workout(request.tg_user, day, forced_block))
 
 
 def toggle_exercise(request):
@@ -119,20 +121,27 @@ def toggle_exercise(request):
 
 
 def complete_workout(request):
-    """НОВОЕ: фиксирует, что тренировка за день была → строка в workout_log
-    (upsert по user+date). kcal_burned = MET-оценка (позже заменит Apple Watch)."""
+    """Фиксирует тренировку за день → строка в workout_log (upsert по user+date).
+    Блок берём из payload (выбранный на странице), иначе — ожидаемый для сегодня.
+    Работает и задним числом. kcal_burned = MET-оценка (позже заменит Apple Watch)."""
     user = request.tg_user
-    day = parse_date(request.payload.get("date")) or today()
-    exp = calc.expected_today(user, day)
-    if exp["type"] != "workout":
-        return ok({"ok": False, "error": "rest_day"}, status=400)
+    p = request.payload
+    day = parse_date(p.get("date")) or today()
+    raw = p.get("block")
+    block = int(raw) if raw else None
+    if not block:
+        exp = calc.expected_today(user, day)
+        if exp["type"] != "workout":
+            return ok({"ok": False, "error": "no_block"}, status=400)
+        block = exp["number"]
 
-    block = exp["number"]
+    label = next((b["label"] for b in calc.active_blocks_list(user)
+                  if b["block_num"] == block), f"№{block}")
     kcal = round(calc.planned_workout_kcal(user, block))
     duration = sum((r.default_min or 0) for r in WorkoutCatalog.objects.filter(user=user, block_num=block)) or None
     obj, created = WorkoutLog.objects.update_or_create(
         user=user, date=day,
-        defaults={"day_plan": exp["label"], "kcal_burned": kcal,
+        defaults={"day_plan": label, "kcal_burned": kcal,
                   "duration_min": duration, "source": "app"},
     )
     return ok({"ok": True, "created": created, "kcal_burned": kcal})

@@ -148,24 +148,24 @@ def compute_dashboard(user, day):
     }
 
 
-def compute_workout_today(user, day):
-    exp = expected_today(user, day)
-    if exp["type"] != "workout":
-        return {"ok": True, "date": day.isoformat(), "is_workout": False, "label": None,
-                "block_num": None, "days_until_next": exp.get("days_until_next"), "exercises": []}
+def active_blocks_list(user):
+    state = blocks_state(user)
+    return [{"block_num": n, "label": state[n]["label"]}
+            for n in sorted(n for n, v in state.items() if v["active"])]
 
-    block = exp["number"]
+
+def block_exercises(user, day, block):
     done = {
         d.exercise.strip()
         for d in WorkoutDone.objects.filter(user=user, date=day, block_num=block, done=True)
     }
-    exercises = []
+    out = []
     for r in WorkoutCatalog.objects.filter(user=user, block_num=block):
         if not r.exercise:
             continue
         ex = r.exercise.strip()
         weight = r.weight if r.weight not in (None, "", "—") else ""
-        exercises.append({
+        out.append({
             "id": f"{block}::{ex}",
             "group": r.group or "",
             "exercise": ex,
@@ -175,5 +175,47 @@ def compute_workout_today(user, day):
             "note": r.note or "",
             "done": ex in done,
         })
-    return {"ok": True, "date": day.isoformat(), "is_workout": True,
-            "label": exp["label"], "block_num": block, "exercises": exercises}
+    return out
+
+
+def compute_workout(user, day, forced_block=None):
+    """План на выбранный день + выбор блока. Работает для ЛЮБОГО дня (backdating):
+    - forced_block задан (юзер ткнул чип) → его;
+    - есть workout_log за день → его блок;
+    - сегодня и по циклу тренировка → ожидаемый блок;
+    - иначе (прошлый день без лога) → блок не выбран, юзер выбирает сам.
+    """
+    from django.utils import timezone
+    blocks = active_blocks_list(user)
+    active_nums = [b["block_num"] for b in blocks]
+    is_today = (day == timezone.localdate())
+
+    logged = WorkoutLog.objects.filter(user=user, date=day).first()
+    exp = expected_today(user, day) if is_today else None
+
+    if forced_block:
+        selected = forced_block
+    elif logged:
+        selected = parse_workout_number(logged.day_plan)
+    elif is_today and exp and exp["type"] == "workout":
+        selected = exp["number"]
+    else:
+        selected = None
+    if selected not in active_nums:
+        selected = None
+
+    label = next((b["label"] for b in blocks if b["block_num"] == selected), None)
+    result = {
+        "ok": True,
+        "date": day.isoformat(),
+        "is_today": is_today,
+        "blocks": blocks,
+        "selected_block": selected,
+        "label": label,
+        "logged": bool(logged),
+        "exercises": block_exercises(user, day, selected) if selected else [],
+    }
+    # подсказка про отдых только для сегодня, если по циклу выходной
+    if is_today and exp and exp["type"] == "rest":
+        result["rest_hint_days"] = exp.get("days_until_next")
+    return result
