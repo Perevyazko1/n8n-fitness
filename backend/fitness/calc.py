@@ -10,26 +10,31 @@ from .models import (
 )
 
 GOAL_MULT = {"lose": 0.8, "maintain": 1.0, "gain": 1.15}
-ACT_MULT = {"sedentary": 1.2, "light": 1.375, "moderate": 1.55, "active": 1.725, "very": 1.9}
+# «Фон» (NEAT) — бытовая активность сверх BMR, БЕЗ спорта. Зависит от образа жизни.
+# Логированные ходьба/тренировки идут отдельно сверху (в дашборде/Build Context).
+ACT_BASELINE = {"sedentary": 150, "light": 250, "moderate": 350, "active": 500, "very": 650}
 
 
 def recalc_targets(profile):
-    """Mifflin-St Jeor + активность + цель → bmr и целевые КБЖУ.
-    Порт логики из ноды бота `Compute Mifflin`. Возвращает dict полей для сохранения."""
+    """ЕДИНАЯ динамическая модель: bmr (Mifflin), фон от активности, и БАЗОВАЯ дневная
+    цель (день без логированной активности) = clamp((bmr+фон)×goal). На дашборде сверху
+    добавляются реальные ходьба/тренировки. Возвращает dict полей для сохранения."""
     sex = "f" if str(profile.sex or "m").lower()[:1] in ("f", "ж") else "m"
     h = profile.height_cm or 0
     w = profile.weight_kg or 0
     a = profile.age or 0
-    act = ACT_MULT.get(str(profile.activity_level or "moderate").lower(), 1.55)
+    baseline = ACT_BASELINE.get(str(profile.activity_level or "moderate").lower(), 350)
     gmult = GOAL_MULT.get(str(profile.goal or "maintain").lower(), 1.0)
-    bmr_raw = 10 * w + 6.25 * h - 5 * a + (5 if sex == "m" else -161)
-    target_kcal = round(bmr_raw * act * gmult)
+    bmr = round(10 * w + 6.25 * h - 5 * a + (5 if sex == "m" else -161))
+    floor = round(bmr * 1.1)
+    ref = max(floor, round((bmr + baseline) * gmult))   # базовая цель (rest day), как в compute_dashboard
     tp = round(w * 1.8)
     tf = round(w * 1.0)
-    tc = max(0, round((target_kcal - tp * 4 - tf * 9) / 4))
+    tc = max(0, round((ref - tp * 4 - tf * 9) / 4))
     return {
-        "bmr": round(bmr_raw),
-        "target_kcal": target_kcal,
+        "bmr": bmr,
+        "daily_baseline_kcal": baseline,
+        "target_kcal": ref,
         "target_protein_g": tp,
         "target_fat_g": tf,
         "target_carbs_g": tc,
