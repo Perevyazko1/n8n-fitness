@@ -35,5 +35,56 @@ services:
       timeout: 5s
       retries: 5
 
+  # --- Postgres: общий источник правды (Mini App API + бот n8n через Postgres-ноду) ---
+  db:
+    image: postgres:16-alpine
+    container_name: fitness-db
+    restart: unless-stopped
+    # Тюнинг под маленький сервер (1 vCPU, ~1ГБ RAM).
+    command: ["postgres", "-c", "shared_buffers=96MB", "-c", "max_connections=20"]
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-fitness}
+      - POSTGRES_USER=${POSTGRES_USER:-fitness}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - TZ=${TZ:-Europe/Moscow}
+    volumes:
+      - fitness_db:/var/lib/postgresql/data
+    # Наружу НЕ торчит; loopback — только для разового импорта Sheets→PG.
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-fitness} -d ${POSTGRES_DB:-fitness}"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+  # --- Django API: фронтит Mini App под https://n8n-fitness.ru/api ---
+  api:
+    build: ./backend
+    container_name: fitness-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    # migrate при старте, затем gunicorn.
+    # makemigrations делается один раз вручную и коммитится (см. backend/README.md).
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8001 --workers 2 --timeout 60"
+    environment:
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - DJANGO_DEBUG=${DJANGO_DEBUG:-0}
+      - DJANGO_ALLOWED_HOSTS=${DOMAIN},127.0.0.1,localhost
+      - POSTGRES_DB=${POSTGRES_DB:-fitness}
+      - POSTGRES_USER=${POSTGRES_USER:-fitness}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TZ=${TZ:-Europe/Moscow}
+    ports:
+      - "127.0.0.1:8001:8001"
+
 volumes:
   n8n_data:
+  fitness_db:

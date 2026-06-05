@@ -10,3 +10,9 @@
 data/
 volumes/
 *.log
+
+# python / django backend
+__pycache__/
+*.pyc
+.venv/
+*.sqlite3
