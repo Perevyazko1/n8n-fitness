@@ -25,6 +25,8 @@ services:
       # Токен Telegram-бота — нужен Code-ноде в Fitness_Bot_Barcode для проверки
       # подписи initData от Telegram Web App. Значение в .env.
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      # Пароль регистрации новых пользователей (читает нода Reg Check в боте).
+      - REGISTRATION_PASSWORD=${REGISTRATION_PASSWORD}
       # Разрешаем built-in модуль crypto в Code-нодах (HMAC-валидация initData).
       - NODE_FUNCTION_ALLOW_BUILTIN=crypto
     volumes:

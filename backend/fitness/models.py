@@ -9,6 +9,7 @@ from django.db import models
 class TgUser(models.Model):
     telegram_id = models.BigIntegerField(unique=True)
     first_name = models.CharField(max_length=128, blank=True, default="")
+    approved = models.BooleanField(default=False)  # доступ открыт после регистрации по паролю
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

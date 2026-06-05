@@ -13,7 +13,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 
 from . import calc
-from .models import FoodLog, Product, WorkoutCatalog, WorkoutDone, WorkoutLog
+from .models import FoodLog, Product, Profile, WorkoutCatalog, WorkoutDone, WorkoutLog
 
 
 def _f(v):

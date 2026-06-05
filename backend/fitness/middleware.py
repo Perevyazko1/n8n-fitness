@@ -42,6 +42,9 @@ class ApiMiddleware:
             return self._cors(JsonResponse({"ok": False, "error": "auth: " + str(e)}, status=401))
 
         request.tg_user = ensure_user(tg)
+        # гейт регистрации: незарегистрированный (approved=False) — доступа нет
+        if not request.tg_user.approved:
+            return self._cors(JsonResponse({"ok": False, "error": "not_registered"}, status=403))
         request.payload = body
         return self._cors(self.get_response(request))
 
