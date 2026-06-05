@@ -167,6 +167,7 @@ def block_exercises(user, day, block):
         weight = r.weight if r.weight not in (None, "", "—") else ""
         out.append({
             "id": f"{block}::{ex}",
+            "db_id": r.id,
             "group": r.group or "",
             "exercise": ex,
             "sets": str(r.sets) if r.sets not in (None, "") else "",

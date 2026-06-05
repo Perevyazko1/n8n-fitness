@@ -200,6 +200,38 @@ def save_product(request):
     return ok({"ok": True, "message": "добавлено в продукты"})
 
 
+def exercise_save(request):
+    """Создать/обновить упражнение в плане (WorkoutCatalog). id → апдейт, иначе создание."""
+    user = request.tg_user
+    p = request.payload
+    name = (p.get("exercise") or "").strip()
+    block = _i(p.get("block_num"))
+    if not name or not block:
+        return ok({"ok": False, "error": "missing"}, status=400)
+    fields = {
+        "block_num": block,
+        "group": (p.get("group") or "").strip(),
+        "exercise": name,
+        "sets": str(p.get("sets") or "").strip(),
+        "reps": str(p.get("reps") or "").strip(),
+        "weight": str(p.get("weight") or "").strip(),
+        "note": (p.get("note") or "").strip(),
+    }
+    ex_id = _i(p.get("id"))
+    if ex_id:
+        WorkoutCatalog.objects.filter(user=user, id=ex_id).update(**fields)
+    else:
+        WorkoutCatalog.objects.create(user=user, **fields)
+    return ok({"ok": True})
+
+
+def exercise_delete(request):
+    user = request.tg_user
+    eid = _i(request.payload.get("id"))
+    deleted, _ = WorkoutCatalog.objects.filter(user=user, id=eid).delete()
+    return ok({"ok": bool(deleted)})
+
+
 def scan_barcode(request):
     """Логирование по штрихкоду из сканера: action=log_food | add_product."""
     user = request.tg_user
