@@ -162,6 +162,53 @@ def complete_workout(request):
     return ok({"ok": True, "created": created, "kcal_burned": kcal})
 
 
+def profile(request):
+    """Профиль для настроек: редактируемые параметры тела + посчитанные КБЖУ (read-only)."""
+    p = getattr(request.tg_user, "profile", None)
+    if not p:
+        return ok({"ok": True, "exists": False})
+    return ok({
+        "ok": True, "exists": True,
+        "height_cm": p.height_cm, "weight_kg": p.weight_kg, "age": p.age,
+        "sex": p.sex or "m", "activity_level": p.activity_level or "moderate",
+        "goal": p.goal or "maintain", "training_days_interval": p.training_days_interval,
+        "bmr": p.bmr, "daily_baseline_kcal": p.daily_baseline_kcal,
+        "target_kcal": p.target_kcal, "target_protein_g": p.target_protein_g,
+        "target_fat_g": p.target_fat_g, "target_carbs_g": p.target_carbs_g,
+    })
+
+
+def profile_save(request):
+    """Сохранить параметры тела (КБЖУ не трогаем — они только через пересчёт)."""
+    p = request.payload
+    prof, _ = Profile.objects.get_or_create(user=request.tg_user)
+    prof.height_cm = _f(p.get("height_cm"))
+    prof.weight_kg = _f(p.get("weight_kg"))
+    prof.age = _i(p.get("age"))
+    if p.get("sex"):
+        prof.sex = str(p.get("sex")).strip()
+    if p.get("activity_level"):
+        prof.activity_level = str(p.get("activity_level")).strip()
+    if p.get("goal"):
+        prof.goal = str(p.get("goal")).strip()
+    if p.get("training_days_interval") is not None:
+        prof.training_days_interval = _i(p.get("training_days_interval"))
+    prof.save()
+    return ok({"ok": True})
+
+
+def profile_recalc(request):
+    """Пересчитать КБЖУ из текущих параметров тела (Mifflin) и сохранить."""
+    prof = getattr(request.tg_user, "profile", None)
+    if not prof:
+        return ok({"ok": False, "error": "no_profile"}, status=400)
+    upd = calc.recalc_targets(prof)
+    for k, v in upd.items():
+        setattr(prof, k, v)
+    prof.save()
+    return ok({"ok": True, **upd})
+
+
 def products(request):
     """Справочник продуктов (что бот «знает»). Просмотр."""
     items = []

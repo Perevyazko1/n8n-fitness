@@ -17,4 +17,7 @@ urlpatterns = [
     path("save-product", views.save_product),
     path("exercise-save", views.exercise_save),
     path("exercise-delete", views.exercise_delete),
+    path("profile", views.profile),
+    path("profile-save", views.profile_save),
+    path("profile-recalc", views.profile_recalc),
 ]
