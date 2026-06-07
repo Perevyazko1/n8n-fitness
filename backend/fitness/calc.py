@@ -130,6 +130,26 @@ def planned_workout_kcal(user, block_num):
     return total
 
 
+def done_workout_stats(user, day, block):
+    """Расход и длительность ТОЛЬКО по выполненным (отмеченным) упражнениям блока.
+    Σ(MET × вес × default_min / 60). Вес — из профиля юзера."""
+    profile = getattr(user, "profile", None)
+    weight = (profile.weight_kg if profile else None) or 76
+    done = {
+        d.exercise.strip()
+        for d in WorkoutDone.objects.filter(user=user, date=day, block_num=block, done=True)
+    }
+    kcal = 0.0
+    minutes = 0
+    for r in WorkoutCatalog.objects.filter(user=user, block_num=block):
+        if not r.exercise or r.exercise.strip() not in done:
+            continue
+        if r.met and r.default_min:
+            kcal += r.met * weight * r.default_min / 60
+        minutes += (r.default_min or 0)
+    return round(kcal), (minutes or None)
+
+
 def compute_dashboard(user, day):
     profile = getattr(user, "profile", None)
     if not profile:
@@ -146,9 +166,10 @@ def compute_dashboard(user, day):
     walk_kcal = sum((w.kcal_burned or 0) for w in WalkingLog.objects.filter(user=user, date=day))
 
     today_workouts = list(WorkoutLog.objects.filter(user=user, date=day))
-    workout_kcal_actual = sum((w.kcal_burned or 0) for w in today_workouts)
-    workout_kcal_planned = planned_workout_kcal(user, exp["number"]) if exp["type"] == "workout" else 0
-    workout_kcal = workout_kcal_actual if today_workouts else round(workout_kcal_planned)
+    # Тренировка попадает в бюджет ТОЛЬКО после подтверждения (есть workout_log)
+    # и по факту — kcal_burned уже посчитан из ВЫПОЛНЕННЫХ упражнений (done_workout_stats).
+    # До подтверждения плановый расход НЕ добавляем.
+    workout_kcal = sum((w.kcal_burned or 0) for w in today_workouts)
 
     tdee = bmr + baseline + walk_kcal + workout_kcal
     target_raw = round(tdee * mult)

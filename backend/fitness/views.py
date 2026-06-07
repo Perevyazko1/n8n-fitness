@@ -138,7 +138,8 @@ def toggle_exercise(request):
 def complete_workout(request):
     """Фиксирует тренировку за день → строка в workout_log (upsert по user+date).
     Блок берём из payload (выбранный на странице), иначе — ожидаемый для сегодня.
-    Работает и задним числом. kcal_burned = MET-оценка (позже заменит Apple Watch)."""
+    Работает и задним числом. kcal_burned считается ТОЛЬКО по ВЫПОЛНЕННЫМ
+    (отмеченным) упражнениям — done_workout_stats (позже заменит Apple Watch)."""
     user = request.tg_user
     p = request.payload
     day = parse_date(p.get("date")) or today()
@@ -152,14 +153,23 @@ def complete_workout(request):
 
     label = next((b["label"] for b in calc.active_blocks_list(user)
                   if b["block_num"] == block), f"№{block}")
-    kcal = round(calc.planned_workout_kcal(user, block))
-    duration = sum((r.default_min or 0) for r in WorkoutCatalog.objects.filter(user=user, block_num=block)) or None
+    kcal, duration = calc.done_workout_stats(user, day, block)
     obj, created = WorkoutLog.objects.update_or_create(
         user=user, date=day,
         defaults={"day_plan": label, "kcal_burned": kcal,
                   "duration_min": duration, "source": "app"},
     )
     return ok({"ok": True, "created": created, "kcal_burned": kcal})
+
+
+def uncomplete_workout(request):
+    """Отменить подтверждение тренировки за день → удалить строку workout_log.
+    Расход тренировки уходит из бюджета (лимит уменьшается). Галочки упражнений
+    (workout_done) НЕ трогаем — можно перевыполнить и подтвердить заново."""
+    user = request.tg_user
+    day = parse_date(request.payload.get("date")) or today()
+    deleted, _ = WorkoutLog.objects.filter(user=user, date=day).delete()
+    return ok({"ok": True, "deleted": bool(deleted)})
 
 
 def profile(request):
