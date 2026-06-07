@@ -181,7 +181,14 @@ def compute_dashboard(user, day):
     tf = profile.target_fat_g or 0
     tc = profile.target_carbs_g or 0
 
-    if exp["type"] == "workout":
+    # Если за сегодня тренировка уже ПОДТВЕРЖДЕНА — показываем её как тренировку дня
+    # (а не «отдых»: иначе expected_today видит last=сегодня → days_since=0 < interval).
+    if today_workouts:
+        w = today_workouts[0]
+        bn = parse_workout_number(w.day_plan)
+        workout_today = {"is_workout": True, "label": w.day_plan or (f"№{bn}" if bn else "Тренировка"),
+                         "block_num": bn, "done": True}
+    elif exp["type"] == "workout":
         workout_today = {"is_workout": True, "label": exp["label"], "block_num": exp["number"]}
     else:
         workout_today = {"is_workout": False, "label": None, "block_num": None,
