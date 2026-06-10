@@ -1,0 +1,260 @@
+{
+  "name": "Fitness_Bot_RepeatFood",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "repeat-food",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "id": "rf00-wh",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "repeat-food-hook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "tg-token",
+              "name": "bot_token",
+              "value": "={{ $env.TELEGRAM_BOT_TOKEN }}",
+              "type": "string"
+            },
+            {
+              "id": "body-raw",
+              "name": "body",
+              "value": "={{ $json.body }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "rf01-env",
+      "name": "Inject Env",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const crypto = require('crypto');\n\n// --- 1. Парсим тело ---\nlet body;\ntry {\n  const raw = $input.first().json.body;\n  body = typeof raw === 'string' ? JSON.parse(raw) : raw;\n} catch (e) {\n  throw new Error('Invalid JSON body');\n}\n\nconst initData = body.initData || '';\nif (!initData) throw new Error('Missing initData');\n\n// --- 2. HMAC-валидация initData по схеме Telegram WebApp ---\nconst botToken = $input.first().json.bot_token;\nif (!botToken) throw new Error('TELEGRAM_BOT_TOKEN env var not set');\n\n// Парсим initData вручную (URLSearchParams недоступен в JS Task Runner sandbox)\nconst pairs = initData.split('&').map(p => {\n  const i = p.indexOf('=');\n  return i === -1 ? [p, ''] : [decodeURIComponent(p.slice(0, i)), decodeURIComponent(p.slice(i + 1))];\n});\nconst paramsMap = new Map(pairs);\nconst hash = paramsMap.get('hash');\nparamsMap.delete('hash');\n\nconst dataCheckString = [...paramsMap.entries()]\n  .sort(([a], [b]) => a.localeCompare(b))\n  .map(([k, v]) => `${k}=${v}`)\n  .join('\\n');\n\nconst secretKey = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();\nconst computed = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');\n\nif (computed !== hash) {\n  throw new Error('Invalid initData signature');\n}\n\n// --- 3. Авторизация: дата initData не старше суток ---\nconst authDate = Number(paramsMap.get('auth_date')) || 0;\nconst nowSec = Math.floor(Date.now() / 1000);\nif (nowSec - authDate > 86400) {\n  throw new Error('initData too old (>24h)');\n}\n\n// --- 4. Извлекаем юзера ---\nlet user;\ntry { user = JSON.parse(paramsMap.get('user')); }\ncatch { throw new Error('Cannot parse user from initData'); }\nif (!user || !user.id) throw new Error('No user.id in initData');\n\nconst chat_id = String(user.id);\n\n// --- 5. Дата/время Москвы, meal_type по часу ---\nconst now = new Date();\n// смещение Москвы +3ч; Date в n8n уже в TZ контейнера (Europe/Moscow), но подстрахуемся:\nconst pad = (n) => String(n).padStart(2, '0');\nconst date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;\nconst time = `${pad(now.getHours())}:${pad(now.getMinutes())}`;\nconst h = now.getHours();\nlet meal_type;\nif      (h < 11) meal_type = 'завтрак';\nelse if (h < 16) meal_type = 'обед';\nelse if (h < 19) meal_type = 'перекус';\nelse if (h < 24) meal_type = 'ужин';\nelse             meal_type = 'перекус';\n\nreturn [{\n  json: {\n    chat_id,\n    user_name: user.first_name || '',\n    date,\n    time,\n    meal_type,\n    payload: body,\n  }\n}];"
+      },
+      "id": "rf02-val",
+      "name": "Validate & Parse",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "food_log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "date": "={{ $json.date }}",
+            "time": "={{ $json.time }}",
+            "description": "={{ $json.payload.description }}",
+            "kcal": "={{ $json.payload.kcal }}",
+            "protein": "={{ $json.payload.protein }}",
+            "fat": "={{ $json.payload.fat }}",
+            "carbs": "={{ $json.payload.carbs }}",
+            "meal_type": "={{ $json.meal_type }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "time",
+              "displayName": "time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "kcal",
+              "displayName": "kcal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "protein",
+              "displayName": "protein",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fat",
+              "displayName": "fat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "carbs",
+              "displayName": "carbs",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "meal_type",
+              "displayName": "meal_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "rf03-app",
+      "name": "Append food_log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        660,
+        300
+      ],
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "id": "rf04-resp",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"ok\": true, \"message\": \"добавлено в сегодня\"}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Inject Env",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inject Env": {
+      "main": [
+        [
+          {
+            "node": "Validate & Parse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & Parse": {
+      "main": [
+        [
+          {
+            "node": "Append food_log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append food_log": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

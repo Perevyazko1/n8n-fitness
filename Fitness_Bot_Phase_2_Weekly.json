@@ -1,0 +1,318 @@
+{
+  "name": "Fitness_Bot_Phase_2_Weekly",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0 21 * * 0"
+            }
+          ]
+        }
+      },
+      "id": "p2w-cron",
+      "name": "Cron Sun 21:00 MSK",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -784,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "profile"
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "p2w-read-profile",
+      "name": "Read Profile",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -560,
+        400
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "food_log"
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "p2w-read-food",
+      "name": "Read Food Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -336,
+        400
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "workout_log"
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "p2w-read-workout",
+      "name": "Read Workout Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -112,
+        400
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "body_params"
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "p2w-read-body",
+      "name": "Read Body Params",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        112,
+        400
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "walking_log"
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "p2w-read-walking",
+      "name": "Read Walking Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        400
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const profile = $('Read Profile').all().map(i => i.json).find(r => r.chat_id) || null;\nif (!profile) return [];\nconst chat_id = profile.chat_id;\nconst targetKcal = Number(profile.target_kcal) || 0;\nconst targetProtein = Number(profile.target_protein_g) || 0;\nconst interval = Number(profile.training_days_interval) || 1;\nconst goal = String(profile.goal || 'maintain').toLowerCase();\n\nconst pad = (n) => String(n).padStart(2, '0');\nconst now = new Date();\nconst toStr = (d) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;\nconst today = toStr(now);\nconst startDate = new Date(now.getTime() - 6*86400000);\nconst startStr = toStr(startDate);\nconst inRange = (d) => {\n  const s = String(d || '');\n  return s >= startStr && s <= today;\n};\n\n// Food\nconst foodRows = $('Read Food Log').all().map(i => i.json).filter(r => inRange(r.date));\nconst dayMap = {};\nconst JUNK = ['батончик','пицц','фастфуд','бургер','чипс','газировк','конфет','шоколад','мороженое','пончик','круассан','сухарик','шаурм','картош','кола','пепси'];\nlet junkCount = 0;\nfor (const r of foodRows) {\n  const d = String(r.date);\n  if (!dayMap[d]) dayMap[d] = { kcal: 0, protein: 0, items: 0 };\n  dayMap[d].kcal    += Number(r.kcal)    || 0;\n  dayMap[d].protein += Number(r.protein) || 0;\n  dayMap[d].items += 1;\n  const desc = String(r.description || '').toLowerCase();\n  if (JUNK.some(k => desc.includes(k))) junkCount += 1;\n}\nconst loggedDays = Object.keys(dayMap);\nconst avgKcal    = loggedDays.length ? Math.round(loggedDays.reduce((s,d) => s + dayMap[d].kcal,    0) / loggedDays.length) : 0;\nconst avgProtein = loggedDays.length ? Math.round(loggedDays.reduce((s,d) => s + dayMap[d].protein, 0) / loggedDays.length) : 0;\nconst proteinHitDays = loggedDays.filter(d => dayMap[d].protein >= (targetProtein - 10)).length;\nconst overBudgetDays = loggedDays.filter(d => dayMap[d].kcal > targetKcal + 200).length;\n\n// Workouts\nconst workoutRows = $('Read Workout Log').all().map(i => i.json).filter(r => inRange(r.date));\nconst expectedWorkouts = Math.floor(7 / interval);\nconst missedWorkouts = Math.max(0, expectedWorkouts - workoutRows.length);\n\n// Walking\nconst walkRows = $('Read Walking Log').all().map(i => i.json).filter(r => inRange(r.date));\nconst walkDays = new Set(walkRows.map(r => String(r.date))).size;\nconst walkMinTotal = walkRows.reduce((s, r) => s + (Number(r.duration_min) || 0), 0);\n\n// Body params (вес)\nconst bodyRows = $('Read Body Params').all().map(i => i.json)\n  .filter(r => inRange(r.date))\n  .sort((a, b) => String(a.date).localeCompare(String(b.date)));\nlet weightLine = 'Вес за неделю не записывал — на чём оцениваешь прогресс?';\nif (bodyRows.length >= 2) {\n  const first = Number(bodyRows[0].weight);\n  const last = Number(bodyRows[bodyRows.length-1].weight);\n  if (first && last) {\n    const diff = (last - first).toFixed(1);\n    const sign = diff >= 0 ? '+' : '';\n    weightLine = `Вес: ${first}кг → ${last}кг (${sign}${diff}кг за ${bodyRows.length} замеров).`;\n  }\n} else if (bodyRows.length === 1) {\n  weightLine = `Вес записал один раз — ${bodyRows[0].weight}кг. Замеряй чаще (1 раз в 3-4 дня, утром натощак).`;\n}\n\n// === Сборка отчёта в капральском стиле ===\nconst lines = [];\nlines.push('🗓 *Итоги недели.*');\nlines.push('');\nlines.push('━━━ Цифры ━━━');\nlines.push(`Дни с записью еды: ${loggedDays.length} из 7${loggedDays.length < 5 ? ' — мало, ты ленишься писать' : ''}.`);\nif (loggedDays.length > 0) {\n  lines.push(`Среднее: ${avgKcal} ккал/день (цель ${targetKcal}).`);\n  lines.push(`Средний белок: ${avgProtein}г/день (цель ${targetProtein}).`);\n  lines.push(`Дни белок добран: ${proteinHitDays}/${loggedDays.length}.`);\n  lines.push(`Дни с перебором ккал >200: ${overBudgetDays}.`);\n}\nlines.push(`Тренировки: ${workoutRows.length}/${expectedWorkouts}${missedWorkouts ? ` — пропустил ${missedWorkouts}` : ' ✅'}.`);\nlines.push(`Ходьба: ${walkDays} дн, ${walkMinTotal} мин суммарно.`);\nlines.push(`Мусорная еда (батончики/фастфуд/чипсы): ${junkCount} раз${junkCount >= 5 ? ' — это много' : ''}.`);\nlines.push(`${weightLine}`);\nlines.push('');\n\n// === Вердикт капрала ===\nlines.push('━━━ Разбор ━━━');\nconst verdict = [];\n\nif (loggedDays.length < 4) verdict.push('🚨 Меньше половины дней с записями — без данных я тебе не помогу. Пиши КАЖДЫЙ день, даже если еда дрянь.');\nif (missedWorkouts >= 2) verdict.push(`🏋️ Пропустил ${missedWorkouts} трен — это не отдых, это откат. На следующей неделе компенсация.`);\nif (proteinHitDays < loggedDays.length / 2 && loggedDays.length >= 3) verdict.push(`🥩 Белок добран только ${proteinHitDays}/${loggedDays.length} дн. На дефиците (lose) — белок ключевой. Без него теряешь мышцы, не жир.`);\nif (overBudgetDays >= 3) verdict.push(`🍕 ${overBudgetDays} дн перебор >200 ккал. Если цель похудение — на этой неделе минус как минимум 1500 ккал суммарно.`);\nif (junkCount >= 5) verdict.push(`⚠️ ${junkCount} «мусорных» приёма пищи за неделю. Если хочешь результата — не «исключать», а «реже». Договорись с собой: не больше 2 в неделю.`);\nif (walkMinTotal < 100 && missedWorkouts >= 2) verdict.push(`🚶 Ходьбы мало + трен пропустил — неделя малоподвижная. Замени один пропуск на 60 мин ходьбы как минимум.`);\nif (bodyRows.length === 0) verdict.push('⚖️ Вес не замерял ни разу. Без замеров — гадание. Завтра утром натощак, в трусах, и записал.');\n\n// Если всё хорошо — сухая похвала\nif (!verdict.length) {\n  lines.push('Неделя ровная. Цифры в норме, трены закрыты, белок добран. Не расслабляйся — следующая такая же.');\n} else {\n  for (const v of verdict) lines.push(`- ${v}`);\n}\n\n// Домашка\nlines.push('');\nlines.push('━━━ На следующую неделю ━━━');\nconst homework = [];\nif (proteinHitDays < loggedDays.length * 0.7) homework.push('Белок добивать каждый день. Минимум 4 источника: утро яйца/творог, обед мясо/рыба, ужин курица/рыба, перед сном творог или казеин.');\nif (junkCount >= 3) homework.push('Сокращай мусор. Замени 2 приёма пищи на нормальные альтернативы (см. форекаст-советы).');\nif (missedWorkouts >= 1) homework.push('Закрыть все плановые тренировки. Не пропускать.');\nif (bodyRows.length < 2) homework.push('Записывать вес 2-3 раза в неделю утром натощак.');\nif (!homework.length) homework.push('Держать заданный темп. Не падать.');\nfor (const h of homework) lines.push(`- ${h}`);\n\nconst text = lines.join('\\n');\nreturn [{ json: { chat_id, text } }];\n"
+      },
+      "id": "p2w-compute",
+      "name": "Compute Weekly Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        336,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "p2w-telegram",
+      "name": "Telegram Weekly",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        560,
+        400
+      ],
+      "webhookId": "p2w-telegram-weekly-hook",
+      "credentials": {
+        "telegramApi": {
+          "id": "i66iQ2uUac0QdYNa",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Cron Sun 21:00 MSK": {
+      "main": [
+        [
+          {
+            "node": "Read Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Profile": {
+      "main": [
+        [
+          {
+            "node": "Read Food Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Food Log": {
+      "main": [
+        [
+          {
+            "node": "Read Workout Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Workout Log": {
+      "main": [
+        [
+          {
+            "node": "Read Body Params",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Body Params": {
+      "main": [
+        [
+          {
+            "node": "Read Walking Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Walking Log": {
+      "main": [
+        [
+          {
+            "node": "Compute Weekly Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Weekly Report": {
+      "main": [
+        [
+          {
+            "node": "Telegram Weekly",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Moscow"
+  },
+  "versionId": "phase2-weekly-v1",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "fitness-bot-phase-2-weekly",
+  "tags": []
+}

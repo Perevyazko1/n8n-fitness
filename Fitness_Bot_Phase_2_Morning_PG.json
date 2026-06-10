@@ -1,0 +1,238 @@
+{
+  "name": "Fitness_Bot_Phase_2_Morning_PG",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0 8 * * *"
+            }
+          ]
+        }
+      },
+      "id": "552c09c3-8e3a-4703-9487-653943fbfbd0",
+      "name": "Cron 08:00 MSK",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT t.telegram_id AS chat_id, p.height_cm, p.weight_kg, p.age, p.sex, p.activity_level, p.goal, p.daily_baseline_kcal, p.bmr, p.training_days_interval, p.target_kcal, p.target_protein_g, p.target_fat_g, p.target_carbs_g FROM fitness_profile p JOIN fitness_tguser t ON t.id = p.user_id",
+        "options": {}
+      },
+      "id": "1d20bcaa-7a66-401b-8a2a-5221ddbc1593",
+      "name": "Read Profile",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        224,
+        0
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT to_char(date,'YYYY-MM-DD') AS date, day_plan, exercises_done, duration_min, kcal_burned, notes FROM fitness_workoutlog ORDER BY date",
+        "options": {}
+      },
+      "id": "03afd9f8-e932-4da2-b9ae-ab627e3fb542",
+      "name": "Read Workout Log",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        448,
+        0
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT block_num, \"group\", exercise, sets, reps, weight, note, met, default_min FROM fitness_workoutcatalog ORDER BY block_num, id",
+        "options": {}
+      },
+      "id": "e87e0756-219c-491e-8e88-ba4eeb804c01",
+      "name": "Read Workouts Catalog",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        672,
+        0
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const profileRows = $('Read Profile').all().map(i => i.json);\nconst profile = profileRows.find(r => r.chat_id) || null;\nif (!profile) return [];\n\nconst chat_id = profile.chat_id;\nconst interval = Number(profile.training_days_interval) || 1;\nconst weight = Number(profile.weight_kg) || 76;\nconst bmr = Number(profile.bmr) || 1600;\nconst baseline = Number(profile.daily_baseline_kcal) || 280;\nconst targetProtein = Number(profile.target_protein_g) || 0;\nconst goal = String(profile.goal || 'maintain').toLowerCase();\nconst goalMult = ({ lose: 0.8, maintain: 1.0, gain: 1.15 })[goal] || 1.0;\n\nconst pad = (n) => String(n).padStart(2, '0');\nconst now = new Date();\nconst today = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;\n\nconst workoutRows = $('Read Workout Log').all().map(i => i.json);\nconst sortedW = workoutRows.filter(r => r.date).sort((a, b) => String(a.date).localeCompare(String(b.date)));\nconst lastWorkout = sortedW[sortedW.length - 1] || null;\n\n// --- Workout blocks state ---\nconst blocksStateRows = $('Read Workout Blocks').all().map(i => i.json);\nconst blocksState = {};\nfor (const r of blocksStateRows) {\n  const n = Number(r.block_num);\n  if (!n) continue;\n  blocksState[n] = { label: r.label || `№${n}`, active: String(r.active).toUpperCase() === 'TRUE' };\n}\nif (!Object.keys(blocksState).length) {\n  for (const n of [1,2,3,4]) blocksState[n] = { label: `№${n}`, active: true };\n}\nconst activeNums = Object.keys(blocksState).map(Number)\n  .filter(n => blocksState[n].active).sort((a,b)=>a-b);\nfunction nextActiveAfter(lastN, active) {\n  if (!active.length) return null;\n  const after = active.find(n => n > lastN);\n  return after != null ? after : active[0];\n}\n\nfunction parseN(plan) {\n  if (!plan) return null;\n  const m = String(plan).match(/№?\\s*([1-4])/);\n  if (m) return Number(m[1]);\n  const s = String(plan).toLowerCase();\n  if (s.includes('грудь') && s.includes('бицепс')) return 1;\n  if (s.includes('плечи') && s.includes('грудь'))  return 2;\n  if (s.includes('спина') && s.includes('трицепс'))return 3;\n  if (s.includes('ноги')) return 4;\n  return null;\n}\n\nlet expectedNum;\nlet isWorkoutDay;\nif (!activeNums.length) {\n  expectedNum = null;\n  isWorkoutDay = false;\n} else if (!lastWorkout) {\n  expectedNum = activeNums[0];\n  isWorkoutDay = true;\n} else {\n  const lastDate = new Date(String(lastWorkout.date));\n  const todayD = new Date(today);\n  const daysSince = Math.floor((todayD - lastDate) / 86400000);\n  expectedNum = nextActiveAfter(parseN(lastWorkout.day_plan) || 0, activeNums);\n  isWorkoutDay = daysSince >= interval;\n}\n\nconst labels = Object.fromEntries(Object.entries(blocksState).map(([k,v]) => [k, v.label]));\n\n// Считаем ожидаемый расход тренировки по MET × вес × default_min\nconst wkRows = $('Read Workouts Catalog').all().map(i => i.json);\nlet workoutKcal = 0;\nconst exerciseLines = [];\nfor (const r of wkRows) {\n  if (Number(r.block_num) !== expectedNum) continue;\n  if (!r.exercise) continue;\n  const m = Number(r.met) || 0;\n  const dm = Number(r.default_min) || 0;\n  if (m && dm) workoutKcal += m * weight * dm / 60;\n  const w = r.weight && r.weight !== '—' ? `, ${r.weight}` : '';\n  exerciseLines.push(`- ${r.group}: ${r.exercise}, ${r.sets}×${r.reps}${w}`);\n}\nworkoutKcal = Math.round(workoutKcal);\n\nlet text;\nif (isWorkoutDay) {\n  const expectedExpense = bmr + baseline + workoutKcal;\n  const expectedTarget = Math.round(expectedExpense * goalMult);\n  text = `🌅 Доброе утро! Сегодня ${labels[expectedNum]}.\\n\\n` +\n    `🎯 Ожидаемый расход:\\n` +\n    `- BMR: ${bmr} ккал\\n` +\n    `- Повседневная: ${baseline} ккал\\n` +\n    `- Тренировка: ~${workoutKcal} ккал\\n` +\n    `- Итого: ~${expectedExpense} ккал → цель ~${expectedTarget} ккал.\\n\\n` +\n    `💡 Каждые 30 мин ходьбы (3.5 км/ч) добавят ~107 ккал к бюджету.\\n\\n` +\n    (exerciseLines.length ? `💪 План:\\n${exerciseLines.join('\\n')}\\n\\n` : '') +\n    `🎯 Белок: ${targetProtein}г.\\n\\nУдачи! Жду отчёт вечером.`;\n} else {\n  const expectedExpense = bmr + baseline;\n  const expectedTarget = Math.round(expectedExpense * goalMult);\n  text = `🌅 Доброе утро! Сегодня день отдыха.\\n\\n` +\n    `🎯 Ожидаемый расход без активности:\\n` +\n    `- BMR: ${bmr} ккал\\n` +\n    `- Повседневная: ${baseline} ккал\\n` +\n    `- Итого: ~${expectedExpense} ккал → цель ~${expectedTarget} ккал.\\n\\n` +\n    `💡 Чтобы добавить бюджет — походи на дорожке. 30 мин = +107 ккал, 90 мин = +320 ккал.\\n\\n` +\n    `🎯 Белок: ${targetProtein}г.\\n\\n💤 Следующая тренировка — ${labels[expectedNum]}.`;\n}\n\nreturn [{ json: { chat_id, text } }];"
+      },
+      "id": "c9f9088f-0d6c-49f4-a764-4258a6aab917",
+      "name": "Compute Morning Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "id": "3890d5bc-21f1-46ee-af4d-631bf50cd98c",
+      "name": "Telegram Morning",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        0
+      ],
+      "webhookId": "p2m-telegram-morning-hook",
+      "credentials": {
+        "telegramApi": {
+          "id": "i66iQ2uUac0QdYNa",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT block_num, label, CASE WHEN active THEN 'TRUE' ELSE 'FALSE' END AS active FROM fitness_workoutblock ORDER BY block_num",
+        "options": {}
+      },
+      "id": "397de2bc-4816-43a2-a25e-a358fa1d1a1c",
+      "name": "Read Workout Blocks",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        752,
+        144
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Cron 08:00 MSK": {
+      "main": [
+        [
+          {
+            "node": "Read Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Profile": {
+      "main": [
+        [
+          {
+            "node": "Read Workout Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Workout Log": {
+      "main": [
+        [
+          {
+            "node": "Read Workouts Catalog",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Workouts Catalog": {
+      "main": [
+        [
+          {
+            "node": "Read Workout Blocks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Morning Message": {
+      "main": [
+        [
+          {
+            "node": "Telegram Morning",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Workout Blocks": {
+      "main": [
+        [
+          {
+            "node": "Compute Morning Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": {
+    "node:Cron 08:00 MSK": {
+      "recurrenceRules": []
+    }
+  },
+  "activeVersionId": "a15ad3ce-3da8-4d7a-a8e7-d9760acec3ab",
+  "versionCounter": 23,
+  "versionMetadata": {
+    "name": "Version a15ad3ce",
+    "description": ""
+  }
+}

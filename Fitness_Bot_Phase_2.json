@@ -1,0 +1,1508 @@
+{
+  "name": "Fitness_Bot_Phase_2",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "p2-telegram-trigger",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1600,
+        880
+      ],
+      "webhookId": "fitness-bot-phase2-trigger",
+      "credentials": {
+        "telegramApi": {
+          "id": "i66iQ2uUac0QdYNa",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "voice-cond",
+              "leftValue": "={{ $json.message.voice }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "p2-voice-if",
+      "name": "Voice?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -1376,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "id": "p2-download-voice",
+      "name": "Download Voice",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1152,
+        784
+      ],
+      "webhookId": "p2-download-voice-hook",
+      "credentials": {
+        "telegramApi": {
+          "id": "i66iQ2uUac0QdYNa",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {
+          "language": "ru"
+        }
+      },
+      "id": "p2-transcribe",
+      "name": "Transcribe a recording",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        -928,
+        544
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "SkPovYGQlL1P1Ft5",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ut1",
+              "name": "user_text",
+              "type": "string",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "id": "ci1",
+              "name": "chat_id",
+              "type": "number",
+              "value": "={{ $('Telegram Trigger').item.json.message.chat.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "p2-set-text-voice",
+      "name": "Set Text (voice)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -720,
+        784
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ut2",
+              "name": "user_text",
+              "type": "string",
+              "value": "={{ $json.message.text }}"
+            },
+            {
+              "id": "ci2",
+              "name": "chat_id",
+              "type": "number",
+              "value": "={{ $json.message.chat.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "p2-set-text-text",
+      "name": "Set Text (text)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1152,
+        976
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "p2-merge-text",
+      "name": "Merge Text",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        -496,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendChatAction",
+        "chatId": "={{ $json.chat_id }}",
+        "action": "typing"
+      },
+      "id": "p2-typing",
+      "name": "Show Typing",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -384,
+        880
+      ],
+      "webhookId": "p2-typing-hook",
+      "continueOnFail": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "i66iQ2uUac0QdYNa",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "profile"
+        },
+        "options": {}
+      },
+      "id": "p2-read-profile",
+      "name": "Read Profile",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -272,
+        880
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dJ87lhj6cQPs5CHn",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "food_log"
+        },
+        "options": {}
+      },
+      "id": "p2-read-food",
+      "name": "Read Food Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -48,
+        880
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dJ87lhj6cQPs5CHn",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "workout_log"
+        },
+        "options": {}
+      },
+      "id": "p2-read-workout",
+      "name": "Read Workout Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        176,
+        880
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dJ87lhj6cQPs5CHn",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "workouts_flat"
+        },
+        "options": {}
+      },
+      "id": "p2-read-workouts",
+      "name": "Read Workouts Catalog",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        400,
+        880
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dJ87lhj6cQPs5CHn",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "products"
+        },
+        "options": {}
+      },
+      "id": "p2-read-products",
+      "name": "Read Products",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        512,
+        1080
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dJ87lhj6cQPs5CHn",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "walking_log"
+        },
+        "options": {}
+      },
+      "id": "p2-read-walking",
+      "name": "Read Walking Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        624,
+        1080
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dJ87lhj6cQPs5CHn",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build <context> block for the LLM and pull short-term memory.\nconst merge = $('Merge Text').first().json;\nconst chat_id = String(merge.chat_id);\nconst user_text = merge.user_text;\n\nconst pad = (n) => String(n).padStart(2, '0');\nconst now = new Date();\nconst today = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;\n\n// --- Profile -------------------------------------------------------------\nconst profileRows = $('Read Profile').all().map(i => i.json);\nconst profileRow = profileRows.find(r => String(r.chat_id) === chat_id) || null;\nconst interval = Number(profileRow?.training_days_interval) || 1;\n\n// --- Today's food sum ----------------------------------------------------\nconst foodRows = $('Read Food Log').all().map(i => i.json);\nconst todayFood = foodRows.filter(r => String(r.date) === today);\nconst todaySum = todayFood.reduce((acc, r) => ({\n  kcal:    acc.kcal    + (Number(r.kcal)    || 0),\n  protein: acc.protein + (Number(r.protein) || 0),\n  fat:     acc.fat     + (Number(r.fat)     || 0),\n  carbs:   acc.carbs   + (Number(r.carbs)   || 0),\n}), { kcal: 0, protein: 0, fat: 0, carbs: 0 });\n\n// --- Last workout --------------------------------------------------------\nconst workoutRows = $('Read Workout Log').all().map(i => i.json);\nconst sortedW = workoutRows\n  .filter(r => r.date)\n  .sort((a, b) => String(a.date).localeCompare(String(b.date)));\nconst lastWorkout = sortedW[sortedW.length - 1] || null;\n\nfunction parseWorkoutNumber(plan) {\n  if (!plan) return null;\n  const m = String(plan).match(/№?\\s*([1-4])/);\n  if (m) return Number(m[1]);\n  const s = String(plan).toLowerCase();\n  if (s.includes('грудь') && s.includes('бицепс')) return 1;\n  if (s.includes('плечи') && s.includes('грудь'))  return 2;\n  if (s.includes('спина') && s.includes('трицепс'))return 3;\n  if (s.includes('ноги')) return 4;\n  return null;\n}\n\nlet expected_today;\nif (!lastWorkout) {\n  expected_today = { type: 'workout', number: 1, label: '№1' };\n} else {\n  const lastDate = new Date(String(lastWorkout.date));\n  const todayD   = new Date(today);\n  const daysSince = Math.floor((todayD - lastDate) / (1000*60*60*24));\n  if (daysSince < interval) {\n    expected_today = { type: 'rest', days_until_next: interval - daysSince };\n  } else {\n    const lastN = parseWorkoutNumber(lastWorkout.day_plan) || 0;\n    const nextN = (lastN % 4) + 1;\n    expected_today = { type: 'workout', number: nextN, label: `№${nextN}` };\n  }\n}\n\n// --- Workouts catalog (читается из листа workouts_flat) -----------------\nconst wkRows = $('Read Workouts Catalog').all().map(i => i.json);\nconst blocks = { 1: [], 2: [], 3: [], 4: [] };\nfor (const r of wkRows) {\n  const n = Number(r.block_num);\n  if (!n || !blocks[n]) continue;\n  if (!r.exercise) continue;\n  blocks[n].push({\n    group:    r.group    || '',\n    exercise: r.exercise || '',\n    sets:     r.sets     != null ? String(r.sets)   : '',\n    reps:     r.reps     != null ? String(r.reps)   : '',\n    weight:   r.weight   != null ? String(r.weight) : '',\n    note:     r.note     || '',\n  });\n}\nconst BLOCK_LABELS = {\n  1: '№1 Грудь + Бицепс',\n  2: '№2 Плечи + Грудь',\n  3: '№3 Спина + Трицепс',\n  4: '№4 Ноги',\n};\n\n// --- Short-term memory (per chat_id, persists in workflow staticData) ----\nconst sd = $getWorkflowStaticData('global');\nsd.chats = sd.chats || {};\nsd.chats[chat_id] = sd.chats[chat_id] || { recent: [], last_intent: null, last_intent_date: null };\nconst mem = sd.chats[chat_id];\n// Если последний intent был не сегодня — сбрасываем, не тащим вчерашнее в контекст.\nif (mem.last_intent_date && mem.last_intent_date !== today) {\n  mem.last_intent = null;\n  mem.last_intent_date = null;\n}\nconst recentDialog = (mem.recent || []).slice(-6);\n\n// --- Compose <context> ---------------------------------------------------\nconst lines = [];\nlines.push('<context>');\nif (profileRow) {\n  lines.push(`Профиль: рост=${profileRow.height_cm}см, вес=${profileRow.weight_kg}кг, возраст=${profileRow.age}, пол=${profileRow.sex}, цель=${profileRow.goal || 'не задана'}.`);\n  const bmr = Number(profileRow.bmr) || 1600;\n  const baseline = Number(profileRow.daily_baseline_kcal) || 280;\n  const goal = String(profileRow.goal || 'maintain').toLowerCase();\n  const goalMult = ({ lose: 0.8, maintain: 1.0, gain: 1.15 })[goal] || 1.0;\n\n  // --- Реальный расход за сегодня (динамически) ----------------------\n  // Ходьба за сегодня:\n  const walkRows = $('Read Walking Log').all().map(i => i.json).filter(r => String(r.date) === today);\n  const walkKcalToday = walkRows.reduce((s, r) => s + (Number(r.kcal_burned) || 0), 0);\n  const walkMinToday  = walkRows.reduce((s, r) => s + (Number(r.duration_min) || 0), 0);\n\n  // Тренировки за сегодня:\n  const todayWorkouts = workoutRows.filter(r => String(r.date) === today);\n  const workoutKcalActual = todayWorkouts.reduce((s, r) => s + (Number(r.kcal_burned) || 0), 0);\n\n  // Если сегодня день тренировки и факт ещё не залогирован — берём ПЛАНОВУЮ оценку\n  // расхода тренировки (MET × вес × default_min). После log_workout заменится на факт.\n  let workoutKcalPlanned = 0;\n  if (expected_today.type === 'workout') {\n    const blockNum = expected_today.number;\n    const weight = Number(profileRow.weight_kg) || 76;\n    const planExercises = blocks[blockNum] || [];\n    // Пересчитаем по met/default_min из workouts_flat (вернёмся к raw rows из Read Workouts Catalog).\n    const wkRows2 = $('Read Workouts Catalog').all().map(i => i.json);\n    for (const r of wkRows2) {\n      if (Number(r.block_num) !== blockNum) continue;\n      if (!r.exercise) continue;\n      const met = Number(r.met) || 0;\n      const dm  = Number(r.default_min) || 0;\n      if (met && dm) workoutKcalPlanned += met * weight * dm / 60;\n    }\n  }\n  const workoutKcalToday = todayWorkouts.length > 0 ? workoutKcalActual : Math.round(workoutKcalPlanned);\n  const workoutSourceLabel = todayWorkouts.length > 0 ? 'факт' : (workoutKcalPlanned > 0 ? 'план' : 'нет');\n\n  const tdeeToday = bmr + baseline + walkKcalToday + workoutKcalToday;\n  const targetKcalToday = Math.round(tdeeToday * goalMult);\n\n  // Минимум — не уходить ниже BMR × 1.1; максимум — не выше базового × 1.4\n  const targetFloor = Math.round(bmr * 1.1);\n  const targetCap   = Math.round((bmr + baseline) * goalMult * 1.4);\n  const targetKcalTodayClamped = Math.max(targetFloor, Math.min(targetCap, targetKcalToday));\n\n  lines.push(`📊 Расчёт расхода на сегодня:`);\n  lines.push(`- BMR: ${bmr} ккал`);\n  lines.push(`- Повседневная активность (фон): ${baseline} ккал`);\n  if (walkRows.length) {\n    lines.push(`- Ходьба сегодня всего: ${walkMinToday} мин, ${walkKcalToday} ккал. Сессии:`);\n    for (const r of walkRows) {\n      const act = r.activity || 'walking';\n      const sp  = r.speed_kmh ? `${r.speed_kmh} км/ч` : '?';\n      const dist = r.distance_km ? `${r.distance_km}км ` : '';\n      lines.push(`  · ${r.time || ''} ${act}: ${r.duration_min}мин ${dist}@ ${sp} → ${r.kcal_burned} ккал`);\n    }\n  } else {\n    lines.push(`- Ходьба сегодня: ещё не залогирована`);\n  }\n  if (todayWorkouts.length) {\n    lines.push(`- Тренировка сегодня (факт): ${workoutKcalToday} ккал`);\n  } else if (workoutKcalPlanned > 0) {\n    lines.push(`- Тренировка сегодня (план, ${expected_today.label}): ~${workoutKcalToday} ккал — учтено в бюджете, заменится на факт после log_workout`);\n  } else {\n    lines.push(`- Тренировка сегодня: ещё не было/не залогирована`);\n  }\n  lines.push(`- Итого расход: ${tdeeToday} ккал`);\n  if (targetKcalTodayClamped !== targetKcalToday) {\n    if (targetKcalTodayClamped < targetKcalToday) {\n      lines.push(`Сырой расчёт цели: ${targetKcalToday} ккал. ⚠️ Сработал ПОТОЛОК (cap = базовая цель × 1.4 = ${targetCap} ккал). Это страховка — если за день много активности, бюджет всё равно не растёт выше ${targetCap}, чтобы не съесть лишнего «под расход».`);\n      lines.push(`Цель на сегодня (с учётом cap): ${targetKcalTodayClamped} ккал.`);\n    } else {\n      lines.push(`Сырой расчёт цели: ${targetKcalToday} ккал. ⚠️ Сработал ПОЛ (floor = BMR × 1.1 = ${targetFloor} ккал). Это защита — нельзя уходить ниже, иначе слишком жёсткий дефицит.`);\n      lines.push(`Цель на сегодня (с учётом floor): ${targetKcalTodayClamped} ккал.`);\n    }\n  } else {\n    lines.push(`Цель (${goal} × ${goalMult}): ${targetKcalTodayClamped} ккал.`);\n  }\n  lines.push(`Белок: ${profileRow.target_protein_g}г, жиры: ${profileRow.target_fat_g}г, углеводы: ${profileRow.target_carbs_g}г.`);\n  lines.push(`Интервал тренировок: ${interval} дн. Тип дня по циклу: ${expected_today.type === 'workout' ? 'тренировка №' + expected_today.number : 'отдых'}.`);\n  profileRow.__target_kcal_today = targetKcalTodayClamped;\n} else {\n  lines.push('Профиль НЕ заполнен. Если пользователь даёт антропометрию (рост/вес/возраст/пол/активность/цель) — используй action=set_profile. Если он сразу называет ккал-цель — action=set_goals.');\n}\nlines.push(`Сегодня (${today}) съедено: ${todaySum.kcal} ккал, Б=${todaySum.protein}г, Ж=${todaySum.fat}г, У=${todaySum.carbs}г.`);\nif (todayFood.length) {\n  lines.push('Записи food_log за сегодня (используй для daily_summary разбивкой):');\n  for (const r of todayFood) {\n    const t = r.time ? `${r.time} ` : '';\n    const desc = r.description || '(без описания)';\n    const kcal = r.kcal != null ? r.kcal : '?';\n    const p = r.protein != null ? r.protein : '?';\n    const f = r.fat != null ? r.fat : '?';\n    const c = r.carbs != null ? r.carbs : '?';\n    lines.push(`- ${t}${desc} — ${kcal} ккал (Б${p}/Ж${f}/У${c})`);\n  }\n}\nif (profileRow?.target_kcal) {\n  const targetToday = profileRow.__target_kcal_today || Number(profileRow.target_kcal);\n  const left = targetToday - todaySum.kcal;\n  lines.push(`Остаток до цели на сегодня: ${left} ккал (${todaySum.kcal} съедено из ${targetToday}).`);\n}\nif (profileRow?.target_protein_g) {\n  const targetP = Number(profileRow.target_protein_g);\n  const leftP = targetP - todaySum.protein;\n  lines.push(`Белок: ${todaySum.protein}г съедено из ${targetP}г. Осталось добрать: ${leftP}г.`);\n}\nif (profileRow?.target_fat_g) {\n  const targetF = Number(profileRow.target_fat_g);\n  lines.push(`Жиры: ${todaySum.fat}г из ${targetF}г.`);\n}\nif (profileRow?.target_carbs_g) {\n  const targetC = Number(profileRow.target_carbs_g);\n  lines.push(`Углеводы: ${todaySum.carbs}г из ${targetC}г.`);\n}\nif (lastWorkout) {\n  lines.push(`Последняя тренировка: ${lastWorkout.date} — ${lastWorkout.day_plan}.`);\n} else {\n  lines.push('Тренировок ещё не было.');\n}\nif (expected_today.type === 'rest') {\n  lines.push(`Сегодня по циклу — ОТДЫХ. Следующая тренировка через ${expected_today.days_until_next} дн.`);\n} else {\n  lines.push(`Сегодня по циклу — Трен ${expected_today.label}.`);\n  const ex = blocks[expected_today.number] || [];\n  if (ex.length) {\n    lines.push(`Упражнения для ${expected_today.label}:`);\n    for (const e of ex) {\n      const w = e.weight && e.weight !== '—' ? `, ${e.weight}` : '';\n      const note = e.note ? ` (${e.note})` : '';\n      lines.push(`- ${e.group}: ${e.exercise}, ${e.sets}×${e.reps}${w}${note}`);\n    }\n  }\n}\n\n// Полный план всех 4 блоков — для вопросов \"в какой день добавить упражнение\",\n// \"что в №3\", \"замени Y на Z\" и т.п.\nconst hasAnyBlock = [1,2,3,4].some(n => blocks[n].length > 0);\nif (hasAnyBlock) {\n  lines.push('');\n  lines.push('Полный план тренировок (все 4 блока):');\n  for (const n of [1, 2, 3, 4]) {\n    if (!blocks[n].length) continue;\n    lines.push(`-- ${BLOCK_LABELS[n]} --`);\n    for (const e of blocks[n]) {\n      const w = e.weight && e.weight !== '—' ? `, ${e.weight}` : '';\n      const note = e.note ? ` (${e.note})` : '';\n      lines.push(`  ${e.group}: ${e.exercise}, ${e.sets}×${e.reps}${w}${note}`);\n    }\n  }\n}\n// --- Products catalog -------------------------------------------\nconst productsRows = $('Read Products').all().map(i => i.json).filter(r => r && r.name);\nif (productsRows.length) {\n  lines.push('');\n  lines.push('Справочник продуктов (используй ТОЧНЫЕ числа отсюда, не угадывай):');\n  for (const p of productsRows) {\n    const aliases = p.aliases ? ` [${p.aliases}]` : '';\n    const ds = p.default_serving_g ? `, 1 порция = ${p.default_serving_g}г` : '';\n    const notes = p.notes ? ` — ${p.notes}` : '';\n    lines.push(`- ${p.name}${aliases}: ${p.kcal_per_100g} ккал / Б${p.protein_per_100g} / Ж${p.fat_per_100g} / У${p.carbs_per_100g} на 100г${ds}${notes}`);\n  }\n}\nif (mem.last_intent) {\n  lines.push(`Контекст диалога: пользователь сегодня уже упомянул план «${mem.last_intent}».`);\n}\nif (recentDialog.length) {\n  lines.push('Недавние реплики:');\n  for (const t of recentDialog) lines.push(`  ${t.role}: ${t.text}`);\n}\n\n// ━━━ Анти-loop для уточнений ━━━\n// Если предыдущий ответ бота был ask_clarify — текущее сообщение это ОТВЕТ.\n// Подаём это очень громко в самом конце, чтобы модель точно увидела.\nif (mem.pending_clarify) {\n  const pc = mem.pending_clarify;\n  lines.push('');\n  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');\n  lines.push('⚠️ КРИТИЧНО: текущее сообщение пользователя — это ОТВЕТ на твой уточняющий вопрос.');\n  lines.push(`Прошлое сообщение USER: \"${pc.original_user_msg}\"`);\n  lines.push(`Твой вопрос (ask_clarify): \"${pc.bot_question}\"`);\n  if (pc.pending_items && pc.pending_items.length) {\n    lines.push(`Ждали уточнения по: ${pc.pending_items.join(', ')}`);\n  }\n  lines.push(`Текущее USER (это ОТВЕТ на твой вопрос): \"${user_text}\"`);\n  lines.push('');\n  lines.push('ИНСТРУКЦИЯ:');\n  lines.push('1. Склей описание из «Прошлое сообщение USER» с цифрами/уточнениями из «Текущее USER».');\n  lines.push('2. Верни action=log_food (или log_workout/log_walking — что соответствует контексту), НЕ повторяй ask_clarify.');\n  lines.push('3. Если ответ юзера типа «X грамм всего», «вместе X грамм», «на всё X», «итого X» — это ОБЩАЯ масса для всех упомянутых ранее блюд. Раздели поровну или по логичной пропорции (например грибы:баклажан = 60:40).');\n  lines.push('4. Если ответ односложный или очень короткий («50 грамм», «20 минут») — это и есть числа для долога. Не переспрашивай.');\n  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');\n}\nlines.push('</context>');\nconst context = lines.join('\\n');\n\nreturn [{ json: { chat_id: merge.chat_id, user_text, context, expected_today } }];"
+      },
+      "id": "p2-build-context",
+      "name": "Build Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=Ты — личный фитнес-тренер пользователя 24/7. Помогаешь по питанию, тренировкам, прогрессу. Тон: конкретный, действенный, с цифрами. Без воды.\n\n=== ФОРМАТ ОТВЕТА ===\nСтрого валидный JSON, никаких ``` или комментариев. Все ключи и значения action — snake_case. Числа — итоговые (НЕ \"690+570\"). Пояснения — только в reply.\n\n{ \"action\": \"...\", \"data\": {...}, \"reply\": \"...\" }\n\nВсе поля snake_case: meal_type, day_plan, exercises_done, duration_min, kcal_burned, body_fat_pct, height_cm, weight_kg, activity_level, training_days_interval, target_kcal, pending_items, kcal_per_100g.\n\n=== ACTIONS ===\n\n**log_food** — записать съеденное. Используй когда указаны граммы/штуки/мл для каждого ингредиента. Для СТАНДАРТНЫХ продуктов (лаваш, хумус, творог, сыр, грудка, грибы, овсянка, рис, гречка, банан, и т.п.) ОЦЕНИВАЙ КБЖУ САМ по типичным значениям из общеизвестной нутрициологии. \"Не угадывай\" относится к ГРАММОВКЕ (если её нет — ask_clarify), а не к составу типовых продуктов. data: description, kcal, protein, fat, carbs, meal_type (\"завтрак\"|\"обед\"|\"ужин\"|\"перекус\").\nИСТОЧНИК ЦИФР: 1) <products> по name/aliases — точные числа на 100г, масштабируй на граммы. 2) Если default_serving_g есть и юзер сказал «один/штука» — используй порцию. 3) Если штучный продукт без default_serving_g — ask_clarify. 4) Стандартизированные единицы (1 яйцо=50г/70ккал, 1 чашка кофе с молоком, 1 мерная ложка протеина=30г) — без переспроса.\nReply log_food:\nВот разбивка:\n- <блюдо> (<граммовка>) — ~X ккал, Pг белка\n...\nИтого: N ккал.\n<1 строка совета: остаток, тренировка, белок>.\n\n**ask_clarify** — ИСКЛЮЧИТЕЛЬНО когда отсутствует ГРАММОВКА/МЛ/ШТУКИ для какого-то блюда. Если граммовка есть для всех блюд — НИКОГДА не используй ask_clarify, даже если продукты тебе кажутся незнакомыми. Оценивай по типовым значениям.\nЗАПРЕЩЕНО спрашивать ккал/100г для общеизвестных продуктов (соки, молоко, кефир, творог, сыр, мясо, рыба, овощи, фрукты, крупы, хлеб, чай, кофе) — ты обязан оценить их сам.\ndata.pending_items — список блюд БЕЗ количества. В reply задавай вопросы только про граммы/штуки/мл, не про калорийность.\n\n**log_workout** — отчёт о тренировке. data: day_plan, exercises_done, duration_min, kcal_burned, notes. kcal_burned считай через MET × вес × минуты / 60 для каждого упражнения из «Полный план тренировок» в <context>. Если юзер сказал \"эллипс 25 мин intense\" — используй его минуты. Иначе бери default_min.\n\n**log_walking** — ходьба/бег вне тренировки. ОБЯЗАТЕЛЬНО нужны минуты И скорость (или дистанция → скорость считается). Если юзер указал только время («прошёл 60 мин на дорожке») без скорости/дистанции — верни ask_clarify с вопросом «с какой скоростью? (типичная дорожка 3.5-5 км/ч, прогулка 4-6 км/ч)». В нескольких сессиях за день — каждая логируется отдельным log_walking, бот их сам суммирует в дневной расход.\nMET по скорости: <4км/ч=2.8, 4-5.5=3.5, 5.5-6.5=4.3, 6.5-8.5=6, 8.5+=8. Походы по пересечёнке/лесу/горам=6. Формула: kcal = MET × weight × min / 60. data: activity, duration_min, distance_km, speed_kmh, kcal_burned, notes. activity ставь точно: \"treadmill_walking\" для дорожки, \"outdoor_walking\" для прогулки, \"hiking\" для походов, \"running\" для бега.\n\n**log_body** — взвешивание. data: weight, body_fat_pct, notes.\n\n**set_profile** — антропометрия. data: height_cm, weight_kg, age, sex (\"m\"|\"f\"), activity_level (sedentary|light|moderate|active|very), goal (lose|maintain|gain), training_days_interval.\n\n**set_goals** — ручной override. data: target_kcal или training_days_interval.\n\n**plan_workout** — \"сегодня Трен1\". data: day_plan. В Sheets не пишем.\n\n**daily_summary** — сводка дня. Триггеры: \"сколько ещё ккал\", \"что я ел\", \"сколько осталось\", \"сколько белка\", \"как у меня день\". Бери блюда из блока food_log в <context>.\nReply СТРОГО:\n📋 *За сегодня:*\n<значок> <блюдо> — X ккал, Pг белка — <оценка 3-6 слов>\n...\n━━━━━━━━━━\n🔥 Калории: <сумма> / <target_kcal_today>. Остаток: <разница> ккал.\n💪 Белок: <сумма> / <target_protein_g> г. Добрать: <разница> г.\n🥑 Жиры: <сумма> / <target_fat_g>. 🍞 Углеводы: <сумма> / <target_carbs_g>.\n━━━━━━━━━━\n🥩 *Добрать белок (если >10г):*\n- 2-3 варианта с граммовкой и белком\n━━━━━━━━━━\n💡 *Итог:* 1-2 строки оценки дня (похвала или мягкая ругань).\n\nЗначки: ✅ нежирное мясо/рыба/творог/овощи/греча/овсянка; 👍 умеренные углеводы/фрукты/орехи в меру; ⚠️ много простых углеводов/жарка/паста/лаваш; ❌ фастфуд/сладкое/алкоголь/белый хлеб.\n\n**show_workout** — список упражнений сегодня. action=chat если просто перечисляешь.\n\n**forecast_food** — пользователь СОБИРАЕТСЯ съесть/выпить (триггеры: «хочу», «планирую», «что если», «буду пить», «стоит ли», «влезет ли», будущее время). В food_log НЕ пишем. data как у log_food.\nReply СТРОГО:\n🔍 Если выпьешь/съешь:\n- блюдо (граммовка) — X ккал, Pг белка\nИтого: N ккал.\n\nТекущий остаток до цели: R ккал.\nЕсли съешь — остаток будет: (R-N) ккал. <вердикт>\n\nВердикт по знаку (R-N): <0 → ❌ НЕ ВЛЕЗАЕТ; 0-200 → ⚠️ ВПРИТЫК; ≥200 → ✅ ВЛЕЗАЕТ В БЮДЖЕТ. ПОЛОЖИТЕЛЬНОЕ = ВЛЕЗАЕТ. Не путай знак!\n\n💡 Варианты с конкретными цифрами (меньше порция / замена / +активность).\n\nЕсли после forecast_food юзер пишет «выпил/съел/закончил» — это log_food с теми же цифрами что в forecast.\n\n**delete_food** — удалить запись еды. data: criteria (\"last\"|\"last_today\"|\"by_description\"), query, target_date.\nВАЖНО: action может быть ТОЛЬКО ОДИН за сообщение. Если юзер указал что ты ошибся в цифрах прошлой записи — НЕ обещай «удалил и пересчитал», ты можешь сделать только что-то одно. Поведение:\n- Вариант A (предпочтительный): сразу верни action=log_food с ПРАВИЛЬНЫМИ цифрами (как новая корректная запись). В reply: «новая корректная запись добавлена, старую неточную можешь убрать командой 'удали последнюю'». Юзер сам решит когда удалить.\n- Вариант B: action=delete_food (если юзер прямо сказал «удали»). В reply: «удалил <что>. Теперь повтори запись с правильными цифрами — я залогирую заново». НЕ говори «пересчитаю», ты не можешь.\n\n**add_product** — добавить в справочник products. Триггеры: «добавь в продукты», «запомни этот продукт», «назовём его X», «новый продукт».\n\nТри сценария:\n\n(а) ТОЧНЫЕ ЦИФРЫ С УПАКОВКИ: «творог Дмитровский — 142 ккал/100г, белок 16, жир 9, углеводы 2». Используй как есть.\n\n(б) ОДНА ПОРЦИЯ С ЦИФРАМИ: «пиво Гиннес 150 ккал на банку 440мл». Пересчитай на 100: kcal_per_100g = 150 × 100 / 440 = 34. default_serving_g = 440.\n\n(в) КОМПОЗИТНЫЙ РЕЦЕПТ из стандартных ингредиентов (с граммами): «тортилья с грибами: 100г жареные шампиньоны с баклажаном + 25г лаваш + 25г хумус + 50г курица варено-копчёная + 50г сыр адыгейский лёгкий». Алгоритм:\n  1) По каждому ингредиенту используй типичные КБЖУ на 100г (лаваш ~270/8/1/56, хумус ~170/7/12/9, шампиньоны+баклажан жареные ~50/3/3/4, курица варено-копчёная ~190/24/10/0, сыр адыгейский лёгкий ~225/19/15/2, грудка варёная ~165/31/3/0, овсянка сухая ~370/12/7/62, банан ~89/1/0/22, и т.п. — общеизвестная нутрициология).\n  2) Умножь на граммовку, сложи всё.\n  3) Подели сумму на общий вес рецепта и умножь на 100 → kcal_per_100g.\n  4) default_serving_g = общий вес.\n  5) В name — название из реплики юзера.\n\nПример (в) для тортильи: общий вес 250г. Сумма ~370 ккал → kcal_per_100g=148. Сумма белок ~27г → protein_per_100g=10.8. И т.д. default_serving_g=250.\n\nВ reply подтверди: «добавил <name> в справочник: X ккал/100г, Y/Z/W БЖУ. Стандартная порция Nг = X' ккал, Y'/Z'/W' БЖУ.».\n\ndata: name (обязательно), aliases, kcal_per_100g, protein_per_100g, fat_per_100g, carbs_per_100g, default_serving_g, notes.\n\n**chat** — болтовня, советы, вопросы про прогресс. data={}.\n\n=== СПРАВОЧНИК ТИПОВЫХ ПРОДУКТОВ (на 100г/100мл, ккал/Б/Ж/У) ===\nПриоритет: 1) <products> в context, 2) этот справочник, 3) общая нутрициология. Не выдумывай если есть.\n\nСоки/напитки: томатный 22/1/0/4, яблочный 47/0.5/0/11, апельсиновый 47/0.7/0.2/11, виноградный 70/0.4/0/16. Молоко 2.5% 52/2.9/2.5/4.7, 3.2% 60/2.9/3.2/4.7, кефир 2.5% 50/2.8/2.5/4.\nЯйцо варёное (50г) 70/6/5/0.4.\nМолочка: творог 5% 121/17/5/3, творог обезжир 71/16/0.5/3, сыр адыгейский 240/20/18/1.5, сыр адыг лёгкий 225/19/15/2, сыр голландский 350/25/26/0, йогурт натур 60/5/3/4.\nМясо/рыба варёные: грудка курица 165/31/3/0, грудка гриль 175/32/4/0, курица варено-копч 190/24/10/0, говядина 254/25/17/0, индейка грудка 130/24/3/0, лосось 197/22/12/0, тунец в собств соку 95/22/1/0, кальмар 89/18/1/0, креветки 87/18/1/0.\nКрупы сухие: овсянка 370/12/7/62, гречка 313/12/3/62, рис белый 344/7/1/78, рис бурый 337/7/2/73, киноа 368/14/6/64.\nХлеб/мука: ржаной 174/6/1/33, белый 240/8/3/49, лаваш тонкий 270/8/1/56, тортилья пшеничная 297/8/8/50.\nОвощи: огурец 14/0.7/0/2, помидор 18/1/0/4, морковь 35/1/0/7, капуста 25/1.5/0/5, лук 41/1.4/0/8, баклажан жар с маслом 80/1/5/8, шампиньоны жар с маслом 50/3/3/4.\nФрукты: банан 89/1/0/22, яблоко 47/0.4/0/10, апельсин 36/0.9/0/8, груша 47/0.4/0/10.\nЖиры: масло сливочное 717/1/81/0.5, масло раст 884/0/100/0.\nОрехи: грецкий 654/15/65/14, миндаль 575/21/49/22, кешью 553/18/44/30.\nПрочее: хумус 170/7/12/9, мёд 304/0.3/0/82, сахар 387/0/0/100.\n\n=== АЛКОГОЛЬ (forecast_food и log_food) ===\nТипичные значения: пиво 5%=42 ккал/100мл, пиво 7%=55, вино сухое 12%=84, вино полусладкое=95, виски 40%=250, водка 40%=235, шампанское=90, коктейль с сиропом=180-350.\nАлкоголь = пустые ккал, всегда оценка ⚠️ (никогда ✅).\nПод остаток_после_алкоголя предлагай белковую закуску по шкале:\n- <80 ккал → «больше ничего, чай/вода».\n- 80-200 → 1 яйцо/80г творога обезжир/50г кальмара или креветок.\n- 200-400 → 100г кальмара/тунца/креветок, 150г творога 5%, 100г грудки.\n- 400+ → грудка 150г + овощи или омлет 3 яйца + творог.\nНЕ предлагай: чипсы, сухарики, колбасу, шашлык, пиццу, пельмени.\nОдной строкой: «алкоголь тормозит жиросжигание на 24-36ч даже при дефиците».\nПроверяй <context>: если в food_log за сегодня уже алкоголь — упомяни, предложи остановиться.\n\n=== ТРЕНЕРСКИЕ СЦЕНАРИИ (action=chat) ===\n- «не получается X» → аналог из «Полный план тренировок» (та же группа мышц), потом общеспортивный.\n- «я на тренировке / зашёл в зал» → ободри, назови сегодняшний блок и веса. НЕ записывай в workout_log пока не отчитается.\n- «тренажёр занят/X не работает» → альтернатива на ту же группу из плана, с подходами/повторами/весом.\n- «как у меня грудь/спина» → последние записи workout_log с этой группой, сравни с планом, оценка.\n- «в какой день упражнение X» → подбери блок по группе мышц.\nНЕ выдумывай упражнения, которых нет в плане.\n\n=== АНТИ-LOOP ===\nЕсли в <context> блок «⚠️ КРИТИЧНО: текущее сообщение — это ОТВЕТ на твой уточняющий вопрос» — НЕ повторяй ask_clarify. Склей прошлое описание + новые цифры → log_food.\nКороткий ответ типа «50 грамм», «вместе 50», «на всё 100», «итого 200» = TOTAL для всех упомянутых в прошлой реплике блюд (раздели по пропорции 60:40 / 70:30).\n\n=== АКТИВНОСТЬ ↑ БЮДЖЕТ ===\nlog_walking/log_workout УВЕЛИЧИВАЮТ дневной бюджет. Сжёг X ккал → бюджет +(X × goal_mult). lose=0.8 → +80%. Прибавляй к остатку, не вычитай!\nПример: было 1000, сжёг 300 ходьбой при lose → новый остаток 1240.\n\n=== КОНТЕКСТ ===\nВ <context> уезжают: профиль, расход на сегодня (BMR + baseline + walking + workouts), target_kcal_today, food_log за сегодня, последняя тренировка, ожидаемый день по циклу, упражнения сегодня, полный план 4 блоков, products, recent dialog.\nЕсли профиль НЕ заполнен — мягко попроси set_profile.\n\n<context>\n{{ $json.context }}\n</context>"
+            },
+            {
+              "content": "={{ $json.user_text }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "id": "p2-message-model",
+      "name": "Message a model",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        848,
+        880
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "SkPovYGQlL1P1Ft5",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json;\nlet text =\n  raw?.output?.[0]?.content?.[0]?.text ??\n  raw?.message?.content ??\n  raw?.choices?.[0]?.message?.content ??\n  raw?.content ??\n  raw?.text ??\n  raw;\nif (typeof text !== 'string') text = JSON.stringify(text);\ntext = text.trim().replace(/^```(?:json)?\\s*/i, '').replace(/\\s*```$/, '').trim();\n\n// Модель иногда вставляет // комментарии — стандартный JSON.parse на них падает.\ntext = text.replace(/\\/\\/[^\\n\\r]*/g, '');\n// И блочные комментарии /* ... */ на всякий.\ntext = text.replace(/\\/\\*[\\s\\S]*?\\*\\//g, '');\n// Trailing запятые перед } или ] (строгий JSON их не разрешает).\ntext = text.replace(/,(\\s*[}\\]])/g, '$1');\n\n// Модель иногда отдаёт числа выражениями: \"kcal\": 690 + 570 + 50.\n// Заменяем такие выражения на готовое число до JSON.parse.\ntext = text.replace(/(:\\s*)([\\d.]+(?:\\s*[+\\-*]\\s*[\\d.]+)+)(\\s*[,}\\]])/g, (m, pre, expr, post) => {\n  if (!/^[\\d\\s+\\-*.]+$/.test(expr)) return m;\n  try {\n    const v = Function(`\"use strict\"; return (${expr})`)();\n    if (typeof v === 'number' && Number.isFinite(v)) return `${pre}${v}${post}`;\n  } catch (e) {}\n  return m;\n});\n\nlet payload;\ntry { payload = JSON.parse(text); }\ncatch (e) { payload = { action: 'chat', data: {}, reply: text }; }\nif (!payload || typeof payload !== 'object') payload = { action: 'chat', data: {}, reply: String(payload) };\n\n// Нормализуем action: модель порой пишет logfood вместо log_food.\nconst ACTION_MAP = {\n  logfood: 'log_food', logworkout: 'log_workout', logbody: 'log_body',\n  setprofile: 'set_profile', setgoals: 'set_goals', planworkout: 'plan_workout',\n  dailysummary: 'daily_summary', showworkout: 'show_workout',\n  askclarify: 'ask_clarify', deletefood: 'delete_food',\n  forecastfood: 'forecast_food', logwalking: 'log_walking', addproduct: 'add_product', chat: 'chat',\n};\nif (typeof payload.action === 'string') {\n  const norm = payload.action.toLowerCase().replace(/[^a-z]/g, '');\n  payload.action = ACTION_MAP[norm] || payload.action;\n}\nif (!payload.action) payload.action = 'chat';\n\n// Нормализуем ключи в data: mealtype → meal_type, kcalburned → kcal_burned, ...\nconst DATA_KEY_MAP = {\n  mealtype: 'meal_type', kcalburned: 'kcal_burned', durationmin: 'duration_min',\n  dayplan: 'day_plan', exercisesdone: 'exercises_done',\n  bodyfatpct: 'body_fat_pct', heightcm: 'height_cm', weightkg: 'weight_kg',\n  activitylevel: 'activity_level', trainingdaysinterval: 'training_days_interval',\n  targetkcal: 'target_kcal', pendingitems: 'pending_items',\n};\nif (payload.data && typeof payload.data === 'object' && !Array.isArray(payload.data)) {\n  const fixed = {};\n  for (const [k, v] of Object.entries(payload.data)) {\n    const norm = k.toLowerCase().replace(/[^a-z]/g, '');\n    fixed[DATA_KEY_MAP[norm] || k] = v;\n  }\n  payload.data = fixed;\n} else {\n  payload.data = {};\n}\nif (!payload.reply) payload.reply = '...';\n\n// Детерминистский пересчёт kcal_burned для log_walking.\n// Модель часто промахивается с MET, считаем сами по таблице.\nif (payload.action === 'log_walking' && payload.data && typeof payload.data === 'object') {\n  const minutes = Number(payload.data.duration_min) || 0;\n  let speed = Number(payload.data.speed_kmh);\n  const distance = Number(payload.data.distance_km);\n  // Если скорости нет, но есть дистанция и время — посчитаем\n  if (!speed && distance && minutes) speed = distance / (minutes / 60);\n  if (!speed) speed = 3.5; // дефолт ходьбы\n\n  // MET по скорости (по тексту промпта)\n  let met;\n  if (speed < 4)        met = 2.8;\n  else if (speed < 5.5) met = 3.5;\n  else if (speed < 6.5) met = 4.3;\n  else if (speed < 8.5) met = 6;\n  else                  met = 8;\n  // Хайкинг/походы могут идти отдельно; если activity=hiking — поднимем met.\n  const activity = String(payload.data.activity || '').toLowerCase();\n  if (activity.includes('hik') || activity.includes('поход') || activity.includes('лес') || activity.includes('гор')) met = Math.max(met, 6);\n\n  // Вес берём из профиля.\n  const profRows = $('Read Profile').all().map(i => i.json);\n  const prof = profRows.find(r => String(r.chat_id) === String(payload.chat_id || $('Build Context').first().json.chat_id)) || profRows[0];\n  const weight = Number(prof?.weight_kg) || 76;\n\n  if (minutes > 0) {\n    const kcalCalc = Math.round(met * weight * minutes / 60);\n    payload.data.kcal_burned = kcalCalc;\n    payload.data.speed_kmh = speed;\n    payload.data.met_used = met;\n    // Если в reply было неправильное число — заменим на пересчитанное.\n    if (typeof payload.reply === 'string') {\n      // Заменяем все «ХХХ ккал» рядом со «сжёг» на правильное.\n      payload.reply = payload.reply.replace(/(сжёг|сжег|сожгли|сожжено)\\s*[~≈]?\\s*\\d+\\s*ккал/gi, `$1 ${kcalCalc} ккал`);\n    }\n  }\n}\n\n// Детерминистский фикс вердикта для forecast_food.\n// Модель часто корректно считает математику, но проставляет неправильный значок\n// (например ставит ❌ НЕ ВЛЕЗАЕТ при положительном остатке). Чиним.\nif (payload.action === 'forecast_food' && typeof payload.reply === 'string') {\n  const m = payload.reply.match(/остаток[^:]{0,40}будет[:\\s]*(-?\\d+(?:[.,]\\d+)?)/i)\n         || payload.reply.match(/после[^\\d-]{0,30}(-?\\d+(?:[.,]\\d+)?)\\s*ккал/i);\n  if (m) {\n    const remaining = parseFloat(String(m[1]).replace(',', '.'));\n    let correctVerdict;\n    if (remaining < 0)        correctVerdict = '❌ НЕ ВЛЕЗАЕТ';\n    else if (remaining < 200) correctVerdict = '⚠️ ВПРИТЫК';\n    else                       correctVerdict = '✅ ВЛЕЗАЕТ В БЮДЖЕТ';\n    payload.reply = payload.reply.replace(/(❌\\s*НЕ\\s*ВЛЕЗАЕТ|⚠️\\s*ВПРИТЫК|✅\\s*ВЛЕЗАЕТ(?:\\s*С\\s*ЗАПАСОМ)?(?:\\s*В\\s*БЮДЖЕТ)?)/gi, correctVerdict);\n  }\n}\n\nconst bc = $('Build Context').first().json;\nconst chat_id = bc.chat_id;\nconst pad = (n) => String(n).padStart(2, '0');\nconst now = new Date();\nconst date = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;\nconst time = `${pad(now.getHours())}:${pad(now.getMinutes())}`;\n\nreturn [{ json: { ...payload, chat_id, date, time } }];"
+      },
+      "id": "p2-parse-enrich",
+      "name": "Parse + Enrich",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1072,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst chat_id = String(item.chat_id);\nconst userText = $('Merge Text').first().json.user_text;\nconst pad = (n) => String(n).padStart(2, '0');\nconst now = new Date();\nconst today = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;\n\nconst sd = $getWorkflowStaticData('global');\nsd.chats = sd.chats || {};\nsd.chats[chat_id] = sd.chats[chat_id] || { recent: [], last_intent: null, last_intent_date: null, pending_clarify: null };\nconst mem = sd.chats[chat_id];\n\nmem.recent = mem.recent || [];\nmem.recent.push({ role: 'user', text: userText });\nmem.recent.push({ role: 'bot',  text: item.reply, action: item.action });\nif (mem.recent.length > 12) mem.recent = mem.recent.slice(-12);\n\nmem.last_bot_action = item.action;\n\n// Если бот вернул ask_clarify — запомним детали, чтобы на следующем ходе склеить контекст.\nif (item.action === 'ask_clarify') {\n  mem.pending_clarify = {\n    original_user_msg: userText,\n    bot_question: item.reply,\n    pending_items: (item.data && item.data.pending_items) || [],\n    set_at: today,\n  };\n} else {\n  // На любое не-ask_clarify действие очищаем pending — уточнение разрешилось.\n  mem.pending_clarify = null;\n}\n\nif (item.action === 'plan_workout' && item.data?.day_plan) {\n  mem.last_intent = item.data.day_plan;\n  mem.last_intent_date = today;\n} else if (item.action === 'log_workout') {\n  mem.last_intent = null;\n  mem.last_intent_date = null;\n}\n\n// === Дневной счётчик токенов с предупреждением ===\n// Лимит free tier на gpt-4o (и full models): 250k токенов/день.\nconst DAILY_LIMIT = 250000;\nconst SOFT = 200000; // 80%\nconst HARD = 240000; // 96%\n\nsd.usage = sd.usage || { date: today, total: 0, warned_soft: false, warned_hard: false };\nif (sd.usage.date !== today) {\n  sd.usage = { date: today, total: 0, warned_soft: false, warned_hard: false };\n}\n\n// Смотрим usage из последнего вызова модели (langchain openAi v2.3 кладёт в .usage).\nconst llmRaw = $('Message a model').first().json;\nconst used = Number(\n  llmRaw?.usage?.total_tokens ??\n  llmRaw?.usage?.input_tokens + llmRaw?.usage?.output_tokens ??\n  0\n);\nsd.usage.total += isNaN(used) ? 0 : used;\n\nlet warning = null;\nif (sd.usage.total >= HARD && !sd.usage.warned_hard) {\n  sd.usage.warned_hard = true;\n  warning = `🚨 Лимит токенов почти достигнут: ${sd.usage.total.toLocaleString('ru')} из ${DAILY_LIMIT.toLocaleString('ru')} (~${Math.round(100*sd.usage.total/DAILY_LIMIT)}%). Дальнейшие запросы могут пойти в платный режим. Постарайся писать важное только до конца дня.`;\n} else if (sd.usage.total >= SOFT && !sd.usage.warned_soft) {\n  sd.usage.warned_soft = true;\n  warning = `⚠️ Использовано ${sd.usage.total.toLocaleString('ru')} токенов из дневных ${DAILY_LIMIT.toLocaleString('ru')} (~${Math.round(100*sd.usage.total/DAILY_LIMIT)}%). До платного режима осталось ~${(DAILY_LIMIT - sd.usage.total).toLocaleString('ru')} токенов.`;\n}\n\nif (warning) {\n  item.reply = `${item.reply}\\n\\n———\\n${warning}`;\n}\n\nreturn [{ json: item }];"
+      },
+      "id": "p2-save-memory",
+      "name": "Save Memory",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1296,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "f",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "log_food",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "food"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "w",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "log_workout",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "workout"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "b",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "log_body",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "body"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "sp",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "set_profile",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "set_profile"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "sg",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "set_goals",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "set_goals"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "pw",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "plan_workout",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "plan_workout"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "ds",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "daily_summary",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "daily_summary"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "sw",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "show_workout",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "show_workout"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "c",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "chat",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "chat"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "df",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "delete_food",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "delete_food"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "lw",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "log_walking",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "log_walking"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "ff",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "forecast_food",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "forecast_food"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "ap",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "add_product",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "add_product"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "p2-switch",
+      "name": "Switch Action",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1520,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "food_log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "date": "={{ $json.date }}",
+            "time": "={{ $json.time }}",
+            "description": "={{ $json.data.description }}",
+            "kcal": "={{ $json.data.kcal }}",
+            "protein": "={{ $json.data.protein }}",
+            "fat": "={{ $json.data.fat }}",
+            "carbs": "={{ $json.data.carbs }}",
+            "meal_type": "={{ $json.data.meal_type }}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "p2-append-food",
+      "name": "Append food_log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1760,
+        480
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dJ87lhj6cQPs5CHn",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "products"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ $json.data.name }}",
+            "aliases": "={{ $json.data.aliases }}",
+            "kcal_per_100g": "={{ $json.data.kcal_per_100g }}",
+            "protein_per_100g": "={{ $json.data.protein_per_100g }}",
+            "fat_per_100g": "={{ $json.data.fat_per_100g }}",
+            "carbs_per_100g": "={{ $json.data.carbs_per_100g }}",
+            "default_serving_g": "={{ $json.data.default_serving_g }}",
+            "notes": "={{ $json.data.notes }}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "p2-append-product",
+      "name": "Append products",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1760,
+        160
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dJ87lhj6cQPs5CHn",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "walking_log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "date": "={{ $json.date }}",
+            "time": "={{ $json.time }}",
+            "activity": "={{ $json.data.activity }}",
+            "duration_min": "={{ $json.data.duration_min }}",
+            "distance_km": "={{ $json.data.distance_km }}",
+            "speed_kmh": "={{ $json.data.speed_kmh }}",
+            "kcal_burned": "={{ $json.data.kcal_burned }}",
+            "notes": "={{ $json.data.notes }}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "p2-append-walking",
+      "name": "Append walking_log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1760,
+        320
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dJ87lhj6cQPs5CHn",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "workout_log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "date": "={{ $json.date }}",
+            "day_plan": "={{ $json.data.day_plan }}",
+            "exercises_done": "={{ $json.data.exercises_done }}",
+            "duration_min": "={{ $json.data.duration_min }}",
+            "kcal_burned": "={{ $json.data.kcal_burned }}",
+            "notes": "={{ $json.data.notes }}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "p2-append-workout",
+      "name": "Append workout_log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1760,
+        640
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dJ87lhj6cQPs5CHn",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "body_params"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "date": "={{ $json.date }}",
+            "weight": "={{ $json.data.weight }}",
+            "body_fat_pct": "={{ $json.data.body_fat_pct }}",
+            "notes": "={{ $json.data.notes }}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "p2-append-body",
+      "name": "Append body_params",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1760,
+        800
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dJ87lhj6cQPs5CHn",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst d = item.data || {};\nconst sex = (() => {\n  const s = String(d.sex || 'm').toLowerCase();\n  if (s.startsWith('f') || s.startsWith('ж')) return 'f';\n  return 'm';\n})();\nconst height = Number(d.height_cm) || 0;\nconst weight = Number(d.weight_kg) || 0;\nconst age    = Number(d.age) || 0;\nconst activity = String(d.activity_level || 'moderate').toLowerCase();\nconst goal     = String(d.goal || 'maintain').toLowerCase();\nconst actMult = ({ sedentary:1.2, light:1.375, moderate:1.55, active:1.725, very:1.9 })[activity] || 1.55;\nconst goalMult = ({ lose:0.8, maintain:1.0, gain:1.15 })[goal] || 1.0;\nconst bmr_raw = sex === 'f'\n  ? 10*weight + 6.25*height - 5*age - 161\n  : 10*weight + 6.25*height - 5*age + 5;\nconst bmr = Math.round(bmr_raw);\nconst tdee = bmr_raw * actMult;\nconst target_kcal      = Math.round(tdee * goalMult);\nconst target_protein_g = Math.round(weight * 1.8);\nconst target_fat_g     = Math.round(weight * 1.0);\nconst target_carbs_g   = Math.max(0, Math.round((target_kcal - target_protein_g*4 - target_fat_g*9) / 4));\nconst training_days_interval = Number(d.training_days_interval) || 1;\nconst daily_baseline_kcal = Number(d.daily_baseline_kcal) || 280;\nconst updated_at = new Date().toISOString();\n\nreturn [{ json: {\n  ...item,\n  profile_row: {\n    chat_id: item.chat_id,\n    height_cm: height,\n    weight_kg: weight,\n    age,\n    sex,\n    activity_level: activity,\n    goal,\n    training_days_interval,\n    bmr,\n    daily_baseline_kcal,\n    target_kcal,\n    target_protein_g,\n    target_fat_g,\n    target_carbs_g,\n    updated_at,\n  }\n} }];"
+      },
+      "id": "p2-mifflin",
+      "name": "Compute Mifflin",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "profile"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "chat_id": "={{ $json.profile_row.chat_id }}",
+            "height_cm": "={{ $json.profile_row.height_cm }}",
+            "weight_kg": "={{ $json.profile_row.weight_kg }}",
+            "age": "={{ $json.profile_row.age }}",
+            "sex": "={{ $json.profile_row.sex }}",
+            "activity_level": "={{ $json.profile_row.activity_level }}",
+            "goal": "={{ $json.profile_row.goal }}",
+            "training_days_interval": "={{ $json.profile_row.training_days_interval }}",
+            "bmr": "={{ $json.profile_row.bmr }}",
+            "daily_baseline_kcal": "={{ $json.profile_row.daily_baseline_kcal }}",
+            "target_kcal": "={{ $json.profile_row.target_kcal }}",
+            "target_protein_g": "={{ $json.profile_row.target_protein_g }}",
+            "target_fat_g": "={{ $json.profile_row.target_fat_g }}",
+            "target_carbs_g": "={{ $json.profile_row.target_carbs_g }}",
+            "updated_at": "={{ $json.profile_row.updated_at }}"
+          },
+          "matchingColumns": [
+            "chat_id"
+          ],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "p2-upsert-profile",
+      "name": "Upsert Profile",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1984,
+        960
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dJ87lhj6cQPs5CHn",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "profile"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "chat_id": "={{ $json.chat_id }}",
+            "target_kcal": "={{ $json.data.target_kcal }}",
+            "training_days_interval": "={{ $json.data.training_days_interval }}",
+            "updated_at": "={{ new Date().toISOString() }}"
+          },
+          "matchingColumns": [
+            "chat_id"
+          ],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "p2-upsert-goals",
+      "name": "Upsert Goals",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1760,
+        1120
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dJ87lhj6cQPs5CHn",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst data = item.data || {};\nconst criteria = String(data.criteria || 'last_today').toLowerCase();\nconst query = String(data.query || '').toLowerCase();\nconst targetDate = String(data.target_date || item.date);\n\n// Items из Read Food Log в том же порядке, что строки в Sheets.\n// Header в строке 1 → первая дата-строка = sheet row 2 → item index 0.\nconst foodRows = $('Read Food Log').all().map((it, idx) => ({\n  ...it.json,\n  _row: idx + 2,\n}));\n\nlet target = null;\nif (criteria === 'last') {\n  target = foodRows[foodRows.length - 1] || null;\n} else if (criteria === 'by_description') {\n  const matches = foodRows.filter(r =>\n    String(r.date) === targetDate &&\n    String(r.description || '').toLowerCase().includes(query)\n  );\n  target = matches[matches.length - 1] || null;\n} else { // last_today (default)\n  const matches = foodRows.filter(r => String(r.date) === targetDate);\n  target = matches[matches.length - 1] || null;\n}\n\nif (!target) {\n  // Ничего не нашли — на следующую ноду не передаём, чтобы Sheets-удаление не сработало.\n  return [];\n}\n\nreturn [{ json: {\n  ...item,\n  _row: target._row,\n  deleted_description: target.description,\n  deleted_kcal: target.kcal,\n} }];"
+      },
+      "id": "p2-compute-delete",
+      "name": "Compute Delete Target",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        1280
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "food_log"
+        },
+        "toDelete": "rows",
+        "startIndex": "={{ $json._row }}",
+        "numberToDelete": 1
+      },
+      "id": "p2-delete-food",
+      "name": "Delete Food Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1984,
+        1280
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dJ87lhj6cQPs5CHn",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Parse + Enrich').item.json.chat_id }}",
+        "text": "={{ $('Parse + Enrich').item.json.reply }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "p2-telegram-reply",
+      "name": "Telegram Reply",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2240,
+        880
+      ],
+      "webhookId": "p2-telegram-reply-hook",
+      "credentials": {
+        "telegramApi": {
+          "id": "i66iQ2uUac0QdYNa",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Voice?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Voice?": {
+      "main": [
+        [
+          {
+            "node": "Download Voice",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Text (text)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Voice": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "Set Text (voice)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Text (voice)": {
+      "main": [
+        [
+          {
+            "node": "Merge Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Text (text)": {
+      "main": [
+        [
+          {
+            "node": "Merge Text",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Text": {
+      "main": [
+        [
+          {
+            "node": "Show Typing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Show Typing": {
+      "main": [
+        [
+          {
+            "node": "Read Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Profile": {
+      "main": [
+        [
+          {
+            "node": "Read Food Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Food Log": {
+      "main": [
+        [
+          {
+            "node": "Read Workout Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Workout Log": {
+      "main": [
+        [
+          {
+            "node": "Read Workouts Catalog",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Workouts Catalog": {
+      "main": [
+        [
+          {
+            "node": "Read Products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Products": {
+      "main": [
+        [
+          {
+            "node": "Read Walking Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Walking Log": {
+      "main": [
+        [
+          {
+            "node": "Build Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Context": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Parse + Enrich",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse + Enrich": {
+      "main": [
+        [
+          {
+            "node": "Save Memory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Memory": {
+      "main": [
+        [
+          {
+            "node": "Telegram Reply",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Switch Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch Action": {
+      "main": [
+        [
+          {
+            "node": "Append food_log",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append workout_log",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append body_params",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Compute Mifflin",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Upsert Goals",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [],
+        [],
+        [],
+        [
+          {
+            "node": "Compute Delete Target",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append walking_log",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [
+          {
+            "node": "Append products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Mifflin": {
+      "main": [
+        [
+          {
+            "node": "Upsert Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Delete Target": {
+      "main": [
+        [
+          {
+            "node": "Delete Food Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "phase2-v1",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "fitness-bot-phase-2",
+  "tags": []
+}

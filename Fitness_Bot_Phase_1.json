@@ -1,0 +1,683 @@
+{
+  "name": "Fitness_Bot_Phase_1",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "c9b1c020-4f78-42f0-a306-2a80f4d2363a",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -736,
+        880
+      ],
+      "webhookId": "fitness-bot-trigger",
+      "credentials": {
+        "telegramApi": {
+          "id": "i66iQ2uUac0QdYNa",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "voice-cond",
+              "leftValue": "={{ $json.message.voice }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5dfdcf24-3d69-4087-ad92-cff93ae2809a",
+      "name": "Voice?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -512,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "id": "1e896add-0d78-4e0f-a964-b3d3cd9471dd",
+      "name": "Download Voice",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -288,
+        784
+      ],
+      "webhookId": "f09db3fa-77c6-441e-8383-6cd343c01e87",
+      "credentials": {
+        "telegramApi": {
+          "id": "i66iQ2uUac0QdYNa",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "user-text",
+              "name": "user_text",
+              "type": "string",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "id": "chat-id-1",
+              "name": "chat_id",
+              "type": "number",
+              "value": "={{ $('Telegram Trigger').item.json.message.chat.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "349cf6fc-17c2-4187-b19e-eb7191a74e7b",
+      "name": "Set Text (voice)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        144,
+        784
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "user-text-2",
+              "name": "user_text",
+              "type": "string",
+              "value": "={{ $json.message.text }}"
+            },
+            {
+              "id": "chat-id-2",
+              "name": "chat_id",
+              "type": "number",
+              "value": "={{ $json.message.chat.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "bf99d1f9-2558-43a6-8323-c40ae350dec3",
+      "name": "Set Text (text)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -288,
+        976
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "c5802d45-8cd0-486e-b659-5e961f16c949",
+      "name": "Merge Text",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        368,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json;\n\n// Достаём текстовый ответ модели из всех известных форматов:\n// - langchain openAi v2.3: { output: [{ content: [{ text: '...' }] }] }\n// - chat completions:      { message: { content: '...' } }\n// - простые варианты:       { content: '...' } | { text: '...' } | строка\nlet text =\n  raw?.output?.[0]?.content?.[0]?.text ??\n  raw?.message?.content ??\n  raw?.choices?.[0]?.message?.content ??\n  raw?.content ??\n  raw?.text ??\n  raw;\n\nif (typeof text !== 'string') {\n  text = JSON.stringify(text);\n}\n\n// Срезаем возможные ```json ... ``` обёртки, если модель всё-таки их добавила.\ntext = text.trim().replace(/^```(?:json)?\\s*/i, '').replace(/\\s*```$/,'').trim();\n\nlet payload;\ntry {\n  payload = JSON.parse(text);\n} catch (e) {\n  payload = { action: 'chat', data: {}, reply: text };\n}\n\nif (!payload || typeof payload !== 'object') {\n  payload = { action: 'chat', data: {}, reply: String(payload) };\n}\nif (!payload.action) payload.action = 'chat';\nif (!payload.data) payload.data = {};\nif (!payload.reply) payload.reply = '...';\n\nconst chat_id = $('Merge Text').item.json.chat_id;\nconst now = new Date();\nconst pad = (n) => String(n).padStart(2, '0');\nconst date = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;\nconst time = `${pad(now.getHours())}:${pad(now.getMinutes())}`;\n\nreturn [{ json: { ...payload, chat_id, date, time } }];"
+      },
+      "id": "14986b78-9d2b-4ded-bb63-a32e8ca6c30d",
+      "name": "Parse + Enrich",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        816,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "f",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "log_food",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "food"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "w",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "log_workout",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "workout"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "b",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "log_body",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "body"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "c",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "chat",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "chat"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "27af75a7-549b-4700-aa59-9d14365b13c2",
+      "name": "Switch Action",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1040,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "food_log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "date": "={{ $json.date }}",
+            "time": "={{ $json.time }}",
+            "description": "={{ $json.data.description }}",
+            "kcal": "={{ $json.data.kcal }}",
+            "protein": "={{ $json.data.protein }}",
+            "fat": "={{ $json.data.fat }}",
+            "carbs": "={{ $json.data.carbs }}",
+            "meal_type": "={{ $json.data.meal_type }}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "9118e7ee-dcb2-4a65-9eb5-31a3e402dd3e",
+      "name": "Append food_log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1248,
+        672
+      ],
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "workout_log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "date": "={{ $json.date }}",
+            "day_plan": "={{ $json.data.day_plan }}",
+            "exercises_done": "={{ $json.data.exercises_done }}",
+            "duration_min": "={{ $json.data.duration_min }}",
+            "kcal_burned": "={{ $json.data.kcal_burned }}",
+            "notes": "={{ $json.data.notes }}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "01cbfa00-ebf2-4559-a086-c53231935dc8",
+      "name": "Append workout_log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1248,
+        832
+      ],
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "body_params"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "date": "={{ $json.date }}",
+            "weight": "={{ $json.data.weight }}",
+            "body_fat_pct": "={{ $json.data.body_fat_pct }}",
+            "notes": "={{ $json.data.notes }}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "e90a3451-83d8-43cf-a00e-801f271dacf3",
+      "name": "Append body_params",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1248,
+        992
+      ],
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Parse + Enrich').item.json.chat_id }}",
+        "text": "={{ $('Parse + Enrich').item.json.reply }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "2a6cd922-431a-435e-95c2-9649642719c6",
+      "name": "Telegram Reply",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1520,
+        880
+      ],
+      "webhookId": "956067bc-409e-4699-8d7c-905acb44e646",
+      "credentials": {
+        "telegramApi": {
+          "id": "i66iQ2uUac0QdYNa",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {
+          "language": "ru"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        -64,
+        544
+      ],
+      "id": "005e5b2e-4b90-4b5c-a84d-cccdd82de43b",
+      "name": "Transcribe a recording",
+      "credentials": {
+        "openAiApi": {
+          "id": "SkPovYGQlL1P1Ft5",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "                                                            \n  Ты персональный фитнес-ассистент. Пользователь пишет тебе короткие сообщения о еде, тренировках, весе или просит совет. \n                                                                                                                          \n  Твоя задача — определить намерение и вернуть СТРОГО JSON по схеме:                                                      \n                                                                                                                          \n  {                                                                                                                       \n    \"action\": \"log_food\" | \"log_workout\" | \"log_body\" | \"chat\",\n    \"data\": { ... поля под action, см. ниже ... },                                                                        \n    \"reply\": \"строгий, но дружелюбный ответ пользователю на русском, с конкретными цифрами\"                               \n  }                                                                                                                       \n                                                                                                                          \n  Правила формирования data по action:                                                                                    \n                                                            \n  log_food (пользователь рассказал что съел):                                                                             \n    description (string), kcal (number), protein (number), fat (number), carbs (number), meal_type\n  (\"завтрак\"|\"обед\"|\"ужин\"|\"перекус\")                                                                                     \n    Оценивай КБЖУ по типичным порциям, если точных цифр нет.\n                                                                                                                          \n  log_workout (пользователь сделал тренировку):             \n    day_plan (string, например \"СРЕДА — Плечи+Грудь\" или \"кардио\"), exercises_done (string, кратко что делал),            \n  duration_min (number), kcal_burned (number, оценка), notes (string, опционально)                                        \n   \n  log_body (пользователь назвал вес/% жира):                                                                              \n    weight (number, в кг, optional), body_fat_pct (number, optional), notes (string, optional)\n                                                                                                                          \n  chat (вопрос/совет/приветствие, без записи в таблицу):                                                                  \n    data может быть {}                                                                                                    \n                                                                                                                          \n  Обязательно: в reply давай конкретику. Если пользователь только начал и не знает свою норму — мягко спроси              \n  рост/вес/возраст/пол/уровень активности/цель чтобы посчитать.                                                           \n  Никогда не выводи ничего кроме JSON. Никаких ``` блоков. "
+            },
+            {
+              "content": "={{ $json.user_text }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        496,
+        880
+      ],
+      "id": "b2206c94-dbd9-422d-99c4-6113c8c37f5c",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "SkPovYGQlL1P1Ft5",
+          "name": "OpenAI account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Voice?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Voice?": {
+      "main": [
+        [
+          {
+            "node": "Download Voice",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Text (text)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Text (voice)": {
+      "main": [
+        [
+          {
+            "node": "Merge Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Text (text)": {
+      "main": [
+        [
+          {
+            "node": "Merge Text",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Parse + Enrich": {
+      "main": [
+        [
+          {
+            "node": "Switch Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch Action": {
+      "main": [
+        [
+          {
+            "node": "Append food_log",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append workout_log",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append body_params",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append food_log": {
+      "main": [
+        [
+          {
+            "node": "Telegram Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append workout_log": {
+      "main": [
+        [
+          {
+            "node": "Telegram Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append body_params": {
+      "main": [
+        [
+          {
+            "node": "Telegram Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Voice": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "Set Text (voice)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Text": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Parse + Enrich",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "c90081b9-c387-411e-ba27-acccb71860ba",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d0ee81ad04f82ac2d888138eb2d1819cf78f2b03cbb9cfed1558a4f4d24dda44"
+  },
+  "id": "1zUbGkr3JQ5vgc1P",
+  "tags": []
+}

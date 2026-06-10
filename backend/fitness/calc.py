@@ -6,8 +6,24 @@
 import re
 
 from .models import (
-    FoodLog, Streak, WalkingLog, WorkoutBlock, WorkoutCatalog, WorkoutDone, WorkoutLog,
+    BodyParams, FoodLog, Streak, WalkingLog, WorkoutBlock, WorkoutCatalog, WorkoutDone, WorkoutLog,
 )
+
+# Лис стартует НЕЙТРАЛЬНЫМ (тамагочи: к телу юзера не привязываем — форма растёт/тает
+# только от режима). 50 = середина шкалы 0..100.
+NEUTRAL_START = 50
+
+
+def latest_body_fat(profile):
+    """Последний заполненный замер % жира пользователя (или None).
+    К лису НЕ привязан — пригодится для будущего графика динамики веса/жира."""
+    if profile is None or getattr(profile, "user_id", None) is None:
+        return None
+    row = (BodyParams.objects
+           .filter(user_id=profile.user_id, body_fat_pct__isnull=False)
+           .order_by("-date", "-id").first())
+    return row.body_fat_pct if row else None
+
 
 GOAL_MULT = {"lose": 0.8, "maintain": 1.0, "gain": 1.15}
 # «Фон» (NEAT) — бытовая активность сверх BMR, БЕЗ спорта. Зависит от образа жизни.
@@ -47,26 +63,9 @@ def r1(x):
 
 # ===== Маскот-лис: счётчик 0..100 → тир тела =====
 def initial_score(profile, kind):
-    """Стартовое состояние лисёнка ОТ ПАРАМЕТРОВ ТЕЛА (база для нового юзера).
-    nutrition → ось живота (по BMI), workout → ось мышц (по уровню активности)."""
-    if profile is None:
-        return 50
-    if kind == "nutrition":
-        h = (profile.height_cm or 0) / 100.0
-        w = profile.weight_kg or 0
-        if h <= 0 or w <= 0:
-            return 60  # нет данных → лёгкий животик (B1)
-        bmi = w / (h * h)
-        if bmi < 20:
-            return 82   # плоский (B0)
-        if bmi < 25:
-            return 60   # небольшой животик (B1)
-        if bmi < 30:
-            return 35   # B2
-        return 15       # B3
-    # workout — прокси мышечной формы по образу жизни
-    act = str(getattr(profile, "activity_level", "") or "moderate").lower()
-    return {"sedentary": 30, "light": 45, "moderate": 55, "active": 70, "very": 82}.get(act, 55)
+    """Старт лисёнка — НЕЙТРАЛЬ для обеих осей (тамагочи: к телу юзера не привязываем).
+    Дальше живот/мышцы двигаются только от режима (питание/тренировки)."""
+    return NEUTRAL_START
 
 
 def muscle_tier(score):

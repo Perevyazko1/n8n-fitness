@@ -1,0 +1,170 @@
+{
+  "name": "Fitness_Bot_Phase_2_Cron_PG",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0 23 * * *"
+            }
+          ]
+        }
+      },
+      "id": "6408a034-fd85-4f4c-b133-58dd8afa1b92",
+      "name": "Cron 23:00 MSK",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        2000,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT t.telegram_id AS chat_id, p.height_cm, p.weight_kg, p.age, p.sex, p.activity_level, p.goal, p.daily_baseline_kcal, p.bmr, p.training_days_interval, p.target_kcal, p.target_protein_g, p.target_fat_g, p.target_carbs_g FROM fitness_profile p JOIN fitness_tguser t ON t.id = p.user_id",
+        "options": {}
+      },
+      "id": "72718e9b-9c58-4ffc-9738-e447cb706240",
+      "name": "Read Profile",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2224,
+        -16
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT to_char(date,'YYYY-MM-DD') AS date, day_plan, exercises_done, duration_min, kcal_burned, notes FROM fitness_workoutlog ORDER BY date",
+        "options": {}
+      },
+      "id": "a58fec3f-bc98-4661-8905-b11d1cc7f0e2",
+      "name": "Read Workout Log",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2448,
+        -16
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const profileRows = $('Read Profile').all().map(i => i.json);\nconst workoutRows = $('Read Workout Log').all().map(i => i.json);\n\nconst pad = (n) => String(n).padStart(2, '0');\nconst now = new Date();\nconst today = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;\n\nconst out = [];\n\nfor (const profile of profileRows) {\n  if (!profile.chat_id) continue;\n  const chat_id = profile.chat_id;\n  const interval = Number(profile.training_days_interval) || 1;\n\n  const sortedW = workoutRows\n    .filter(r => r.date)\n    .sort((a, b) => String(a.date).localeCompare(String(b.date)));\n  const lastWorkout = sortedW[sortedW.length - 1] || null;\n\n  function parseN(plan) {\n    if (!plan) return null;\n    const m = String(plan).match(/№?\\s*([1-4])/);\n    if (m) return Number(m[1]);\n    const s = String(plan).toLowerCase();\n    if (s.includes('грудь') && s.includes('бицепс')) return 1;\n    if (s.includes('плечи') && s.includes('грудь'))  return 2;\n    if (s.includes('спина') && s.includes('трицепс'))return 3;\n    if (s.includes('ноги')) return 4;\n    return null;\n  }\n\n  let expectedNum = null;\n  if (!lastWorkout) {\n    expectedNum = 1;\n  } else {\n    const lastDate = new Date(String(lastWorkout.date));\n    const todayD = new Date(today);\n    const daysSince = Math.floor((todayD - lastDate) / (1000*60*60*24));\n    if (daysSince < interval) expectedNum = null; // отдых\n    else expectedNum = ((parseN(lastWorkout.day_plan) || 0) % 4) + 1;\n  }\n\n  const todayLogged = sortedW.some(r => String(r.date) === today);\n  const need_ping = expectedNum !== null && !todayLogged;\n\n  if (need_ping) {\n    const labels = {\n      1: '№1 — Грудь + Бицепс',\n      2: '№2 — Плечи + Грудь',\n      3: '№3 — Спина + Трицепс',\n      4: '№4 — Ноги',\n    };\n    const text = `Эй. Сегодня по циклу должна была быть тренировка ${labels[expectedNum]}, а отчёта от тебя нет. Что случилось? Завтра ты по плану отдыхаешь — лучше не пропускать.`;\n    out.push({ json: { chat_id, text } });\n  }\n}\n\nreturn out;"
+      },
+      "id": "90e941a2-9c9c-4175-b700-36337482c932",
+      "name": "Compute Need Ping",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2672,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "id": "955912ad-5387-42b2-bc61-7f0f5c5020e6",
+      "name": "Telegram Ping",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2896,
+        -16
+      ],
+      "webhookId": "p2c-telegram-ping-hook",
+      "credentials": {
+        "telegramApi": {
+          "id": "i66iQ2uUac0QdYNa",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Cron 23:00 MSK": {
+      "main": [
+        [
+          {
+            "node": "Read Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Profile": {
+      "main": [
+        [
+          {
+            "node": "Read Workout Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Workout Log": {
+      "main": [
+        [
+          {
+            "node": "Compute Need Ping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Need Ping": {
+      "main": [
+        [
+          {
+            "node": "Telegram Ping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": {
+    "node:Cron 23:00 MSK": {
+      "recurrenceRules": []
+    }
+  },
+  "activeVersionId": "0672a6a8-12ad-487b-84b0-b8eb0a6c62ee",
+  "versionCounter": 17,
+  "versionMetadata": {
+    "name": "Version 0672a6a8",
+    "description": ""
+  }
+}

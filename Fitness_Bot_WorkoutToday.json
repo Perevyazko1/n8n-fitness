@@ -1,0 +1,419 @@
+{
+  "name": "Fitness_Bot_WorkoutToday",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "workout-today",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "id": "wt00-wh",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "workout-today-hook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "tg-token",
+              "name": "bot_token",
+              "value": "={{ $env.TELEGRAM_BOT_TOKEN }}",
+              "type": "string"
+            },
+            {
+              "id": "body-raw",
+              "name": "body",
+              "value": "={{ $json.body }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "wt01-env",
+      "name": "Inject Env",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const crypto = require('crypto');\n\n// --- 1. Парсим тело ---\nlet body;\ntry {\n  const raw = $input.first().json.body;\n  body = typeof raw === 'string' ? JSON.parse(raw) : raw;\n} catch (e) {\n  throw new Error('Invalid JSON body');\n}\n\nconst initData = body.initData || '';\nif (!initData) throw new Error('Missing initData');\n\n// --- 2. HMAC-валидация initData по схеме Telegram WebApp ---\nconst botToken = $input.first().json.bot_token;\nif (!botToken) throw new Error('TELEGRAM_BOT_TOKEN env var not set');\n\n// Парсим initData вручную (URLSearchParams недоступен в JS Task Runner sandbox)\nconst pairs = initData.split('&').map(p => {\n  const i = p.indexOf('=');\n  return i === -1 ? [p, ''] : [decodeURIComponent(p.slice(0, i)), decodeURIComponent(p.slice(i + 1))];\n});\nconst paramsMap = new Map(pairs);\nconst hash = paramsMap.get('hash');\nparamsMap.delete('hash');\n\nconst dataCheckString = [...paramsMap.entries()]\n  .sort(([a], [b]) => a.localeCompare(b))\n  .map(([k, v]) => `${k}=${v}`)\n  .join('\\n');\n\nconst secretKey = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();\nconst computed = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');\n\nif (computed !== hash) {\n  throw new Error('Invalid initData signature');\n}\n\n// --- 3. Авторизация: дата initData не старше суток ---\nconst authDate = Number(paramsMap.get('auth_date')) || 0;\nconst nowSec = Math.floor(Date.now() / 1000);\nif (nowSec - authDate > 86400) {\n  throw new Error('initData too old (>24h)');\n}\n\n// --- 4. Извлекаем юзера ---\nlet user;\ntry { user = JSON.parse(paramsMap.get('user')); }\ncatch { throw new Error('Cannot parse user from initData'); }\nif (!user || !user.id) throw new Error('No user.id in initData');\n\nconst chat_id = String(user.id);\n\n// --- 5. Дата/время Москвы, meal_type по часу ---\nconst now = new Date();\n// смещение Москвы +3ч; Date в n8n уже в TZ контейнера (Europe/Moscow), но подстрахуемся:\nconst pad = (n) => String(n).padStart(2, '0');\nconst date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;\nconst time = `${pad(now.getHours())}:${pad(now.getMinutes())}`;\nconst h = now.getHours();\nlet meal_type;\nif      (h < 11) meal_type = 'завтрак';\nelse if (h < 16) meal_type = 'обед';\nelse if (h < 19) meal_type = 'перекус';\nelse if (h < 24) meal_type = 'ужин';\nelse             meal_type = 'перекус';\n\nreturn [{\n  json: {\n    chat_id,\n    user_name: user.first_name || '',\n    date,\n    time,\n    meal_type,\n    payload: body,\n  }\n}];"
+      },
+      "id": "wt02-val",
+      "name": "Validate & Parse",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "profile"
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "wt10",
+      "name": "Read Profile",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        700,
+        40
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "workout_log"
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "wt11",
+      "name": "Read Workout Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        700,
+        180
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "workout_blocks"
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "wt12",
+      "name": "Read Workout Blocks",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        700,
+        320
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "workouts_flat"
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "wt13",
+      "name": "Read Workouts Catalog",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        700,
+        460
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "workout_done"
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "wt14",
+      "name": "Read Workout Done",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        700,
+        600
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wt20-merge",
+      "name": "Merge Reads",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        960,
+        300
+      ],
+      "parameters": {
+        "numberInputs": 5
+      }
+    },
+    {
+      "id": "wt21-comp",
+      "name": "Compute Workout Today",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1180,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// Возвращает план тренировки на сегодня + статус галочек (workout_done).\n// expected_today считается так же, как в Build Context / дашборде.\nconst v = $('Validate & Parse').first().json;\nconst chat_id = String(v.chat_id);\nconst today = v.date;\n\nconst profileRows = $('Read Profile').all().map(i => i.json);\nconst profileRow = profileRows.find(r => String(r.chat_id) === chat_id) || profileRows[0] || null;\nconst interval = Number(profileRow?.training_days_interval) || 1;\n\nconst workoutRows = $('Read Workout Log').all().map(i => i.json);\nconst sortedW = workoutRows.filter(r => r.date).sort((a, b) => String(a.date).localeCompare(String(b.date)));\nconst lastWorkout = sortedW[sortedW.length - 1] || null;\n\nconst blocksStateRows = $('Read Workout Blocks').all().map(i => i.json);\nconst blocksState = {};\nfor (const r of blocksStateRows) {\n  const n = Number(r.block_num); if (!n) continue;\n  blocksState[n] = { label: r.label || `№${n}`, active: String(r.active).toUpperCase() === 'TRUE' };\n}\nif (!Object.keys(blocksState).length) { for (const n of [1,2,3,4]) blocksState[n] = { label: `№${n}`, active: true }; }\nconst activeNums = Object.keys(blocksState).map(Number).filter(n => blocksState[n].active).sort((a,b)=>a-b);\n\nfunction nextActiveAfter(lastN, active) { if (!active.length) return null; const after = active.find(n => n > lastN); return after != null ? after : active[0]; }\nfunction parseWorkoutNumber(plan) {\n  if (!plan) return null;\n  const m = String(plan).match(/№?\\s*([1-4])/); if (m) return Number(m[1]);\n  const s = String(plan).toLowerCase();\n  if (s.includes('грудь') && s.includes('бицепс')) return 1;\n  if (s.includes('плечи') && s.includes('грудь')) return 2;\n  if (s.includes('спина') && s.includes('трицепс')) return 3;\n  if (s.includes('ноги')) return 4;\n  return null;\n}\n\nlet expected_today;\nif (!activeNums.length) expected_today = { type: 'rest', days_until_next: null };\nelse if (!lastWorkout) { const n = activeNums[0]; expected_today = { type: 'workout', number: n, label: blocksState[n].label }; }\nelse {\n  const daysSince = Math.floor((new Date(today) - new Date(String(lastWorkout.date))) / (1000*60*60*24));\n  if (daysSince < interval) expected_today = { type: 'rest', days_until_next: interval - daysSince };\n  else { const lastN = parseWorkoutNumber(lastWorkout.day_plan) || 0; const nextN = nextActiveAfter(lastN, activeNums); expected_today = { type: 'workout', number: nextN, label: blocksState[nextN].label }; }\n}\n\nif (expected_today.type !== 'workout') {\n  return [{ json: { ok: true, date: today, is_workout: false, label: null, block_num: null,\n    days_until_next: expected_today.days_until_next ?? null, exercises: [] } }];\n}\n\nconst block = expected_today.number;\n\n// Галочки за сегодня по этому блоку\nconst doneRows = $('Read Workout Done').all().map(i => i.json);\nconst doneSet = new Set(\n  doneRows\n    .filter(r => String(r.date) === today && Number(r.block_num) === block && String(r.done).toUpperCase() === 'TRUE')\n    .map(r => String(r.exercise).trim())\n);\n\nconst wkRows = $('Read Workouts Catalog').all().map(i => i.json);\nconst exercises = [];\nfor (const r of wkRows) {\n  if (Number(r.block_num) !== block) continue;\n  if (!r.exercise) continue;\n  const ex = String(r.exercise).trim();\n  exercises.push({\n    id: `${block}::${ex}`,\n    group: r.group || '',\n    exercise: ex,\n    sets: r.sets != null ? String(r.sets) : '',\n    reps: r.reps != null ? String(r.reps) : '',\n    weight: (r.weight != null && r.weight !== '—') ? String(r.weight) : '',\n    note: r.note || '',\n    done: doneSet.has(ex),\n  });\n}\n\nreturn [{ json: { ok: true, date: today, is_workout: true,\n  label: expected_today.label, block_num: block, exercises } }];\n"
+      }
+    },
+    {
+      "id": "wt22-resp",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1400,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Inject Env",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inject Env": {
+      "main": [
+        [
+          {
+            "node": "Validate & Parse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & Parse": {
+      "main": [
+        [
+          {
+            "node": "Read Profile",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Workout Log",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Workout Blocks",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Workouts Catalog",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Workout Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Profile": {
+      "main": [
+        [
+          {
+            "node": "Merge Reads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Workout Log": {
+      "main": [
+        [
+          {
+            "node": "Merge Reads",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Read Workout Blocks": {
+      "main": [
+        [
+          {
+            "node": "Merge Reads",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Read Workouts Catalog": {
+      "main": [
+        [
+          {
+            "node": "Merge Reads",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Read Workout Done": {
+      "main": [
+        [
+          {
+            "node": "Merge Reads",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Merge Reads": {
+      "main": [
+        [
+          {
+            "node": "Compute Workout Today",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Workout Today": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

@@ -1,0 +1,285 @@
+{
+  "name": "Fitness_Bot_Phase_2_Evening",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "30 21 * * *"
+            }
+          ]
+        }
+      },
+      "id": "p2c-cron",
+      "name": "Cron 21:30 MSK",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -400,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "profile"
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "p2c-read-profile",
+      "name": "Read Profile",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -176,
+        400
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "workout_log"
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "p2c-read-workouts",
+      "name": "Read Workout Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        48,
+        400
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const profileRows = $('Read Profile').all().map(i => i.json);\nconst profile = profileRows.find(r => r.chat_id) || null;\nif (!profile) return [];\n\nconst chat_id = profile.chat_id;\nconst targetKcal = Number(profile.target_kcal) || 0;\nconst targetProtein = Number(profile.target_protein_g) || 0;\nconst targetFat = Number(profile.target_fat_g) || 0;\nconst targetCarbs = Number(profile.target_carbs_g) || 0;\nconst interval = Number(profile.training_days_interval) || 1;\n\nconst pad = (n) => String(n).padStart(2, '0');\nconst now = new Date();\nconst today = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;\n\nconst foodToday = $('Read Food Log').all().map(i => i.json).filter(r => String(r.date) === today);\nconst workoutsToday = $('Read Workout Log').all().map(i => i.json).filter(r => String(r.date) === today);\nconst walkToday = $('Read Walking Log').all().map(i => i.json).filter(r => String(r.date) === today);\n\nconst foodSum = foodToday.reduce((a, r) => ({\n  kcal: a.kcal + (Number(r.kcal) || 0),\n  protein: a.protein + (Number(r.protein) || 0),\n  fat: a.fat + (Number(r.fat) || 0),\n  carbs: a.carbs + (Number(r.carbs) || 0),\n}), { kcal: 0, protein: 0, fat: 0, carbs: 0 });\nfoodSum.kcal = Math.round(foodSum.kcal);\nfoodSum.protein = Math.round(foodSum.protein);\nfoodSum.fat = Math.round(foodSum.fat);\nfoodSum.carbs = Math.round(foodSum.carbs);\n\nconst walkMin = walkToday.reduce((s, r) => s + (Number(r.duration_min) || 0), 0);\nconst walkKcal = walkToday.reduce((s, r) => s + (Number(r.kcal_burned) || 0), 0);\nconst workoutKcal = workoutsToday.reduce((s, r) => s + (Number(r.kcal_burned) || 0), 0);\n\nconst lines = [];\nlines.push('🌙 *Итог дня.*');\nlines.push('');\n\nif (foodToday.length === 0) {\n  lines.push('Food_log пуст. Либо ничего не ел весь день (что плохо), либо забил на запись (что хуже). Завтра подтянись.');\n} else {\n  const diffK = foodSum.kcal - targetKcal;\n  const diffP = foodSum.protein - targetProtein;\n  lines.push(`Калории: ${foodSum.kcal} / ${targetKcal} ккал ${diffK > 200 ? '— перебор на ' + diffK : diffK < -300 ? '— недобор ' + (-diffK) : '— в норме'}.`);\n  lines.push(`Белок: ${foodSum.protein} / ${targetProtein} г ${diffP < -15 ? '— ДОБЕРИ перед сном ' + (-diffP) + 'г (творог/казеин/яйца)' : diffP >= 0 ? '✅' : '— почти'}.`);\n  lines.push(`Жиры: ${foodSum.fat} / ${targetFat}г · Углеводы: ${foodSum.carbs} / ${targetCarbs}г.`);\n}\n\nif (workoutsToday.length) lines.push(`💪 Тренировка: ${workoutsToday[0].day_plan || 'сделана'} — ${Math.round(workoutKcal)} ккал.`);\nif (walkMin) lines.push(`🚶 Ходьба: ${walkMin} мин, ${Math.round(walkKcal)} ккал.`);\n\nlines.push('');\n// Капральские итоги по результатам\nif (foodToday.length > 0) {\n  const kIn = foodSum.kcal >= targetKcal - 200 && foodSum.kcal <= targetKcal + 200;\n  const pOk = foodSum.protein >= targetProtein * 0.9;\n  const wOk = workoutsToday.length > 0 || walkMin >= 30;\n  if (kIn && pOk && wOk) lines.push('Сегодня в плюс. Закрепляй привычку, не расслабляйся.');\n  else if (!pOk) lines.push('Белка снова мало. До сна — творог/казеин/2 яйца. Это не предложение.');\n  else if (!kIn) lines.push(foodSum.kcal > targetKcal ? 'Перебор. Завтра минус 200 ккал — компенсируешь.' : 'Недобор калорий. На дефиците это не геройство, это путь к срыву.');\n  else if (!wOk) lines.push('Сегодня двигался мало. Не геройствуй завтра — просто не пропускай.');\n}\n\nconst text = lines.join('\\n');\nreturn [{ json: { chat_id, text } }];\n"
+      },
+      "id": "p2c-compute",
+      "name": "Compute Evening Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        272,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "p2c-telegram-send",
+      "name": "Telegram Ping",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        496,
+        400
+      ],
+      "webhookId": "p2c-telegram-ping-hook",
+      "credentials": {
+        "telegramApi": {
+          "id": "i66iQ2uUac0QdYNa",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "food_log"
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "p2eve-food",
+      "name": "Read Food Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        108,
+        520
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "walking_log"
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "p2eve-walk",
+      "name": "Read Walking Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        108,
+        640
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Cron 21:30 MSK": {
+      "main": [
+        [
+          {
+            "node": "Read Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Profile": {
+      "main": [
+        [
+          {
+            "node": "Read Workout Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Workout Log": {
+      "main": [
+        [
+          {
+            "node": "Read Food Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Food Log": {
+      "main": [
+        [
+          {
+            "node": "Read Walking Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Walking Log": {
+      "main": [
+        [
+          {
+            "node": "Compute Evening Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Need Ping": {
+      "main": [
+        [
+          {
+            "node": "Telegram Ping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Evening Summary": {
+      "main": [
+        [
+          {
+            "node": "Telegram Ping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Moscow"
+  },
+  "versionId": "phase2-cron-v1",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "fitness-bot-phase-2-cron",
+  "tags": []
+}

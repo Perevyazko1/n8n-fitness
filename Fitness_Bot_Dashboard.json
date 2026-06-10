@@ -1,0 +1,467 @@
+{
+  "name": "Fitness_Bot_Dashboard",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "dashboard",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "id": "aa00-webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "dashboard-hook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "tg-token",
+              "name": "bot_token",
+              "value": "={{ $env.TELEGRAM_BOT_TOKEN }}",
+              "type": "string"
+            },
+            {
+              "id": "body-raw",
+              "name": "body",
+              "value": "={{ $json.body }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "aa01-injenv",
+      "name": "Inject Env",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const crypto = require('crypto');\n\n// --- 1. Парсим тело ---\nlet body;\ntry {\n  const raw = $input.first().json.body;\n  body = typeof raw === 'string' ? JSON.parse(raw) : raw;\n} catch (e) {\n  throw new Error('Invalid JSON body');\n}\n\nconst initData = body.initData || '';\nif (!initData) throw new Error('Missing initData');\n\n// --- 2. HMAC-валидация initData по схеме Telegram WebApp ---\nconst botToken = $input.first().json.bot_token;\nif (!botToken) throw new Error('TELEGRAM_BOT_TOKEN env var not set');\n\n// Парсим initData вручную (URLSearchParams недоступен в JS Task Runner sandbox)\nconst pairs = initData.split('&').map(p => {\n  const i = p.indexOf('=');\n  return i === -1 ? [p, ''] : [decodeURIComponent(p.slice(0, i)), decodeURIComponent(p.slice(i + 1))];\n});\nconst paramsMap = new Map(pairs);\nconst hash = paramsMap.get('hash');\nparamsMap.delete('hash');\n\nconst dataCheckString = [...paramsMap.entries()]\n  .sort(([a], [b]) => a.localeCompare(b))\n  .map(([k, v]) => `${k}=${v}`)\n  .join('\\n');\n\nconst secretKey = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();\nconst computed = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');\n\nif (computed !== hash) {\n  throw new Error('Invalid initData signature');\n}\n\n// --- 3. Авторизация: дата initData не старше суток ---\nconst authDate = Number(paramsMap.get('auth_date')) || 0;\nconst nowSec = Math.floor(Date.now() / 1000);\nif (nowSec - authDate > 86400) {\n  throw new Error('initData too old (>24h)');\n}\n\n// --- 4. Извлекаем юзера ---\nlet user;\ntry { user = JSON.parse(paramsMap.get('user')); }\ncatch { throw new Error('Cannot parse user from initData'); }\nif (!user || !user.id) throw new Error('No user.id in initData');\n\nconst chat_id = String(user.id);\n\n// --- 5. Дата/время Москвы, meal_type по часу ---\nconst now = new Date();\n// смещение Москвы +3ч; Date в n8n уже в TZ контейнера (Europe/Moscow), но подстрахуемся:\nconst pad = (n) => String(n).padStart(2, '0');\nconst date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;\nconst time = `${pad(now.getHours())}:${pad(now.getMinutes())}`;\nconst h = now.getHours();\nlet meal_type;\nif      (h < 11) meal_type = 'завтрак';\nelse if (h < 16) meal_type = 'обед';\nelse if (h < 19) meal_type = 'перекус';\nelse if (h < 24) meal_type = 'ужин';\nelse             meal_type = 'перекус';\n\nreturn [{\n  json: {\n    chat_id,\n    user_name: user.first_name || '',\n    date,\n    time,\n    meal_type,\n    payload: body,\n  }\n}];"
+      },
+      "id": "aa02-validate",
+      "name": "Validate & Parse",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "profile"
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "aa10",
+      "name": "Read Profile",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        700,
+        -60
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "food_log"
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "aa11",
+      "name": "Read Food Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        700,
+        80
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "workout_log"
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "aa12",
+      "name": "Read Workout Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        700,
+        220
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "workouts_flat"
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "aa13",
+      "name": "Read Workouts Catalog",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        700,
+        360
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "walking_log"
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "aa14",
+      "name": "Read Walking Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        700,
+        500
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "workout_blocks"
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "aa15",
+      "name": "Read Workout Blocks",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        700,
+        640
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "id": "aa20-merge",
+      "name": "Merge Reads",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        960,
+        300
+      ],
+      "parameters": {
+        "numberInputs": 6
+      }
+    },
+    {
+      "id": "aa21-compute",
+      "name": "Compute Dashboard",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1180,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// Считает состояние на сегодня для дашборда Mini App.\n// Логика переиспользует расчёт из ноды Build Context (Phase 3): expected_today + target kcal.\nconst v = $('Validate & Parse').first().json;\nconst chat_id = String(v.chat_id);\nconst today = v.date; // YYYY-MM-DD, TZ Europe/Moscow (из Validate & Parse)\nconst pad = (n) => String(n).padStart(2, '0');\n\nconst profileRows = $('Read Profile').all().map(i => i.json);\nconst profileRow = profileRows.find(r => String(r.chat_id) === chat_id) || null;\nif (!profileRow) {\n  return [{ json: { ok: false, error: 'no_profile', date: today } }];\n}\nconst interval = Number(profileRow.training_days_interval) || 1;\n\n// --- Еда за сегодня ---\nconst foodRows = $('Read Food Log').all().map(i => i.json);\nconst todayFood = foodRows.filter(r => String(r.date) === today);\nconst todaySum = todayFood.reduce((a, r) => ({\n  kcal: a.kcal + (Number(r.kcal) || 0), protein: a.protein + (Number(r.protein) || 0),\n  fat: a.fat + (Number(r.fat) || 0), carbs: a.carbs + (Number(r.carbs) || 0),\n}), { kcal: 0, protein: 0, fat: 0, carbs: 0 });\ntodaySum.kcal = Math.round(todaySum.kcal);\ntodaySum.protein = Math.round(todaySum.protein * 10) / 10;\ntodaySum.fat = Math.round(todaySum.fat * 10) / 10;\ntodaySum.carbs = Math.round(todaySum.carbs * 10) / 10;\n\n// --- Тренировки ---\nconst workoutRows = $('Read Workout Log').all().map(i => i.json);\nconst sortedW = workoutRows.filter(r => r.date).sort((a, b) => String(a.date).localeCompare(String(b.date)));\nconst lastWorkout = sortedW[sortedW.length - 1] || null;\n\nconst blocksStateRows = $('Read Workout Blocks').all().map(i => i.json);\nconst blocksState = {};\nfor (const r of blocksStateRows) {\n  const n = Number(r.block_num); if (!n) continue;\n  blocksState[n] = { label: r.label || `№${n}`, active: String(r.active).toUpperCase() === 'TRUE' };\n}\nif (!Object.keys(blocksState).length) { for (const n of [1,2,3,4]) blocksState[n] = { label: `№${n}`, active: true }; }\nconst activeNums = Object.keys(blocksState).map(Number).filter(n => blocksState[n].active).sort((a,b)=>a-b);\n\nfunction nextActiveAfter(lastN, active) { if (!active.length) return null; const after = active.find(n => n > lastN); return after != null ? after : active[0]; }\nfunction parseWorkoutNumber(plan) {\n  if (!plan) return null;\n  const m = String(plan).match(/№?\\s*([1-4])/); if (m) return Number(m[1]);\n  const s = String(plan).toLowerCase();\n  if (s.includes('грудь') && s.includes('бицепс')) return 1;\n  if (s.includes('плечи') && s.includes('грудь')) return 2;\n  if (s.includes('спина') && s.includes('трицепс')) return 3;\n  if (s.includes('ноги')) return 4;\n  return null;\n}\n\nlet expected_today;\nif (!activeNums.length) {\n  expected_today = { type: 'rest', days_until_next: null };\n} else if (!lastWorkout) {\n  const n = activeNums[0];\n  expected_today = { type: 'workout', number: n, label: blocksState[n].label };\n} else {\n  const lastDate = new Date(String(lastWorkout.date));\n  const todayD = new Date(today);\n  const daysSince = Math.floor((todayD - lastDate) / (1000*60*60*24));\n  if (daysSince < interval) {\n    expected_today = { type: 'rest', days_until_next: interval - daysSince };\n  } else {\n    const lastN = parseWorkoutNumber(lastWorkout.day_plan) || 0;\n    const nextN = nextActiveAfter(lastN, activeNums);\n    expected_today = { type: 'workout', number: nextN, label: blocksState[nextN].label };\n  }\n}\n\n// --- Цель по ккал на сегодня (как в Build Context) ---\nconst bmr = Number(profileRow.bmr) || 1600;\nconst baseline = Number(profileRow.daily_baseline_kcal) || 280;\nconst goal = String(profileRow.goal || 'maintain').toLowerCase();\nconst goalMult = ({ lose: 0.8, maintain: 1.0, gain: 1.15 })[goal] || 1.0;\n\nconst walkRows = $('Read Walking Log').all().map(i => i.json).filter(r => String(r.date) === today);\nconst walkKcalToday = walkRows.reduce((s, r) => s + (Number(r.kcal_burned) || 0), 0);\n\nconst todayWorkouts = workoutRows.filter(r => String(r.date) === today);\nconst workoutKcalActual = todayWorkouts.reduce((s, r) => s + (Number(r.kcal_burned) || 0), 0);\n\nlet workoutKcalPlanned = 0;\nif (expected_today.type === 'workout') {\n  const blockNum = expected_today.number;\n  const weight = Number(profileRow.weight_kg) || 76;\n  const wkRows = $('Read Workouts Catalog').all().map(i => i.json);\n  for (const r of wkRows) {\n    if (Number(r.block_num) !== blockNum) continue;\n    if (!r.exercise) continue;\n    const met = Number(r.met) || 0, dm = Number(r.default_min) || 0;\n    if (met && dm) workoutKcalPlanned += met * weight * dm / 60;\n  }\n}\nconst workoutKcalToday = todayWorkouts.length > 0 ? workoutKcalActual : Math.round(workoutKcalPlanned);\n\nconst tdeeToday = bmr + baseline + walkKcalToday + workoutKcalToday;\nconst targetKcalToday = Math.round(tdeeToday * goalMult);\nconst targetFloor = Math.round(bmr * 1.1);\nconst targetCap = Math.round((bmr + baseline) * goalMult * 1.4);\nconst target = Math.max(targetFloor, Math.min(targetCap, targetKcalToday));\n\nconst targetP = Number(profileRow.target_protein_g) || 0;\nconst targetF = Number(profileRow.target_fat_g) || 0;\nconst targetC = Number(profileRow.target_carbs_g) || 0;\n\nreturn [{ json: {\n  ok: true,\n  date: today,\n  workout_today: expected_today.type === 'workout'\n    ? { is_workout: true, label: expected_today.label, block_num: expected_today.number }\n    : { is_workout: false, label: null, block_num: null, days_until_next: expected_today.days_until_next ?? null },\n  kcal:    { target, eaten: todaySum.kcal, left: Math.round(target - todaySum.kcal) },\n  protein: { target: targetP, eaten: todaySum.protein, left: Math.round((targetP - todaySum.protein) * 10) / 10 },\n  fat:     { target: targetF, eaten: todaySum.fat },\n  carbs:   { target: targetC, eaten: todaySum.carbs },\n} }];\n"
+      }
+    },
+    {
+      "id": "aa22-respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1400,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Inject Env",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inject Env": {
+      "main": [
+        [
+          {
+            "node": "Validate & Parse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & Parse": {
+      "main": [
+        [
+          {
+            "node": "Read Profile",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Food Log",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Workout Log",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Workouts Catalog",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Walking Log",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Workout Blocks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Profile": {
+      "main": [
+        [
+          {
+            "node": "Merge Reads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Food Log": {
+      "main": [
+        [
+          {
+            "node": "Merge Reads",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Read Workout Log": {
+      "main": [
+        [
+          {
+            "node": "Merge Reads",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Read Workouts Catalog": {
+      "main": [
+        [
+          {
+            "node": "Merge Reads",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Read Walking Log": {
+      "main": [
+        [
+          {
+            "node": "Merge Reads",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Read Workout Blocks": {
+      "main": [
+        [
+          {
+            "node": "Merge Reads",
+            "type": "main",
+            "index": 5
+          }
+        ]
+      ]
+    },
+    "Merge Reads": {
+      "main": [
+        [
+          {
+            "node": "Compute Dashboard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Dashboard": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

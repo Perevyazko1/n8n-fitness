@@ -1,0 +1,569 @@
+{
+  "name": "Fitness_Bot_Barcode",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "scan-barcode",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "id": "wb-webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        200,
+        400
+      ],
+      "webhookId": "scan-barcode-hook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "tg-token",
+              "name": "bot_token",
+              "value": "={{ $env.TELEGRAM_BOT_TOKEN }}",
+              "type": "string"
+            },
+            {
+              "id": "body-raw",
+              "name": "body",
+              "value": "={{ $json.body }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "wb-inject-env",
+      "name": "Inject Env",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        310,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const crypto = require('crypto');\n\n// --- 1. Парсим тело ---\nlet body;\ntry {\n  const raw = $input.first().json.body;\n  body = typeof raw === 'string' ? JSON.parse(raw) : raw;\n} catch (e) {\n  throw new Error('Invalid JSON body');\n}\n\nconst initData = body.initData || '';\nif (!initData) throw new Error('Missing initData');\n\n// --- 2. HMAC-валидация initData по схеме Telegram WebApp ---\nconst botToken = $input.first().json.bot_token;\nif (!botToken) throw new Error('TELEGRAM_BOT_TOKEN env var not set');\n\n// Парсим initData вручную (URLSearchParams недоступен в JS Task Runner sandbox)\nconst pairs = initData.split('&').map(p => {\n  const i = p.indexOf('=');\n  return i === -1 ? [p, ''] : [decodeURIComponent(p.slice(0, i)), decodeURIComponent(p.slice(i + 1))];\n});\nconst paramsMap = new Map(pairs);\nconst hash = paramsMap.get('hash');\nparamsMap.delete('hash');\n\nconst dataCheckString = [...paramsMap.entries()]\n  .sort(([a], [b]) => a.localeCompare(b))\n  .map(([k, v]) => `${k}=${v}`)\n  .join('\\n');\n\nconst secretKey = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();\nconst computed = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');\n\nif (computed !== hash) {\n  throw new Error('Invalid initData signature');\n}\n\n// --- 3. Авторизация: дата initData не старше суток ---\nconst authDate = Number(paramsMap.get('auth_date')) || 0;\nconst nowSec = Math.floor(Date.now() / 1000);\nif (nowSec - authDate > 86400) {\n  throw new Error('initData too old (>24h)');\n}\n\n// --- 4. Извлекаем юзера ---\nlet user;\ntry { user = JSON.parse(paramsMap.get('user')); }\ncatch { throw new Error('Cannot parse user from initData'); }\nif (!user || !user.id) throw new Error('No user.id in initData');\n\nconst chat_id = String(user.id);\n\n// --- 5. Дата/время Москвы, meal_type по часу ---\nconst now = new Date();\n// смещение Москвы +3ч; Date в n8n уже в TZ контейнера (Europe/Moscow), но подстрахуемся:\nconst pad = (n) => String(n).padStart(2, '0');\nconst date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;\nconst time = `${pad(now.getHours())}:${pad(now.getMinutes())}`;\nconst h = now.getHours();\nlet meal_type;\nif      (h < 11) meal_type = 'завтрак';\nelse if (h < 16) meal_type = 'обед';\nelse if (h < 19) meal_type = 'перекус';\nelse if (h < 24) meal_type = 'ужин';\nelse             meal_type = 'перекус';\n\nreturn [{\n  json: {\n    chat_id,\n    user_name: user.first_name || '',\n    date,\n    time,\n    meal_type,\n    payload: body,\n  }\n}];"
+      },
+      "id": "wb-validate",
+      "name": "Validate & Parse",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        530,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.payload.action }}",
+                    "rightValue": "log_food",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "log_food"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.payload.action }}",
+                    "rightValue": "add_product",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "add_product"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "wb-switch",
+      "name": "Switch Action",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        750,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "food_log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "date": "={{ $json.date }}",
+            "time": "={{ $json.time }}",
+            "description": "={{ $json.payload.description }}",
+            "kcal": "={{ $json.payload.kcal }}",
+            "protein": "={{ $json.payload.protein }}",
+            "fat": "={{ $json.payload.fat }}",
+            "carbs": "={{ $json.payload.carbs }}",
+            "meal_type": "={{ $json.meal_type }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "time",
+              "displayName": "time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "kcal",
+              "displayName": "kcal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "protein",
+              "displayName": "protein",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fat",
+              "displayName": "fat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "carbs",
+              "displayName": "carbs",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "meal_type",
+              "displayName": "meal_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "wb-append-food",
+      "name": "Append food_log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        990,
+        280
+      ],
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "products"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "barcode": "={{ $json.payload.barcode }}",
+            "name": "={{ $json.payload.name }}",
+            "aliases": "={{ $json.payload.aliases }}",
+            "kcal_per_100g": "={{ $json.payload.kcal_per_100g }}",
+            "protein_per_100g": "={{ $json.payload.protein_per_100g }}",
+            "fat_per_100g": "={{ $json.payload.fat_per_100g }}",
+            "carbs_per_100g": "={{ $json.payload.carbs_per_100g }}",
+            "default_serving_g": "={{ $json.payload.default_serving_g }}",
+            "notes": "={{ $json.payload.notes }}"
+          },
+          "matchingColumns": [
+            "barcode"
+          ],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "aliases",
+              "displayName": "aliases",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "kcal_per_100g",
+              "displayName": "kcal_per_100g",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "protein_per_100g",
+              "displayName": "protein_per_100g",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fat_per_100g",
+              "displayName": "fat_per_100g",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "carbs_per_100g",
+              "displayName": "carbs_per_100g",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "default_serving_g",
+              "displayName": "default_serving_g",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "barcode",
+              "displayName": "barcode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "wb-upsert-product",
+      "name": "Upsert products",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        990,
+        520
+      ],
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Validate & Parse').first().json.chat_id }}",
+        "text": "=📝 Записал: {{ $json.description }} — {{ $json.kcal }} ккал, {{ $json.protein }}г белка ({{ $json.meal_type }}).",
+        "additionalFields": {}
+      },
+      "id": "wb-tg-food",
+      "name": "Telegram (food)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1230,
+        280
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "i66iQ2uUac0QdYNa",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Validate & Parse').first().json.chat_id }}",
+        "text": "=📦 Продукт сохранён: {{ $json.name }} — {{ $json.kcal_per_100g }} ккал/100г (порция {{ $json.default_serving_g }}г). Штрихкод: {{ $json.barcode }}.",
+        "additionalFields": {}
+      },
+      "id": "wb-tg-product",
+      "name": "Telegram (product)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1230,
+        520
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "i66iQ2uUac0QdYNa",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"ok\": true, \"message\": \"записал\"}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "wb-respond-food",
+      "name": "Respond (food)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1470,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"ok\": true, \"message\": \"продукт сохранён\"}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "wb-respond-product",
+      "name": "Respond (product)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1470,
+        520
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Inject Env",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & Parse": {
+      "main": [
+        [
+          {
+            "node": "Switch Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch Action": {
+      "main": [
+        [
+          {
+            "node": "Append food_log",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Upsert products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append food_log": {
+      "main": [
+        [
+          {
+            "node": "Telegram (food)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram (food)": {
+      "main": [
+        [
+          {
+            "node": "Respond (food)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert products": {
+      "main": [
+        [
+          {
+            "node": "Telegram (product)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram (product)": {
+      "main": [
+        [
+          {
+            "node": "Respond (product)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inject Env": {
+      "main": [
+        [
+          {
+            "node": "Validate & Parse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false,
+  "pinData": {}
+}

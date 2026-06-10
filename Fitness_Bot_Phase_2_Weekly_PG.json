@@ -1,0 +1,274 @@
+{
+  "name": "Fitness_Bot_Phase_2_Weekly_PG",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0 21 * * 0"
+            }
+          ]
+        }
+      },
+      "id": "239f013a-3784-43f8-81a4-50c5d2c1b741",
+      "name": "Cron Sun 21:00 MSK",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        2608,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT t.telegram_id AS chat_id, p.height_cm, p.weight_kg, p.age, p.sex, p.activity_level, p.goal, p.daily_baseline_kcal, p.bmr, p.training_days_interval, p.target_kcal, p.target_protein_g, p.target_fat_g, p.target_carbs_g FROM fitness_profile p JOIN fitness_tguser t ON t.id = p.user_id",
+        "options": {}
+      },
+      "id": "e3c54446-5cbd-4ce9-892e-5d12d1b49d49",
+      "name": "Read Profile",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2832,
+        0
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, to_char(date,'YYYY-MM-DD') AS date, time, description, kcal, protein, fat, carbs, meal_type FROM fitness_foodlog ORDER BY date, time, id",
+        "options": {}
+      },
+      "id": "b1a3b348-7a17-4ae9-aa3e-f2858e3aa97d",
+      "name": "Read Food Log",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3056,
+        0
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT to_char(date,'YYYY-MM-DD') AS date, day_plan, exercises_done, duration_min, kcal_burned, notes FROM fitness_workoutlog ORDER BY date",
+        "options": {}
+      },
+      "id": "863b426d-232c-4dfc-9fd7-03335e8ff804",
+      "name": "Read Workout Log",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3280,
+        0
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT to_char(date,'YYYY-MM-DD') AS date, weight, body_fat_pct, notes FROM fitness_bodyparams ORDER BY date",
+        "options": {}
+      },
+      "id": "04c3d532-3385-42a5-b08e-988a78b27c49",
+      "name": "Read Body Params",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3504,
+        0
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT to_char(date,'YYYY-MM-DD') AS date, time, activity, duration_min, distance_km, speed_kmh, kcal_burned, notes FROM fitness_walkinglog ORDER BY date, time, id",
+        "options": {}
+      },
+      "id": "e8f6c66c-6400-4632-bdaf-ef0020b48900",
+      "name": "Read Walking Log",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3616,
+        0
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const profile = $('Read Profile').all().map(i => i.json).find(r => r.chat_id) || null;\nif (!profile) return [];\nconst chat_id = profile.chat_id;\nconst targetKcal = Number(profile.target_kcal) || 0;\nconst targetProtein = Number(profile.target_protein_g) || 0;\nconst interval = Number(profile.training_days_interval) || 1;\n\nconst pad = (n) => String(n).padStart(2, '0');\nconst now = new Date();\nconst toStr = (d) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;\nconst today = toStr(now);\nconst startDate = new Date(now.getTime() - 6*86400000);\nconst startStr = toStr(startDate);\nconst inRange = (d) => {\n  const s = String(d || '');\n  return s >= startStr && s <= today;\n};\n\n// --- Food --------------------------------------------------------\nconst foodRows = $('Read Food Log').all().map(i => i.json).filter(r => inRange(r.date));\nconst dayMap = {};\nfor (const r of foodRows) {\n  const d = String(r.date);\n  if (!dayMap[d]) dayMap[d] = { kcal: 0, protein: 0 };\n  dayMap[d].kcal    += Number(r.kcal)    || 0;\n  dayMap[d].protein += Number(r.protein) || 0;\n}\nconst loggedDays = Object.keys(dayMap);\nconst avgKcal    = loggedDays.length ? Math.round(loggedDays.reduce((s,d) => s + dayMap[d].kcal,    0) / loggedDays.length) : 0;\nconst avgProtein = loggedDays.length ? Math.round(loggedDays.reduce((s,d) => s + dayMap[d].protein, 0) / loggedDays.length) : 0;\nconst proteinHitDays = loggedDays.filter(d => dayMap[d].protein >= (targetProtein - 10)).length;\nconst proteinHitPct = loggedDays.length ? Math.round(100 * proteinHitDays / loggedDays.length) : 0;\n\n// --- Workouts ---------------------------------------------------\nconst workoutRows = $('Read Workout Log').all().map(i => i.json).filter(r => inRange(r.date));\nconst expectedWorkouts = Math.floor(7 / interval);\nconst wList = workoutRows.map(r => {\n  const dur = r.duration_min || '?';\n  const burn = r.kcal_burned || '?';\n  return `- ${r.day_plan || '?'} — ${dur} мин, ~${burn} ккал`;\n}).join('\\n');\nconst workoutKcalTotal = workoutRows.reduce((s, r) => s + (Number(r.kcal_burned) || 0), 0);\n\n// --- Walking ---------------------------------------------------\nconst walkRows = $('Read Walking Log').all().map(i => i.json).filter(r => inRange(r.date));\nconst walkDayMap = {};\nfor (const r of walkRows) {\n  const d = String(r.date);\n  if (!walkDayMap[d]) walkDayMap[d] = { min: 0, kcal: 0 };\n  walkDayMap[d].min  += Number(r.duration_min) || 0;\n  walkDayMap[d].kcal += Number(r.kcal_burned)  || 0;\n}\nconst walkDays = Object.keys(walkDayMap).length;\nconst walkMinTotal  = Object.values(walkDayMap).reduce((s, d) => s + d.min,  0);\nconst walkKcalTotal = Object.values(walkDayMap).reduce((s, d) => s + d.kcal, 0);\nconst walkAvgMin = walkDays ? Math.round(walkMinTotal / walkDays) : 0;\n\n// --- Body -------------------------------------------------------\nconst bodyRows = $('Read Body Params').all().map(i => i.json)\n  .filter(r => inRange(r.date))\n  .sort((a, b) => String(a.date).localeCompare(String(b.date)));\nlet weightLine = '⚖️ Вес: данных за неделю нет.';\nlet fatLine = '';\nlet weightDelta = null;\nif (bodyRows.length >= 2) {\n  const first = bodyRows[0];\n  const last  = bodyRows[bodyRows.length - 1];\n  const w0 = Number(first.weight);\n  const w1 = Number(last.weight);\n  weightDelta = w1 - w0;\n  const dwStr = (weightDelta >= 0 ? '+' : '') + weightDelta.toFixed(1);\n  weightLine = `⚖️ Вес: ${w0} → ${w1} кг (${dwStr} кг)`;\n  if (first.body_fat_pct && last.body_fat_pct) {\n    const f0 = Number(first.body_fat_pct);\n    const f1 = Number(last.body_fat_pct);\n    const df = f1 - f0;\n    const dfStr = (df >= 0 ? '+' : '') + df.toFixed(1);\n    fatLine = `\\n📉 % жира: ${f0} → ${f1} (${dfStr})`;\n  }\n} else if (bodyRows.length === 1) {\n  weightLine = `⚖️ Вес: ${bodyRows[0].weight} кг (одно измерение, динамики нет)`;\n}\n\n// --- Verdict ----------------------------------------------------\nlet verdict;\nif (weightDelta === null) {\n  verdict = 'ℹ️ Чтобы видеть динамику, взвешивайся хотя бы 1-2 раза в неделю.';\n} else if (weightDelta < -1.2) {\n  verdict = '⚠️ Дефицит может быть слишком велик — подними ккал, чтобы не терять мышцы.';\n} else if (weightDelta < -0.3) {\n  verdict = '✅ Отличный темп! Продолжай в том же духе.';\n} else if (weightDelta <= 0.3) {\n  verdict = '😐 Темп тормозит — проверь точность подсчёта или добавь активности.';\n} else {\n  verdict = '⚠️ Вес растёт — пересмотри размеры порций и проверь дефицит.';\n}\n\n// --- Build text -------------------------------------------------\nconst lines = [];\nlines.push(`📊 *Итоги недели* (${startStr} — ${today})\\n`);\nlines.push(`🏋 Тренировок: ${workoutRows.length} из ~${expectedWorkouts} ожидаемых, расход ~${Math.round(workoutKcalTotal)} ккал`);\nif (wList) lines.push(wList);\nlines.push('');\nlines.push(`🚶 Ходьба: ${walkDays} из 7 дней (всего ${walkMinTotal} мин, ~${Math.round(walkKcalTotal)} ккал)`);\nif (walkDays) lines.push(`- В среднем ${walkAvgMin} мин в день когда ходил`);\nelse lines.push('- За неделю ни разу не залогирована ходьба — это слабо при сидячей работе.');\nlines.push('');\nlines.push(weightLine + fatLine);\nlines.push('');\nlines.push(`🍽 Еда: ${loggedDays.length} из 7 дней залогированы`);\nif (loggedDays.length) {\n  lines.push(`- Средние ккал: ${avgKcal} (цель ~${targetKcal})`);\n  lines.push(`- Средний белок: ${avgProtein}г (цель ${targetProtein}г)`);\n  lines.push(`- Белок добран в ${proteinHitDays} из ${loggedDays.length} дней (${proteinHitPct}%)`);\n}\nlines.push('');\nlines.push(`💡 ${verdict}`);\n\nreturn [{ json: { chat_id, text: lines.join('\\n') } }];"
+      },
+      "id": "4cb70c13-1d69-46cf-8f30-b7796badb4f1",
+      "name": "Compute Weekly Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3728,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "eaeb977d-48ae-4ffa-8d11-da12bf9207e3",
+      "name": "Telegram Weekly",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3952,
+        0
+      ],
+      "webhookId": "p2w-telegram-weekly-hook",
+      "credentials": {
+        "telegramApi": {
+          "id": "i66iQ2uUac0QdYNa",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Cron Sun 21:00 MSK": {
+      "main": [
+        [
+          {
+            "node": "Read Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Profile": {
+      "main": [
+        [
+          {
+            "node": "Read Food Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Food Log": {
+      "main": [
+        [
+          {
+            "node": "Read Workout Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Workout Log": {
+      "main": [
+        [
+          {
+            "node": "Read Body Params",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Body Params": {
+      "main": [
+        [
+          {
+            "node": "Read Walking Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Walking Log": {
+      "main": [
+        [
+          {
+            "node": "Compute Weekly Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Weekly Report": {
+      "main": [
+        [
+          {
+            "node": "Telegram Weekly",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": {
+    "node:Cron Sun 21:00 MSK": {
+      "recurrenceRules": []
+    }
+  },
+  "activeVersionId": "7600db3a-ce24-4064-8c8d-6289c2412d40",
+  "versionCounter": 17,
+  "versionMetadata": {
+    "name": "Version 7600db3a",
+    "description": ""
+  }
+}

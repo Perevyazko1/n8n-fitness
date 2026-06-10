@@ -1,0 +1,2022 @@
+{
+  "name": "Fitness_Bot_Phase_3_PG_v2",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "p2-telegram-trigger",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1600,
+        880
+      ],
+      "webhookId": "fitness-bot-phase3-trigger",
+      "credentials": {
+        "telegramApi": {
+          "id": "i66iQ2uUac0QdYNa",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT telegram_id AS chat_id FROM fitness_tguser WHERE approved",
+        "options": {}
+      },
+      "id": "p3-read-allowed",
+      "name": "Read Allowed Profiles",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1488,
+        720
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Whitelist guard: пропускаем только если from.id есть в profile.chat_id\nconst trigger = $('Telegram Trigger').first().json;\nconst fromId = String(trigger?.message?.from?.id ?? trigger?.message?.chat?.id ?? '');\nconst allowed = $input.all()\n  .map(i => String(i.json.chat_id ?? '').trim())\n  .filter(Boolean);\nif (!fromId || !allowed.includes(fromId)) {\n  return [];\n}\nreturn [{ json: trigger }];"
+      },
+      "id": "p3-auth-guard",
+      "name": "Auth Guard",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1376,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "voice-cond",
+              "leftValue": "={{ $json.message.voice }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "p2-voice-if",
+      "name": "Voice?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -1376,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "id": "p2-download-voice",
+      "name": "Download Voice",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1152,
+        784
+      ],
+      "webhookId": "p2-download-voice-hook",
+      "credentials": {
+        "telegramApi": {
+          "id": "i66iQ2uUac0QdYNa",
+          "name": "Telegram account"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {
+          "language": "ru"
+        }
+      },
+      "id": "p2-transcribe",
+      "name": "Transcribe a recording",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        -928,
+        544
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "SkPovYGQlL1P1Ft5",
+          "name": "OpenAI account"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ut1",
+              "name": "user_text",
+              "type": "string",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "id": "ci1",
+              "name": "chat_id",
+              "type": "number",
+              "value": "={{ $('Telegram Trigger').item.json.message.chat.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "p2-set-text-voice",
+      "name": "Set Text (voice)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -720,
+        784
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ut2",
+              "name": "user_text",
+              "type": "string",
+              "value": "={{ $json.message.text }}"
+            },
+            {
+              "id": "ci2",
+              "name": "chat_id",
+              "type": "number",
+              "value": "={{ $json.message.chat.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "p2-set-text-text",
+      "name": "Set Text (text)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1152,
+        976
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "p2-merge-text",
+      "name": "Merge Text",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        -496,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendChatAction",
+        "chatId": "={{ $json.chat_id }}",
+        "action": "typing"
+      },
+      "id": "p2-typing",
+      "name": "Show Typing",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -384,
+        880
+      ],
+      "webhookId": "p2-typing-hook",
+      "continueOnFail": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "i66iQ2uUac0QdYNa",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT t.telegram_id AS chat_id, p.height_cm, p.weight_kg, p.age, p.sex, p.activity_level, p.goal, p.daily_baseline_kcal, p.bmr, p.training_days_interval, p.target_kcal, p.target_protein_g, p.target_fat_g, p.target_carbs_g FROM fitness_profile p JOIN fitness_tguser t ON t.id = p.user_id WHERE t.telegram_id = {{ $('Telegram Trigger').first().json.message.from.id }}",
+        "options": {}
+      },
+      "id": "p2-read-profile",
+      "name": "Read Profile",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -272,
+        880
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT id, to_char(date,'YYYY-MM-DD') AS date, time, description, kcal, protein, fat, carbs, meal_type FROM fitness_foodlog WHERE user_id = (SELECT id FROM fitness_tguser WHERE telegram_id = {{ $('Telegram Trigger').first().json.message.from.id }}) ORDER BY date, time, id",
+        "options": {}
+      },
+      "id": "p2-read-food",
+      "name": "Read Food Log",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -48,
+        880
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT to_char(date,'YYYY-MM-DD') AS date, day_plan, exercises_done, duration_min, kcal_burned, notes FROM fitness_workoutlog WHERE user_id = (SELECT id FROM fitness_tguser WHERE telegram_id = {{ $('Telegram Trigger').first().json.message.from.id }}) ORDER BY date",
+        "options": {}
+      },
+      "id": "p2-read-workout",
+      "name": "Read Workout Log",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        176,
+        880
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT block_num, \"group\", exercise, sets, reps, weight, note, met, default_min FROM fitness_workoutcatalog WHERE user_id = (SELECT id FROM fitness_tguser WHERE telegram_id = {{ $('Telegram Trigger').first().json.message.from.id }}) ORDER BY block_num, id",
+        "options": {}
+      },
+      "id": "p2-read-workouts",
+      "name": "Read Workouts Catalog",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        400,
+        880
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT barcode, name, aliases, kcal_per_100g, protein_per_100g, fat_per_100g, carbs_per_100g, default_serving_g, notes FROM fitness_product",
+        "options": {}
+      },
+      "id": "p2-read-products",
+      "name": "Read Products",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        512,
+        1080
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT to_char(date,'YYYY-MM-DD') AS date, time, activity, duration_min, distance_km, speed_kmh, kcal_burned, notes FROM fitness_walkinglog WHERE user_id = (SELECT id FROM fitness_tguser WHERE telegram_id = {{ $('Telegram Trigger').first().json.message.from.id }}) ORDER BY date, time, id",
+        "options": {}
+      },
+      "id": "p2-read-walking",
+      "name": "Read Walking Log",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        624,
+        1080
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build <context> block for the LLM and pull short-term memory.\nconst merge = $('Merge Text').first().json;\nconst chat_id = String(merge.chat_id);\nconst user_text = merge.user_text;\n\nconst pad = (n) => String(n).padStart(2, '0');\nconst now = new Date();\nconst today = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;\n\n// --- Profile -------------------------------------------------------------\nconst profileRows = $('Read Profile').all().map(i => i.json);\nconst profileRow = profileRows.find(r => String(r.chat_id) === chat_id) || null;\nconst interval = Number(profileRow?.training_days_interval) || 1;\n\n// --- Today's food sum ----------------------------------------------------\nconst foodRows = $('Read Food Log').all().map(i => i.json);\nconst todayFood = foodRows.filter(r => String(r.date) === today);\nconst todaySum = todayFood.reduce((acc, r) => ({\n  kcal:    acc.kcal    + (Number(r.kcal)    || 0),\n  protein: acc.protein + (Number(r.protein) || 0),\n  fat:     acc.fat     + (Number(r.fat)     || 0),\n  carbs:   acc.carbs   + (Number(r.carbs)   || 0),\n}), { kcal: 0, protein: 0, fat: 0, carbs: 0 });\n// Округление — иначе плавучка даёт 655.6999999999998\ntodaySum.kcal    = Math.round(todaySum.kcal);\ntodaySum.protein = Math.round(todaySum.protein * 10) / 10;\ntodaySum.fat     = Math.round(todaySum.fat * 10) / 10;\ntodaySum.carbs   = Math.round(todaySum.carbs * 10) / 10;\n\n// --- Last workout --------------------------------------------------------\nconst workoutRows = $('Read Workout Log').all().map(i => i.json);\nconst sortedW = workoutRows\n  .filter(r => r.date)\n  .sort((a, b) => String(a.date).localeCompare(String(b.date)));\nconst lastWorkout = sortedW[sortedW.length - 1] || null;\n// Тренировка, подтверждённая ИМЕННО сегодня (чтобы не показывать «отдых» после лога).\nconst trainedTodayLog = workoutRows.find(r => String(r.date) === today) || null;\n\n// --- Workout blocks state (вкл/выкл блоков) ----------------------------\nconst blocksStateRows = $('Read Workout Blocks').all().map(i => i.json);\nconst blocksState = {};\nfor (const r of blocksStateRows) {\n  const n = Number(r.block_num);\n  if (!n) continue;\n  blocksState[n] = {\n    label: r.label || `№${n}`,\n    active: String(r.active).toUpperCase() === 'TRUE',\n  };\n}\n// Если лист пустой — считаем все 4 блока активными с дефолтными лейблами.\nif (!Object.keys(blocksState).length) {\n  for (const n of [1,2,3,4]) blocksState[n] = { label: `№${n}`, active: true };\n}\nconst activeNums = Object.keys(blocksState).map(Number)\n  .filter(n => blocksState[n].active).sort((a,b) => a-b);\nconst inactiveNums = Object.keys(blocksState).map(Number)\n  .filter(n => !blocksState[n].active).sort((a,b) => a-b);\nfunction nextActiveAfter(lastN, active) {\n  if (!active.length) return null;\n  const after = active.find(n => n > lastN);\n  return after != null ? after : active[0];\n}\n\nfunction parseWorkoutNumber(plan) {\n  if (!plan) return null;\n  const m = String(plan).match(/№?\\s*([1-4])/);\n  if (m) return Number(m[1]);\n  const s = String(plan).toLowerCase();\n  if (s.includes('грудь') && s.includes('бицепс')) return 1;\n  if (s.includes('плечи') && s.includes('грудь'))  return 2;\n  if (s.includes('спина') && s.includes('трицепс'))return 3;\n  if (s.includes('ноги')) return 4;\n  return null;\n}\n\nlet expected_today;\nif (!activeNums.length) {\n  expected_today = { type: 'rest', days_until_next: null, reason: 'no_active_blocks' };\n} else if (!lastWorkout) {\n  const n = activeNums[0];\n  expected_today = { type: 'workout', number: n, label: blocksState[n].label };\n} else {\n  const lastDate = new Date(String(lastWorkout.date));\n  const todayD   = new Date(today);\n  const daysSince = Math.floor((todayD - lastDate) / (1000*60*60*24));\n  if (daysSince < interval) {\n    expected_today = { type: 'rest', days_until_next: interval - daysSince };\n  } else {\n    const lastN = parseWorkoutNumber(lastWorkout.day_plan) || 0;\n    const nextN = nextActiveAfter(lastN, activeNums);\n    expected_today = { type: 'workout', number: nextN, label: blocksState[nextN].label };\n  }\n}\n\n// --- Workouts catalog (читается из листа workouts_flat) -----------------\nconst wkRows = $('Read Workouts Catalog').all().map(i => i.json);\nconst blocks = { 1: [], 2: [], 3: [], 4: [] };\nfor (const r of wkRows) {\n  const n = Number(r.block_num);\n  if (!n || !blocks[n]) continue;\n  if (!r.exercise) continue;\n  blocks[n].push({\n    group:    r.group    || '',\n    exercise: r.exercise || '',\n    sets:     r.sets     != null ? String(r.sets)   : '',\n    reps:     r.reps     != null ? String(r.reps)   : '',\n    weight:   r.weight   != null ? String(r.weight) : '',\n    note:     r.note     || '',\n  });\n}\n// BLOCK_LABELS теперь приходят из листа workout_blocks (см. blocksState выше).\n\n// --- Short-term memory (per chat_id, persists in workflow staticData) ----\nconst sd = $getWorkflowStaticData('global');\nsd.chats = sd.chats || {};\nsd.chats[chat_id] = sd.chats[chat_id] || { recent: [], last_intent: null, last_intent_date: null };\nconst mem = sd.chats[chat_id];\n// Если последний intent был не сегодня — сбрасываем, не тащим вчерашнее в контекст.\nif (mem.last_intent_date && mem.last_intent_date !== today) {\n  mem.last_intent = null;\n  mem.last_intent_date = null;\n}\nconst recentDialog = (mem.recent || []).slice(-6);\n\n// --- Compose <context> ---------------------------------------------------\nconst lines = [];\nlines.push('<context>');\nif (profileRow) {\n  lines.push(`Профиль: рост=${profileRow.height_cm}см, вес=${profileRow.weight_kg}кг, возраст=${profileRow.age}, пол=${profileRow.sex}, цель=${profileRow.goal || 'не задана'}.`);\n  const bmr = Number(profileRow.bmr) || 1600;\n  const baseline = Number(profileRow.daily_baseline_kcal) || 280;\n  const goal = String(profileRow.goal || 'maintain').toLowerCase();\n  const goalMult = ({ lose: 0.8, maintain: 1.0, gain: 1.15 })[goal] || 1.0;\n\n  // --- Реальный расход за сегодня (динамически) ----------------------\n  // Ходьба за сегодня:\n  const walkRows = $('Read Walking Log').all().map(i => i.json).filter(r => String(r.date) === today);\n  const walkKcalToday = walkRows.reduce((s, r) => s + (Number(r.kcal_burned) || 0), 0);\n  const walkMinToday  = walkRows.reduce((s, r) => s + (Number(r.duration_min) || 0), 0);\n\n  // Тренировки за сегодня:\n  const todayWorkouts = workoutRows.filter(r => String(r.date) === today);\n  const workoutKcalActual = todayWorkouts.reduce((s, r) => s + (Number(r.kcal_burned) || 0), 0);\n\n  // Тренировка попадает в бюджет ТОЛЬКО после ПОДТВЕРЖДЕНИЯ (есть строка workout_log\n  // за сегодня) и строго по ФАКТУ kcal_burned (он уже посчитан по ВЫПОЛНЕННЫМ\n  // упражнениям — в Mini App done_workout_stats / при log_workout). Плановый расход\n  // заранее в бюджет НЕ добавляем — так же, как в приложении (compute_dashboard).\n  const workoutKcalToday = workoutKcalActual;\n\n  const tdeeToday = bmr + baseline + walkKcalToday + workoutKcalToday;\n  const targetKcalToday = Math.round(tdeeToday * goalMult);\n\n  // Минимум — не уходить ниже BMR × 1.1; максимум — не выше базового × 1.4\n  const targetFloor = Math.round(bmr * 1.1);\n  const targetCap   = Math.round((bmr + baseline) * goalMult * 1.4);\n  const targetKcalTodayClamped = Math.max(targetFloor, Math.min(targetCap, targetKcalToday));\n\n  lines.push(`📊 Расчёт расхода на сегодня:`);\n  lines.push(`- BMR: ${bmr} ккал`);\n  lines.push(`- Повседневная активность (фон): ${baseline} ккал`);\n  if (walkRows.length) {\n    lines.push(`- Ходьба сегодня всего: ${walkMinToday} мин, ${walkKcalToday} ккал. Сессии:`);\n    for (const r of walkRows) {\n      const act = r.activity || 'walking';\n      const sp  = r.speed_kmh ? `${r.speed_kmh} км/ч` : '?';\n      const dist = r.distance_km ? `${r.distance_km}км ` : '';\n      lines.push(`  · ${r.time || ''} ${act}: ${r.duration_min}мин ${dist}@ ${sp} → ${r.kcal_burned} ккал`);\n    }\n  } else {\n    lines.push(`- Ходьба сегодня: ещё не залогирована`);\n  }\n  if (todayWorkouts.length) {\n    lines.push(`- Тренировка сегодня (факт, подтверждена): ${workoutKcalToday} ккал — учтено в бюджете.`);\n  } else if (expected_today.type === 'workout') {\n    lines.push(`- Тренировка сегодня по плану (${expected_today.label}): ещё НЕ подтверждена → в бюджет НЕ учтена. Учтётся после подтверждения (по фактически выполненным упражнениям).`);\n  } else {\n    lines.push(`- Тренировка сегодня: ещё не было/не залогирована`);\n  }\n  lines.push(`- Итого расход: ${tdeeToday} ккал`);\n  if (targetKcalTodayClamped !== targetKcalToday) {\n    if (targetKcalTodayClamped < targetKcalToday) {\n      lines.push(`Сырой расчёт цели: ${targetKcalToday} ккал. ⚠️ Сработал ПОТОЛОК (cap = базовая цель × 1.4 = ${targetCap} ккал). Это страховка — если за день много активности, бюджет всё равно не растёт выше ${targetCap}, чтобы не съесть лишнего «под расход».`);\n      lines.push(`Цель на сегодня (с учётом cap): ${targetKcalTodayClamped} ккал.`);\n    } else {\n      lines.push(`Сырой расчёт цели: ${targetKcalToday} ккал. ⚠️ Сработал ПОЛ (floor = BMR × 1.1 = ${targetFloor} ккал). Это защита — нельзя уходить ниже, иначе слишком жёсткий дефицит.`);\n      lines.push(`Цель на сегодня (с учётом floor): ${targetKcalTodayClamped} ккал.`);\n    }\n  } else {\n    lines.push(`Цель (${goal} × ${goalMult}): ${targetKcalTodayClamped} ккал.`);\n  }\n  lines.push(`Белок: ${profileRow.target_protein_g}г, жиры: ${profileRow.target_fat_g}г, углеводы: ${profileRow.target_carbs_g}г.`);\n  lines.push(`Интервал тренировок: ${interval} дн. Тип дня по циклу: ${trainedTodayLog ? 'тренировка ВЫПОЛНЕНА сегодня (' + trainedTodayLog.day_plan + ')' : (expected_today.type === 'workout' ? 'тренировка №' + expected_today.number : 'отдых')}.`);\n  profileRow.__target_kcal_today = targetKcalTodayClamped;\n} else {\n  lines.push('Профиль НЕ заполнен. Если пользователь даёт антропометрию (рост/вес/возраст/пол/активность/цель) — используй action=set_profile. Если он сразу называет ккал-цель — action=set_goals.');\n}\nlines.push(`Сегодня (${today}) съедено: ${todaySum.kcal} ккал, Б=${todaySum.protein}г, Ж=${todaySum.fat}г, У=${todaySum.carbs}г.`);\nif (todayFood.length) {\n  lines.push('Записи food_log за сегодня (используй для daily_summary разбивкой):');\n  for (const r of todayFood) {\n    const t = r.time ? `${r.time} ` : '';\n    const desc = r.description || '(без описания)';\n    const kcal = r.kcal != null ? r.kcal : '?';\n    const p = r.protein != null ? r.protein : '?';\n    const f = r.fat != null ? r.fat : '?';\n    const c = r.carbs != null ? r.carbs : '?';\n    lines.push(`- ${t}${desc} — ${kcal} ккал (Б${p}/Ж${f}/У${c})`);\n  }\n}\nif (profileRow?.target_kcal) {\n  const targetToday = profileRow.__target_kcal_today || Number(profileRow.target_kcal);\n  const left = Math.round(targetToday - todaySum.kcal);\n  lines.push(`Остаток до цели на сегодня: ${left} ккал (${todaySum.kcal} съедено из ${targetToday}).`);\n  // Подаём предыдущий остаток для расчёта движения бюджета.\n  const prevRem = mem.last_remaining_kcal;\n  if (prevRem != null && prevRem !== left) {\n    const delta = Math.round(left - prevRem);\n    const sign = delta >= 0 ? '+' : '';\n    lines.push(`Прошлый остаток (до этого сообщения): ${prevRem} ккал. Движение: ${sign}${delta} ккал. ОБЯЗАТЕЛЬНО в reply покажи юзеру: «было ${prevRem} → стало ${left} ккал (${sign}${delta} за <причина>)».`);\n  }\n  // Сохраним текущий остаток для следующего хода\n  mem.last_remaining_kcal = left;\n}\nif (profileRow?.target_protein_g) {\n  const targetP = Number(profileRow.target_protein_g);\n  const leftP = Math.round((targetP - todaySum.protein) * 10) / 10;\n  lines.push(`Белок: ${todaySum.protein}г съедено из ${targetP}г. Осталось добрать: ${leftP}г.`);\n}\nif (profileRow?.target_fat_g) {\n  const targetF = Number(profileRow.target_fat_g);\n  lines.push(`Жиры: ${todaySum.fat}г из ${targetF}г.`);\n}\nif (profileRow?.target_carbs_g) {\n  const targetC = Number(profileRow.target_carbs_g);\n  lines.push(`Углеводы: ${todaySum.carbs}г из ${targetC}г.`);\n}\nif (lastWorkout) {\n  lines.push(`Последняя тренировка: ${lastWorkout.date} — ${lastWorkout.day_plan}.`);\n} else {\n  lines.push('Тренировок ещё не было.');\n}\n\n// ════════════════ ПАТТЕРНЫ ПОСЛЕДНИХ 7 ДНЕЙ ════════════════\nconst last7Patterns = (() => {\n  const out = [];\n  const today0 = new Date(today + 'T00:00:00');\n\n  // Прошлые 7 дней (исключая сегодня), по дате\n  const days = [];\n  for (let i = 1; i <= 7; i++) {\n    const d = new Date(today0); d.setDate(d.getDate() - i);\n    const ds = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;\n    days.push(ds);\n  }\n\n  const targetK = Number(profileRow?.target_kcal) || 0;\n  const targetP = Number(profileRow?.target_protein_g) || 0;\n\n  // Дневные суммы food\n  const perDay = {};\n  for (const ds of days) perDay[ds] = { kcal: 0, protein: 0, items: 0, junk: 0, descs: [] };\n  const JUNK = ['батончик','пицц','фастфуд','бургер','чипс','газировк','конфет','шоколад','мороженое','пончик','круассан','сухарик','шаурм','картош','кола','пепси'];\n  for (const r of foodRows) {\n    const ds = String(r.date);\n    if (!(ds in perDay)) continue;\n    perDay[ds].kcal += Number(r.kcal) || 0;\n    perDay[ds].protein += Number(r.protein) || 0;\n    perDay[ds].items += 1;\n    const desc = String(r.description || '').toLowerCase();\n    perDay[ds].descs.push(desc);\n    if (JUNK.some(k => desc.includes(k))) perDay[ds].junk += 1;\n  }\n\n  // Стрики\n  let overBudgetStreak = 0;\n  let lowProteinStreak = 0;\n  let zeroLogStreak = 0;\n  for (const ds of days) {\n    const d = perDay[ds];\n    if (d.items === 0) zeroLogStreak += 1;\n    else break; // streak от вчера назад\n  }\n  for (const ds of days) {\n    const d = perDay[ds];\n    if (targetK && d.kcal > targetK + 200) overBudgetStreak += 1; else break;\n  }\n  for (const ds of days) {\n    const d = perDay[ds];\n    if (targetP && d.protein < targetP * 0.7 && d.items > 0) lowProteinStreak += 1; else break;\n  }\n\n  // Общая сводка за 7 дней\n  let weekKcal = 0, weekProtein = 0, weekJunk = 0, daysWithLog = 0;\n  for (const ds of days) {\n    const d = perDay[ds];\n    if (d.items > 0) daysWithLog += 1;\n    weekKcal += d.kcal; weekProtein += d.protein; weekJunk += d.junk;\n  }\n\n  const walkRows7 = $('Read Walking Log').all().map(i => i.json).filter(r => days.includes(String(r.date)));\n\n  // Пропущенные плановые тренировки.\n  // Окно ВКЛЮЧАЕТ сегодня: тренировка сегодня — НЕ пропуск.\n  const wkWindow = new Set([today, ...days]);\n  const workoutDaysInWin = new Set(\n    workoutRows.map(r => String(r.date)).filter(d => wkWindow.has(d))\n  );\n  let actualWorkouts = workoutDaysInWin.size;\n  // expected считаем от ПЕРВОЙ тренировки в окне по интервалу (а не плоско 7/interval),\n  // чтобы старая дыра ДО окна не отравляла счёт. Сегодняшний слот пропуском не считаем —\n  // день ещё не закрыт.\n  let expectedWorkouts = 0;\n  let missedWorkouts = 0;\n  if (actualWorkouts >= 1) {\n    const anchor = [...workoutDaysInWin].sort()[0];\n    const daysDiff = Math.round((new Date(today + 'T00:00:00') - new Date(anchor + 'T00:00:00')) / 86400000);\n    expectedWorkouts = Math.ceil(daysDiff / interval);\n    missedWorkouts = Math.max(0, expectedWorkouts - actualWorkouts);\n  }\n\n  if (zeroLogStreak >= 2) out.push(`📉 ${zeroLogStreak} дн подряд НИЧЕГО не залогировано в food_log.`);\n  if (overBudgetStreak >= 2) out.push(`🍕 ${overBudgetStreak} дн подряд превышен бюджет ккал на 200+.`);\n  if (lowProteinStreak >= 2) out.push(`🥩 ${lowProteinStreak} дн подряд белок ниже 70% от цели.`);\n  if (weekJunk >= 5) out.push(`⚠️ За неделю ${weekJunk} раз ели «мусорные» продукты (батончики/фастфуд/чипсы/сладкое).`);\n  if (missedWorkouts >= 2) out.push(`💤 За 7 дней пропущено ~${missedWorkouts} плановых тренировок (сделано ${actualWorkouts} из ожидаемых ${expectedWorkouts}).`);\n  if (daysWithLog === 0) out.push(`⚠️ За 7 дней ни одной записи еды. Юзер не пишет в бот.`);\n\n  // Тренировка совсем давно\n  if (lastWorkout) {\n    const lwd = new Date(String(lastWorkout.date) + 'T00:00:00');\n    const days_since = Math.floor((today0 - lwd) / 86400000);\n    if (days_since >= 4 && days_since > interval) out.push(`🏋️ Последняя тренировка ${days_since} дн назад (${lastWorkout.day_plan}), интервал ${interval} дн — пора.`);\n  }\n\n  return { lines: out, perDay, weekKcal, weekProtein, daysWithLog, workoutsLast7: actualWorkouts, expectedWorkouts, walkRows7 };\n})();\n\nif (last7Patterns.lines.length) {\n  lines.push('');\n  lines.push('🚨 ПАТТЕРНЫ ПОСЛЕДНИХ 7 ДНЕЙ (используй чтобы давить на закономерности, а не молча игнорить):');\n  for (const l of last7Patterns.lines) lines.push(`- ${l}`);\n}\n\nif (trainedTodayLog) {\n  lines.push(`Сегодня тренировка УЖЕ выполнена и подтверждена: ${trainedTodayLog.day_plan}. Расход учтён в бюджете. НЕ говори, что сегодня отдых.`);\n} else if (expected_today.type === 'rest') {\n  lines.push(`Сегодня по циклу — ОТДЫХ. Следующая тренировка через ${expected_today.days_until_next} дн.`);\n} else {\n  lines.push(`Сегодня по циклу — Трен ${expected_today.label}.`);\n  const ex = blocks[expected_today.number] || [];\n  if (ex.length) {\n    lines.push(`Упражнения для ${expected_today.label}:`);\n    for (const e of ex) {\n      const w = e.weight && e.weight !== '—' ? `, ${e.weight}` : '';\n      const note = e.note ? ` (${e.note})` : '';\n      lines.push(`- ${e.group}: ${e.exercise}, ${e.sets}×${e.reps}${w}${note}`);\n    }\n  }\n}\n\n// Полный план всех 4 блоков — для вопросов \"в какой день добавить упражнение\",\n// \"что в №3\", \"замени Y на Z\" и т.п.\nconst hasAnyActiveBlock = activeNums.some(n => (blocks[n] || []).length > 0);\nif (hasAnyActiveBlock) {\n  lines.push('');\n  lines.push(`Полный план тренировок (активных блоков: ${activeNums.length}):`);\n  for (const n of activeNums) {\n    if (!blocks[n] || !blocks[n].length) continue;\n    lines.push(`-- ${blocksState[n].label} --`);\n    for (const e of blocks[n]) {\n      const w = e.weight && e.weight !== '—' ? `, ${e.weight}` : '';\n      const note = e.note ? ` (${e.note})` : '';\n      lines.push(`  ${e.group}: ${e.exercise}, ${e.sets}×${e.reps}${w}${note}`);\n    }\n  }\n  if (inactiveNums.length) {\n    const offLabels = inactiveNums.map(n => blocksState[n].label).join(', ');\n    lines.push('');\n    lines.push(`⚠️ Временно отключены (НЕ предлагать и НЕ включать в цикл): ${offLabels}. Если юзер просит «покажи план №X» из отключённых — скажи что блок временно отключён.`);\n  }\n}\n// --- Products catalog -------------------------------------------\nconst productsRows = $('Read Products').all().map(i => i.json).filter(r => r && r.name);\nif (productsRows.length) {\n  lines.push('');\n  lines.push('Справочник продуктов (используй ТОЧНЫЕ числа отсюда, не угадывай):');\n  for (const p of productsRows) {\n    const aliases = p.aliases ? ` [${p.aliases}]` : '';\n    const ds = p.default_serving_g ? `, 1 порция = ${p.default_serving_g}г` : '';\n    const notes = p.notes ? ` — ${p.notes}` : '';\n    lines.push(`- ${p.name}${aliases}: ${p.kcal_per_100g} ккал / Б${p.protein_per_100g} / Ж${p.fat_per_100g} / У${p.carbs_per_100g} на 100г${ds}${notes}`);\n  }\n}\nif (mem.last_intent) {\n  lines.push(`Контекст диалога: пользователь сегодня уже упомянул план «${mem.last_intent}».`);\n}\nif (recentDialog.length) {\n  lines.push('Недавние реплики:');\n  for (const t of recentDialog) lines.push(`  ${t.role}: ${t.text}`);\n}\n\n// ━━━ Анти-loop для уточнений ━━━\n// Если предыдущий ответ бота был ask_clarify — текущее сообщение это ОТВЕТ.\n// Подаём это очень громко в самом конце, чтобы модель точно увидела.\nif (mem.pending_clarify) {\n  const pc = mem.pending_clarify;\n  lines.push('');\n  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');\n  lines.push('⚠️ КРИТИЧНО: текущее сообщение пользователя — это ОТВЕТ на твой уточняющий вопрос.');\n  lines.push(`Прошлое сообщение USER: \"${pc.original_user_msg}\"`);\n  lines.push(`Твой вопрос (ask_clarify): \"${pc.bot_question}\"`);\n  if (pc.pending_items && pc.pending_items.length) {\n    lines.push(`Ждали уточнения по: ${pc.pending_items.join(', ')}`);\n  }\n  lines.push(`Текущее USER (это ОТВЕТ на твой вопрос): \"${user_text}\"`);\n  lines.push('');\n  lines.push('ИНСТРУКЦИЯ:');\n  lines.push('1. Склей описание из «Прошлое сообщение USER» с цифрами/уточнениями из «Текущее USER».');\n  lines.push('2. Верни action=log_food (или log_workout/log_walking — что соответствует контексту), НЕ повторяй ask_clarify.');\n  lines.push('3. Если ответ юзера типа «X грамм всего», «вместе X грамм», «на всё X», «итого X» — это ОБЩАЯ масса для всех упомянутых ранее блюд. Раздели поровну или по логичной пропорции (например грибы:баклажан = 60:40).');\n  lines.push('4. Если ответ односложный или очень короткий («50 грамм», «20 минут») — это и есть числа для долога. Не переспрашивай.');\n  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');\n}\nlines.push('</context>');\nconst context = lines.join('\\n');\n\n\n// === Тонкий контекст для Router Agent (классификатор намерения) ===\n// Полный context идёт в специалистов; Router'у достаточно понять кто отвечает.\nconst rcLines = [];\nrcLines.push('<context>');\nif (profileRow) {\n  rcLines.push(`Профиль есть. Цель: ${profileRow.goal || 'не задана'}.`);\n} else {\n  rcLines.push('Профиль НЕ заполнен.');\n}\nif (mem.last_bot_action) {\n  rcLines.push(`Последнее действие бота: ${mem.last_bot_action}.`);\n}\nif (mem.pending_clarify) {\n  const pc = mem.pending_clarify;\n  rcLines.push('━━━ ОТВЕТ НА УТОЧНЯЮЩИЙ ВОПРОС ━━━');\n  rcLines.push(`Прошлое сообщение USER: \"${pc.original_user_msg}\"`);\n  rcLines.push(`Твой вопрос: \"${pc.bot_question}\"`);\n  if (pc.pending_items && pc.pending_items.length) {\n    rcLines.push(`Ждали уточнения: ${pc.pending_items.join(', ')}`);\n  }\n  rcLines.push('Текущее сообщение USER — это ОТВЕТ. Классифицируй по тому, что обсуждалось.');\n  rcLines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');\n}\nif (recentDialog.length) {\n  rcLines.push('Недавние реплики:');\n  for (const t of recentDialog.slice(-4)) rcLines.push(`  ${t.role}: ${t.text}`);\n}\nrcLines.push('</context>');\nconst router_context = rcLines.join('\\n');\n\nreturn [{ json: { chat_id: merge.chat_id, user_text, context, router_context, expected_today } }];"
+      },
+      "id": "p2-build-context",
+      "name": "Build Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json;\nconst _llm_usage = raw?.usage || null;\nlet text =\n  raw?.output?.[0]?.content?.[0]?.text ??\n  raw?.message?.content ??\n  raw?.choices?.[0]?.message?.content ??\n  raw?.content ??\n  raw?.text ??\n  raw;\nif (typeof text !== 'string') text = JSON.stringify(text);\ntext = text.trim().replace(/^```(?:json)?\\s*/i, '').replace(/\\s*```$/, '').trim();\n\n// Модель иногда вставляет // комментарии — стандартный JSON.parse на них падает.\ntext = text.replace(/\\/\\/[^\\n\\r]*/g, '');\n// И блочные комментарии /* ... */ на всякий.\ntext = text.replace(/\\/\\*[\\s\\S]*?\\*\\//g, '');\n// Trailing запятые перед } или ] (строгий JSON их не разрешает).\ntext = text.replace(/,(\\s*[}\\]])/g, '$1');\n\n// Модель иногда отдаёт числа выражениями: \"kcal\": 690 + 570 + 50.\n// Заменяем такие выражения на готовое число до JSON.parse.\ntext = text.replace(/(:\\s*)([\\d.]+(?:\\s*[+\\-*]\\s*[\\d.]+)+)(\\s*[,}\\]])/g, (m, pre, expr, post) => {\n  if (!/^[\\d\\s+\\-*.]+$/.test(expr)) return m;\n  try {\n    const v = Function(`\"use strict\"; return (${expr})`)();\n    if (typeof v === 'number' && Number.isFinite(v)) return `${pre}${v}${post}`;\n  } catch (e) {}\n  return m;\n});\n\nlet payload;\ntry { payload = JSON.parse(text); }\ncatch (e) { payload = { action: 'chat', data: {}, reply: text }; }\nif (!payload || typeof payload !== 'object') payload = { action: 'chat', data: {}, reply: String(payload) };\n\n// Нормализуем action: модель порой пишет logfood вместо log_food.\nconst ACTION_MAP = {\n  logfood: 'log_food', logworkout: 'log_workout', logbody: 'log_body',\n  setprofile: 'set_profile', setgoals: 'set_goals', planworkout: 'plan_workout',\n  dailysummary: 'daily_summary', showworkout: 'show_workout',\n  askclarify: 'ask_clarify', deletefood: 'delete_food',\n  forecastfood: 'forecast_food', logwalking: 'log_walking', addproduct: 'add_product', chat: 'chat',\n};\nif (typeof payload.action === 'string') {\n  const norm = payload.action.toLowerCase().replace(/[^a-z]/g, '');\n  payload.action = ACTION_MAP[norm] || payload.action;\n}\nif (!payload.action) payload.action = 'chat';\n\n// Нормализуем ключи в data: mealtype → meal_type, kcalburned → kcal_burned, ...\nconst DATA_KEY_MAP = {\n  mealtype: 'meal_type', kcalburned: 'kcal_burned', durationmin: 'duration_min',\n  dayplan: 'day_plan', exercisesdone: 'exercises_done',\n  bodyfatpct: 'body_fat_pct', heightcm: 'height_cm', weightkg: 'weight_kg',\n  activitylevel: 'activity_level', trainingdaysinterval: 'training_days_interval',\n  targetkcal: 'target_kcal', pendingitems: 'pending_items',\n};\nif (payload.data && typeof payload.data === 'object' && !Array.isArray(payload.data)) {\n  const fixed = {};\n  for (const [k, v] of Object.entries(payload.data)) {\n    const norm = k.toLowerCase().replace(/[^a-z]/g, '');\n    fixed[DATA_KEY_MAP[norm] || k] = v;\n  }\n  payload.data = fixed;\n} else {\n  payload.data = {};\n}\nif (!payload.reply) payload.reply = '...';\n\n// Детерминистский пересчёт kcal_burned для log_walking.\n// Модель часто промахивается с MET, считаем сами по таблице.\nif (payload.action === 'log_walking' && payload.data && typeof payload.data === 'object') {\n  const minutes = Number(payload.data.duration_min) || 0;\n  let speed = Number(payload.data.speed_kmh);\n  const distance = Number(payload.data.distance_km);\n  // Если скорости нет, но есть дистанция и время — посчитаем\n  if (!speed && distance && minutes) speed = distance / (minutes / 60);\n  if (!speed) speed = 3.5; // дефолт ходьбы\n\n  // MET по скорости (по тексту промпта)\n  let met;\n  if (speed < 4)        met = 2.8;\n  else if (speed < 5.5) met = 3.5;\n  else if (speed < 6.5) met = 4.3;\n  else if (speed < 8.5) met = 6;\n  else                  met = 8;\n  // Хайкинг/походы могут идти отдельно; если activity=hiking — поднимем met.\n  const activity = String(payload.data.activity || '').toLowerCase();\n  if (activity.includes('hik') || activity.includes('поход') || activity.includes('лес') || activity.includes('гор')) met = Math.max(met, 6);\n\n  // Вес берём из профиля.\n  const profRows = $('Read Profile').all().map(i => i.json);\n  const prof = profRows.find(r => String(r.chat_id) === String(payload.chat_id || $('Build Context').first().json.chat_id)) || profRows[0];\n  const weight = Number(prof?.weight_kg) || 76;\n\n  if (minutes > 0) {\n    const netMet = Math.max(met - 1, 0); // net MET — без BMR, который уже в bmr+baseline\n    const kcalCalc = Math.round(netMet * weight * minutes / 60);\n    payload.data.kcal_burned = kcalCalc;\n    payload.data.speed_kmh = speed;\n    payload.data.met_used = met;\n    // Если в reply было неправильное число — заменим на пересчитанное.\n    if (typeof payload.reply === 'string') {\n      // Заменяем все «ХХХ ккал» рядом со «сжёг» на правильное.\n      payload.reply = payload.reply.replace(/(сжёг|сжег|сожгли|сожжено)\\s*[~≈]?\\s*\\d+\\s*ккал/gi, `$1 ${kcalCalc} ккал`);\n    }\n  }\n}\n\n// Детерминистский фикс вердикта для forecast_food.\n// Модель часто корректно считает математику, но проставляет неправильный значок\n// (например ставит ❌ НЕ ВЛЕЗАЕТ при положительном остатке). Чиним.\nif (payload.action === 'forecast_food' && typeof payload.reply === 'string') {\n  const m = payload.reply.match(/остаток[^:]{0,40}будет[:\\s]*(-?\\d+(?:[.,]\\d+)?)/i)\n         || payload.reply.match(/после[^\\d-]{0,30}(-?\\d+(?:[.,]\\d+)?)\\s*ккал/i);\n  if (m) {\n    const remaining = parseFloat(String(m[1]).replace(',', '.'));\n    let correctVerdict;\n    if (remaining < 0)        correctVerdict = '❌ НЕ ВЛЕЗАЕТ';\n    else if (remaining < 200) correctVerdict = '⚠️ ВПРИТЫК';\n    else                       correctVerdict = '✅ ВЛЕЗАЕТ В БЮДЖЕТ';\n    payload.reply = payload.reply.replace(/(❌\\s*НЕ\\s*ВЛЕЗАЕТ|⚠️\\s*ВПРИТЫК|✅\\s*ВЛЕЗАЕТ(?:\\s*С\\s*ЗАПАСОМ)?(?:\\s*В\\s*БЮДЖЕТ)?)/gi, correctVerdict);\n  }\n}\n\n\n// Детерминистский пересчёт значков и комментариев для daily_summary.\n// Переписываем строку целиком: значок + комментарий выводим из реальных macro.\nif (payload.action === 'daily_summary' && typeof payload.reply === 'string') {\n  const pad = (n) => String(n).padStart(2,'0');\n  const now = new Date();\n  const todayD = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;\n  const foodRows = $('Read Food Log').all().map(i => i.json).filter(r => String(r.date) === todayD);\n\n  const BAD_KW = ['батончик','квиклер','тортик','пирож','пицца','фастфуд','бургер','газировк','конфет','печень','шоколад','мороженое','мармелад','пончик','круассан','чипс','сухарик'];\n\n  function classify(desc, kcal, protein, carbs, fat) {\n    const lc = String(desc || '').toLowerCase();\n    if (kcal <= 0) return { znak: '👍', comment: 'нет данных' };\n    const pPct = protein * 4 / kcal * 100;\n    const cPct = carbs   * 4 / kcal * 100;\n    const fPct = fat     * 9 / kcal * 100;\n    const isJunk = BAD_KW.some(k => lc.includes(k));\n\n    if (isJunk && pPct < 15) return { znak: '⚠️', comment: 'пустые ккал, мало белка' };\n    if (pPct >= 30 && cPct <= 30) return { znak: '✅', comment: 'отличный белок' };\n    if (pPct >= 15) {\n      if (cPct > 50) return { znak: '👍', comment: 'нормально, но угли преобладают' };\n      if (fPct > 50) return { znak: '👍', comment: 'жирновато, но белок есть' };\n      return { znak: '👍', comment: 'сбалансировано' };\n    }\n    if (cPct > 60) return { znak: '⚠️', comment: 'много простых углеводов' };\n    if (pPct < 8)  return { znak: '⚠️', comment: 'мало белка' };\n    return { znak: '👍', comment: 'нормально' };\n  }\n\n  // Регулярка: <emoji> <description> — <kcal> ккал, <protein>г белка [— коммент до конца строки]\n  const lineRe = /([✅👍⚠❌][️]?)\\s+([^\\n—]+?)\\s+—\\s+([\\d.,]+)\\s*ккал[,.]?\\s*([\\d.,]+)\\s*г\\s+белка(?:\\s+—[^\\n]*)?/gu;\n  payload.reply = payload.reply.replace(lineRe, (m, _oldZnak, desc, kcalStr, proteinStr) => {\n    const kcal = Number(String(kcalStr).replace(',', '.'));\n    const protein = Number(String(proteinStr).replace(',', '.'));\n    const lcDesc = String(desc).toLowerCase().trim();\n    const row = foodRows.find(r => {\n      const d = String(r.description || '').toLowerCase().trim();\n      if (!d) return false;\n      return d === lcDesc || d.includes(lcDesc.slice(0, 20)) || lcDesc.includes(d.slice(0, 20));\n    });\n    const carbs = Number(row?.carbs) || 0;\n    const fat = Number(row?.fat) || 0;\n    const { znak, comment } = classify(desc, kcal, protein, carbs, fat);\n    return `${znak} ${desc} — ${kcalStr} ккал, ${proteinStr}г белка — ${comment}`;\n  });\n\n  // Добавим пустую строку между блюдами (после строки заканчивающейся на коммент)\n  // Только в секции «За сегодня:» — до первого ━━━━━.\n  const headerIdx = payload.reply.indexOf('За сегодня:');\n  const sepIdx = payload.reply.indexOf('━', headerIdx);\n  if (headerIdx !== -1 && sepIdx !== -1) {\n    const before = payload.reply.slice(0, headerIdx);\n    const middle = payload.reply.slice(headerIdx, sepIdx);\n    const after  = payload.reply.slice(sepIdx);\n    // В middle строки блюд — добавим пустую после каждой\n    const fixedMiddle = middle.replace(/(— [^\\n]+)\\n(?=[✅👍⚠❌])/gu, '$1\\n\\n');\n    payload.reply = before + fixedMiddle + after;\n  }\n}\n\nconst bc = $('Build Context').first().json;\nconst chat_id = bc.chat_id;\nconst pad = (n) => String(n).padStart(2, '0');\nconst now = new Date();\nconst todayStr = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;\nconst time = `${pad(now.getHours())}:${pad(now.getMinutes())}`;\n\n// === Backdate: применяем data.date_override если валиден ===\nlet date = todayStr;\nconst ov = payload.data && payload.data.date_override;\nif (typeof ov === 'string' && /^\\d{4}-\\d{2}-\\d{2}$/.test(ov)) {\n  const d = new Date(ov + 'T00:00:00');\n  const today0 = new Date(todayStr + 'T00:00:00');\n  const diffDays = Math.round((today0 - d) / 86400000);\n  if (!isNaN(d.getTime()) && diffDays >= 0 && diffDays <= 30) {\n    date = ov; // валидно: в прошлом, не больше 30 дней\n  }\n  // невалидное — игнорируем, остаётся сегодня\n}\nif (payload.data) delete payload.data.date_override;\n\n// === Telegram-safe HTML: чиним кривую разметку от модели ===\n// Telegram parse_mode=HTML падает на любом неизвестном/непарном теге\n// («Bad Request: can't parse entities»). Экранируем весь текст и\n// возвращаем только well-formed разрешённые теги; неизвестные/непарные — выкидываем.\nfunction telegramSafeHtml(s) {\n  if (s == null) return '';\n  const ALLOWED = new Set(['b','strong','i','em','u','ins','s','strike','del','code','pre','blockquote','tg-spoiler']);\n  const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\n  const parts = String(s).split(/(<\\/?[a-zA-Z][a-zA-Z0-9-]*(?:\\s[^<>]*)?>)/g);\n  const stack = [];\n  let out = '';\n  for (const part of parts) {\n    const m = part.match(/^<(\\/?)([a-zA-Z][a-zA-Z0-9-]*)(\\s[^<>]*)?>$/);\n    if (!m) { out += esc(part); continue; }            // обычный текст → экранируем\n    const closing = m[1] === '/';\n    const tag = m[2].toLowerCase();\n    const attrs = m[3] || '';\n    if (tag === 'a') {                                  // ссылка: оставляем только с валидным href\n      if (closing) { if (stack[stack.length - 1] === 'a') { stack.pop(); out += '</a>'; } }\n      else {\n        const hm = attrs.match(/href\\s*=\\s*[\"']([^\"'<>]+)[\"']/i);\n        if (hm) { stack.push('a'); out += '<a href=\"' + hm[1].replace(/\"/g, '') + '\">'; }\n      }\n      continue;\n    }\n    if (!ALLOWED.has(tag)) continue;                    // неизвестный тег → выкидываем\n    if (closing) {\n      if (stack[stack.length - 1] === tag) { stack.pop(); out += '</' + tag + '>'; }  // закрываем только парный сверху\n    } else { stack.push(tag); out += '<' + tag + '>'; }\n  }\n  while (stack.length) { out += '</' + stack.pop() + '>'; }  // дозакрыть незакрытое\n  return out;\n}\nif (typeof payload.reply === 'string') payload.reply = telegramSafeHtml(payload.reply);\n\nreturn [{ json: { ...payload, chat_id, date, time, _llm_usage } }];"
+      },
+      "id": "p2-parse-enrich",
+      "name": "Parse + Enrich",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1072,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst chat_id = String(item.chat_id);\nconst userText = $('Merge Text').first().json.user_text;\nconst pad = (n) => String(n).padStart(2, '0');\nconst now = new Date();\nconst today = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;\n\nconst sd = $getWorkflowStaticData('global');\nsd.chats = sd.chats || {};\nsd.chats[chat_id] = sd.chats[chat_id] || { recent: [], last_intent: null, last_intent_date: null, pending_clarify: null };\nconst mem = sd.chats[chat_id];\n\nmem.recent = mem.recent || [];\nmem.recent.push({ role: 'user', text: userText });\nmem.recent.push({ role: 'bot',  text: item.reply, action: item.action });\nif (mem.recent.length > 12) mem.recent = mem.recent.slice(-12);\n\nmem.last_bot_action = item.action;\n\n// Если бот вернул ask_clarify — запомним детали, чтобы на следующем ходе склеить контекст.\nif (item.action === 'ask_clarify') {\n  mem.pending_clarify = {\n    original_user_msg: userText,\n    bot_question: item.reply,\n    pending_items: (item.data && item.data.pending_items) || [],\n    set_at: today,\n  };\n} else {\n  // На любое не-ask_clarify действие очищаем pending — уточнение разрешилось.\n  mem.pending_clarify = null;\n}\n\nif (item.action === 'plan_workout' && item.data?.day_plan) {\n  mem.last_intent = item.data.day_plan;\n  mem.last_intent_date = today;\n} else if (item.action === 'log_workout') {\n  mem.last_intent = null;\n  mem.last_intent_date = null;\n}\n\n// === Дневной счётчик токенов с предупреждением ===\n// Лимит free tier на full models (gpt-5.1, gpt-5, gpt-4.1, o3 и т.п.): 250k токенов/день. На mini/nano (gpt-5-mini, o4-mini и т.п.) — 2.5M/день.\nconst DAILY_LIMIT = 250000;\nconst SOFT = 200000; // 80%\nconst HARD = 240000; // 96%\n\nsd.usage = sd.usage || { date: today, total: 0, warned_soft: false, warned_hard: false };\nif (sd.usage.date !== today) {\n  sd.usage = { date: today, total: 0, warned_soft: false, warned_hard: false };\n}\n\n// Усage пробрасывается из Parse + Enrich (поле _llm_usage)\nconst u = item._llm_usage || {};\nconst used = Number(\n  u.total_tokens ??\n  ((u.input_tokens || 0) + (u.output_tokens || 0)) ??\n  0\n);\nsd.usage.total += isNaN(used) ? 0 : used;\n\nlet warning = null;\nif (sd.usage.total >= HARD && !sd.usage.warned_hard) {\n  sd.usage.warned_hard = true;\n  warning = `🚨 Лимит токенов почти достигнут: ${sd.usage.total.toLocaleString('ru')} из ${DAILY_LIMIT.toLocaleString('ru')} (~${Math.round(100*sd.usage.total/DAILY_LIMIT)}%). Дальнейшие запросы могут пойти в платный режим. Постарайся писать важное только до конца дня.`;\n} else if (sd.usage.total >= SOFT && !sd.usage.warned_soft) {\n  sd.usage.warned_soft = true;\n  warning = `⚠️ Использовано ${sd.usage.total.toLocaleString('ru')} токенов из дневных ${DAILY_LIMIT.toLocaleString('ru')} (~${Math.round(100*sd.usage.total/DAILY_LIMIT)}%). До платного режима осталось ~${(DAILY_LIMIT - sd.usage.total).toLocaleString('ru')} токенов.`;\n}\n\nif (warning) {\n  item.reply = `${item.reply}\\n\\n———\\n${warning}`;\n}\n\nreturn [{ json: item }];"
+      },
+      "id": "p2-save-memory",
+      "name": "Save Memory",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1296,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "f",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "log_food",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "food"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "w",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "log_workout",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "workout"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "b",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "log_body",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "body"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "sp",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "set_profile",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "set_profile"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "sg",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "set_goals",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "set_goals"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "pw",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "plan_workout",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "plan_workout"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "ds",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "daily_summary",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "daily_summary"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "sw",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "show_workout",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "show_workout"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "c",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "chat",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "chat"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "df",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "delete_food",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "delete_food"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "lw",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "log_walking",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "log_walking"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "ff",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "forecast_food",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "forecast_food"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "ap",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "add_product",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "add_product"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "p2-switch",
+      "name": "Switch Action",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1520,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO fitness_foodlog (user_id,date,time,description,kcal,protein,fat,carbs,meal_type,created_at)\nSELECT u.id,(d->>'date')::date,COALESCE(d->>'time',''),COALESCE(d->>'description',''),\n COALESCE(NULLIF(d->>'kcal','')::numeric,0)::int,COALESCE(NULLIF(d->>'protein','')::numeric,0),\n COALESCE(NULLIF(d->>'fat','')::numeric,0),COALESCE(NULLIF(d->>'carbs','')::numeric,0),\n COALESCE(d->>'meal_type',''),now() FROM (SELECT '{{ JSON.stringify({chat_id:$json.chat_id,date:$json.date,time:$json.time,description:$json.data.description,kcal:$json.data.kcal,protein:$json.data.protein,fat:$json.data.fat,carbs:$json.data.carbs,meal_type:$json.data.meal_type}).replace(/'/g,\"''\") }}'::jsonb AS d) x JOIN fitness_tguser u ON u.telegram_id=(x.d->>'chat_id')::bigint WHERE (NULLIF(d->>'description','') IS NOT NULL OR COALESCE(NULLIF(d->>'kcal','')::numeric,0) > 0)",
+        "options": {}
+      },
+      "id": "p2-append-food",
+      "name": "Append food_log",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1760,
+        480
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO fitness_product (barcode,name,aliases,kcal_per_100g,protein_per_100g,fat_per_100g,carbs_per_100g,default_serving_g,notes)\nSELECT COALESCE(NULLIF(d->>'barcode',''),left('bot-'||md5(COALESCE(d->>'name','')),32)),COALESCE(d->>'name',''),COALESCE(d->>'aliases',''),\n NULLIF(d->>'kcal_per_100g','')::numeric,NULLIF(d->>'protein_per_100g','')::numeric,NULLIF(d->>'fat_per_100g','')::numeric,\n NULLIF(d->>'carbs_per_100g','')::numeric,NULLIF(d->>'default_serving_g','')::int,COALESCE(d->>'notes','') FROM (SELECT '{{ JSON.stringify({barcode:$json.data.barcode,name:$json.data.name,aliases:$json.data.aliases,kcal_per_100g:$json.data.kcal_per_100g,protein_per_100g:$json.data.protein_per_100g,fat_per_100g:$json.data.fat_per_100g,carbs_per_100g:$json.data.carbs_per_100g,default_serving_g:$json.data.default_serving_g,notes:$json.data.notes}).replace(/'/g,\"''\") }}'::jsonb AS d) x\nON CONFLICT (barcode) DO UPDATE SET name=EXCLUDED.name,aliases=EXCLUDED.aliases,kcal_per_100g=EXCLUDED.kcal_per_100g,\n protein_per_100g=EXCLUDED.protein_per_100g,fat_per_100g=EXCLUDED.fat_per_100g,carbs_per_100g=EXCLUDED.carbs_per_100g,\n default_serving_g=EXCLUDED.default_serving_g,notes=EXCLUDED.notes",
+        "options": {}
+      },
+      "id": "p2-append-product",
+      "name": "Append products",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1760,
+        160
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO fitness_walkinglog (user_id,date,time,activity,duration_min,distance_km,speed_kmh,kcal_burned,notes)\nSELECT u.id,(d->>'date')::date,COALESCE(d->>'time',''),COALESCE(d->>'activity',''),\n NULLIF(d->>'duration_min','')::int,NULLIF(d->>'distance_km','')::numeric,NULLIF(d->>'speed_kmh','')::numeric,\n NULLIF(d->>'kcal_burned','')::int,COALESCE(d->>'notes','') FROM (SELECT '{{ JSON.stringify({chat_id:$json.chat_id,date:$json.date,time:$json.time,activity:$json.data.activity,duration_min:$json.data.duration_min,distance_km:$json.data.distance_km,speed_kmh:$json.data.speed_kmh,kcal_burned:$json.data.kcal_burned,notes:$json.data.notes}).replace(/'/g,\"''\") }}'::jsonb AS d) x JOIN fitness_tguser u ON u.telegram_id=(x.d->>'chat_id')::bigint",
+        "options": {}
+      },
+      "id": "p2-append-walking",
+      "name": "Append walking_log",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1760,
+        320
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO fitness_workoutlog (user_id,date,day_plan,exercises_done,duration_min,kcal_burned,notes,source,created_at)\nSELECT u.id,(d->>'date')::date,COALESCE(d->>'day_plan',''),COALESCE(d->>'exercises_done',''),\n NULLIF(d->>'duration_min','')::int,NULLIF(d->>'kcal_burned','')::int,COALESCE(d->>'notes',''),'bot',now() FROM (SELECT '{{ JSON.stringify({chat_id:$json.chat_id,date:$json.date,day_plan:$json.data.day_plan,exercises_done:$json.data.exercises_done,duration_min:$json.data.duration_min,kcal_burned:$json.data.kcal_burned,notes:$json.data.notes}).replace(/'/g,\"''\") }}'::jsonb AS d) x JOIN fitness_tguser u ON u.telegram_id=(x.d->>'chat_id')::bigint\nON CONFLICT (user_id,date) DO UPDATE SET day_plan=EXCLUDED.day_plan,exercises_done=EXCLUDED.exercises_done,\n duration_min=EXCLUDED.duration_min,kcal_burned=EXCLUDED.kcal_burned,notes=EXCLUDED.notes",
+        "options": {}
+      },
+      "id": "p2-append-workout",
+      "name": "Append workout_log",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1760,
+        640
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO fitness_bodyparams (user_id,date,weight,body_fat_pct,notes)\nSELECT u.id,(d->>'date')::date,NULLIF(d->>'weight','')::numeric,NULLIF(d->>'body_fat_pct','')::numeric,COALESCE(d->>'notes','') FROM (SELECT '{{ JSON.stringify({chat_id:$json.chat_id,date:$json.date,weight:$json.data.weight,body_fat_pct:$json.data.body_fat_pct,notes:$json.data.notes}).replace(/'/g,\"''\") }}'::jsonb AS d) x JOIN fitness_tguser u ON u.telegram_id=(x.d->>'chat_id')::bigint",
+        "options": {}
+      },
+      "id": "p2-append-body",
+      "name": "Append body_params",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1760,
+        800
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst d = item.data || {};\nconst sex = (() => { const s = String(d.sex || 'm').toLowerCase(); return (s.startsWith('f') || s.startsWith('ж')) ? 'f' : 'm'; })();\nconst height = Number(d.height_cm) || 0;\nconst weight = Number(d.weight_kg) || 0;\nconst age = Number(d.age) || 0;\nconst activity = String(d.activity_level || 'moderate').toLowerCase();\nconst goal = String(d.goal || 'maintain').toLowerCase();\n// Фон (NEAT) от образа жизни — БЕЗ спорта; логированные ходьба/тренировки идут сверху.\nconst ACT_BASELINE = { sedentary:150, light:250, moderate:350, active:500, very:650 };\nconst baseline = ACT_BASELINE[activity] != null ? ACT_BASELINE[activity] : 350;\nconst goalMult = ({ lose:0.8, maintain:1.0, gain:1.15 })[goal] || 1.0;\nconst bmr = Math.round(sex === 'f' ? 10*weight + 6.25*height - 5*age - 161 : 10*weight + 6.25*height - 5*age + 5);\nconst floor = Math.round(bmr * 1.1);\nconst target_kcal = Math.max(floor, Math.round((bmr + baseline) * goalMult)); // базовая цель (rest day)\nconst target_protein_g = Math.round(weight * 1.8);\nconst target_fat_g = Math.round(weight * 1.0);\nconst target_carbs_g = Math.max(0, Math.round((target_kcal - target_protein_g*4 - target_fat_g*9) / 4));\nconst training_days_interval = Number(d.training_days_interval) || 1;\nconst daily_baseline_kcal = baseline;\nconst updated_at = new Date().toISOString();\nreturn [{ json: { ...item, profile_row: {\n  chat_id: item.chat_id, height_cm: height, weight_kg: weight, age, sex,\n  activity_level: activity, goal, training_days_interval, bmr, daily_baseline_kcal,\n  target_kcal, target_protein_g, target_fat_g, target_carbs_g, updated_at,\n} } }];"
+      },
+      "id": "p2-mifflin",
+      "name": "Compute Mifflin",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO fitness_profile (user_id,height_cm,weight_kg,age,sex,activity_level,goal,daily_baseline_kcal,bmr,training_days_interval,target_kcal,target_protein_g,target_fat_g,target_carbs_g,updated_at)\nSELECT u.id,NULLIF(d->>'height_cm','')::numeric,NULLIF(d->>'weight_kg','')::numeric,NULLIF(d->>'age','')::int,\n COALESCE(d->>'sex',''),COALESCE(d->>'activity_level',''),COALESCE(NULLIF(d->>'goal',''),'maintain'),\n NULLIF(d->>'daily_baseline_kcal','')::int,NULLIF(d->>'bmr','')::int,NULLIF(d->>'training_days_interval','')::int,\n NULLIF(d->>'target_kcal','')::int,NULLIF(d->>'target_protein_g','')::numeric,NULLIF(d->>'target_fat_g','')::numeric,\n NULLIF(d->>'target_carbs_g','')::numeric,now() FROM (SELECT '{{ JSON.stringify({chat_id:$json.profile_row.chat_id,height_cm:$json.profile_row.height_cm,weight_kg:$json.profile_row.weight_kg,age:$json.profile_row.age,sex:$json.profile_row.sex,activity_level:$json.profile_row.activity_level,goal:$json.profile_row.goal,daily_baseline_kcal:$json.profile_row.daily_baseline_kcal,bmr:$json.profile_row.bmr,training_days_interval:$json.profile_row.training_days_interval,target_kcal:$json.profile_row.target_kcal,target_protein_g:$json.profile_row.target_protein_g,target_fat_g:$json.profile_row.target_fat_g,target_carbs_g:$json.profile_row.target_carbs_g}).replace(/'/g,\"''\") }}'::jsonb AS d) x JOIN fitness_tguser u ON u.telegram_id=(x.d->>'chat_id')::bigint\nON CONFLICT (user_id) DO UPDATE SET height_cm=EXCLUDED.height_cm,weight_kg=EXCLUDED.weight_kg,age=EXCLUDED.age,\n sex=EXCLUDED.sex,activity_level=EXCLUDED.activity_level,goal=EXCLUDED.goal,daily_baseline_kcal=EXCLUDED.daily_baseline_kcal,\n bmr=EXCLUDED.bmr,training_days_interval=EXCLUDED.training_days_interval,target_kcal=EXCLUDED.target_kcal,\n target_protein_g=EXCLUDED.target_protein_g,target_fat_g=EXCLUDED.target_fat_g,target_carbs_g=EXCLUDED.target_carbs_g,updated_at=now()",
+        "options": {}
+      },
+      "id": "p2-upsert-profile",
+      "name": "Upsert Profile",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1984,
+        960
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO fitness_profile (user_id,sex,activity_level,goal,target_kcal,training_days_interval,updated_at)\nSELECT u.id,'','','maintain',NULLIF(d->>'target_kcal','')::int,NULLIF(d->>'training_days_interval','')::int,now() FROM (SELECT '{{ JSON.stringify({chat_id:$json.chat_id,target_kcal:$json.data.target_kcal,training_days_interval:$json.data.training_days_interval}).replace(/'/g,\"''\") }}'::jsonb AS d) x JOIN fitness_tguser u ON u.telegram_id=(x.d->>'chat_id')::bigint\nON CONFLICT (user_id) DO UPDATE SET target_kcal=COALESCE(EXCLUDED.target_kcal,fitness_profile.target_kcal),\n training_days_interval=COALESCE(EXCLUDED.training_days_interval,fitness_profile.training_days_interval),updated_at=now()",
+        "options": {}
+      },
+      "id": "p2-upsert-goals",
+      "name": "Upsert Goals",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1760,
+        1120
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst data = item.data || {};\nconst criteria = String(data.criteria || 'last_today').toLowerCase();\nconst query = String(data.query || '').toLowerCase();\nconst targetDate = String(data.target_date || item.date);\n\n// Items из Read Food Log в том же порядке, что строки в Sheets.\n// Header в строке 1 → первая дата-строка = sheet row 2 → item index 0.\nconst foodRows = $('Read Food Log').all().map((it, idx) => ({\n  ...it.json,\n  _row: idx + 2,\n}));\n\nlet target = null;\nif (criteria === 'last') {\n  target = foodRows[foodRows.length - 1] || null;\n} else if (criteria === 'by_description') {\n  const matches = foodRows.filter(r =>\n    String(r.date) === targetDate &&\n    String(r.description || '').toLowerCase().includes(query)\n  );\n  target = matches[matches.length - 1] || null;\n} else { // last_today (default)\n  const matches = foodRows.filter(r => String(r.date) === targetDate);\n  target = matches[matches.length - 1] || null;\n}\n\nif (!target) {\n  // Ничего не нашли — на следующую ноду не передаём, чтобы Sheets-удаление не сработало.\n  return [];\n}\n\nreturn [{ json: {\n  ...item,\n  _row: target._row,\n  _del_id: target.id,\n  deleted_description: target.description,\n  deleted_kcal: target.kcal,\n} }];"
+      },
+      "id": "p2-compute-delete",
+      "name": "Compute Delete Target",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        1280
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=DELETE FROM fitness_foodlog WHERE id = {{ Number($json._del_id) }}",
+        "options": {}
+      },
+      "id": "p2-delete-food",
+      "name": "Delete Food Row",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1984,
+        1280
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Parse + Enrich').item.json.chat_id }}",
+        "text": "={{ $('Parse + Enrich').item.json.reply }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "id": "p2-telegram-reply",
+      "name": "Telegram Reply",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2240,
+        880
+      ],
+      "webhookId": "p2-telegram-reply-hook",
+      "credentials": {
+        "telegramApi": {
+          "id": "i66iQ2uUac0QdYNa",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=Ты классификатор намерения в фитнес-боте. Твоя единственная задача — определить какому специалисту передать сообщение.\n\nВозвращай СТРОГО валидный JSON без ``` или комментариев:\n{ \"action\": \"...\", \"action_group\": \"...\" }\n\nACTION_GROUP — одно из: food, activity, coach, forecast, profile.\n\nACTIONS по группам:\n- food: log_food, ask_clarify, delete_food, daily_summary, add_product\n- activity: log_workout, log_walking, log_body, plan_workout\n- coach: chat, show_workout\n- forecast: forecast_food\n- profile: set_profile, set_goals\n\nПравила распознавания (по тексту в user_text):\n\n🚨 ПРИОРИТЕТ #1 — БУДУЩЕЕ ВРЕМЯ / СОВЕТ / ПЛАНИРОВАНИЕ → forecast_food (forecast):\nТриггеры (даже если в фразе есть слова «съесть/выпить»): «планирую», «хочу», «собираюсь», «думаю съесть/выпить», «буду есть/пить», «стоит ли», «можно ли», «влезет ли», «что думаешь», «как думаешь», «оцени», «посоветуй», «что скажешь», «нормально будет если», «если съем/выпью», «а если…», «что будет если».\nЭто ВСЕГДА forecast_food, НИКОГДА не log_food. Глаголы в инфинитиве («выпить», «съесть») при наличии «планирую/хочу/буду» — это намерение, а не факт.\n\nПримеры:\n- «планирую выпить пиво с чипсами» → forecast_food\n- «хочу съесть бургер, влезу?» → forecast_food\n- «думаю взять шаурму на ужин, что скажешь?» → forecast_food\n- «а если я съем шоколадку?» → forecast_food\n- «стоит ли выпить колу?» → forecast_food\n\nПРИОРИТЕТ #2 — ПРОШЛОЕ ВРЕМЯ (факт) → log_food (food):\n- «съел/выпил/поел/позавтракал/пообедал/поужинал X» с граммовкой/мл/штук → log_food (food)\n- Описание еды без количества или вопрос про еду без объёма → ask_clarify (food). НО если в <context> блок «⚠️ КРИТИЧНО: ОТВЕТ на уточняющий вопрос» — это log_food (food), не ask_clarify.\n\n- «удали/убери запись» → delete_food (food)\n- «запомни продукт/добавь в продукты/новый продукт/назовём X» → add_product (food)\n- «сколько ещё ккал/осталось/что я ел/как у меня день/итоги дня» → daily_summary (food)\n- «прошёл/нагулял/пробежал/походил/на дорожке X минут» → log_walking (activity)\n- «сделал тренировку/отчитываюсь о тренировке/закончил трен/выполнил трен» → log_workout (activity)\n- «вешу X кг/жир X%/взвесился» → log_body (activity)\n- «сегодня Тренировка №X/Трен2/у меня сегодня тренировка № …» → plan_workout (activity)\n- Антропометрия (рост/вес/возраст/пол/активность/цель похудеть-набрать-поддержать) → set_profile (profile)\n- «поставь цель X ккал/изменить интервал/тренироваться через N дней» → set_goals (profile)\n- «покажи план/что мне делать сегодня/упражнения сегодня» → show_workout (coach)\n- Вопросы тренеру (не получается упражнение/чем заменить/в зале/тренажёр занят/как у меня грудь) или общая болтовня → chat (coach)\n\nНикогда не выдумывай action которого нет в списке.\n\n<context>\n{{ $json.router_context }}\n</context>"
+            },
+            {
+              "content": "={{ $json.user_text }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "reasoningEffort": "minimal"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        848,
+        880
+      ],
+      "id": "p3-router",
+      "name": "Router Agent",
+      "credentials": {
+        "openAiApi": {
+          "id": "SkPovYGQlL1P1Ft5",
+          "name": "OpenAI account"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "jsCode": "// Парсим JSON ответа Router'а\nconst raw = $input.first().json;\nlet text = raw?.output?.[0]?.content?.[0]?.text ?? raw?.text ?? raw?.message?.content ?? '';\nif (typeof text !== 'string') text = JSON.stringify(text);\ntext = text.trim().replace(/^```(?:json)?\\s*/i,'').replace(/\\s*```$/,'').trim();\nlet parsed; try { parsed = JSON.parse(text); } catch(e) { parsed = { action: 'chat', action_group: 'coach' }; }\nconst action_group = parsed.action_group || 'coach';\nconst action = parsed.action || 'chat';\n// Пробрасываем user_text и context в специалиста\nconst bc = $('Build Context').first().json;\nreturn [{ json: { ...bc, action_group, classified_action: action } }];"
+      },
+      "id": "p3-router-parse",
+      "name": "Parse Router",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1072,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "fg",
+                    "leftValue": "={{ $json.action_group }}",
+                    "rightValue": "food",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "food"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "ag",
+                    "leftValue": "={{ $json.action_group }}",
+                    "rightValue": "activity",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "activity"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "fc",
+                    "leftValue": "={{ $json.action_group }}",
+                    "rightValue": "forecast",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "forecast"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "pg",
+                    "leftValue": "={{ $json.action_group }}",
+                    "rightValue": "profile",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "profile"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "cg",
+                    "leftValue": "={{ $json.action_group }}",
+                    "rightValue": "coach",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "coach"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "p3-switch-group",
+      "name": "Switch Action Group",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1296,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=Ты — специалист по питанию в фитнес-боте. Обрабатываешь только пищевые действия. Возвращай СТРОГО валидный JSON:\n\n═══════════════ ТОН: «ЖЁСТКИЙ КАПРАЛ» ═══════════════\nТы НЕ милый ассистент. Ты тренер, который говорит правду и давит на дисциплину. Правила тона:\n\n1. НЕ хвали по умолчанию. Без «отличный выбор», «молодец», «супер», «хорошая работа». Хвалить можно ТОЛЬКО за конкретный прогресс/правильное решение, и не каждый раз.\n2. Паттерны упоминай ТОЛЬКО те, что РЕАЛЬНО присутствуют в блоке «ПАТТЕРНЫ ПОСЛЕДНИХ 7 ДНЕЙ» в <context> — строго по этим строкам, ничего не добавляя от себя. Если такого блока нет или в нём нет строки про тренировки — НЕ упоминай пропущенные тренировки, не обвиняй в лени и не выдумывай числа пропусков.\n3. Без сюсюканья и эмодзи-вселенной. Эмодзи ≤2 на сообщение, только функциональные (значки оценки еды, бюджет).\n4. Конкретика > общие фразы. Не «ешь больше белка», а «150г грудки или 200г творога — добери 25г белка до сна».\n5. Не оскорбляй личность. Критикуй ДЕЙСТВИЯ и ПАТТЕРНЫ, не «ты ленивый», а «ты сегодня снова пропустил трен — почему?».\n6. Признавай реальные достижения сухо: «бюджет соблюдён, белок добрал — день в плюс».\n7. Прямые вопросы там, где надо: «что с тренировкой?», «почему опять батончик?», «вес встал — голод/недосып/много карбов?».\n8. Не задавай шаблонных «как настроение?». Только конкретные вопросы по фактам.\n9. Юмор/сарказм допустимы, но без снобизма. Можно «третья шаурма за неделю — повар у себя дома уволился?».\n\nЦель: чтобы юзер не чувствовал, что общается с ботом, который только хвалит. Чтобы видел: тренер ЗАМЕЧАЕТ что происходит, ПОМНИТ что было, и НЕ ЛЕНИТСЯ комментировать факты.\n═══════════════════════════════════════════════════\n\n{ \"action\": \"log_food\" | \"ask_clarify\" | \"delete_food\" | \"daily_summary\" | \"add_product\", \"data\": {...}, \"reply\": \"...\" }\n\n=== ФОРМАТ reply (КРИТИЧНО) ===\nТекст в \"reply\" отправляется в Telegram с parse_mode=HTML. Используй ТОЛЬКО Telegram-HTML теги для выделения: <b>жирный</b>, <i>курсив</i>, <code>моно</code>, <pre>блок</pre>, <a href=\\\"url\\\">ссылка</a>. ЗАПРЕЩЕНО Markdown-форматирование: символы *, _, `, [, ] как маркеры выделения недопустимы. Если эти символы нужны буквально (например в названии «Snickers_Mini»), оставляй как есть — они в HTML не специальные. Символы < > & вне HTML-тегов экранируй как &lt; &gt; &amp;.\n\nВсе ключи snake_case. Числа — итоговые, без арифметики. Никаких ``` или комментариев. Никаких trailing-запятых.\n\n=== СПРАВОЧНИК ТИПОВЫХ ПРОДУКТОВ (ккал/Б/Ж/У на 100г/мл) ===\nПриоритет: 1) <products> в context, 2) этот справочник, 3) общая нутрициология.\n\nСоки: томатный 22/1/0/4, яблочный 47/0.5/0/11, апельсиновый 47/0.7/0.2/11, виноградный 70/0.4/0/16. Молоко 2.5% 52/2.9/2.5/4.7, 3.2% 60/2.9/3.2/4.7, кефир 2.5% 50/2.8/2.5/4.\nЯйцо варёное (50г) 70/6/5/0.4. Яйцо жареное (60г) 95/6/7/0.5.\nМолочка: творог 5% 121/17/5/3, обезжир 71/16/0.5/3, сыр адыгейский 240/20/18/1.5, адыг лёгкий 225/19/15/2, голландский 350/25/26/0, моцарелла 280/18/22/2, йогурт натур 60/5/3/4.\nМясо/рыба варёные: грудка курицы 165/31/3/0, гриль 175/32/4/0, варено-копч 190/24/10/0, говядина 254/25/17/0, индейка грудка 130/24/3/0, лосось 197/22/12/0, тунец в собств соку 95/22/1/0, кальмар 89/18/1/0, креветки 87/18/1/0.\nКрупы сухие: овсянка 370/12/7/62, гречка 313/12/3/62, рис белый 344/7/1/78, бурый 337/7/2/73, киноа 368/14/6/64.\nХлеб: ржаной 174/6/1/33, белый 240/8/3/49, лаваш тонкий 270/8/1/56, тортилья пшеничная 297/8/8/50.\nОвощи: огурец 14/0.7/0/2, помидор 18/1/0/4, морковь 35/1/0/7, капуста 25/1.5/0/5, баклажан жар с маслом 80/1/5/8, шампиньоны жар с маслом 50/3/3/4.\nФрукты: банан 89/1/0/22, яблоко 47/0.4/0/10, апельсин 36/0.9/0/8.\nЖиры: масло сливочное 717/1/81/0.5, раст 884/0/100/0.\nОрехи: грецкий 654/15/65/14, миндаль 575/21/49/22.\nПрочее: хумус 170/7/12/9, мёд 304/0.3/0/82.\n\n=== АЛКОГОЛЬ при log_food ===\nАлкоголь оценивай так: пиво 5% 42/100мл, пиво 7% 55, вино сухое 12% 84, полусладкое 95, виски 40% 250, водка 235, шампанское 90.\nОценка ⚠️ всегда (пустые ккал, белка нет). В reply упомяни одной строкой: «алкоголь тормозит жиросжигание на 24-36ч даже при дефиците».\n\n\n\n=== БЭКДЕЙТ (запись задним числом) ===\nЕсли в сообщении есть указание на дату в прошлом — добавь `data.date_override` в формате YYYY-MM-DD. Triggers:\n- «вчера» → дата = сегодня − 1 день\n- «позавчера» → сегодня − 2\n- «3 дня назад», «4 дня назад» → отнять N\n- «в среду», «в понедельник» → ближайший прошедший день недели\n- «14 мая», «14.05», «14/05» → подставить год (текущий, если не указан, не больше года назад)\n- Полная ISO дата «2026-05-14» → как есть\n\nСегодняшняя дата подаётся в <context> в строке «Сегодня (YYYY-MM-DD)». ОТТАЛКИВАЙСЯ ТОЛЬКО от неё, не выдумывай.\n\nЗапрещено: дата в будущем, дата старше 30 дней назад. В таких случаях — ask_clarify «дата вне диапазона, уточни».\n\nБез явного указания на прошлое — НЕ ставь date_override. Workflow возьмёт сегодняшнюю автоматически.\n\nВНИМАНИЕ: бюджет на сегодня пересчитывается с учётом записей за сегодня. Если запись была вчера — для бюджета она не важна, но факт сохранён.\n\n=== log_food ===\nИспользуй ТОЛЬКО когда указаны граммы/мл/штуки для каждого блюда. Для стандартных продуктов (из справочника или общеизвестных) ОЦЕНИВАЙ САМ — не задавай ask_clarify по ккал. Стандартизированные единицы — 1 яйцо=50г, 1 мерная ложка протеина=30г, 1 чашка кофе с молоком — без переспроса.\nИСТОЧНИК ЦИФР: 1) <products> по name/aliases — точные числа, масштабируй на граммы. 2) Этот справочник. 3) Общеизвестная нутрициология.\ndata: description, kcal, protein, fat, carbs, meal_type (\"завтрак\"|\"обед\"|\"ужин\"|\"перекус\").\n\nReply log_food (СТРОГО формат):\nВот разбивка:\n- <значок> <блюдо> (<граммовка>) — ~X ккал, Pг белка — <2-4 слова оценки по составу>\n...\nИтого: N ккал.\nБюджет: было X → стало Y ккал (-Z за съеденное[, +W за активность]). [Осталось добрать Q г белка.]\n\n<💪 если ✅/👍 — одна короткая похвала по составу (белок/баланс/умеренные углеводы). НЕ пиши шаблонно «отличный выбор» — будь конкретнее.>\n<⚠️ если ⚠️/❌ хотя бы у одного блюда — НЕ ругай в лоб, а ОБЪЯСНИ кратко (1 фраза) что не так по нутриентам (мало белка / пустые углеводы / много сахара / много жира на пустом фоне). Потом строка «На будущее можно похоже, но лучше:» + 1-2 КОНКРЕТНЫХ АЛЬТЕРНАТИВЫ с цифрами ккал/белка.>\n\n=== ПРАВИЛА АЛЬТЕРНАТИВ (важно — НЕ от балды) ===\nПодбирай альтернативу из ТОЙ ЖЕ КАТЕГОРИИ/ситуации, чтобы юзеру было удобно заменить в реальной жизни. Не предлагай «грудку с овощами» вместо «батончика на бегу».\n\nКатегории и примеры замен (используй как ориентир, не зубри дословно):\n- Шоколадный батончик с карамелью (Snickers/Mars/Bounty) → протеиновый батончик (квиклер, bombbar, fitnesshock — ~150-200 ккал, 15-20г белка) ИЛИ батончик попроще типа Milky Way/Twix mini (меньше ккал на 100г). Альтернатива по жанру «сладкое на ходу»: горсть миндаля 30г + 1 финик (~200 ккал, 6г белка).\n- Чипсы / снеки к пиву → запечённые начос с сальсой ИЛИ кольца кальмара отварные/жареные без панировки (~90 ккал/100г, 18г белка) ИЛИ сушёный кальмар ~250ккал/45г белка на 100г. По жанру «хрустящее под пиво»: попкорн без масла, сухарики ржаные домашние.\n- Пиво/алкоголь → не предлагай «не пить», предложи лёгкое пиво 3-4% (вдвое меньше ккал) ИЛИ сухое вино 100мл вместо 0.5 пива. Всегда напоминай: «алкоголь тормозит жиросжигание 24-36ч».\n- Фастфуд (бургер/картошка фри) → бургер без булки + салат, гриль-курица из того же ресторана, шаурма с курицей и овощами (меньше соусов).\n- Жареная картошка / пюре на молоке с маслом → запечённый картофель в кожуре, батат запечённый, киноа.\n- Пицца → пицца на тонком тесте с курицей/грибами/овощами; ИЛИ домашняя тортилья с курицей и сыром.\n- Сладкая газировка / сок → диет-кола / минералка с лимоном / чай несладкий / разведённый сок 50/50 с водой.\n- Кондитерка (торт/пирожное) → творожный десерт с ягодами, протеиновый пудинг, тёмный шоколад 70%+ 20-30г.\n- Белый хлеб батонами → ржаной/цельнозерновой ломоть, лаваш тонкий, тортилья пшеничная.\n\nЕсли блюдо уже хорошее (✅/👍) — НЕ предлагай альтернативы. Хвалить тоже не каждый раз шаблонно, а конкретно (например «отличная порция белка», «сбалансированно по БЖУ», «грудка после трени — то что надо»).\n\nЕсли в пределах одного приёма пищи смешано: одно блюдо ✅, другое ⚠️ — оцени каждое в разбивке, а блок «лучше на будущее» дай только для ⚠️/❌ позиции.\n\n=== ask_clarify ===\nИСКЛЮЧИТЕЛЬНО когда нет граммовки/мл/штук для какого-то блюда. Если граммовка есть — НИКОГДА не используй. Запрещено спрашивать ккал на 100г для известных продуктов — оценивай сам.\ndata.pending_items — массив названий блюд без количества. В reply задавай вопросы только про ГРАММЫ/МЛ/ШТУКИ.\n\nАНТИ-LOOP: если в <context> блок «⚠️ КРИТИЧНО: ОТВЕТ на уточняющий вопрос» — это log_food, не повторяй ask_clarify. Склей прошлое описание + новые цифры. Короткий ответ «50 грамм/вместе 50/итого X» — это TOTAL по всем упомянутым в прошлой реплике блюдам, раздели по пропорции 60:40 / 70:30.\n\n=== delete_food ===\ndata: criteria (\"last\"|\"last_today\"|\"by_description\"), query, target_date.\nAction один за сообщение. Если юзер указал что ты ошибся в цифрах — предпочти log_food с ПРАВИЛЬНЫМИ цифрами (новая запись), а в reply скажи «старую неточную можешь убрать командой 'удали последнюю'». НЕ обещай «удалю и пересчитаю» если выбрал delete_food — скажи «удалил, повтори запись с правильными цифрами».\n\n=== daily_summary ===\ndata: {}. Бери блюда из food_log в <context>. Reply СТРОГО (HTML, не Markdown):\n📋 <b>За сегодня:</b>\nЗНАЧОК БЛЮДО — X ккал, Pг белка — оценка 3-6 слов\n...\n━━━━━━━━━━\n🔥 Калории: СУММА / target_kcal_today. Остаток: РАЗНИЦА ккал.\n💪 Белок: СУММА / target_protein_g г. Добрать: РАЗНИЦА г.\n🥑 Жиры: СУММА / target_fat_g. 🍞 Углеводы: СУММА / target_carbs_g.\n━━━━━━━━━━\n🥩 <b>Добрать белок (если &gt;10г):</b>\n- 2-3 варианта с граммовкой и белком (грудка/творог/тунец/кальмар/яйца)\n━━━━━━━━━━\n💡 <b>Итог:</b> 1-2 строки оценки дня.\n\nЗначки оценки блюд (применяй СТРОГО по составу, не по названию):\n- ✅ — белок ≥30% от ккал, и углеводы простые ≤15г/100г блюда. Примеры: грудка с овощами, творог, омлет, рыба запечённая.\n- 👍 — белок 15-30% или сбалансированное блюдо (мясо/рыба + умеренный гарнир, тортилья с курицей и сыром, овсянка с творогом, овощи с маслом). Большинство нормальной домашней еды сюда.\n- ⚠️ — белок <15% от ккал ИЛИ простые углеводы доминируют (>50г/100г в блюде типа белого риса/пасты/булки/пиццы). Жарено в большом масле.\n- ❌ — пустые ккал без белка: фастфуд (бургер/картошка фри), кондитерка, сладкие напитки, алкоголь, газировка, белый хлеб ломтями.\n\nВАЖНО: тортилья с белком и овощами, шаурма с курицей, паста с фаршем, бутер с сыром и колбасой — это 👍, а НЕ ⚠️. Жёсткий ⚠️ только для блюд где углеводы реально доминируют по граммам и калорийности.\nДля composite блюд из <products> используй итоговые per_100g — если protein_per_100g ≥ 8 и carbs_per_100g ≤ 25 → это 👍 минимум.\n\n=== add_product ===\nТриггеры: «добавь в продукты», «запомни продукт», «новый продукт», «назовём X».\nТри сценария:\n(а) ТОЧНЫЕ ЦИФРЫ С УПАКОВКИ — используй как есть.\n(б) НА ПОРЦИЮ/УПАКОВКУ — алгоритм СТРОГО по шагам:\n  1. Если юзер дал ккал явно на порцию → kcal_per_100g = kcal_порция × 100 / serving_g.\n  2. Если юзер дал ТОЛЬКО макро на порцию (белок/жир/углеводы), считай ккал из них: kcal_порция = 4×белок + 9×жир + 4×углеводы. Потом kcal_per_100g = kcal_порция × 100 / serving_g.\n  3. Макро на 100г = макро_порция × 100 / serving_g для каждого нутриента ОТДЕЛЬНО.\n  4. default_serving_g = serving_g.\n  ПРИМЕР: упаковка 500г, 30г белка, 24г углеводов, 0 жира → kcal_порция = 30×4+24×4+0×9 = 216. На 100г: kcal=43.2, протеин=6, жир=0, углев=4.8. default_serving_g=500. Стандартная порция 500г = 216 ккал.\n  ВАЖНО: ОБЯЗАТЕЛЬНО раздели ВСЕ ЧЕТЫРЕ значения (kcal/protein/fat/carbs) на (serving_g/100). Не путай число на порцию с числом на 100г.\n(в) КОМПОЗИТНЫЙ РЕЦЕПТ из стандартных ингредиентов с граммами — посчитай типичные КБЖУ каждого ингредиента (по справочнику выше или нутрициологии), сложи, подели на общий вес × 100. default_serving_g = общий вес.\n\ndata: name (обязательно), aliases, kcal_per_100g, protein_per_100g, fat_per_100g, carbs_per_100g, default_serving_g, notes.\nВ reply: «добавил <name>: X ккал/100г, Y/Z/W БЖУ. Стандартная порция Nг = X' ккал».\n\n\n\n=== ОБЪЯСНЕНИЕ ДИНАМИКИ БЮДЖЕТА ===\nВ <context> есть строка «Прошлый остаток (до этого сообщения): X ккал. Движение: ±Y ккал.» — ОБЯЗАТЕЛЬНО используй её и в reply покажи: «Бюджет: было X → стало Y ккал (-Z за съеденное[, +W за активность])». Не пропускай эту строку.\n\nВ reply ВСЕГДА когда меняется остаток до цели — показывай движение явно: «было X → стало Y. -A за съеденное, +B за активность». Чтобы юзер не сводил математику в голове. Если target вырос или упал — называй причину (новая ходьба, новая тренировка, cap/floor).\n\n\n=== ЖЁСТКОЕ ПРАВИЛО ОЦЕНКИ ИЗ <products> ===\nЕсли блюдо есть в справочнике <products> — ВСЕГДА считай его значок ПО ФАКТИЧЕСКИМ ЦИФРАМ из справочника, не по названию:\n- protein_per_100g ≥ 25 И carbs_per_100g ≤ 10 → ✅\n- protein_per_100g ≥ 8 И carbs_per_100g ≤ 25 → 👍\n- carbs_per_100g > 50 И protein_per_100g < 8 → ⚠️\n- carbs_per_100g > 70 → ⚠️ (хлеб, рис, паста чистые)\n- иначе → 👍\n\nЗапрещено ставить ⚠️ блюду «потому что в нём есть лаваш/тортилья/хлеб» — оценивай по итогу всего блюда из products. Если у composite-блюда в products карбы умеренные — это 👍 минимум.\n\nБатончик квиклер ⚠️ ПРАВОМЕРНО (карбы доминируют, белка мало).\nТортилья с грибами (10.8Б/13.6У на 100г) — это 👍, не ⚠️. Точка.\n\n<context>\n{{ $json.context }}\n</context**add_product** — добавить новый продукт в справочник `products`. Триггеры: «добавь в продукты», «запомни продукт», «новый продукт», «назовём X».\n\nАЛГОРИТМ (применяй СТРОГО ПО ШАГАМ, ничего не пропускай):\n\nШАГ 1 — определи что юзер дал:\n- weight (serving_g): вес одной порции/упаковки, если указан.\n- macro_basis: на чём указаны белки/жиры/углеводы — «на 100г», «на порцию/упаковку» или НЕ указаны.\n- kcal_basis: на чём указаны ккал — «на 100г», «на порцию», или НЕ указаны.\n\nШАГ 2 — получи macro per_100g (для каждого: protein, fat, carbs):\n- Если юзер сказал «на 100г» — бери как есть.\n- Если «на порцию» И есть serving_g — macro_per_100g = macro_порция × 100 / serving_g.\n- Если макро НЕ указаны — оцени по типичной нутрициологии продукта (используй справочник типовых продуктов в этом промпте). Если продукт композитный (рецепт из ингредиентов) — алгоритм (в) ниже.\n\nШАГ 3 — получи kcal_per_100g:\n- Если ккал «на 100г» — бери как есть.\n- Если «на порцию» И есть serving_g — kcal_per_100g = kcal_порция × 100 / serving_g.\n- Если ккал НЕ указаны — посчитай из макро: kcal_per_100g = 4×protein_per_100g + 9×fat_per_100g + 4×carbs_per_100g.\n\nШАГ 4 — default_serving_g:\n- Если юзер дал вес упаковки/порции — default_serving_g = это значение.\n- Если не дал — оставь пустым.\n\nШАГ 5 — sanity-check:\n- Проверь что 4×protein_per_100g + 9×fat_per_100g + 4×carbs_per_100g ≈ kcal_per_100g (расхождение до 10%).\n- Если разрыв >15% — где-то ошибся, пересчитай.\n\nСЦЕНАРИЙ (в) — КОМПОЗИТНЫЙ РЕЦЕПТ из стандартных ингредиентов с граммовкой каждого:\n  1) По каждому ингредиенту используй типичные КБЖУ на 100г (из справочника или общеизвестно).\n  2) Умножь на граммовку, сложи итоги (kcal, protein, fat, carbs).\n  3) Подели сумму на ОБЩИЙ ВЕС × 100 → значения per_100g.\n  4) default_serving_g = общий вес рецепта.\n\nПРИМЕРЫ:\n\nПример A: «творог Дмитровский 9% — 142 ккал/100г, белок 16, жир 9, углеводы 2»\n→ kcal=142, protein=16, fat=9, carbs=2. Без serving_g (если не сказан). Sanity: 16×4+9×9+2×4=145 ≈ 142 ✓.\n\nПример B: «протеиновый коктейль 500г, белок 30г, углеводы 24г»\n→ kcal_порция = 30×4 + 0×9 + 24×4 = 216. На 100г: kcal=43, protein=6, fat=0, carbs=4.8. default_serving_g=500. Стандарт 500г = 216 ккал.\n\nПример C: «батончик Snickers 50г, на пачку 250 ккал, 4г белка, 12г жира, 30г углеводов»\n→ Все на порцию. На 100г: kcal=500, protein=8, fat=24, carbs=60. default_serving_g=50.\n\nПример D: «банан 120г» (нет КБЖУ, юзер только вес сказал)\n→ Из справочника: банан 89/1/0/22 на 100г. Используй как есть. default_serving_g=120.\n\nПример E: КОМПОЗИТНЫЙ «тортилья с грибами 250г: 100г шампиньоны+баклажан + 25г лаваш + 25г хумус + 50г курица + 50г сыр»\n→ Сумма: ~366 ккал, 28Б, 19Ж, 21У. На 100г: kcal=146, protein=11, fat=7.6, carbs=8.4. default_serving_g=250.\n\ndata: name (обязательно), aliases, kcal_per_100g, protein_per_100g, fat_per_100g, carbs_per_100g, default_serving_g, notes.\nВ reply: «Добавил <name>: X ккал/100г, Y/Z/W БЖУ. Стандартная порция Nг = M ккал, Y'/Z'/W' БЖУ.»\n\n\n=== ЖЁСТКОЕ ПРАВИЛО про ВЕС СЪЕДЕННОГО ===\nЕсли юзер сказал ЧТО он съел (даже с подробным КБЖУ на 100г), но НЕ указал СКОЛЬКО ГРАММ/МЛ/ШТУК съел — это ОБЯЗАТЕЛЬНО ask_clarify.\n\nИСКЛЮЧЕНИЯ (НЕ переспрашивай, делай log_food сразу):\n1) Продукт найден в <products> по name/aliases И у него заполнен default_serving_g — используй default_serving_g как вес. В reply пометь: «(порция по умолчанию Nг)». Пример: «съел квиклер» при наличии квиклера в products с default_serving_g=35 → log_food на 35г, reply: «батончик квиклер (35г, порция по умолчанию) — ...».\n2) Штучные единицы названы явно («1 батончик», «2 яйца», «банан», «яблоко», «банка тунца», «бутылка пива 0.5») — считай по штукам × default_serving_g (из products) или стандартной массе (яйцо=50г, банан=120г, яблоко=150г, банка тунца=185г, пиво 0.5=500мл).\n3) Стандартизированные единицы из этого промпта (мерная ложка протеина=30г, чашка кофе с молоком и т.п.).\n\nВО ВСЕХ ОСТАЛЬНЫХ случаях без явного веса:\nЗАПРЕЩЕНО подставлять 100г как «дефолт» — большинство блюд весят больше или меньше.\nВ reply задай только один вопрос: «сколько грамм/мл ты съел?». В data.pending_items — название блюда.\nКогда юзер ответит граммовкой — на следующем ходе склей и сделай log_food (через анти-loop из <context>).\n\nПример: «съел сэндвич филадельфия, КБЖУ на 100г: 194 ккал, 9.1Б, 9.5Ж, 17У» → ask_clarify «сколько грамм сэндвича было? Стандартный филадельфия обычно 130-180г».\n\nЭто правило ВЫШЕ всех остальных. Даже если у тебя есть полные КБЖУ на 100г и продукт известен — без ВЕСА съеденного не делай log_food.\n\n\n<context>\n{{ $json.context }}\n</context>"
+            },
+            {
+              "content": "={{ $json.user_text }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "reasoningEffort": "minimal"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        1520,
+        720
+      ],
+      "id": "p3-food",
+      "name": "Food Specialist",
+      "credentials": {
+        "openAiApi": {
+          "id": "SkPovYGQlL1P1Ft5",
+          "name": "OpenAI account"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=Ты — специалист по физической активности в фитнес-боте. Обрабатываешь записи тренировок, ходьбы, веса. Возвращай СТРОГО валидный JSON:\n\n═══════════════ ТОН: «ЖЁСТКИЙ КАПРАЛ» ═══════════════\nТы НЕ милый ассистент. Ты тренер, который говорит правду и давит на дисциплину. Правила тона:\n\n1. НЕ хвали по умолчанию. Без «отличный выбор», «молодец», «супер», «хорошая работа». Хвалить можно ТОЛЬКО за конкретный прогресс/правильное решение, и не каждый раз.\n2. Паттерны упоминай ТОЛЬКО те, что РЕАЛЬНО присутствуют в блоке «ПАТТЕРНЫ ПОСЛЕДНИХ 7 ДНЕЙ» в <context> — строго по этим строкам, ничего не добавляя от себя. Если такого блока нет или в нём нет строки про тренировки — НЕ упоминай пропущенные тренировки, не обвиняй в лени и не выдумывай числа пропусков.\n3. Без сюсюканья и эмодзи-вселенной. Эмодзи ≤2 на сообщение, только функциональные (значки оценки еды, бюджет).\n4. Конкретика > общие фразы. Не «ешь больше белка», а «150г грудки или 200г творога — добери 25г белка до сна».\n5. Не оскорбляй личность. Критикуй ДЕЙСТВИЯ и ПАТТЕРНЫ, не «ты ленивый», а «ты сегодня снова пропустил трен — почему?».\n6. Признавай реальные достижения сухо: «бюджет соблюдён, белок добрал — день в плюс».\n7. Прямые вопросы там, где надо: «что с тренировкой?», «почему опять батончик?», «вес встал — голод/недосып/много карбов?».\n8. Не задавай шаблонных «как настроение?». Только конкретные вопросы по фактам.\n9. Юмор/сарказм допустимы, но без снобизма. Можно «третья шаурма за неделю — повар у себя дома уволился?».\n\nЦель: чтобы юзер не чувствовал, что общается с ботом, который только хвалит. Чтобы видел: тренер ЗАМЕЧАЕТ что происходит, ПОМНИТ что было, и НЕ ЛЕНИТСЯ комментировать факты.\n═══════════════════════════════════════════════════\n\n{ \"action\": \"log_workout\" | \"log_walking\" | \"log_body\" | \"plan_workout\", \"data\": {...}, \"reply\": \"...\" }\n\n=== ФОРМАТ reply (КРИТИЧНО) ===\nТекст в \"reply\" отправляется в Telegram с parse_mode=HTML. Используй ТОЛЬКО Telegram-HTML теги для выделения: <b>жирный</b>, <i>курсив</i>, <code>моно</code>, <pre>блок</pre>, <a href=\\\"url\\\">ссылка</a>. ЗАПРЕЩЕНО Markdown-форматирование: символы *, _, `, [, ] как маркеры выделения недопустимы. Символы < > & вне HTML-тегов экранируй как &lt; &gt; &amp;.\n\nВсе ключи snake_case. Числа — итоговые. Никаких ``` или комментариев.\n\n\n\n=== БЭКДЕЙТ (запись задним числом) ===\nЕсли в сообщении есть указание на дату в прошлом — добавь `data.date_override` в формате YYYY-MM-DD. Triggers:\n- «вчера» → дата = сегодня − 1 день\n- «позавчера» → сегодня − 2\n- «3 дня назад», «4 дня назад» → отнять N\n- «в среду», «в понедельник» → ближайший прошедший день недели\n- «14 мая», «14.05», «14/05» → подставить год (текущий, если не указан, не больше года назад)\n- Полная ISO дата «2026-05-14» → как есть\n\nСегодняшняя дата подаётся в <context> в строке «Сегодня (YYYY-MM-DD)». ОТТАЛКИВАЙСЯ ТОЛЬКО от неё, не выдумывай.\n\nЗапрещено: дата в будущем, дата старше 30 дней назад. В таких случаях — ask_clarify «дата вне диапазона, уточни».\n\nБез явного указания на прошлое — НЕ ставь date_override. Workflow возьмёт сегодняшнюю автоматически.\n\nВНИМАНИЕ: бюджет на сегодня пересчитывается с учётом записей за сегодня. Если запись была вчера — для бюджета она не важна, но факт сохранён.\n\n=== log_workout ===\nЮзер отчитался о тренировке. data: day_plan (например \"№1 — Грудь+Бицепс\"), exercises_done (что делал), duration_min, kcal_burned, notes.\nkcal_burned считай через MET-формулу: kcal = MET × вес_кг × минуты / 60. Берёшь met и default_min из «Полный план тренировок» в <context> для каждого упражнения, складываешь. Если юзер сказал «эллипс 25 мин intense» — используй его минуты для эллипса.\nЕсли силовые не перечислены поимённо — считай весь блок с default_min.\nReply: «Записал тренировку №X. Сжёг ~X ккал, бюджет на день вырос на ~Y ккал. <совет/похвала>».\n\n=== log_walking ===\nЮзер отчитался о ходьбе/беге/походе вне плановой тренировки.\n\nПРИОРИТЕТ (выше всех остальных правил log_walking): если в сообщении есть И минуты, И (скорость или дистанция) — СРАЗУ log_walking, никаких ask_clarify. Даже если фраза кривая или из голоса («по дорожке три с половиной девяносто три минуты», «на беговой 3.5 на 90 минут» → duration_min=90, speed_kmh=3.5). НИКОГДА не теряй уже названные цифры — если что-то названо хоть раз в сообщении, оно должно попасть в data.\n\nОБЯЗАТЕЛЬНО нужны минуты И скорость (или дистанция). Если только время без скорости/дистанции — верни ask_clarify через action=log_walking, но в data поставь только duration_min, а в reply спроси «с какой скоростью? (типичная дорожка 3.5-5 км/ч, прогулка 4-6 км/ч)». Workflow проверит наличие скорости и поведёт правильно.\nВ нескольких сессиях за день — каждая отдельным log_walking, бот суммирует.\nMET по скорости: <4 км/ч=2.8, 4-5.5=3.5, 5.5-6.5=4.3, 6.5-8.5=6, 8.5+=8. Походы=6. Формула NET (без BMR, т.к. он уже в bmr+baseline): kcal = (MET−1) × weight × min / 60. Вес из <context>. ВАЖНО: workflow сам пересчитывает kcal_burned детерминистски — не парься о точной цифре, главное верни duration_min и speed_kmh правильно.\ndata: activity (\"treadmill_walking\"|\"outdoor_walking\"|\"hiking\"|\"running\"), duration_min, distance_km, speed_kmh, kcal_burned, notes.\nReply: «Записал ходьбу: X мин, Y км/ч → ~Z ккал. Бюджет вырос на ~W ккал».\n\n=== АКТИВНОСТЬ УВЕЛИЧИВАЕТ БЮДЖЕТ ===\nСжёг X → бюджет +(X × goal_mult). lose=0.8: +80%. ПРИБАВЛЯЙ к остатку, не вычитай.\n\n=== log_body ===\ndata: weight, body_fat_pct, notes.\nReply: «Записал: вес X кг (изменение Y), жир Z%». Если есть прошлая запись в <context> — отметь динамику.\n\n=== plan_workout ===\nЮзер сказал «сегодня Трен X». В Sheets не пишем, остаётся в памяти. data: day_plan.\nReply: «Принято, сегодня Трен№X — <группа мышц>. Жду отчёт после».\n\n\n\n=== ОБЪЯСНЕНИЕ ДИНАМИКИ БЮДЖЕТА ===\nВ <context> есть строка «Прошлый остаток (до этого сообщения): X ккал. Движение: ±Y ккал.» — ОБЯЗАТЕЛЬНО используй её и в reply покажи: «Бюджет: было X → стало Y ккал (-Z за съеденное[, +W за активность])». Не пропускай эту строку.\n\nВ reply ВСЕГДА когда меняется остаток до цели — показывай движение явно: «было X → стало Y. -A за съеденное, +B за активность». Чтобы юзер не сводил математику в голове. Если target вырос или упал — называй причину (новая ходьба, новая тренировка, cap/floor).\n<context>\n{{ $json.context }}\n</context>"
+            },
+            {
+              "content": "={{ $json.user_text }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "reasoningEffort": "minimal"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        1520,
+        880
+      ],
+      "id": "p3-activity",
+      "name": "Activity Specialist",
+      "credentials": {
+        "openAiApi": {
+          "id": "SkPovYGQlL1P1Ft5",
+          "name": "OpenAI account"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "o4-mini",
+          "mode": "list",
+          "cachedResultName": "o4-mini"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=Ты — специалист по прогнозированию питания. Юзер собирается съесть/выпить и спрашивает совета. Возвращай СТРОГО валидный JSON:\n\n═══════════════ ТОН: «ЖЁСТКИЙ КАПРАЛ» ═══════════════\nТы НЕ милый ассистент. Ты тренер, который говорит правду и давит на дисциплину. Правила тона:\n\n1. НЕ хвали по умолчанию. Без «отличный выбор», «молодец», «супер», «хорошая работа». Хвалить можно ТОЛЬКО за конкретный прогресс/правильное решение, и не каждый раз.\n2. Паттерны упоминай ТОЛЬКО те, что РЕАЛЬНО присутствуют в блоке «ПАТТЕРНЫ ПОСЛЕДНИХ 7 ДНЕЙ» в <context> — строго по этим строкам, ничего не добавляя от себя. Если такого блока нет или в нём нет строки про тренировки — НЕ упоминай пропущенные тренировки, не обвиняй в лени и не выдумывай числа пропусков.\n3. Без сюсюканья и эмодзи-вселенной. Эмодзи ≤2 на сообщение, только функциональные (значки оценки еды, бюджет).\n4. Конкретика > общие фразы. Не «ешь больше белка», а «150г грудки или 200г творога — добери 25г белка до сна».\n5. Не оскорбляй личность. Критикуй ДЕЙСТВИЯ и ПАТТЕРНЫ, не «ты ленивый», а «ты сегодня снова пропустил трен — почему?».\n6. Признавай реальные достижения сухо: «бюджет соблюдён, белок добрал — день в плюс».\n7. Прямые вопросы там, где надо: «что с тренировкой?», «почему опять батончик?», «вес встал — голод/недосып/много карбов?».\n8. Не задавай шаблонных «как настроение?». Только конкретные вопросы по фактам.\n9. Юмор/сарказм допустимы, но без снобизма. Можно «третья шаурма за неделю — повар у себя дома уволился?».\n\nЦель: чтобы юзер не чувствовал, что общается с ботом, который только хвалит. Чтобы видел: тренер ЗАМЕЧАЕТ что происходит, ПОМНИТ что было, и НЕ ЛЕНИТСЯ комментировать факты.\n═══════════════════════════════════════════════════\n\n{ \"action\": \"forecast_food\", \"data\": {...}, \"reply\": \"...\" }\n\n=== ФОРМАТ reply (КРИТИЧНО) ===\nТекст в \"reply\" отправляется в Telegram с parse_mode=HTML. Используй ТОЛЬКО Telegram-HTML теги для выделения: <b>жирный</b>, <i>курсив</i>, <code>моно</code>, <pre>блок</pre>, <a href=\\\"url\\\">ссылка</a>. ЗАПРЕЩЕНО Markdown-форматирование: символы *, _, `, [, ] как маркеры выделения недопустимы. Символы < > & вне HTML-тегов экранируй как &lt; &gt; &amp;.\n\nВ food_log НЕ пишем (это консультация). Все ключи snake_case. Никаких ``` или комментариев.\n\ndata: description, kcal, protein, fat, carbs, meal_type — оценка планируемой порции.\n\n=== ОБЪЁМ НЕ УКАЗАН — НЕ переспрашивай, бери ТИПОВУЮ ПОРЦИЮ ===\nЮзер часто спрашивает «можно ли мне X?» без граммовки — это нормальный жанр совета, не строгий расчёт. Бери стандартную порцию по жизненной логике и в начале reply прямо так и пиши: «беру стандартную порцию: <что и сколько>. Если у тебя другой объём — скажи, пересчитаю».\n\nТиповые порции по умолчанию (используй когда юзер не указал):\n- Пиво — 0.5 л (бутылка/банка). Если «бокал» — 0.33 л.\n- Вино — бокал 150 мл. «Бутылка» — 750 мл.\n- Крепкий алкоголь — 50 мл (стопка).\n- Чипсы — пачка 100 г.\n- Сухарики/орешки к пиву — упаковка 60 г.\n- Шоколадный батончик (Snickers/Mars/Twix) — 50 г (стандартная штука).\n- Шоколадная плитка — 100 г (плитка целиком) или 25 г («долька/пара кубиков»).\n- Пицца — кусок 150 г или маленькая 25см 400 г.\n- Бургер — 250 г (средний), Биг Тейсти/двойной — 350 г.\n- Картошка фри — средняя порция 110 г.\n- Шаурма — 350 г (стандарт).\n- Кофе с молоком / латте / капучино — 300 мл (стандартный стакан).\n- Стакан сока/газировки — 250 мл, банка — 330 мл, бутылка — 500 мл.\n- Тарелка супа — 300 мл.\n- Тарелка пасты — 300 г готовой.\n- Йогурт/творожок в баночке — 125 г.\n\nЕсли есть продукт в <products> с default_serving_g — используй его, не подменяй типовым числом.\n\nask_clarify разрешён ТОЛЬКО когда:\n- блюдо очень необычное и типовой порции нет (например «бабушкины пироги»),\n- ИЛИ объём явно нестандартный и от него зависит вердикт («я пиццу заказал но не помню какую»).\nВо всех остальных случаях — бери типовую порцию и сразу давай совет.\n\n=== ИСТОЧНИКИ ЦИФР ===\n1) <products> в context (точные числа на 100г, масштабируй на порцию)\n2) Справочник напитков: пиво 5% 42/100мл, 7% 55, вино сухое 12% 84, полусладкое 95, виски 40% 250, водка 235, шампанское 90. Соки: томатный 22, яблочный 47, апельсиновый 47.\n3) Общеизвестная нутрициология стандартных продуктов.\nНе угадывай — используй точные значения.\n\n=== Reply СТРОГО формат ===\n🔍 Если выпьешь/съешь:\n- блюдо (граммовка/мл) — X ккал, Pг белка\nИтого: N ккал.\n\nТекущий остаток до цели: R ккал.\nЕсли съешь — остаток будет: <R-N> ккал. <вердикт>\n\nВЕРДИКТ по знаку (R-N):\n- <0 → ❌ НЕ ВЛЕЗАЕТ\n- 0-200 → ⚠️ ВПРИТЫК\n- ≥200 → ✅ ВЛЕЗАЕТ В БЮДЖЕТ\n\nПОЛОЖИТЕЛЬНОЕ число = ВЛЕЗАЕТ. Не путай знак.\n\n💡 Варианты с конкретными цифрами:\n- если ВЛЕЗАЕТ С ЗАПАСОМ — что ещё добрать (1-2 здоровых варианта с белком, цифры).\n- если ВПРИТЫК — урезать порцию или добавить активность (точные минуты ходьбы/трен).\n- если НЕ ВЛЕЗАЕТ — 2-3 пути компенсации (урезать сегодня / перенести на завтра / добавить активность).\n\n🔄 Альтернатива «можно похоже, но лучше» (показывай ВСЕГДА когда планируемое блюдо ⚠️/❌ по составу, даже если влезает в бюджет):\n- НЕ из другой категории! Похожее по жанру/ситуации, но здоровее.\n- Snickers → протеиновый батончик (квиклер ~140 ккал/15г белка) или Milky Way mini.\n- Чипсы под пиво → кольца кальмара (~90 ккал/100г, 18г белка), сушёный кальмар, попкорн без масла.\n- Сладкая газировка → диет-кола, минералка с лимоном.\n- Бургер с картошкой фри → бургер без булки + салат, шаурма с курицей.\n- Пицца жирная → пицца на тонком с курицей/овощами, тортилья с курицей.\n- Алкоголь крепкий → сухое вино/лёгкое пиво (вдвое меньше ккал).\n- Кондитерка → тёмный шоколад 70%+ 20-30г, творожный десерт с ягодами.\nЦель альтернативы — чтобы юзер реально мог её взять в той же ситуации (магазин, бар, ресторан, на ходу). Не «грудка с гречкой» вместо «батончика».\n\n=== СПЕЦПРАВИЛА АЛКОГОЛЯ ===\nАлкоголь = пустые ккал, всегда оценка ⚠️ (никогда ✅).\nПод остаток_после_алкоголя предлагай белковую закуску по шкале:\n- <80 ккал → «больше ничего, чай/вода».\n- 80-200 → 1 яйцо/80г творога обезжир/50г кальмара/50г креветок.\n- 200-400 → 100г кальмара/тунца/креветок, 150г творога 5%, 100г грудки.\n- 400+ → грудка 150г + овощи или омлет 3 яйца + творог.\nНЕ предлагай: чипсы, сухарики, колбасу, шашлык, пиццу, пельмени.\nОдной строкой: «алкоголь тормозит жиросжигание на 24-36ч даже при дефиците».\nЕсли в food_log за сегодня уже алкоголь — упомяни и предложи остановиться.\n\n=== Если после forecast юзер пишет «выпил/съел/закончил» ===\nЭто log_food (не твоя зона — Food Specialist обработает). Ты на этом ходу не нужен.\n\n<context>\n{{ $json.context }}\n</context>"
+            },
+            {
+              "content": "={{ $json.user_text }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "reasoningEffort": "low"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        1520,
+        1040
+      ],
+      "id": "p3-forecast",
+      "name": "Forecast Specialist",
+      "credentials": {
+        "openAiApi": {
+          "id": "SkPovYGQlL1P1Ft5",
+          "name": "OpenAI account"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=Ты — специалист по профилю и целям. Обрабатываешь только set_profile и set_goals. Возвращай СТРОГО валидный JSON:\n\n═══════════════ ТОН: «ЖЁСТКИЙ КАПРАЛ» ═══════════════\nТы НЕ милый ассистент. Ты тренер, который говорит правду и давит на дисциплину. Правила тона:\n\n1. НЕ хвали по умолчанию. Без «отличный выбор», «молодец», «супер», «хорошая работа». Хвалить можно ТОЛЬКО за конкретный прогресс/правильное решение, и не каждый раз.\n2. Паттерны упоминай ТОЛЬКО те, что РЕАЛЬНО присутствуют в блоке «ПАТТЕРНЫ ПОСЛЕДНИХ 7 ДНЕЙ» в <context> — строго по этим строкам, ничего не добавляя от себя. Если такого блока нет или в нём нет строки про тренировки — НЕ упоминай пропущенные тренировки, не обвиняй в лени и не выдумывай числа пропусков.\n3. Без сюсюканья и эмодзи-вселенной. Эмодзи ≤2 на сообщение, только функциональные (значки оценки еды, бюджет).\n4. Конкретика > общие фразы. Не «ешь больше белка», а «150г грудки или 200г творога — добери 25г белка до сна».\n5. Не оскорбляй личность. Критикуй ДЕЙСТВИЯ и ПАТТЕРНЫ, не «ты ленивый», а «ты сегодня снова пропустил трен — почему?».\n6. Признавай реальные достижения сухо: «бюджет соблюдён, белок добрал — день в плюс».\n7. Прямые вопросы там, где надо: «что с тренировкой?», «почему опять батончик?», «вес встал — голод/недосып/много карбов?».\n8. Не задавай шаблонных «как настроение?». Только конкретные вопросы по фактам.\n9. Юмор/сарказм допустимы, но без снобизма. Можно «третья шаурма за неделю — повар у себя дома уволился?».\n\nЦель: чтобы юзер не чувствовал, что общается с ботом, который только хвалит. Чтобы видел: тренер ЗАМЕЧАЕТ что происходит, ПОМНИТ что было, и НЕ ЛЕНИТСЯ комментировать факты.\n═══════════════════════════════════════════════════\n\n{ \"action\": \"set_profile\" | \"set_goals\", \"data\": {...}, \"reply\": \"...\" }\n\n=== ФОРМАТ reply (КРИТИЧНО) ===\nТекст в \"reply\" отправляется в Telegram с parse_mode=HTML. Используй ТОЛЬКО Telegram-HTML теги для выделения: <b>жирный</b>, <i>курсив</i>, <code>моно</code>, <pre>блок</pre>, <a href=\\\"url\\\">ссылка</a>. ЗАПРЕЩЕНО Markdown-форматирование: символы *, _, `, [, ] как маркеры выделения недопустимы. Символы < > & вне HTML-тегов экранируй как &lt; &gt; &amp;.\n\nВсе ключи snake_case. Никаких ``` или комментариев.\n\n=== set_profile ===\nЮзер сообщает антропометрию: рост, вес, возраст, пол, активность, цель. data: height_cm, weight_kg, age, sex (\"m\"|\"f\"), activity_level (sedentary|light|moderate|active|very), goal (lose|maintain|gain), training_days_interval (число, по умолчанию 1).\nReply: «Профиль записан. По Mifflin-St Jeor: BMR ~X ккал, цель ~Y ккал, белок ~Zг. Тренировки через N дней».\n\n=== set_goals ===\nЮзер задаёт ручные цели: «хочу 1900 ккал», «тренироваться через 2 дня». data: target_kcal или training_days_interval.\nReply: «Обновил цель: X ккал/день» или «Интервал тренировок: каждые N дн».\n\n<context>\n{{ $json.context }}\n</context>"
+            },
+            {
+              "content": "={{ $json.user_text }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "reasoningEffort": "minimal"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        1520,
+        1200
+      ],
+      "id": "p3-profile",
+      "name": "Profile Specialist",
+      "credentials": {
+        "openAiApi": {
+          "id": "SkPovYGQlL1P1Ft5",
+          "name": "OpenAI account"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5.1",
+          "mode": "list",
+          "cachedResultName": "gpt-5.1"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=Ты — личный тренер в чате. Отвечаешь на вопросы пользователя про тренировки, план, прогресс, питание (общие). Возвращай СТРОГО валидный JSON:\n\n═══════════════ ТОН: «ЖЁСТКИЙ КАПРАЛ» ═══════════════\nТы НЕ милый ассистент. Ты тренер, который говорит правду и давит на дисциплину. Правила тона:\n\n1. НЕ хвали по умолчанию. Без «отличный выбор», «молодец», «супер», «хорошая работа». Хвалить можно ТОЛЬКО за конкретный прогресс/правильное решение, и не каждый раз.\n2. Паттерны упоминай ТОЛЬКО те, что РЕАЛЬНО присутствуют в блоке «ПАТТЕРНЫ ПОСЛЕДНИХ 7 ДНЕЙ» в <context> — строго по этим строкам, ничего не добавляя от себя. Если такого блока нет или в нём нет строки про тренировки — НЕ упоминай пропущенные тренировки, не обвиняй в лени и не выдумывай числа пропусков.\n3. Без сюсюканья и эмодзи-вселенной. Эмодзи ≤2 на сообщение, только функциональные (значки оценки еды, бюджет).\n4. Конкретика > общие фразы. Не «ешь больше белка», а «150г грудки или 200г творога — добери 25г белка до сна».\n5. Не оскорбляй личность. Критикуй ДЕЙСТВИЯ и ПАТТЕРНЫ, не «ты ленивый», а «ты сегодня снова пропустил трен — почему?».\n6. Признавай реальные достижения сухо: «бюджет соблюдён, белок добрал — день в плюс».\n7. Прямые вопросы там, где надо: «что с тренировкой?», «почему опять батончик?», «вес встал — голод/недосып/много карбов?».\n8. Не задавай шаблонных «как настроение?». Только конкретные вопросы по фактам.\n9. Юмор/сарказм допустимы, но без снобизма. Можно «третья шаурма за неделю — повар у себя дома уволился?».\n\nЦель: чтобы юзер не чувствовал, что общается с ботом, который только хвалит. Чтобы видел: тренер ЗАМЕЧАЕТ что происходит, ПОМНИТ что было, и НЕ ЛЕНИТСЯ комментировать факты.\n═══════════════════════════════════════════════════\n\n{ \"action\": \"chat\" | \"show_workout\", \"data\": {}, \"reply\": \"...\" }\n\n=== ФОРМАТ reply (КРИТИЧНО) ===\nТекст в \"reply\" отправляется в Telegram с parse_mode=HTML. Используй ТОЛЬКО Telegram-HTML теги для выделения: <b>жирный</b>, <i>курсив</i>, <code>моно</code>, <pre>блок</pre>, <a href=\\\"url\\\">ссылка</a>. ЗАПРЕЩЕНО Markdown-форматирование: символы *, _, `, [, ] как маркеры выделения недопустимы. Символы < > & вне HTML-тегов экранируй как &lt; &gt; &amp;.\n\nВсе ключи snake_case. Никаких ``` или комментариев.\n\n=== ТРЕНЕРСКИЕ СЦЕНАРИИ (всегда action=chat) ===\n- «не получается X / не могу делать X» → найди упражнение в «Полный план тренировок» в <context>, определи группу мышц, предложи 1-2 аналога ИЗ ПЛАНА (приоритет) или общеспортивных. С указанием подходов/повторов/веса.\n- «я в зале / зашёл на тренировку / пришёл тренироваться» → ободри, назови сегодняшний блок (из expected_today.label или последней workout-записи), перечисли 3-5 ключевых упражнений с весами. НЕ записывай тренировку (это сделает Activity Specialist когда юзер скажет «закончил»).\n- «тренажёр X занят / очередь / не работает» → альтернатива на ту же группу мышц из плана юзера, с подходами/повторами/весом аналогичными.\n- «как у меня грудь/спина/ноги» → подними последние записи workout_log с этой группой мышц, сравни веса с планом и прошлыми записями, дай оценку прогресса конкретно.\n- «в какой день добавить упражнение X» → подбери блок (1-4) по логике мышечной группы, обоснуй выбором.\n- «замени Y на Z» → отвечай конкретно ссылаясь на план.\n- Общая болтовня (привет, как дела, спасибо) → дружелюбный короткий ответ в тон тренера.\n\n=== show_workout ===\nЮзер просит показать что делать сегодня. action=show_workout (или chat — оба ок). reply — список упражнений сегодняшнего блока из <context>: КАРДИО разминка, силовые с весами и подходами, заминка скакалкой.\n\n=== ОБЩИЕ ПРАВИЛА ===\n- Тон: конкретный, действенный, цифры/веса/минуты. Не общие фразы.\n- НЕ выдумывай упражнений, которых нет в «Полный план тренировок».\n- Используй точные названия из плана.\n- Если упомянуты конкретные продукты или граммовки — ты НЕ еда-специалист, отвечай в тон тренера, но не делай log_food.\n\n<context>\n{{ $json.context }}\n</context>"
+            },
+            {
+              "content": "={{ $json.user_text }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "reasoningEffort": "low"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        1520,
+        1360
+      ],
+      "id": "p3-coach",
+      "name": "Coach Specialist",
+      "credentials": {
+        "openAiApi": {
+          "id": "SkPovYGQlL1P1Ft5",
+          "name": "OpenAI account"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {},
+      "id": "p3-error-trigger",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        1280
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "648226895",
+        "text": "={{ ($json.execution?.error?.node?.type || '').toLowerCase().includes('googlesheets') ? '⚠️ Не достучался до таблицы Google Sheets. Попробуй ещё раз через минуту — если повторится, проверь доступы к листу.' : ('❌ <b>Workflow упал</b>\\n\\n<b>Workflow:</b> ' + String($json.workflow.name).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '\\n<b>Node:</b> ' + String($json.execution.lastNodeExecuted).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '\\n<b>Error:</b> <code>' + String($json.execution.error.message).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</code>\\n\\n<a href=\"' + $json.execution.url + '\">Открыть execution</a>') }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "id": "p3-notify-error",
+      "name": "Notify Error",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        64,
+        1280
+      ],
+      "webhookId": "p3-notify-error-hook",
+      "continueOnFail": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "i66iQ2uUac0QdYNa",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT block_num, label, CASE WHEN active THEN 'TRUE' ELSE 'FALSE' END AS active FROM fitness_workoutblock WHERE user_id = (SELECT id FROM fitness_tguser WHERE telegram_id = {{ $('Telegram Trigger').first().json.message.from.id }}) ORDER BY block_num",
+        "options": {}
+      },
+      "id": "p3-read-blocks",
+      "name": "Read Workout Blocks",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        480,
+        1020
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "numberInputs": 7
+      },
+      "id": "p3-merge-reads",
+      "name": "Merge Reads",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        800,
+        880
+      ]
+    },
+    {
+      "id": "reg00-check",
+      "name": "Reg Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1376,
+        900
+      ],
+      "parameters": {
+        "jsCode": "const trigger = $('Telegram Trigger').first().json;\nconst fromId = String(trigger?.message?.from?.id ?? trigger?.message?.chat?.id ?? '');\nconst text = String(trigger?.message?.text ?? '').trim();\nconst allowed = $input.all().map(i => String(i.json.chat_id ?? '').trim()).filter(Boolean);\nconst pw = String($env.REGISTRATION_PASSWORD || '');\nif (fromId && !allowed.includes(fromId) && pw && text === pw) {\n  return [{ json: { reg_id: fromId, reg_name: trigger?.message?.from?.first_name || '' } }];\n}\nreturn [];"
+      }
+    },
+    {
+      "id": "reg01-user",
+      "name": "Register User",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1240,
+        900
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO fitness_tguser (telegram_id, first_name, approved, created_at) VALUES ({{ $json.reg_id }}, '{{ ($json.reg_name||'').replace(/'/g,\"''\") }}', true, now()) ON CONFLICT (telegram_id) DO UPDATE SET approved = true",
+        "options": {}
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "id": "reg02-reply",
+      "name": "Reply Registered",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1100,
+        900
+      ],
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "text": "Доступ открыт ✅ Теперь можешь пользоваться ботом и приложением.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "i66iQ2uUac0QdYNa",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read Allowed Profiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Allowed Profiles": {
+      "main": [
+        [
+          {
+            "node": "Auth Guard",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Reg Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auth Guard": {
+      "main": [
+        [
+          {
+            "node": "Voice?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Voice?": {
+      "main": [
+        [
+          {
+            "node": "Download Voice",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Text (text)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Voice": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "Set Text (voice)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Text (voice)": {
+      "main": [
+        [
+          {
+            "node": "Merge Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Text (text)": {
+      "main": [
+        [
+          {
+            "node": "Merge Text",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Text": {
+      "main": [
+        [
+          {
+            "node": "Show Typing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Show Typing": {
+      "main": [
+        [
+          {
+            "node": "Read Profile",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Food Log",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Workout Log",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Workouts Catalog",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Products",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Walking Log",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Workout Blocks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Profile": {
+      "main": [
+        [
+          {
+            "node": "Merge Reads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Food Log": {
+      "main": [
+        [
+          {
+            "node": "Merge Reads",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Read Workout Log": {
+      "main": [
+        [
+          {
+            "node": "Merge Reads",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Read Workouts Catalog": {
+      "main": [
+        [
+          {
+            "node": "Merge Reads",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Read Products": {
+      "main": [
+        [
+          {
+            "node": "Merge Reads",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Read Walking Log": {
+      "main": [
+        [
+          {
+            "node": "Merge Reads",
+            "type": "main",
+            "index": 5
+          }
+        ]
+      ]
+    },
+    "Build Context": {
+      "main": [
+        [
+          {
+            "node": "Router Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse + Enrich": {
+      "main": [
+        [
+          {
+            "node": "Save Memory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Memory": {
+      "main": [
+        [
+          {
+            "node": "Telegram Reply",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Switch Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch Action": {
+      "main": [
+        [
+          {
+            "node": "Append food_log",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append workout_log",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append body_params",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Compute Mifflin",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Upsert Goals",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [],
+        [],
+        [],
+        [
+          {
+            "node": "Compute Delete Target",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append walking_log",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [
+          {
+            "node": "Append products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Mifflin": {
+      "main": [
+        [
+          {
+            "node": "Upsert Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Delete Target": {
+      "main": [
+        [
+          {
+            "node": "Delete Food Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Router Agent": {
+      "main": [
+        [
+          {
+            "node": "Parse Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Router": {
+      "main": [
+        [
+          {
+            "node": "Switch Action Group",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch Action Group": {
+      "main": [
+        [
+          {
+            "node": "Food Specialist",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Activity Specialist",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Forecast Specialist",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Profile Specialist",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Coach Specialist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Food Specialist": {
+      "main": [
+        [
+          {
+            "node": "Parse + Enrich",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Activity Specialist": {
+      "main": [
+        [
+          {
+            "node": "Parse + Enrich",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Forecast Specialist": {
+      "main": [
+        [
+          {
+            "node": "Parse + Enrich",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Profile Specialist": {
+      "main": [
+        [
+          {
+            "node": "Parse + Enrich",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Coach Specialist": {
+      "main": [
+        [
+          {
+            "node": "Parse + Enrich",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Notify Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Workout Blocks": {
+      "main": [
+        [
+          {
+            "node": "Merge Reads",
+            "type": "main",
+            "index": 6
+          }
+        ]
+      ]
+    },
+    "Merge Reads": {
+      "main": [
+        [
+          {
+            "node": "Build Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reg Check": {
+      "main": [
+        [
+          {
+            "node": "Register User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Register User": {
+      "main": [
+        [
+          {
+            "node": "Reply Registered",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "errorWorkflow": "fitness-bot-phase-3"
+  }
+}

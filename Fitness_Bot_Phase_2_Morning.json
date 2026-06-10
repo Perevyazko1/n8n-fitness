@@ -1,0 +1,360 @@
+{
+  "name": "Fitness_Bot_Phase_2_Morning",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0 8 * * *"
+            }
+          ]
+        }
+      },
+      "id": "p2m-cron",
+      "name": "Cron 08:00 MSK",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -560,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "profile"
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "p2m-read-profile",
+      "name": "Read Profile",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -336,
+        400
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "workout_log"
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "p2m-read-workouts",
+      "name": "Read Workout Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -112,
+        400
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "workouts_flat"
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "p2m-read-catalog",
+      "name": "Read Workouts Catalog",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        112,
+        400
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const profileRows = $('Read Profile').all().map(i => i.json);\nconst profile = profileRows.find(r => r.chat_id) || null;\nif (!profile) return [];\n\nconst chat_id = profile.chat_id;\nconst interval = Number(profile.training_days_interval) || 1;\nconst weight = Number(profile.weight_kg) || 76;\nconst bmr = Number(profile.bmr) || 1600;\nconst baseline = Number(profile.daily_baseline_kcal) || 280;\nconst targetProtein = Number(profile.target_protein_g) || 0;\nconst targetKcal = Number(profile.target_kcal) || 0;\nconst goal = String(profile.goal || 'maintain').toLowerCase();\nconst goalMult = ({ lose: 0.8, maintain: 1.0, gain: 1.15 })[goal] || 1.0;\n\nconst pad = (n) => String(n).padStart(2, '0');\nconst now = new Date();\nconst today = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;\nconst y = new Date(now); y.setDate(y.getDate() - 1);\nconst yest = `${y.getFullYear()}-${pad(y.getMonth()+1)}-${pad(y.getDate())}`;\n\n// --- Workout blocks state ---\nconst blocksStateRows = $('Read Workout Blocks').all().map(i => i.json);\nconst blocksState = {};\nfor (const r of blocksStateRows) {\n  const n = Number(r.block_num);\n  if (!n) continue;\n  blocksState[n] = { label: r.label || `№${n}`, active: String(r.active).toUpperCase() === 'TRUE' };\n}\nif (!Object.keys(blocksState).length) {\n  for (const n of [1,2,3,4]) blocksState[n] = { label: `№${n}`, active: true };\n}\nconst activeNums = Object.keys(blocksState).map(Number)\n  .filter(n => blocksState[n].active).sort((a,b)=>a-b);\nfunction nextActiveAfter(lastN, active) {\n  if (!active.length) return null;\n  const after = active.find(n => n > lastN);\n  return after != null ? after : active[0];\n}\n\n// --- Last workout / cycle ---\nconst workoutRows = $('Read Workout Log').all().map(i => i.json);\nconst sortedW = workoutRows.filter(r => r.date).sort((a, b) => String(a.date).localeCompare(String(b.date)));\nconst lastWorkout = sortedW[sortedW.length - 1] || null;\n\nfunction parseN(plan) {\n  if (!plan) return null;\n  const m = String(plan).match(/№?\\s*([1-4])/);\n  if (m) return Number(m[1]);\n  const s = String(plan).toLowerCase();\n  if (s.includes('грудь') && s.includes('бицепс')) return 1;\n  if (s.includes('плечи') && s.includes('грудь'))  return 2;\n  if (s.includes('спина') && s.includes('трицепс'))return 3;\n  if (s.includes('ноги')) return 4;\n  return null;\n}\n\nlet expectedNum;\nlet isWorkoutDay;\nif (!activeNums.length) {\n  expectedNum = null;\n  isWorkoutDay = false;\n} else if (!lastWorkout) {\n  expectedNum = activeNums[0];\n  isWorkoutDay = true;\n} else {\n  const lastDate = new Date(String(lastWorkout.date));\n  const todayD = new Date(today);\n  const daysSince = Math.floor((todayD - lastDate) / 86400000);\n  expectedNum = nextActiveAfter(parseN(lastWorkout.day_plan) || 0, activeNums);\n  isWorkoutDay = daysSince >= interval;\n}\nconst labels = Object.fromEntries(Object.entries(blocksState).map(([k,v]) => [k, v.label]));\n\n// --- Расход тренировки ---\nconst wkRows = $('Read Workouts Catalog').all().map(i => i.json);\nlet workoutKcal = 0;\nconst exerciseLines = [];\nif (expectedNum) {\n  for (const r of wkRows) {\n    if (Number(r.block_num) !== expectedNum) continue;\n    if (!r.exercise) continue;\n    const m = Number(r.met) || 0;\n    const dm = Number(r.default_min) || 0;\n    if (m && dm) workoutKcal += m * weight * dm / 60;\n    const w = r.weight && r.weight !== '—' ? `, ${r.weight}` : '';\n    exerciseLines.push(`- ${r.group}: ${r.exercise}, ${r.sets}×${r.reps}${w}`);\n  }\n}\nworkoutKcal = Math.round(workoutKcal);\n\n// --- Вчерашние факты (для капрала есть что вспомнить) ---\nconst yestFood = $('Read Food Log').all().map(i => i.json).filter(r => String(r.date) === yest);\nconst yestSum = yestFood.reduce((a, r) => ({\n  kcal: a.kcal + (Number(r.kcal) || 0),\n  protein: a.protein + (Number(r.protein) || 0),\n}), { kcal: 0, protein: 0 });\nyestSum.kcal = Math.round(yestSum.kcal);\nyestSum.protein = Math.round(yestSum.protein);\nconst yestWalk = $('Read Walking Log').all().map(i => i.json).filter(r => String(r.date) === yest);\nconst yestWalkMin = yestWalk.reduce((s, r) => s + (Number(r.duration_min) || 0), 0);\nconst yestWorkoutDone = workoutRows.some(r => String(r.date) === yest);\n\n// --- Тренировка пропущена давно ---\nlet missedNote = '';\nif (lastWorkout) {\n  const lwd = new Date(String(lastWorkout.date) + 'T00:00:00');\n  const today0 = new Date(today + 'T00:00:00');\n  const daysSinceLast = Math.floor((today0 - lwd) / 86400000);\n  if (daysSinceLast >= interval + 2) missedNote = `Последняя трен — ${daysSinceLast} дн назад. Интервал ${interval}. Не отлынивай.`;\n}\n\n// --- Вердикт по вчерашнему дню (капральский) ---\nconst yestVerdict = [];\nif (yestFood.length === 0) {\n  yestVerdict.push('Вчера в food_log пусто. Либо вообще не ел (сомневаюсь), либо забил.');\n} else {\n  if (targetKcal) {\n    const diff = yestSum.kcal - targetKcal;\n    if (diff > 200) yestVerdict.push(`Вчера ${yestSum.kcal} ккал — перебор на ${diff}.`);\n    else if (diff < -300) yestVerdict.push(`Вчера ${yestSum.kcal} ккал — недоел ${-diff}. Жёсткий дефицит не нужен.`);\n    else yestVerdict.push(`Вчера в бюджете: ${yestSum.kcal} из ${targetKcal} ккал.`);\n  }\n  if (targetProtein) {\n    const protDiff = yestSum.protein - targetProtein;\n    if (protDiff < -20) yestVerdict.push(`Белка добрал ${yestSum.protein} из ${targetProtein}г — недобор ${-protDiff}.`);\n    else if (protDiff >= 0) yestVerdict.push(`Белок в норме (${yestSum.protein}г).`);\n  }\n}\nif (yestWalkMin >= 30) yestVerdict.push(`Ходьба ${yestWalkMin} мин — норм.`);\n\n// --- Сборка сообщения ---\nlet text;\nconst expectedExpense = bmr + baseline + (isWorkoutDay ? workoutKcal : 0);\nconst expectedTarget = Math.round(expectedExpense * goalMult);\n\nconst headlines = isWorkoutDay\n  ? [`🌅 Утро. Сегодня ${labels[expectedNum]}.`, `🌅 Подъём. План на день: ${labels[expectedNum]}.`, `🌅 Доброе утро. День тренировки — ${labels[expectedNum]}.`]\n  : [`🌅 Утро. День отдыха.`, `🌅 Подъём. Сегодня без зала — добирай ходьбой.`, `🌅 Доброе утро. Отдых, но не лежать.`];\nconst headline = headlines[now.getDate() % headlines.length];\n\nconst parts = [headline, ''];\nif (yestVerdict.length) {\n  parts.push(`📋 Итог вчера:`);\n  for (const v of yestVerdict) parts.push(`- ${v}`);\n  parts.push('');\n}\nif (missedNote) { parts.push(missedNote); parts.push(''); }\n\nparts.push(`🎯 Сегодня бюджет ~${expectedTarget} ккал, белок ${targetProtein}г.`);\nif (isWorkoutDay) {\n  parts.push(`💪 ${labels[expectedNum]} (расход ~${workoutKcal} ккал):`);\n  for (const l of exerciseLines) parts.push(l);\n  parts.push('');\n  parts.push(`Жду отчёт после трена. Без отчёта считаю что не было.`);\n} else {\n  parts.push(`💡 30 мин ходьбы (3.5 км/ч) = ~107 ккал. 90 мин = ~320. Используй.`);\n}\ntext = parts.join('\\n');\n\nreturn [{ json: { chat_id, text } }];\n"
+      },
+      "id": "p2m-compute",
+      "name": "Compute Morning Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        336,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "id": "p2m-telegram",
+      "name": "Telegram Morning",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        560,
+        400
+      ],
+      "webhookId": "p2m-telegram-morning-hook",
+      "credentials": {
+        "telegramApi": {
+          "id": "i66iQ2uUac0QdYNa",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "workout_blocks"
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "p2morn-read-blocks",
+      "name": "Read Workout Blocks",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        192,
+        540
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "food_log"
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "p2morn-read-food",
+      "name": "Read Food Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -52,
+        520
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1xL0-6khNi7F24zSXcOQyfnnJk7h1tnqIT6O-HZN8HCQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "walking_log"
+        },
+        "options": {},
+        "authentication": "serviceAccount"
+      },
+      "id": "p2morn-read-walking",
+      "name": "Read Walking Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -52,
+        640
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "gaz2XaoLm0ZFllb3",
+          "name": "Google Sheets (SA)"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Cron 08:00 MSK": {
+      "main": [
+        [
+          {
+            "node": "Read Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Profile": {
+      "main": [
+        [
+          {
+            "node": "Read Workout Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Workout Log": {
+      "main": [
+        [
+          {
+            "node": "Read Food Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Workouts Catalog": {
+      "main": [
+        [
+          {
+            "node": "Read Workout Blocks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Morning Message": {
+      "main": [
+        [
+          {
+            "node": "Telegram Morning",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Workout Blocks": {
+      "main": [
+        [
+          {
+            "node": "Compute Morning Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Food Log": {
+      "main": [
+        [
+          {
+            "node": "Read Walking Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Walking Log": {
+      "main": [
+        [
+          {
+            "node": "Read Workouts Catalog",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Moscow"
+  },
+  "versionId": "phase2-morning-v1",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "fitness-bot-phase-2-morning",
+  "tags": []
+}

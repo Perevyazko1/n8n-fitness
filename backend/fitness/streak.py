@@ -21,30 +21,45 @@ NUTRI_PROTEIN_MIN = 0.80  # белок ≥ 80% цели
 # на каких значениях серии слать поздравление (иначе тихо — видно в приложении)
 MILESTONES = {3, 7, 14, 21, 30, 50, 75, 100, 150, 200, 300, 365}
 
-# Храповик «физухи» лисёнка (level_score 0..100). Мотивация: пока НЕ теряешь прогресс
-# (серия жива) — лисёнок крепнет; серия сгорела — откат. Старт = от параметров тела.
-SCORE_UP = 3     # засчитанный день → крепнет
-SCORE_HOLD = 1   # промах, но серия жива (не потерял прогресс) → чуть-чуть растёт
-SCORE_RESET = 12  # серия сгорела → заметный откат
+# Форма лисёнка (level_score 0..100, тиры по 25). Двунаправленно, по факту дня:
+#   живот: поел в рамках → уходит (+), переел → растёт (−), недоел/не логировал → 0;
+#   мышцы (только в трен-дни): трен сделана → растут (+), пропуск → уходят (−).
+# ~3–4 дня подряд одного поведения = сдвиг на тир. Крутить тут.
+BELLY_IN = 8       # КБЖУ в коридоре → живот уходит
+BELLY_OVER = -8    # переел (>110% ккал) → живот растёт
+MUSCLE_DONE = 8    # плановая трен выполнена → мышцы растут
+MUSCLE_MISS = -10  # плановую трен пропустил → мышцы уходят (запущенность наказуема)
 
 KIND_EMOJI = {"nutrition": "🍽", "workout": "🏋"}
 KIND_WORD = {"nutrition": "по питанию", "workout": "по тренировкам"}
 
 
 # ============================ оценка дня ============================
-def qualifies_nutrition(user, day):
-    """Засчитан ли день по питанию: логировал и уложился в КБЖУ."""
+def nutrition_eval(user, day):
+    """(ok_for_streak, belly_delta) за день по питанию.
+    ok = логировал И уложился в КБЖУ (для серии). belly_delta — куда двигать живот лиса."""
     if not FoodLog.objects.filter(user=user, date=day).exists():
-        return False
+        return False, 0
     dash = calc.compute_dashboard(user, day)
     if not dash.get("ok"):
-        return False
+        return False, 0
     k, p = dash["kcal"], dash["protein"]
-    if (k.get("eaten") or 0) <= 0 or (k.get("target") or 0) <= 0:
-        return False
-    kcal_ok = NUTRI_KCAL_LOW * k["target"] <= k["eaten"] <= NUTRI_KCAL_HIGH * k["target"]
+    target = k.get("target") or 0
+    eaten = k.get("eaten") or 0
+    if eaten <= 0 or target <= 0:
+        return False, 0
+    kcal_ok = NUTRI_KCAL_LOW * target <= eaten <= NUTRI_KCAL_HIGH * target
     prot_ok = (p.get("eaten") or 0) >= NUTRI_PROTEIN_MIN * (p.get("target") or 0)
-    return bool(kcal_ok and prot_ok)
+    ok = bool(kcal_ok and prot_ok)
+    # живот: переел → растёт; не переел (в коридоре или ниже верхней границы) → уходит;
+    # сильно недоел (<80%) → тело не трогаем (это «голод» для слоя эмоций).
+    if eaten > NUTRI_KCAL_HIGH * target:
+        belly = BELLY_OVER
+    elif eaten >= NUTRI_KCAL_LOW * target:
+        belly = BELLY_IN
+    else:
+        belly = 0
+    return ok, belly
 
 
 def workout_opportunity(user, day):
@@ -59,9 +74,9 @@ def workout_opportunity(user, day):
     return False, False     # по циклу отдых → нейтрально
 
 
-def _apply_streak(user, kind, day, ok):
-    """Двигает серию + «физуху» лисёнка на одну оценочную возможность.
-    Старт level_score новой серии берём от параметров тела. Возвращает текст (или None)."""
+def _apply_streak(user, kind, day, ok, score_delta):
+    """Двигает серию (счётчик/заморозка) по `ok` и форму лисёнка по `score_delta`
+    (двунаправленно, по факту дня). Возвращает текст уведомления (или None)."""
     profile = getattr(user, "profile", None)
     s, _ = Streak.objects.get_or_create(
         user=user, kind=kind,
@@ -79,7 +94,6 @@ def _apply_streak(user, kind, day, ok):
         s.last_ok_date = day
         if s.current > s.longest:
             s.longest = s.current
-        s.level_score = min(100, s.level_score + SCORE_UP)  # крепнет
         if s.current in MILESTONES:
             msg = f"{emoji}🔥 Серия {word}: {s.current} дн подряд! Так держать."
     else:
@@ -88,15 +102,15 @@ def _apply_streak(user, kind, day, ok):
             lost = s.current
             s.current = 0
             s.status = "reset"
-            s.level_score = max(0, s.level_score - SCORE_RESET)  # потерял прогресс → откат
             if lost > 0:
                 msg = f"💔 Серия {word} сгорела (была {lost} дн). Ничего — начинаем заново, погнали!"
         else:
             s.status = "frozen"
-            s.level_score = min(100, s.level_score + SCORE_HOLD)  # серия жива → чуть растём
             if s.current > 0:
                 msg = (f"⚠️ Сегодня не закрыл день {word} — серия {emoji}🔥{s.current} "
                        f"заморожена. Ещё один пропуск и сгорит!")
+    # форма лисёнка двигается по факту дня, НЕЗАВИСИМО от заморозки серии
+    s.level_score = max(0, min(100, s.level_score + score_delta))
     s.save()
     return msg
 
@@ -104,8 +118,9 @@ def _apply_streak(user, kind, day, ok):
 def evaluate_day(user, day):
     """Оценивает день одного юзера, двигает обе серии, кэширует DayResult.
     Возвращает список текстов для отправки этому юзеру."""
-    nutri_ok = qualifies_nutrition(user, day)
+    nutri_ok, belly_delta = nutrition_eval(user, day)
     w_opp, w_ok = workout_opportunity(user, day)
+    muscle_delta = (MUSCLE_DONE if w_ok else MUSCLE_MISS) if w_opp else 0
 
     DayResult.objects.update_or_create(
         user=user, date=day,
@@ -113,11 +128,11 @@ def evaluate_day(user, day):
     )
 
     msgs = []
-    m = _apply_streak(user, "nutrition", day, nutri_ok)
+    m = _apply_streak(user, "nutrition", day, nutri_ok, belly_delta)
     if m:
         msgs.append(m)
-    if w_opp:  # серию тренировок двигаем только в трен-дни (отдых нейтрален)
-        m = _apply_streak(user, "workout", day, w_ok)
+    if w_opp:  # форму/серию мышц двигаем только в трен-дни (отдых нейтрален)
+        m = _apply_streak(user, "workout", day, w_ok, muscle_delta)
         if m:
             msgs.append(m)
     return msgs
