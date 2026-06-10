@@ -14,7 +14,8 @@ from django.utils import timezone
 
 from . import calc, streak
 from .models import (
-    FoodLog, Product, Profile, WalkingLog, WorkoutBlock, WorkoutCatalog, WorkoutDone, WorkoutLog,
+    BodyParams, FoodLog, Product, Profile, WalkingLog, WorkoutBlock,
+    WorkoutCatalog, WorkoutDone, WorkoutLog,
 )
 
 
@@ -227,6 +228,7 @@ def profile(request):
         "height_cm": p.height_cm, "weight_kg": p.weight_kg, "age": p.age,
         "sex": p.sex or "m", "activity_level": p.activity_level or "moderate",
         "goal": p.goal or "maintain", "training_days_interval": p.training_days_interval,
+        "body_fat_pct": calc.latest_body_fat(p),
         "bmr": p.bmr, "daily_baseline_kcal": p.daily_baseline_kcal,
         "target_kcal": p.target_kcal, "target_protein_g": p.target_protein_g,
         "target_fat_g": p.target_fat_g, "target_carbs_g": p.target_carbs_g,
@@ -234,7 +236,9 @@ def profile(request):
 
 
 def profile_save(request):
-    """Сохранить параметры тела (КБЖУ не трогаем — они только через пересчёт)."""
+    """Сохранить параметры тела. КБЖУ обычно через пересчёт, но можно задать вручную
+    (режим «Считать автоматически» выкл) — тогда передаются target_*. % жира пишем
+    отдельным замером в BodyParams (для будущего графика динамики)."""
     p = request.payload
     prof, _ = Profile.objects.get_or_create(user=request.tg_user)
     prof.height_cm = _f(p.get("height_cm"))
@@ -248,7 +252,24 @@ def profile_save(request):
         prof.goal = str(p.get("goal")).strip()
     if p.get("training_days_interval") is not None:
         prof.training_days_interval = _i(p.get("training_days_interval"))
+    # ручные цели КБЖУ (если переданы)
+    if p.get("target_kcal") not in (None, ""):
+        prof.target_kcal = _i(p.get("target_kcal"))
+        prof.target_protein_g = _f(p.get("target_protein_g"))
+        prof.target_fat_g = _f(p.get("target_fat_g"))
+        prof.target_carbs_g = _f(p.get("target_carbs_g"))
     prof.save()
+    # % жира → замер на сегодня
+    bf = _f(p.get("body_fat_pct"))
+    if bf is not None:
+        bp = BodyParams.objects.filter(user=request.tg_user, date=today()).order_by("-id").first()
+        if bp:
+            bp.body_fat_pct = bf
+            bp.weight = prof.weight_kg
+            bp.save()
+        else:
+            BodyParams.objects.create(user=request.tg_user, date=today(),
+                                      body_fat_pct=bf, weight=prof.weight_kg)
     return ok({"ok": True})
 
 
