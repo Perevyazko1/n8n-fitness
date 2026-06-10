@@ -27,7 +27,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT telegram_id AS chat_id FROM fitness_tguser WHERE approved",
+        "query": "SELECT telegram_id AS chat_id FROM fitness_tguser WHERE approved AND has_bot_access",
         "options": {}
       },
       "id": "p3-read-allowed",
@@ -49,7 +49,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Whitelist guard: пропускаем только если from.id есть в profile.chat_id\nconst trigger = $('Telegram Trigger').first().json;\nconst fromId = String(trigger?.message?.from?.id ?? trigger?.message?.chat?.id ?? '');\nconst allowed = $input.all()\n  .map(i => String(i.json.chat_id ?? '').trim())\n  .filter(Boolean);\nif (!fromId || !allowed.includes(fromId)) {\n  return [];\n}\nreturn [{ json: trigger }];"
+        "jsCode": "const trigger = $('Telegram Trigger').first().json;\nconst fromId = String(trigger?.message?.from?.id ?? trigger?.message?.chat?.id ?? '');\nconst text = String(trigger?.message?.text ?? '').trim();\nconst allowed = $input.all().map(i => String(i.json.chat_id ?? '').trim()).filter(Boolean);\nconst hasBot = !!fromId && allowed.includes(fromId);\n// нет доступа к AI или это /start (интро отдаёт отдельная ветка) → не сюда\nif (!hasBot || /^\\/start\\b/.test(text)) return [];\nreturn [{ json: trigger }];"
       },
       "id": "p3-auth-guard",
       "name": "Auth Guard",
@@ -1439,8 +1439,8 @@
       ]
     },
     {
-      "id": "reg00-check",
-      "name": "Reg Check",
+      "id": "p3-start-guard",
+      "name": "Start Guard",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
@@ -1448,33 +1448,12 @@
         900
       ],
       "parameters": {
-        "jsCode": "const trigger = $('Telegram Trigger').first().json;\nconst fromId = String(trigger?.message?.from?.id ?? trigger?.message?.chat?.id ?? '');\nconst text = String(trigger?.message?.text ?? '').trim();\nconst allowed = $input.all().map(i => String(i.json.chat_id ?? '').trim()).filter(Boolean);\nconst pw = String($env.REGISTRATION_PASSWORD || '');\nif (fromId && !allowed.includes(fromId) && pw && text === pw) {\n  return [{ json: { reg_id: fromId, reg_name: trigger?.message?.from?.first_name || '' } }];\n}\nreturn [];"
+        "jsCode": "const trigger = $('Telegram Trigger').first().json;\nconst text = String(trigger?.message?.text ?? '').trim();\nif (/^\\/start\\b/.test(text)) return [{ json: trigger }];\nreturn [];"
       }
     },
     {
-      "id": "reg01-user",
-      "name": "Register User",
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.6,
-      "position": [
-        -1240,
-        900
-      ],
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "=INSERT INTO fitness_tguser (telegram_id, first_name, approved, created_at) VALUES ({{ $json.reg_id }}, '{{ ($json.reg_name||'').replace(/'/g,\"''\") }}', true, now()) ON CONFLICT (telegram_id) DO UPDATE SET approved = true",
-        "options": {}
-      },
-      "credentials": {
-        "postgres": {
-          "id": "1Vpr6VdwzI4rfpHh",
-          "name": "PG"
-        }
-      }
-    },
-    {
-      "id": "reg02-reply",
-      "name": "Reply Registered",
+      "id": "p3-reply-intro",
+      "name": "Reply Intro",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
@@ -1483,7 +1462,7 @@
       ],
       "parameters": {
         "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
-        "text": "Доступ открыт ✅ Теперь можешь пользоваться ботом и приложением.",
+        "text": "👋 Это «Рыж» — трекер питания и тренировок.\n\nПриложение (кнопка «Меню» внизу слева) умеет:\n• КБЖУ: сканируй штрихкод или добавляй еду из своих продуктов\n• Дневник по приёмам пищи + дневной лимит калорий\n• Тренировки: свой план, отметки выполнения, расход калорий\n• Ходьба: добавляй км — лимит калорий растёт\n• Лисёнок-маскот и серии за режим\n\n🤖 AI-режим: можно просто писать или надиктовывать боту — «съел омлет из 3 яиц», «прошёл 5 км», «какая тренировка сегодня» — и он сам посчитает и занесёт. Доступ к AI открывает владелец.\n\nНачни с заполнения профиля в приложении — и поехали!",
         "additionalFields": {
           "appendAttribution": false
         }
@@ -1492,6 +1471,43 @@
         "telegramApi": {
           "id": "i66iQ2uUac0QdYNa",
           "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "id": "p3-locked-guard",
+      "name": "Locked Guard",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1376,
+        1060
+      ],
+      "parameters": {
+        "jsCode": "const trigger = $('Telegram Trigger').first().json;\nconst fromId = String(trigger?.message?.from?.id ?? trigger?.message?.chat?.id ?? '');\nconst text = String(trigger?.message?.text ?? '').trim();\nconst allowed = $input.all().map(i => String(i.json.chat_id ?? '').trim()).filter(Boolean);\nconst hasBot = !!fromId && allowed.includes(fromId);\n// нет доступа к AI и не /start → вежливый отказ\nif (!hasBot && !/^\\/start\\b/.test(text)) return [{ json: trigger }];\nreturn [];"
+      }
+    },
+    {
+      "id": "p3-reply-locked",
+      "name": "Reply Locked",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1100,
+        1060
+      ],
+      "webhookId": null,
+      "credentials": {
+        "telegramApi": {
+          "id": "i66iQ2uUac0QdYNa",
+          "name": "Telegram account"
+        }
+      },
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "text": "🤖 AI-ассистент тебе пока не подключён — но приложением пользуйся свободно (кнопка «Меню» внизу слева). Доступ к AI открывает владелец.",
+        "additionalFields": {
+          "appendAttribution": false
         }
       }
     }
@@ -1518,7 +1534,12 @@
             "index": 0
           },
           {
-            "node": "Reg Check",
+            "node": "Start Guard",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Locked Guard",
             "type": "main",
             "index": 0
           }
@@ -1990,22 +2011,22 @@
         ]
       ]
     },
-    "Reg Check": {
+    "Start Guard": {
       "main": [
         [
           {
-            "node": "Register User",
+            "node": "Reply Intro",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Register User": {
+    "Locked Guard": {
       "main": [
         [
           {
-            "node": "Reply Registered",
+            "node": "Reply Locked",
             "type": "main",
             "index": 0
           }

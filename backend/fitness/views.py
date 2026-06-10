@@ -13,7 +13,9 @@ from django.http import JsonResponse
 from django.utils import timezone
 
 from . import calc, streak
-from .models import FoodLog, Product, Profile, WorkoutCatalog, WorkoutDone, WorkoutLog
+from .models import (
+    FoodLog, Product, Profile, WalkingLog, WorkoutBlock, WorkoutCatalog, WorkoutDone, WorkoutLog,
+)
 
 
 def _f(v):
@@ -171,7 +173,10 @@ def complete_workout(request):
 
     label = next((b["label"] for b in calc.active_blocks_list(user)
                   if b["block_num"] == block), f"№{block}")
-    kcal, duration = calc.done_workout_stats(user, day, block)
+    kcal_auto, duration = calc.done_workout_stats(user, day, block)
+    # ручной приоритет: если юзер задал расход — берём его
+    override = _i(p.get("kcal_burned"))
+    kcal = override if override is not None else kcal_auto
     obj, created = WorkoutLog.objects.update_or_create(
         user=user, date=day,
         defaults={"day_plan": label, "kcal_burned": kcal,
@@ -208,12 +213,17 @@ def cron_evaluate_day(request):
 
 
 def profile(request):
-    """Профиль для настроек: редактируемые параметры тела + посчитанные КБЖУ (read-only)."""
+    """Профиль для настроек: редактируемые параметры тела + посчитанные КБЖУ (read-only).
+    `complete` — заполнены ли обязательные поля и посчитан target_kcal (для онбординга)."""
     p = getattr(request.tg_user, "profile", None)
     if not p:
-        return ok({"ok": True, "exists": False})
+        return ok({"ok": True, "exists": False, "complete": False})
+    complete = all([
+        p.height_cm, p.weight_kg, p.age, p.sex,
+        p.activity_level, p.goal, p.target_kcal,
+    ])
     return ok({
-        "ok": True, "exists": True,
+        "ok": True, "exists": True, "complete": bool(complete),
         "height_cm": p.height_cm, "weight_kg": p.weight_kg, "age": p.age,
         "sex": p.sex or "m", "activity_level": p.activity_level or "moderate",
         "goal": p.goal or "maintain", "training_days_interval": p.training_days_interval,
@@ -300,14 +310,24 @@ def exercise_save(request):
     block = _i(p.get("block_num"))
     if not name or not block:
         return ok({"ok": False, "error": "missing"}, status=400)
+    group = (p.get("group") or "").strip()
+    # MET и длительность: если юзер не задал — прикидываем по категории (иначе расход 0)
+    met = _f(p.get("met"))
+    dmin = _i(p.get("default_min"))
+    if met is None or dmin is None:
+        est_met, est_min = calc.estimate_met(group, name)
+        met = est_met if met is None else met
+        dmin = est_min if dmin is None else dmin
     fields = {
         "block_num": block,
-        "group": (p.get("group") or "").strip(),
+        "group": group,
         "exercise": name,
         "sets": str(p.get("sets") or "").strip(),
         "reps": str(p.get("reps") or "").strip(),
         "weight": str(p.get("weight") or "").strip(),
         "note": (p.get("note") or "").strip(),
+        "met": met,
+        "default_min": dmin,
     }
     ex_id = _i(p.get("id"))
     if ex_id:
@@ -322,6 +342,74 @@ def exercise_delete(request):
     eid = _i(request.payload.get("id"))
     deleted, _ = WorkoutCatalog.objects.filter(user=user, id=eid).delete()
     return ok({"ok": bool(deleted)})
+
+
+def block_save(request):
+    """Создать/переименовать блок плана (WorkoutBlock, upsert по user+block_num).
+    Без block_num — создаётся следующий по номеру. active — вкл/выкл блока."""
+    user = request.tg_user
+    p = request.payload
+    bn = _i(p.get("block_num"))
+    if not bn:
+        existing = list(WorkoutBlock.objects.filter(user=user).values_list("block_num", flat=True))
+        bn = (max(existing) + 1) if existing else 1
+    defaults = {"label": (p.get("label") or f"№{bn}").strip()}
+    if p.get("active") is not None:
+        defaults["active"] = bool(p.get("active"))
+    WorkoutBlock.objects.update_or_create(user=user, block_num=bn, defaults=defaults)
+    return ok({"ok": True, "block_num": bn})
+
+
+def block_delete(request):
+    """Удалить блок и все его упражнения."""
+    user = request.tg_user
+    bn = _i(request.payload.get("block_num"))
+    if not bn:
+        return ok({"ok": False, "error": "no_block"}, status=400)
+    WorkoutCatalog.objects.filter(user=user, block_num=bn).delete()
+    WorkoutBlock.objects.filter(user=user, block_num=bn).delete()
+    return ok({"ok": True})
+
+
+def log_walking(request):
+    """Дневная ходьба из приложения: км + темп → нет-MET расход. Upsert по (user, date).
+    Общий потолок дневной цели (1.4×) в compute_dashboard не даёт лимиту раздуться."""
+    user = request.tg_user
+    p = request.payload
+    day = parse_date(p.get("date")) or today()
+    km = _f(p.get("km")) or 0
+    pace = (p.get("pace") or "brisk").strip()
+    if km <= 0:
+        # км=0 → отмена ходьбы за день
+        WalkingLog.objects.filter(user=user, date=day, source="app").delete()
+        return ok({"ok": True, "kcal_burned": 0, "km": 0})
+    profile = getattr(user, "profile", None)
+    weight = (profile.weight_kg if profile else None) or 76
+    kcal = calc.walk_kcal(weight, km, pace)
+    speed = calc.WALK_PACE.get(pace, calc.WALK_PACE["brisk"])[0]
+    minutes = round(km / speed * 60) if speed else None
+    WalkingLog.objects.update_or_create(
+        user=user, date=day, source="app",
+        defaults={"activity": "ходьба", "distance_km": km, "speed_kmh": speed,
+                  "duration_min": minutes, "kcal_burned": kcal,
+                  "time": timezone.localtime().strftime("%H:%M")},
+    )
+    return ok({"ok": True, "kcal_burned": kcal, "km": km})
+
+
+def walking(request):
+    """Ходьба за день для UI: запись приложения + общий итог дня."""
+    user = request.tg_user
+    day = parse_date(request.payload.get("date")) or today()
+    row = WalkingLog.objects.filter(user=user, date=day, source="app").order_by("-id").first()
+    total = sum((w.kcal_burned or 0) for w in WalkingLog.objects.filter(user=user, date=day))
+    return ok({
+        "ok": True, "date": day.isoformat(),
+        "km": (row.distance_km if row else 0) or 0,
+        "pace": calc.pace_from_speed(row.speed_kmh) if row else "brisk",
+        "kcal_burned": (row.kcal_burned if row else 0) or 0,
+        "day_total_kcal": round(total),
+    })
 
 
 def scan_barcode(request):

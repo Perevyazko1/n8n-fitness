@@ -9,7 +9,10 @@ from django.db import models
 class TgUser(models.Model):
     telegram_id = models.BigIntegerField(unique=True)
     first_name = models.CharField(max_length=128, blank=True, default="")
-    approved = models.BooleanField(default=False)  # доступ открыт после регистрации по паролю
+    # Приложение открыто всем (approved=True по умолчанию) — это бан-рычаг владельца.
+    approved = models.BooleanField(default=True)
+    # Доступ к AI-боту выдаёт владелец вручную (по умолчанию выключен).
+    has_bot_access = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

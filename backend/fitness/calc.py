@@ -176,6 +176,55 @@ def planned_workout_kcal(user, block_num):
     return total
 
 
+# MET и типовая длительность (мин) по категории упражнения (по ключевым словам).
+# Нужно, чтобы у созданных в приложении упражнений был ненулевой расход.
+MET_BY_GROUP = [
+    (("разм", "warm"), (3.5, 10)),
+    (("кардио", "cardio", "бег", "велотр", "велосип", "эллипс", "скакал", "гребл"), (7.0, 20)),
+    (("кор", "пресс", "core", "планк", "abs"), (4.0, 6)),
+    (("замин", "растяж", "стрет", "cool", "stretch", "йог"), (2.5, 6)),
+    (("силов", "жим", "тяга", "присед", "становая", "штанг", "гантел", "подтяг", "отжим", "strength"), (5.0, 6)),
+]
+DEFAULT_MET = (4.0, 6)
+
+
+# Темп ходьбы → (скорость км/ч, MET). Расход считаем по НЕТ-MET (MET−1):
+# вычитаем BMR, который уже учтён в дневной цели — чтобы не завышать лимит.
+WALK_PACE = {
+    "stroll": (4.0, 2.8),   # прогулочный
+    "brisk":  (5.5, 3.5),   # бодрый
+    "fast":   (6.5, 4.3),   # быстрый
+    "jog":    (8.5, 6.0),   # бег трусцой
+}
+
+
+def walk_kcal(weight, km, pace="brisk"):
+    """Консервативный нет-MET расход ходьбы: (MET−1) × вес × минуты/60."""
+    speed, met = WALK_PACE.get(str(pace or "brisk"), WALK_PACE["brisk"])
+    km = max(0.0, float(km or 0))
+    if km <= 0 or speed <= 0:
+        return 0
+    minutes = km / speed * 60.0
+    net = max(met - 1.0, 0.0)
+    return round(net * (float(weight) if weight else 76) * minutes / 60.0)
+
+
+def pace_from_speed(speed):
+    for name, (sp, _met) in WALK_PACE.items():
+        if abs((float(speed) if speed else 0) - sp) < 0.1:
+            return name
+    return "brisk"
+
+
+def estimate_met(group, exercise=""):
+    """Прикидка (MET, минуты) по категории/названию упражнения."""
+    s = (str(group or "") + " " + str(exercise or "")).lower()
+    for keys, val in MET_BY_GROUP:
+        if any(k in s for k in keys):
+            return val
+    return DEFAULT_MET
+
+
 def done_workout_stats(user, day, block):
     """Расход и длительность ТОЛЬКО по выполненным (отмеченным) упражнениям блока.
     Σ(MET × вес × default_min / 60). Вес — из профиля юзера."""
@@ -297,6 +346,8 @@ def block_exercises(user, day, block):
             "reps": str(r.reps) if r.reps not in (None, "") else "",
             "weight": str(weight) if weight else "",
             "note": r.note or "",
+            "met": r.met,
+            "default_min": r.default_min,
             "done": ex in done,
         })
     return out
@@ -338,6 +389,8 @@ def compute_workout(user, day, forced_block=None):
         "label": label,
         "logged": bool(logged),
         "exercises": block_exercises(user, day, selected) if selected else [],
+        # расчётный расход по уже отмеченным упражнениям (для кнопки «Завершить»)
+        "est_kcal": done_workout_stats(user, day, selected)[0] if selected else 0,
     }
     # подсказка про отдых только для сегодня, если по циклу выходной
     if is_today and exp and exp["type"] == "rest":
