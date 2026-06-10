@@ -140,3 +140,40 @@ class WorkoutBlock(models.Model):
 
     class Meta:
         unique_together = [("user", "block_num")]
+
+
+class Streak(models.Model):
+    """Серия (Duolingo-style) — отдельно для питания и тренировок.
+    Логика заморозки: 1 промах → frozen (предупреждение), 2-й подряд → сброс."""
+    KIND_CHOICES = [("nutrition", "Питание"), ("workout", "Тренировки")]
+    STATUS_CHOICES = [("active", "active"), ("frozen", "frozen"), ("reset", "reset")]
+
+    user = models.ForeignKey(TgUser, on_delete=models.CASCADE, related_name="streaks")
+    kind = models.CharField(max_length=16, choices=KIND_CHOICES)
+    current = models.IntegerField(default=0)
+    longest = models.IntegerField(default=0)
+    # «физический» счётчик маскота 0..100, старт 50 (середина). Двунаправленный:
+    # успех дня → +, промах → −. Питание → ось живота, тренировки → ось мышц.
+    level_score = models.IntegerField(default=50)
+    misses_in_row = models.IntegerField(default=0)       # промахов подряд (для заморозки)
+    status = models.CharField(max_length=8, choices=STATUS_CHOICES, default="active")
+    last_ok_date = models.DateField(null=True, blank=True)   # последний засчитанный день
+    last_eval_date = models.DateField(null=True, blank=True)  # последний оценённый день (идемпотентность)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [("user", "kind")]
+
+
+class DayResult(models.Model):
+    """Кэш дневной оценки (для истории/календаря + идемпотентности).
+    workout_ok = NULL → день не был тренировочным по циклу (нейтральный для серии)."""
+    user = models.ForeignKey(TgUser, on_delete=models.CASCADE, related_name="day_results")
+    date = models.DateField()
+    nutrition_ok = models.BooleanField(null=True, blank=True)
+    workout_ok = models.BooleanField(null=True, blank=True)
+    evaluated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [("user", "date")]
+        indexes = [models.Index(fields=["user", "date"], name="dayresult_user_date_idx")]

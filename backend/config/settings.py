@@ -20,6 +20,10 @@ ALLOWED_HOSTS = [h.strip() for h in env("DJANGO_ALLOWED_HOSTS", "*").split(",") 
 # Токен Telegram-бота — для HMAC-валидации initData мини-аппа.
 TELEGRAM_BOT_TOKEN = env("TELEGRAM_BOT_TOKEN", "")
 
+# Секрет для cron-эндпоинтов (/api/cron/*): их дёргает n8n-крон без initData,
+# авторизация по заголовку X-Cron-Secret. Значение — в .env.
+CRON_SECRET = env("CRON_SECRET", "")
+
 INSTALLED_APPS = [
     "fitness",
 ]

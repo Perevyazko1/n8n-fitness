@@ -12,7 +12,7 @@ from django.db import transaction
 from django.http import JsonResponse
 from django.utils import timezone
 
-from . import calc
+from . import calc, streak
 from .models import FoodLog, Product, Profile, WorkoutCatalog, WorkoutDone, WorkoutLog
 
 
@@ -78,6 +78,7 @@ def food_log(request):
             "id": f.id, "time": f.time or "", "description": f.description or "",
             "kcal": int(f.kcal or 0), "protein": calc.r1(f.protein),
             "fat": calc.r1(f.fat), "carbs": calc.r1(f.carbs),
+            "meal_type": f.meal_type or "",
         })
     s = {"kcal": round(sum(i["kcal"] for i in items)),
          "protein": calc.r1(sum(i["protein"] for i in items)),
@@ -95,6 +96,23 @@ def delete_food(request):
     return ok({"ok": True})
 
 
+def update_food(request):
+    """Точечное изменение записи дневника (пока — только приём пищи)."""
+    user = request.tg_user
+    p = request.payload
+    fid = p.get("id")
+    fields = {}
+    mt = p.get("meal_type")
+    if mt is not None:
+        fields["meal_type"] = str(mt)[:32]
+    if not fields:
+        return ok({"ok": False, "error": "nothing_to_update"}, status=400)
+    updated = FoodLog.objects.filter(user=user, id=fid).update(**fields)
+    if not updated:
+        return ok({"ok": False, "error": "not_found"}, status=404)
+    return ok({"ok": True})
+
+
 def repeat_food(request):
     user = request.tg_user
     p = request.payload
@@ -107,7 +125,7 @@ def repeat_food(request):
         protein=float(p.get("protein") or 0),
         fat=float(p.get("fat") or 0),
         carbs=float(p.get("carbs") or 0),
-        meal_type=meal_type_for_hour(now.hour),
+        meal_type=(str(p.get("meal_type"))[:32] if p.get("meal_type") else meal_type_for_hour(now.hour)),
     )
     return ok({"ok": True, "message": "добавлено"})
 
@@ -170,6 +188,23 @@ def uncomplete_workout(request):
     day = parse_date(request.payload.get("date")) or today()
     deleted, _ = WorkoutLog.objects.filter(user=user, date=day).delete()
     return ok({"ok": True, "deleted": bool(deleted)})
+
+
+# ---------- cron (серверные, токен-авторизация в middleware) ----------
+def cron_meal_reminders(request):
+    """Напоминания о еде: window=afternoon|evening. Возвращает сообщения для рассылки."""
+    p = request.payload
+    window = p.get("window") or "afternoon"
+    day = parse_date(p.get("date")) or today()
+    msgs = streak.meal_reminders(window, day)
+    return ok({"ok": True, "window": window, "messages": msgs})
+
+
+def cron_evaluate_day(request):
+    """Вечерняя оценка дня по всем юзерам: двигает серии, возвращает сообщения (вехи/заморозки/сбросы)."""
+    day = parse_date(request.payload.get("date")) or today()
+    msgs = streak.evaluate_all(day)
+    return ok({"ok": True, "date": day.isoformat(), "messages": msgs})
 
 
 def profile(request):

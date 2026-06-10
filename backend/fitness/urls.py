@@ -8,6 +8,7 @@ urlpatterns = [
     path("dashboard", views.dashboard),
     path("food-log", views.food_log),
     path("delete-food", views.delete_food),
+    path("update-food", views.update_food),
     path("repeat-food", views.repeat_food),
     path("workout-today", views.workout_today),
     path("toggle-exercise", views.toggle_exercise),
@@ -21,4 +22,7 @@ urlpatterns = [
     path("profile", views.profile),
     path("profile-save", views.profile_save),
     path("profile-recalc", views.profile_recalc),
+    # cron (n8n по расписанию, авторизация по X-Cron-Secret)
+    path("cron/meal-reminders", views.cron_meal_reminders),
+    path("cron/evaluate-day", views.cron_evaluate_day),
 ]

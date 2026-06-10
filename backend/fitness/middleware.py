@@ -36,6 +36,16 @@ class ApiMiddleware:
         except (ValueError, TypeError):
             return self._cors(JsonResponse({"ok": False, "error": "bad_json"}, status=400))
 
+        # cron-эндпоинты: без initData, авторизация по секрет-токену (дёргает n8n-крон).
+        # Серверный вызов — без tg_user; вьюха сама пробегает всех approved-юзеров.
+        if request.path.startswith("/api/cron/"):
+            secret = request.headers.get("X-Cron-Secret", "")
+            if not settings.CRON_SECRET or secret != settings.CRON_SECRET:
+                return self._cors(JsonResponse({"ok": False, "error": "cron_auth"}, status=403))
+            request.payload = body
+            request.tg_user = None
+            return self._cors(self.get_response(request))
+
         try:
             tg = verify_init_data(body.get("initData", ""), settings.TELEGRAM_BOT_TOKEN)
         except AuthError as e:

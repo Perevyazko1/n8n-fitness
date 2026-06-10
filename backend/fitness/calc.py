@@ -6,7 +6,7 @@
 import re
 
 from .models import (
-    FoodLog, WalkingLog, WorkoutBlock, WorkoutCatalog, WorkoutDone, WorkoutLog,
+    FoodLog, Streak, WalkingLog, WorkoutBlock, WorkoutCatalog, WorkoutDone, WorkoutLog,
 )
 
 GOAL_MULT = {"lose": 0.8, "maintain": 1.0, "gain": 1.15}
@@ -43,6 +43,53 @@ def recalc_targets(profile):
 
 def r1(x):
     return round((float(x) if x is not None else 0.0) * 10) / 10
+
+
+# ===== Маскот-лис: счётчик 0..100 → тир тела =====
+def initial_score(profile, kind):
+    """Стартовое состояние лисёнка ОТ ПАРАМЕТРОВ ТЕЛА (база для нового юзера).
+    nutrition → ось живота (по BMI), workout → ось мышц (по уровню активности)."""
+    if profile is None:
+        return 50
+    if kind == "nutrition":
+        h = (profile.height_cm or 0) / 100.0
+        w = profile.weight_kg or 0
+        if h <= 0 or w <= 0:
+            return 60  # нет данных → лёгкий животик (B1)
+        bmi = w / (h * h)
+        if bmi < 20:
+            return 82   # плоский (B0)
+        if bmi < 25:
+            return 60   # небольшой животик (B1)
+        if bmi < 30:
+            return 35   # B2
+        return 15       # B3
+    # workout — прокси мышечной формы по образу жизни
+    act = str(getattr(profile, "activity_level", "") or "moderate").lower()
+    return {"sedentary": 30, "light": 45, "moderate": 55, "active": 70, "very": 82}.get(act, 55)
+
+
+def muscle_tier(score):
+    s = 50 if score is None else score
+    if s < 25:
+        return 0
+    if s < 50:
+        return 1
+    if s < 75:
+        return 2
+    return 3
+
+
+def belly_tier(score):
+    # высокий счёт питания = плоский живот (B0), низкий = пузо (B3)
+    s = 50 if score is None else score
+    if s >= 75:
+        return 0
+    if s >= 50:
+        return 1
+    if s >= 25:
+        return 2
+    return 3
 
 
 def parse_workout_number(plan):
@@ -194,6 +241,24 @@ def compute_dashboard(user, day):
         workout_today = {"is_workout": False, "label": None, "block_num": None,
                          "days_until_next": exp.get("days_until_next")}
 
+    # серии (🔥): читаем напрямую из Streak, чтобы не плодить циклический импорт со streak.py
+    streaks = {}
+    rows = {s.kind: s for s in Streak.objects.filter(user=user)}
+    for kind in ("nutrition", "workout"):
+        s = rows.get(kind)
+        streaks[kind] = {"current": s.current if s else 0,
+                         "longest": s.longest if s else 0,
+                         "status": s.status if s else "active"}
+
+    # маскот-лис: если серии ещё нет — стартуем от параметров тела (база нового юзера)
+    w_row, n_row = rows.get("workout"), rows.get("nutrition")
+    muscle_score = w_row.level_score if w_row else initial_score(profile, "workout")
+    belly_score = n_row.level_score if n_row else initial_score(profile, "nutrition")
+    avatar = {
+        "muscle_tier": muscle_tier(muscle_score),
+        "belly_tier": belly_tier(belly_score),
+    }
+
     return {
         "ok": True,
         "date": day.isoformat(),
@@ -202,6 +267,8 @@ def compute_dashboard(user, day):
         "protein": {"target": tp, "eaten": today_sum["protein"], "left": r1(tp - today_sum["protein"])},
         "fat": {"target": tf, "eaten": today_sum["fat"]},
         "carbs": {"target": tc, "eaten": today_sum["carbs"]},
+        "streaks": streaks,
+        "avatar": avatar,
     }
 
 

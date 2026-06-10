@@ -27,6 +27,8 @@ services:
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       # Пароль регистрации новых пользователей (читает нода Reg Check в боте).
       - REGISTRATION_PASSWORD=${REGISTRATION_PASSWORD}
+      # Секрет cron-эндпоинтов Django (крон-ноды шлют его в заголовке X-Cron-Secret).
+      - CRON_SECRET=${CRON_SECRET}
       # Разрешаем built-in модуль crypto в Code-нодах (HMAC-валидация initData).
       - NODE_FUNCTION_ALLOW_BUILTIN=crypto
     volumes:
@@ -83,6 +85,7 @@ services:
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - CRON_SECRET=${CRON_SECRET}
       - TZ=${TZ:-Europe/Moscow}
     ports:
       - "127.0.0.1:8001:8001"
