@@ -350,6 +350,10 @@ def exercise_save(request):
         "met": met,
         "default_min": dmin,
     }
+    # ручной расход за упражнение: ключ передан → пишем (число или null=сброс к авто);
+    # ключа нет → поле не трогаем (обратная совместимость со старым фронтом).
+    if "kcal" in p:
+        fields["kcal_override"] = _i(p.get("kcal"))
     ex_id = _i(p.get("id"))
     if ex_id:
         WorkoutCatalog.objects.filter(user=user, id=ex_id).update(**fields)

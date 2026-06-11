@@ -91,6 +91,7 @@ class WalkingLog(models.Model):
     speed_kmh = models.FloatField(null=True, blank=True)
     kcal_burned = models.IntegerField(null=True, blank=True)
     notes = models.TextField(blank=True, default="")
+    source = models.CharField(max_length=32, blank=True, default="")  # bot|app|apple_watch
 
     class Meta:
         indexes = [models.Index(fields=["user", "date"])]
@@ -129,6 +130,8 @@ class WorkoutCatalog(models.Model):
     note = models.CharField(max_length=200, blank=True, default="")
     met = models.FloatField(null=True, blank=True)
     default_min = models.IntegerField(null=True, blank=True)
+    # ручной расход за упражнение: задан → используем его вместо MET-формулы; null → авто
+    kcal_override = models.IntegerField(null=True, blank=True)
 
     class Meta:
         indexes = [models.Index(fields=["user", "block_num"])]

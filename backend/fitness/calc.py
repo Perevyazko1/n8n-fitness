@@ -229,9 +229,16 @@ def estimate_met(group, exercise=""):
     return DEFAULT_MET
 
 
+def exercise_auto_kcal(row, weight):
+    """Авто-оценка расхода за упражнение по MET-формуле (без ручного override)."""
+    if row.met and row.default_min:
+        return round(row.met * weight * row.default_min / 60)
+    return 0
+
+
 def done_workout_stats(user, day, block):
     """Расход и длительность ТОЛЬКО по выполненным (отмеченным) упражнениям блока.
-    Σ(MET × вес × default_min / 60). Вес — из профиля юзера."""
+    За упражнение берём ручной kcal_override, если задан, иначе авто по MET-формуле."""
     profile = getattr(user, "profile", None)
     weight = (profile.weight_kg if profile else None) or 76
     done = {
@@ -243,8 +250,10 @@ def done_workout_stats(user, day, block):
     for r in WorkoutCatalog.objects.filter(user=user, block_num=block):
         if not r.exercise or r.exercise.strip() not in done:
             continue
-        if r.met and r.default_min:
-            kcal += r.met * weight * r.default_min / 60
+        if r.kcal_override is not None:        # ручной расход за упражнение — приоритет
+            kcal += r.kcal_override
+        else:                                  # иначе авто по MET-формуле
+            kcal += exercise_auto_kcal(r, weight)
         minutes += (r.default_min or 0)
     return round(kcal), (minutes or None)
 
@@ -335,12 +344,15 @@ def block_exercises(user, day, block):
         d.exercise.strip()
         for d in WorkoutDone.objects.filter(user=user, date=day, block_num=block, done=True)
     }
+    profile = getattr(user, "profile", None)
+    uw = (profile.weight_kg if profile else None) or 76
     out = []
     for r in WorkoutCatalog.objects.filter(user=user, block_num=block):
         if not r.exercise:
             continue
         ex = r.exercise.strip()
         weight = r.weight if r.weight not in (None, "", "—") else ""
+        auto_kcal = exercise_auto_kcal(r, uw)
         out.append({
             "id": f"{block}::{ex}",
             "db_id": r.id,
@@ -352,6 +364,9 @@ def block_exercises(user, day, block):
             "note": r.note or "",
             "met": r.met,
             "default_min": r.default_min,
+            "kcal_override": r.kcal_override,        # ручной расход (или null)
+            "kcal_auto": auto_kcal,                  # авто-оценка для подсказки в форме
+            "kcal": r.kcal_override if r.kcal_override is not None else auto_kcal,
             "done": ex in done,
         })
     return out
