@@ -116,7 +116,11 @@ def blocks_state(user):
             continue
         state[r.block_num] = {"label": r.label or f"№{r.block_num}", "active": bool(r.active)}
     if not state:
-        for n in (1, 2, 3, 4):
+        # нет явных блоков — выводим из плана (какие block_num есть в упражнениях).
+        # У нового юзера упражнений нет → пусто, он создаёт план сам.
+        nums = sorted({n for n in WorkoutCatalog.objects.filter(user=user)
+                       .exclude(exercise="").values_list("block_num", flat=True) if n})
+        for n in nums:
             state[n] = {"label": f"№{n}", "active": True}
     return state
 
