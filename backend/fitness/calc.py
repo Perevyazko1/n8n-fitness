@@ -279,11 +279,16 @@ def compute_dashboard(user, day):
     # До подтверждения плановый расход НЕ добавляем.
     workout_kcal = sum((w.kcal_burned or 0) for w in today_workouts)
 
-    tdee = bmr + baseline + walk_kcal + workout_kcal
-    target_raw = round(tdee * mult)
+    # Базовый бюджет — БЕЗ активности. На нём действуют пол (безопасный минимум)
+    # и потолок. Активность добавляем сверх, иначе на агрессивном дефиците база
+    # упирается в пол и расход тренировки/ходьбы становится не виден.
     floor = round(bmr * 1.1)
     cap = round((bmr + baseline) * mult * 1.4)
-    target = max(floor, min(cap, target_raw))
+    base = max(floor, min(cap, round((bmr + baseline) * mult)))
+    # «Возврат» части расхода (ходьба + подтверждённая тренировка) в лимит — сверх базы.
+    # Потолок по-прежнему ограничивает общее раздувание лимита.
+    activity_kcal = round((walk_kcal + workout_kcal) * mult)
+    target = min(base + activity_kcal, cap)
 
     tp = profile.target_protein_g or 0
     tf = profile.target_fat_g or 0
