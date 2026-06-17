@@ -17,6 +17,7 @@ urlpatterns = [
     path("scan-barcode", views.scan_barcode),
     path("products", views.products),
     path("save-product", views.save_product),
+    path("product-search", views.product_search),
     path("exercise-save", views.exercise_save),
     path("exercise-delete", views.exercise_delete),
     path("block-save", views.block_save),
