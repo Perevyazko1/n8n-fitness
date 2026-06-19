@@ -70,10 +70,11 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    # migrate при старте, затем gunicorn.
+    # migrate + collectstatic (статика админки) при старте, затем gunicorn.
     # makemigrations делается один раз вручную и коммитится (см. backend/README.md).
     command: >
       sh -c "python manage.py migrate --noinput &&
+             python manage.py collectstatic --noinput &&
              gunicorn config.wsgi:application --bind 0.0.0.0:8001 --workers 2 --timeout 60"
     environment:
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
