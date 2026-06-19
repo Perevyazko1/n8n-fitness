@@ -24,6 +24,11 @@ class ApiMiddleware:
         if not request.path.startswith("/api/"):
             return self.get_response(request)
 
+        # /api/ авторизуется само (Telegram initData / cron-secret), запросы идут
+        # кросс-доменно с text/plain без CSRF-токена → стандартный CSRF тут не нужен.
+        # Флаг гасит CsrfViewMiddleware именно для /api/ (в админке CSRF работает).
+        request._dont_enforce_csrf_checks = True
+
         # CORS preflight (на случай если клиент пришлёт OPTIONS).
         if request.method == "OPTIONS":
             return self._cors(JsonResponse({"ok": True}))
