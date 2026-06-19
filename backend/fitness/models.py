@@ -34,6 +34,10 @@ class Profile(models.Model):
     target_protein_g = models.FloatField(null=True, blank=True)
     target_fat_g = models.FloatField(null=True, blank=True)
     target_carbs_g = models.FloatField(null=True, blank=True)
+    # Преференсы Mini App. notifications_enabled — общий тумблер крон-рассылки
+    # (серии всё равно считаются, глушится только отправка). theme — "light" | "dark".
+    notifications_enabled = models.BooleanField(default=True)
+    theme = models.CharField(max_length=8, blank=True, default="light")
     updated_at = models.DateTimeField(auto_now=True)
 
 

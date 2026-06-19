@@ -27,6 +27,7 @@ urlpatterns = [
     path("profile", views.profile),
     path("profile-save", views.profile_save),
     path("profile-recalc", views.profile_recalc),
+    path("prefs-save", views.prefs_save),
     # cron (n8n по расписанию, авторизация по X-Cron-Secret)
     path("cron/meal-reminders", views.cron_meal_reminders),
     path("cron/evaluate-day", views.cron_evaluate_day),

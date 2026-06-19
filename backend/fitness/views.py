@@ -201,11 +201,15 @@ def uncomplete_workout(request):
 
 # ---------- cron (серверные, токен-авторизация в middleware) ----------
 def cron_meal_reminders(request):
-    """Напоминания о еде: window=afternoon|evening. Возвращает сообщения для рассылки."""
+    """Напоминания о еде: window=afternoon|evening|undereat. Возвращает сообщения для рассылки.
+    undereat (на 22:00) — кто за день съел < 50% плана ккал (день не пойдёт в серию)."""
     p = request.payload
     window = p.get("window") or "afternoon"
     day = parse_date(p.get("date")) or today()
-    msgs = streak.meal_reminders(window, day)
+    if window == "undereat":
+        msgs = streak.undereating_warnings(day)
+    else:
+        msgs = streak.meal_reminders(window, day)
     return ok({"ok": True, "window": window, "messages": msgs})
 
 
@@ -235,6 +239,7 @@ def profile(request):
         "bmr": p.bmr, "daily_baseline_kcal": p.daily_baseline_kcal,
         "target_kcal": p.target_kcal, "target_protein_g": p.target_protein_g,
         "target_fat_g": p.target_fat_g, "target_carbs_g": p.target_carbs_g,
+        "notifications_enabled": p.notifications_enabled, "theme": p.theme or "light",
     })
 
 
@@ -274,6 +279,19 @@ def profile_save(request):
             BodyParams.objects.create(user=request.tg_user, date=today(),
                                       body_fat_pct=bf, weight=prof.weight_kg)
     return ok({"ok": True})
+
+
+def prefs_save(request):
+    """Лёгкое сохранение преференсов Mini App (тема, тумблер уведомлений). НЕ трогает
+    параметры тела/КБЖУ — отдельно от profile-save, чтобы тоггл не затирал профиль."""
+    p = request.payload
+    prof, _ = Profile.objects.get_or_create(user=request.tg_user)
+    if p.get("notifications_enabled") is not None:
+        prof.notifications_enabled = bool(p.get("notifications_enabled"))
+    if p.get("theme") in ("light", "dark"):
+        prof.theme = p.get("theme")
+    prof.save()
+    return ok({"ok": True, "notifications_enabled": prof.notifications_enabled, "theme": prof.theme})
 
 
 def profile_recalc(request):

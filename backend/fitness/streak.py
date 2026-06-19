@@ -5,7 +5,8 @@ cron-эндпоинтами (n8n-крон по расписанию). Счита
 Правила (все пороги — константы ниже, легко крутить):
   • Две раздельные серии: 🍽 nutrition и 🏋 workout.
   • День засчитан:
-      nutrition — логировал еду И уложился в КБЖУ (ккал в коридоре, белок ≥ порога);
+      nutrition — логировал еду И съел ≥ 50% от плана ккал (мягкий порог: главное — не
+                  пропускать лог и не голодать в ноль; белок/перебор серию НЕ рвут);
       workout   — выполнил плановую тренировку (или по циклу был отдых → день нейтральный).
   • Заморозка: 1 промах → frozen (серия на паузе + предупреждение),
                2-й промах подряд → серия сгорает (current=0). Успех всё размораживает.
@@ -13,10 +14,12 @@ cron-эндпоинтами (n8n-крон по расписанию). Счита
 from . import calc
 from .models import DayResult, FoodLog, Streak, TgUser, WorkoutLog
 
-# --- пороги «день засчитан» по питанию (крутить тут) ---
-NUTRI_KCAL_LOW = 0.80   # не меньше 80% цели (не голодал)
-NUTRI_KCAL_HIGH = 1.10  # не больше 110% цели (не переел)
-NUTRI_PROTEIN_MIN = 0.80  # белок ≥ 80% цели
+# --- порог «день засчитан» по питанию для СЕРИИ (крутить тут) ---
+NUTRI_KCAL_MIN_STREAK = 0.50  # для серии: съедено ≥ 50% плана (залогировал и не голодал в ноль)
+
+# --- пороги для ФОРМЫ лисёнка (живот), к серии отношения не имеют ---
+NUTRI_KCAL_LOW = 0.80   # ниже — «недоел», тело не трогаем
+NUTRI_KCAL_HIGH = 1.10  # выше — «переел», живот растёт
 
 # на каких значениях серии слать поздравление (иначе тихо — видно в приложении)
 MILESTONES = {3, 7, 14, 21, 30, 50, 75, 100, 150, 200, 300, 365}
@@ -37,20 +40,20 @@ KIND_WORD = {"nutrition": "по питанию", "workout": "по трениро
 # ============================ оценка дня ============================
 def nutrition_eval(user, day):
     """(ok_for_streak, belly_delta) за день по питанию.
-    ok = логировал И уложился в КБЖУ (для серии). belly_delta — куда двигать живот лиса."""
+    ok = логировал И съел ≥ 50% плана ккал (для серии). belly_delta — куда двигать живот лиса
+    (форма по-прежнему реагирует на перебор/коридор/недобор, независимо от серии)."""
     if not FoodLog.objects.filter(user=user, date=day).exists():
         return False, 0
     dash = calc.compute_dashboard(user, day)
     if not dash.get("ok"):
         return False, 0
-    k, p = dash["kcal"], dash["protein"]
+    k = dash["kcal"]
     target = k.get("target") or 0
     eaten = k.get("eaten") or 0
     if eaten <= 0 or target <= 0:
         return False, 0
-    kcal_ok = NUTRI_KCAL_LOW * target <= eaten <= NUTRI_KCAL_HIGH * target
-    prot_ok = (p.get("eaten") or 0) >= NUTRI_PROTEIN_MIN * (p.get("target") or 0)
-    ok = bool(kcal_ok and prot_ok)
+    # серия: мягкий порог — съедено не меньше половины плана (белок/перебор серию не рвут)
+    ok = bool(eaten >= NUTRI_KCAL_MIN_STREAK * target)
     # живот: переел → растёт; не переел (в коридоре или ниже верхней границы) → уходит;
     # сильно недоел (<80%) → тело не трогаем (это «голод» для слоя эмоций).
     if eaten > NUTRI_KCAL_HIGH * target:
@@ -139,12 +142,18 @@ def evaluate_day(user, day):
 
 
 def evaluate_all(day):
-    """Оценить день по всем approved-юзерам. Возвращает [{chat_id, text}] для рассылки."""
+    """Оценить день по всем approved-юзерам. Возвращает [{chat_id, text}] для рассылки.
+    ВАЖНО: серии/форма двигаются ВСЕГДА; тумблер `notifications_enabled` глушит только
+    рассылку (юзер без уведомлений всё равно копит серию — видит её в приложении)."""
     out = []
     for user in TgUser.objects.filter(approved=True):
-        if not getattr(user, "profile", None):
+        profile = getattr(user, "profile", None)
+        if not profile:
             continue
-        for text in evaluate_day(user, day):
+        msgs = evaluate_day(user, day)
+        if not profile.notifications_enabled:
+            continue
+        for text in msgs:
             out.append({"chat_id": user.telegram_id, "text": text})
     return out
 
@@ -159,14 +168,42 @@ REMINDER_TEXTS = {
 
 
 def meal_reminders(window, day):
-    """[{chat_id, text}] — approved-юзерам с профилем, у кого за `day` пусто в food_log."""
+    """[{chat_id, text}] — approved-юзерам с профилем и включёнными уведомлениями,
+    у кого за `day` пусто в food_log."""
     text = REMINDER_TEXTS.get(window, REMINDER_TEXTS["afternoon"])
     out = []
     for user in TgUser.objects.filter(approved=True):
-        if not getattr(user, "profile", None):
+        profile = getattr(user, "profile", None)
+        if not profile or not profile.notifications_enabled:
             continue
         if FoodLog.objects.filter(user=user, date=day).exists():
             continue
+        out.append({"chat_id": user.telegram_id, "text": text})
+    return out
+
+
+def undereating_warnings(day):
+    """[{chat_id, text}] — на 22:00: кто за день съел < 50% плана ккал (в т.ч. 0).
+    Рыж предупреждает, что день не пойдёт в серию и что недоедание — плохо.
+    Уважает тумблер уведомлений."""
+    out = []
+    for user in TgUser.objects.filter(approved=True):
+        profile = getattr(user, "profile", None)
+        if not profile or not profile.notifications_enabled:
+            continue
+        dash = calc.compute_dashboard(user, day)
+        if not dash.get("ok"):
+            continue
+        target = dash["kcal"].get("target") or 0
+        eaten = dash["kcal"].get("eaten") or 0
+        if target <= 0 or eaten >= NUTRI_KCAL_MIN_STREAK * target:
+            continue
+        text = (
+            f"🦊 Рыж не верит, что ты сегодня съел так мало — всего {eaten} из {target} ккал. "
+            "Если просто забыл занести — самое время, день ещё можно спасти 🔥. "
+            "А если правда так мало — так нельзя: недоедание тормозит и форму, и силы, "
+            "и Рыж от этого грустит. Покорми его 🍽"
+        )
         out.append({"chat_id": user.telegram_id, "text": text})
     return out
 

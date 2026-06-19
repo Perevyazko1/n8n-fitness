@@ -91,6 +91,56 @@ def belly_tier(score):
     return 3
 
 
+def ryzh_voice(streaks, muscle_score, belly_score, kcal, protein, workout_today):
+    """Реплика Рыжа для облачка на дашборде. Объясняет, ПОЧЕМУ он такой: связывает
+    серии + форму (тиры мышц/живота) + сегодняшние КБЖУ. Возвращает строку (без «Рыж:»).
+    Приоритет — от срочного к фоновому: первое сработавшее правило и возвращаем."""
+    n = streaks.get("nutrition") or {}
+    w = streaks.get("workout") or {}
+    eaten = kcal.get("eaten") or 0
+    left = round(kcal.get("left") or 0)
+    m_tier, b_tier = muscle_tier(muscle_score), belly_tier(belly_score)
+
+    # 1. ничего не съедено — голодный лис
+    if eaten <= 0:
+        return "Проголодался — занеси, что ел сегодня, и я повеселею."
+
+    # 2. серия под угрозой (заморожена) — главный сигнал
+    if n.get("status") == "frozen" or w.get("status") == "frozen":
+        return "Стрик под угрозой — закрой день, пока я не замёрз. 🥶"
+
+    # 3. длинная серия тренировок — лис в форме
+    if (w.get("current") or 0) >= 14:
+        return f"Тренируемся {w['current']} дней подряд — я в отличной форме, мышцы прут! 💪"
+
+    # 4. живот подрос — недавний перебор по калориям
+    if b_tier >= 2:
+        return "Последние дни перебор по калориям — я набрал бочок. Давай аккуратнее, и он уйдёт."
+
+    # 5. мышцы в тонусе
+    if m_tier >= 3:
+        return "Мышцы в тонусе — держим этот режим, красавчик!"
+
+    # 6. длинная серия питания
+    if (n.get("current") or 0) >= 7:
+        return f"Питание под контролем уже {n['current']} дней — так и держим. 🔥"
+
+    # 7. сегодня перебор
+    if left < 0:
+        return f"Перебор на {-left} ккал. Завтра аккуратнее — я в тебя верю."
+
+    # 8. тренировка закрыта сегодня
+    if workout_today.get("is_workout") and workout_today.get("done"):
+        return "Тренировка закрыта, питание в норме. Красавчик!"
+
+    # 9. ещё есть запас по калориям
+    if left > 0:
+        return f"Ещё {left} ккал в запасе. Держим темп."
+
+    # 10. фон
+    return "Идём по плану. Так держать!"
+
+
 def parse_workout_number(plan):
     if not plan:
         return None
@@ -325,16 +375,24 @@ def compute_dashboard(user, day):
         "belly_tier": belly_tier(belly_score),
     }
 
+    kcal = {"target": target, "eaten": today_sum["kcal"], "left": round(target - today_sum["kcal"])}
+    protein = {"target": tp, "eaten": today_sum["protein"], "left": r1(tp - today_sum["protein"])}
+
     return {
         "ok": True,
         "date": day.isoformat(),
         "workout_today": workout_today,
-        "kcal": {"target": target, "eaten": today_sum["kcal"], "left": round(target - today_sum["kcal"])},
-        "protein": {"target": tp, "eaten": today_sum["protein"], "left": r1(tp - today_sum["protein"])},
+        "kcal": kcal,
+        "protein": protein,
         "fat": {"target": tf, "eaten": today_sum["fat"]},
         "carbs": {"target": tc, "eaten": today_sum["carbs"]},
         "streaks": streaks,
         "avatar": avatar,
+        "ryzh_says": ryzh_voice(streaks, muscle_score, belly_score, kcal, protein, workout_today),
+        "prefs": {
+            "theme": profile.theme or "light",
+            "notifications_enabled": profile.notifications_enabled,
+        },
     }
 
 
