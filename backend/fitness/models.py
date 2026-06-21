@@ -13,10 +13,27 @@ class TgUser(models.Model):
     approved = models.BooleanField(default=True)
     # Доступ к AI-боту выдаёт владелец вручную (по умолчанию выключен).
     has_bot_access = models.BooleanField(default=False)
+    # Сколько обращений к AI-боту в сутки разрешено (правится в админке per-user).
+    bot_daily_limit = models.IntegerField(default=5)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.telegram_id} ({self.first_name})"
+
+
+class BotUsage(models.Model):
+    """Счётчик обращений к AI-боту по дням (для суточного лимита). Бот (n8n)
+    апсёртит count на каждое разрешённое сообщение; сравнение с TgUser.bot_daily_limit."""
+    user = models.ForeignKey(TgUser, on_delete=models.CASCADE, related_name="bot_usage")
+    date = models.DateField()
+    count = models.IntegerField(default=0)
+
+    class Meta:
+        unique_together = [("user", "date")]
+        indexes = [models.Index(fields=["user", "date"])]
+
+    def __str__(self):
+        return f"{self.user_id} {self.date}: {self.count}"
 
 
 class Profile(models.Model):

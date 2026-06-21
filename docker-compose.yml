@@ -79,7 +79,9 @@ services:
     environment:
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
       - DJANGO_DEBUG=${DJANGO_DEBUG:-0}
-      - DJANGO_ALLOWED_HOSTS=${DOMAIN},127.0.0.1,localhost
+      # fitness-api — внутреннее docker-имя: на него ходят n8n-кроны (evaluate-day,
+      # meal-reminders) по http://fitness-api:8001. Без него Django режет Host → 400.
+      - DJANGO_ALLOWED_HOSTS=${DOMAIN},127.0.0.1,localhost,fitness-api
       - POSTGRES_DB=${POSTGRES_DB:-fitness}
       - POSTGRES_USER=${POSTGRES_USER:-fitness}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
