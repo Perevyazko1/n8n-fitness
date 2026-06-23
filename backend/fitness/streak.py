@@ -11,6 +11,11 @@ cron-эндпоинтами (n8n-крон по расписанию). Счита
   • Заморозка: 1 промах → frozen (серия на паузе + предупреждение),
                2-й промах подряд → серия сгорает (current=0). Успех всё размораживает.
 """
+from datetime import timedelta
+
+from django.db.models import Max
+from django.utils import timezone
+
 from . import calc
 from .models import DayResult, FoodLog, Streak, TgUser, WorkoutLog
 
@@ -138,6 +143,27 @@ def evaluate_day(user, day):
         m = _apply_streak(user, "workout", day, w_ok, muscle_delta)
         if m:
             msgs.append(m)
+    return msgs
+
+
+def catch_up(user, upto=None):
+    """Догоняет все ЗАВЕРШЁННЫЕ (≤ вчера), ещё не оценённые дни этого юзера.
+    Делает серию независимой от крона: при заходе в приложение и при логировании
+    пропущенные дни доеоцениваются сами. Сегодня НЕ трогаем — день ещё не закрыт.
+
+    Курсор — max(DayResult.date): это «последний полностью оценённый день». Идём от
+    него +1 до вчера. Так не передаём в evaluate_day уже оценённые дни (иначе слабый
+    per-kind guard мог бы их пересчитать). Идемпотентно и безопасно при гонке с кроном.
+    Возвращает накопленные сообщения (вехи/заморозки) — на случай отправки."""
+    yesterday = (upto or timezone.localdate()) - timedelta(days=1)
+    last = DayResult.objects.filter(user=user).aggregate(m=Max("date"))["m"]
+    # новый юзер без истории — не отматываем прошлое, оцениваем только вчера
+    start = (last + timedelta(days=1)) if last else yesterday
+    msgs, d, guard = [], start, 0
+    while d <= yesterday and guard < 400:
+        msgs += evaluate_day(user, d)
+        d += timedelta(days=1)
+        guard += 1
     return msgs
 
 
