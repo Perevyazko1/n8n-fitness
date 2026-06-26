@@ -68,6 +68,9 @@ class FoodLog(models.Model):
     fat = models.FloatField(default=0)
     carbs = models.FloatField(default=0)
     meal_type = models.CharField(max_length=32, blank=True, default="")
+    # вес порции в граммах. null = граммовка неизвестна (порционная запись) —
+    # такую правим только числами КБЖУ; если задан — правка пересчётом по граммам.
+    grams = models.FloatField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

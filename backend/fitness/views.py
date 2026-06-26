@@ -95,6 +95,7 @@ def food_log(request):
             "kcal": int(f.kcal or 0), "protein": calc.r1(f.protein),
             "fat": calc.r1(f.fat), "carbs": calc.r1(f.carbs),
             "meal_type": f.meal_type or "",
+            "grams": f.grams,  # число → правка пересчётом по граммам; null → только числами
         })
     s = {"kcal": round(sum(i["kcal"] for i in items)),
          "protein": calc.r1(sum(i["protein"] for i in items)),
@@ -113,14 +114,24 @@ def delete_food(request):
 
 
 def update_food(request):
-    """Точечное изменение записи дневника (пока — только приём пищи)."""
+    """Точечное изменение записи дневника: приём, описание, КБЖУ, граммовка.
+    Значения берём как есть (клиент уже пересчитал КБЖУ при смене граммов) —
+    обновляем только присланные поля."""
     user = request.tg_user
     p = request.payload
     fid = p.get("id")
     fields = {}
-    mt = p.get("meal_type")
-    if mt is not None:
-        fields["meal_type"] = str(mt)[:32]
+    if p.get("meal_type") is not None:
+        fields["meal_type"] = str(p.get("meal_type"))[:32]
+    if p.get("description") is not None:
+        fields["description"] = str(p.get("description"))
+    if p.get("kcal") is not None:
+        fields["kcal"] = round(float(p.get("kcal") or 0))
+    for k in ("protein", "fat", "carbs"):
+        if p.get(k) is not None:
+            fields[k] = float(p.get(k) or 0)
+    if "grams" in p:                       # явный null → сбросить граммовку (станет порционной)
+        fields["grams"] = _f(p.get("grams"))
     if not fields:
         return ok({"ok": False, "error": "nothing_to_update"}, status=400)
     updated = FoodLog.objects.filter(user=user, id=fid).update(**fields)
@@ -143,6 +154,7 @@ def repeat_food(request):
         fat=float(p.get("fat") or 0),
         carbs=float(p.get("carbs") or 0),
         meal_type=(str(p.get("meal_type"))[:32] if p.get("meal_type") else meal_type_for_hour(now.hour)),
+        grams=_f(p.get("grams")),  # если граммовка известна — запись станет весовой (правка пересчётом)
     )
     return ok({"ok": True, "message": "добавлено"})
 
@@ -567,6 +579,7 @@ def scan_barcode(request):
             fat=float(p.get("fat") or 0),
             carbs=float(p.get("carbs") or 0),
             meal_type=meal_type_for_hour(now.hour),
+            grams=_f(p.get("grams")),  # граммовка из сканера — запись весовая, правится пересчётом
         )
         return ok({"ok": True, "message": "записал"})
     if action == "add_product":
