@@ -4,6 +4,7 @@
 Уникальные ключи там, где в Sheets были костыли (upsert по составному ключу).
 """
 from django.db import models
+from django.utils import timezone
 
 
 class TgUser(models.Model):
@@ -15,10 +16,40 @@ class TgUser(models.Model):
     has_bot_access = models.BooleanField(default=False)
     # Сколько обращений к AI-боту в сутки разрешено (правится в админке per-user).
     bot_daily_limit = models.IntegerField(default=5)
+    # Платная подписка активна до этого момента (null = никогда не оплачивал).
+    # Заполняется колбэком об успешной оплате (см. Payment / views.payments_*).
+    subscription_until = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.telegram_id} ({self.first_name})"
+
+    @property
+    def subscription_active(self):
+        return bool(self.subscription_until and self.subscription_until >= timezone.now())
+
+
+class Payment(models.Model):
+    """Транзакция оплаты подписки (провайдер — Platega). Создаётся при нажатии
+    «оформить подписку» (status=PENDING), обновляется колбэком о статусе.
+    Заготовка: пока платежи не настроены (нет MERCHANT_ID/SECRET) — не используется."""
+    user = models.ForeignKey(TgUser, on_delete=models.CASCADE, related_name="payments")
+    transaction_id = models.CharField(max_length=64, blank=True, default="", db_index=True)
+    amount = models.IntegerField(default=0)              # в валюте провайдера (RUB)
+    currency = models.CharField(max_length=8, default="RUB")
+    method = models.IntegerField(default=2)              # Platega paymentMethod (2=СБП, …)
+    status = models.CharField(max_length=24, default="PENDING")  # PENDING/CONFIRMED/CANCELED/CHARGEBACKED/ERROR
+    plan = models.CharField(max_length=32, blank=True, default="")
+    payload = models.CharField(max_length=255, blank=True, default="")  # наш внутренний payload
+    pay_url = models.TextField(blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["user", "status"], name="fitness_pay_user_status_idx")]
+
+    def __str__(self):
+        return f"{self.user_id} {self.amount}{self.currency} {self.status}"
 
 
 class BotUsage(models.Model):

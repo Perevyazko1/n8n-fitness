@@ -25,6 +25,29 @@ TELEGRAM_BOT_TOKEN = env("TELEGRAM_BOT_TOKEN", "")
 # авторизация по заголовку X-Cron-Secret. Значение — в .env.
 CRON_SECRET = env("CRON_SECRET", "")
 
+# --- Платежи (Platega) — заготовка под оплату подписки --------------------
+# Пока MERCHANT_ID/SECRET пустые — платежи ВЫКЛЮЧЕНЫ и приложение работает
+# по флагу TgUser.has_bot_access (как сейчас). Заполнишь .env → включится.
+PLATEGA_API_BASE = env("PLATEGA_API_BASE", "https://app.platega.io")   # TODO: уточнить host у менеджера
+# Путь создания транзакции. Метод-эндпоинт (с paymentMethod) — "/transaction/process";
+# у методless-варианта в доке "/v2/transaction/process". Вынесен в env на случай расхождений.
+PLATEGA_PROCESS_PATH = env("PLATEGA_PROCESS_PATH", "/transaction/process")
+PLATEGA_MERCHANT_ID = env("PLATEGA_MERCHANT_ID", "")
+PLATEGA_SECRET = env("PLATEGA_SECRET", "")
+# Секрет входящего колбэка о статусе платежа (/api/payments/*): сервер-сервер,
+# без initData. TODO: заменить на проверку подписи Platega, когда менеджер
+# пришлёт её формат (сейчас — общий секрет в заголовке X-Platega-Secret).
+PLATEGA_CALLBACK_SECRET = env("PLATEGA_CALLBACK_SECRET", "")
+# Куда вернуть плательщика после оплаты (страницы Mini App).
+PUBLIC_BASE_URL = env("PUBLIC_BASE_URL", "https://perevyazko1.github.io/n8n-fitness-scan")
+# Параметры подписки (цена в рублях, срок в днях). TODO: уточнить, рубли это или
+# копейки в amount у Platega — пример в доке (amount:500, RUB) выглядит как рубли.
+SUBSCRIPTION_PRICE_RUB = int(env("SUBSCRIPTION_PRICE_RUB", "299") or 299)
+SUBSCRIPTION_DAYS = int(env("SUBSCRIPTION_DAYS", "30") or 30)
+# Способ оплаты по умолчанию (Platega paymentMethod). Сейчас только СБП(2), но
+# код принимает и другие (3=ЕРИП, 11=карта, 12=межд., 13=крипта) — см. platega.PAYMENT_METHODS.
+SUBSCRIPTION_PAYMENT_METHOD = int(env("SUBSCRIPTION_PAYMENT_METHOD", "2") or 2)
+
 INSTALLED_APPS = [
     # contrib — нужны для веб-админки (/admin/)
     "django.contrib.admin",

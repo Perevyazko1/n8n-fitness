@@ -6,18 +6,26 @@
 from django.contrib import admin
 
 from .models import (
-    BodyParams, BotUsage, DayResult, FoodLog, Product, Profile, Streak, TgUser,
-    WalkingLog, WorkoutBlock, WorkoutCatalog, WorkoutDone, WorkoutLog,
+    BodyParams, BotUsage, DayResult, FoodLog, Payment, Product, Profile, Streak,
+    TgUser, WalkingLog, WorkoutBlock, WorkoutCatalog, WorkoutDone, WorkoutLog,
 )
 
 
 @admin.register(TgUser)
 class TgUserAdmin(admin.ModelAdmin):
-    list_display = ("telegram_id", "first_name", "approved", "has_bot_access", "bot_daily_limit", "created_at")
+    list_display = ("telegram_id", "first_name", "approved", "has_bot_access", "subscription_until", "bot_daily_limit", "created_at")
     list_filter = ("approved", "has_bot_access")
     # лимит и доступы правятся прямо из списка
     list_editable = ("approved", "has_bot_access", "bot_daily_limit")
     search_fields = ("telegram_id", "first_name")
+
+
+@admin.register(Payment)
+class PaymentAdmin(admin.ModelAdmin):
+    list_display = ("user", "amount", "currency", "status", "plan", "transaction_id", "created_at")
+    list_filter = ("status", "currency")
+    search_fields = ("user__telegram_id", "transaction_id")
+    date_hierarchy = "created_at"
 
 
 @admin.register(BotUsage)

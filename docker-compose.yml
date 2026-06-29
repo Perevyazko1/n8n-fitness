@@ -89,6 +89,16 @@ services:
       - POSTGRES_PORT=5432
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - CRON_SECRET=${CRON_SECRET}
+      # Платежи Platega (заготовка). Пустые → платежи выключены, работа по флагу.
+      - PLATEGA_API_BASE=${PLATEGA_API_BASE:-https://app.platega.io}
+      - PLATEGA_PROCESS_PATH=${PLATEGA_PROCESS_PATH:-/transaction/process}
+      - PLATEGA_MERCHANT_ID=${PLATEGA_MERCHANT_ID:-}
+      - PLATEGA_SECRET=${PLATEGA_SECRET:-}
+      - PLATEGA_CALLBACK_SECRET=${PLATEGA_CALLBACK_SECRET:-}
+      - PUBLIC_BASE_URL=${PUBLIC_BASE_URL:-https://perevyazko1.github.io/n8n-fitness-scan}
+      - SUBSCRIPTION_PRICE_RUB=${SUBSCRIPTION_PRICE_RUB:-299}
+      - SUBSCRIPTION_DAYS=${SUBSCRIPTION_DAYS:-30}
+      - SUBSCRIPTION_PAYMENT_METHOD=${SUBSCRIPTION_PAYMENT_METHOD:-2}
       - TZ=${TZ:-Europe/Moscow}
     ports:
       - "127.0.0.1:8001:8001"

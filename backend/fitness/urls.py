@@ -24,10 +24,18 @@ urlpatterns = [
     path("block-delete", views.block_delete),
     path("log-walking", views.log_walking),
     path("walking", views.walking),
+    path("log-sport", views.log_sport),
+    path("sport", views.sport),
+    path("sport-delete", views.sport_delete),
     path("profile", views.profile),
     path("profile-save", views.profile_save),
     path("profile-recalc", views.profile_recalc),
     path("prefs-save", views.prefs_save),
+    # подписка / платежи (Platega). status/create — под initData (есть tg_user);
+    # callback — сервер-сервер, авторизация секретом в middleware (/api/payments/*).
+    path("subscription/status", views.subscription_status),
+    path("subscription/create", views.subscription_create),
+    path("payments/platega/callback", views.payments_platega_callback),
     # cron (n8n по расписанию, авторизация по X-Cron-Secret)
     path("cron/meal-reminders", views.cron_meal_reminders),
     path("cron/evaluate-day", views.cron_evaluate_day),

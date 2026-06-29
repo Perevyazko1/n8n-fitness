@@ -11,13 +11,14 @@ from datetime import date as date_cls, timedelta
 from urllib.parse import quote
 from urllib.request import Request, urlopen
 
+from django.conf import settings
 from django.db import transaction
 from django.http import JsonResponse
 from django.utils import timezone
 
-from . import calc, streak
+from . import calc, platega, streak
 from .models import (
-    BodyParams, FoodLog, Product, Profile, WalkingLog, WorkoutBlock,
+    BodyParams, FoodLog, Payment, Product, Profile, WalkingLog, WorkoutBlock,
     WorkoutCatalog, WorkoutDone, WorkoutLog,
 )
 
@@ -210,7 +211,8 @@ def complete_workout(request):
         defaults={"day_plan": label, "kcal_burned": kcal,
                   "duration_min": duration, "source": "app"},
     )
-    return ok({"ok": True, "created": created, "kcal_burned": kcal})
+    return ok({"ok": True, "created": created, "kcal_burned": kcal,
+               "budget": calc.budget_breakdown(user, day)})
 
 
 def uncomplete_workout(request):
@@ -246,6 +248,92 @@ def cron_evaluate_day(request):
     day = parse_date(request.payload.get("date")) or (today() - timedelta(days=1))
     msgs = streak.evaluate_all(day)
     return ok({"ok": True, "date": day.isoformat(), "messages": msgs})
+
+
+# ---------- платежи / подписка (Platega) — заготовка ----------
+# Статусы Platega: PENDING / CONFIRMED / CANCELED / CHARGEBACKED. Успех = CONFIRMED
+# (синонимы оставлены на случай других провайдеров/методов). TODO: CHARGEBACKED →
+# отзывать подписку, когда подключим возвраты.
+_PAY_SUCCESS = {"CONFIRMED", "SUCCESS", "PAID", "COMPLETED"}
+
+
+def subscription_status(request):
+    """Состояние подписки для фронта (paywall). `configured` — включены ли платежи
+    вообще: если нет, фронт остаётся на флаге («Скоро»)."""
+    u = request.tg_user
+    until = u.subscription_until
+    return ok({
+        "ok": True,
+        "active": u.subscription_active,
+        "until": until.isoformat() if until else None,
+        "configured": platega.configured(),
+        "price": settings.SUBSCRIPTION_PRICE_RUB,
+        "currency": "RUB",
+        "days": settings.SUBSCRIPTION_DAYS,
+        "method": settings.SUBSCRIPTION_PAYMENT_METHOD,   # дефолтный способ (2=СБП)
+    })
+
+
+def subscription_create(request):
+    """Создать платёж за подписку → вернуть ссылку на оплату Platega.
+    Пока платежи не настроены — отдаём payments_disabled (фронт показывает «Скоро»)."""
+    u = request.tg_user
+    if not platega.configured():
+        return ok({"ok": False, "error": "payments_disabled"}, status=503)
+
+    plan = str(request.payload.get("plan") or "monthly")[:32]
+    method = platega.resolve_method(request.payload.get("method"))  # по умолчанию СБП(2)
+    amount = settings.SUBSCRIPTION_PRICE_RUB
+    internal = f"sub:{u.telegram_id}:{plan}"
+    pay = Payment.objects.create(user=u, amount=amount, currency="RUB", method=method,
+                                 status="PENDING", plan=plan, payload=internal)
+    base = settings.PUBLIC_BASE_URL.rstrip("/")
+    try:
+        res = platega.create_transaction(
+            amount=amount, currency="RUB", payment_method=method,
+            description=f"Подписка Рыж ({plan})",
+            return_url=f"{base}/?paid=1", failed_url=f"{base}/?paid=0",
+            payload=internal, user_id=u.telegram_id, user_name=u.first_name or "",
+        )
+    except platega.PlategaError as e:
+        pay.status = "ERROR"
+        pay.save(update_fields=["status", "updated_at"])
+        return ok({"ok": False, "error": "provider", "detail": str(e)}, status=502)
+
+    pay.transaction_id = str(res.get("transactionId") or "")
+    pay.status = str(res.get("status") or "PENDING")
+    pay.pay_url = platega.pay_link(res)   # метод-эндпоинт: redirect; методless: url
+    pay.save(update_fields=["transaction_id", "status", "pay_url", "updated_at"])
+    return ok({"ok": True, "url": pay.pay_url, "transactionId": pay.transaction_id,
+               "status": pay.status, "method": method, "expiresIn": res.get("expiresIn")})
+
+
+def payments_platega_callback(request):
+    """Колбэк Platega о статусе платежа (сервер-сервер, без initData — авторизация
+    общим секретом в middleware). Обновляет Payment; при успехе продлевает подписку
+    и включает доступ к боту. Идемпотентно (повторный CONFIRMED не продлевает дважды)."""
+    p = request.payload or {}
+    tx = str(p.get("transactionId") or p.get("id") or "").strip()
+    status = str(p.get("status") or "").upper()
+    if not tx:
+        return ok({"ok": False, "error": "no_tx"}, status=400)
+    pay = Payment.objects.filter(transaction_id=tx).first()
+    if not pay:
+        return ok({"ok": False, "error": "unknown_tx"}, status=404)
+
+    was_success = pay.status.upper() in _PAY_SUCCESS
+    if status:
+        pay.status = status
+        pay.save(update_fields=["status", "updated_at"])
+
+    if status in _PAY_SUCCESS and not was_success:
+        u = pay.user
+        now = timezone.now()
+        start = u.subscription_until if (u.subscription_until and u.subscription_until > now) else now
+        u.subscription_until = start + timedelta(days=settings.SUBSCRIPTION_DAYS)
+        u.has_bot_access = True   # синхронизируем со старым флагом доступа к боту
+        u.save(update_fields=["subscription_until", "has_bot_access"])
+    return ok({"ok": True})
 
 
 def profile(request):
@@ -546,7 +634,8 @@ def log_walking(request):
                   "duration_min": minutes, "kcal_burned": kcal,
                   "time": timezone.localtime().strftime("%H:%M")},
     )
-    return ok({"ok": True, "kcal_burned": kcal, "km": km})
+    return ok({"ok": True, "kcal_burned": kcal, "km": km,
+               "budget": calc.budget_breakdown(user, day)})
 
 
 def walking(request):
@@ -554,14 +643,71 @@ def walking(request):
     user = request.tg_user
     day = parse_date(request.payload.get("date")) or today()
     row = WalkingLog.objects.filter(user=user, date=day, source="app").order_by("-id").first()
-    total = sum((w.kcal_burned or 0) for w in WalkingLog.objects.filter(user=user, date=day))
+    # «Всего ходьбы» — без спорта (source=app_sport); спорт показываем на своём экране.
+    total = sum((w.kcal_burned or 0)
+                for w in WalkingLog.objects.filter(user=user, date=day).exclude(source="app_sport"))
     return ok({
         "ok": True, "date": day.isoformat(),
         "km": (row.distance_km if row else 0) or 0,
         "pace": calc.pace_from_speed(row.speed_kmh) if row else "brisk",
         "kcal_burned": (row.kcal_burned if row else 0) or 0,
         "day_total_kcal": round(total),
+        "budget": calc.budget_breakdown(user, day),
     })
+
+
+def log_sport(request):
+    """Активность вне зала (футбол/баскет/танцы…): вид + минуты → нет-MET расход.
+    Пишем в walking_log с source=app_sport — отдельно от апсерта ходьбы (source=app),
+    можно несколько записей за день. Ккал считаем сами, либо берём ручной override."""
+    _catch_up(request)
+    user = request.tg_user
+    p = request.payload
+    day = parse_date(p.get("date")) or today()
+    activity = (p.get("activity") or "").strip()
+    minutes = _i(p.get("minutes")) or 0
+    info = calc.SPORT_MET_MAP.get(activity)
+    label = info[0] if info else (activity or "Активность")
+    profile = getattr(user, "profile", None)
+    weight = (profile.weight_kg if profile else None) or 76
+    manual = _i(p.get("kcal")) if p.get("kcal") not in (None, "") else None
+    kcal = manual if manual is not None else calc.sport_kcal(weight, activity, minutes)
+    if (kcal or 0) <= 0:
+        return ok({"ok": False, "error": "no_kcal"})
+    WalkingLog.objects.create(
+        user=user, date=day, source="app_sport",
+        activity=label, duration_min=(minutes or None), kcal_burned=kcal,
+        time=timezone.localtime().strftime("%H:%M"),
+    )
+    return ok({"ok": True, "kcal_burned": kcal,
+               "budget": calc.budget_breakdown(user, day)})
+
+
+def sport(request):
+    """Активность вне зала за день + справочник видов (с MET) и вес — для UI-превью."""
+    user = request.tg_user
+    day = parse_date(request.payload.get("date")) or today()
+    profile = getattr(user, "profile", None)
+    weight = (profile.weight_kg if profile else None) or 76
+    rows = WalkingLog.objects.filter(user=user, date=day, source="app_sport").order_by("id")
+    items = [{"id": r.id, "activity": r.activity, "minutes": r.duration_min or 0,
+              "kcal": r.kcal_burned or 0} for r in rows]
+    total = sum((r.kcal_burned or 0) for r in rows)
+    return ok({
+        "ok": True, "date": day.isoformat(), "weight_kg": weight,
+        "activities": [{"key": k, "label": lbl, "met": met} for k, lbl, met in calc.SPORT_MET],
+        "items": items, "sum_kcal": round(total),
+        "budget": calc.budget_breakdown(user, day),
+    })
+
+
+def sport_delete(request):
+    """Удалить запись активности вне зала по id (только свои, source=app_sport)."""
+    user = request.tg_user
+    rid = _i(request.payload.get("id"))
+    WalkingLog.objects.filter(user=user, id=rid, source="app_sport").delete()
+    day = parse_date(request.payload.get("date")) or today()
+    return ok({"ok": True, "budget": calc.budget_breakdown(user, day)})
 
 
 def scan_barcode(request):

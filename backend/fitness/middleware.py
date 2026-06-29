@@ -51,6 +51,16 @@ class ApiMiddleware:
             request.tg_user = None
             return self._cors(self.get_response(request))
 
+        # колбэк платёжного провайдера: сервер-сервер, без initData. Авторизация —
+        # общим секретом (TODO: заменить на проверку подписи Platega, см. platega.py).
+        if request.path.startswith("/api/payments/"):
+            secret = request.headers.get("X-Platega-Secret", "")
+            if not settings.PLATEGA_CALLBACK_SECRET or secret != settings.PLATEGA_CALLBACK_SECRET:
+                return self._cors(JsonResponse({"ok": False, "error": "pay_auth"}, status=403))
+            request.payload = body
+            request.tg_user = None
+            return self._cors(self.get_response(request))
+
         try:
             tg = verify_init_data(body.get("initData", ""), settings.TELEGRAM_BOT_TOKEN)
         except AuthError as e:

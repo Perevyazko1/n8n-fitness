@@ -291,6 +291,42 @@ def pace_from_speed(speed):
     return "brisk"
 
 
+# Виды активности вне зала (футбол/баскет/танцы…): (ключ, подпись, MET gross).
+# Расход считаем по НЕТ-MET (MET−1), как у ходьбы — BMR уже учтён в дневной цели.
+# «other» — MET нет, только ручной ввод ккал.
+SPORT_MET = [
+    ("football",    "Футбол",             7.0),
+    ("basketball",  "Баскетбол",          8.0),
+    ("volleyball",  "Волейбол",           4.0),
+    ("tennis",      "Теннис",             7.0),
+    ("badminton",   "Бадминтон",          5.5),
+    ("tabletennis", "Настольный теннис",  4.0),
+    ("swimming",    "Плавание",           7.0),
+    ("cycling",     "Велосипед",          7.0),
+    ("dance",       "Танцы",              5.5),
+    ("martial",     "Единоборства / бокс", 9.0),
+    ("skating",     "Коньки / ролики",    7.0),
+    ("ski",         "Лыжи",               7.0),
+    ("yoga",        "Йога",               3.0),
+    ("other",       "Другое",             None),
+]
+SPORT_MET_MAP = {k: (label, met) for k, label, met in SPORT_MET}
+
+
+def sport_kcal(weight, activity_key, minutes):
+    """Нет-MET расход активности вне зала: (MET−1) × вес × минуты/60.
+    Для 'other' (MET нет) возвращает 0 — там нужен ручной ввод ккал."""
+    info = SPORT_MET_MAP.get(str(activity_key or ""))
+    if not info or info[1] is None:
+        return 0
+    met = info[1]
+    minutes = max(0.0, float(minutes or 0))
+    if minutes <= 0:
+        return 0
+    net = max(met - 1.0, 0.0)
+    return round(net * (float(weight) if weight else 76) * minutes / 60.0)
+
+
 def estimate_met(group, exercise=""):
     """Прикидка (MET, минуты) по категории/названию упражнения."""
     s = (str(group or "") + " " + str(exercise or "")).lower()
@@ -329,6 +365,40 @@ def done_workout_stats(user, day, block):
     return round(kcal), (minutes or None)
 
 
+def budget_breakdown(user, day):
+    """Разбор дневного лимита ккал: сколько РЕАЛЬНО сожжено активностью и сколько
+    из этого вернулось в лимит (после скейла по цели и потолка). Единый источник
+    для дашборда и для пояснений на экранах тренировки/ходьбы («сжёг X → +Y»)."""
+    profile = getattr(user, "profile", None)
+    bmr = (profile.bmr if profile else None) or 1600
+    baseline = (profile.daily_baseline_kcal if profile else None) or 280
+    goal = ((profile.goal if profile else None) or "maintain").lower()
+    mult = GOAL_MULT.get(goal, 1.0)
+
+    walk_kcal = sum((w.kcal_burned or 0) for w in WalkingLog.objects.filter(user=user, date=day))
+    # Тренировка попадает в бюджет ТОЛЬКО после подтверждения (есть workout_log) и
+    # по факту kcal_burned (по ВЫПОЛНЕННЫМ упражнениям). Плановый расход не добавляем.
+    workout_kcal = sum((w.kcal_burned or 0) for w in WorkoutLog.objects.filter(user=user, date=day))
+
+    # Базовый бюджет — БЕЗ активности: пол (безопасный минимум) и потолок. Активность
+    # добавляется сверх, но скейлится по цели и упирается в потолок — поэтому в лимит
+    # возвращается лишь часть сожжённого (returned), а не весь расход (burned).
+    floor = round(bmr * 1.1)
+    cap = round((bmr + baseline) * mult * 1.4)
+    base = max(floor, min(cap, round((bmr + baseline) * mult)))
+    activity_kcal = round((walk_kcal + workout_kcal) * mult)
+    target = min(base + activity_kcal, cap)
+    burned = round(walk_kcal + workout_kcal)            # сколько сожжено активностью всего
+    returned = max(0, target - base)                    # сколько из этого реально в лимите
+    capped = activity_kcal > 0 and (base + activity_kcal) > cap
+    return {
+        "burned": burned, "returned": returned, "capped": capped,
+        "goal": goal, "goal_mult": mult,
+        "base": base, "cap": cap, "target": target,
+        "walk_kcal": round(walk_kcal), "workout_kcal": round(workout_kcal),
+    }
+
+
 def compute_dashboard(user, day):
     profile = getattr(user, "profile", None)
     if not profile:
@@ -337,29 +407,9 @@ def compute_dashboard(user, day):
     today_sum = _food_sum(user, day)
     exp = expected_today(user, day)
 
-    bmr = profile.bmr or 1600
-    baseline = profile.daily_baseline_kcal or 280
-    goal = (profile.goal or "maintain").lower()
-    mult = GOAL_MULT.get(goal, 1.0)
-
-    walk_kcal = sum((w.kcal_burned or 0) for w in WalkingLog.objects.filter(user=user, date=day))
-
+    bd = budget_breakdown(user, day)
+    target = bd["target"]
     today_workouts = list(WorkoutLog.objects.filter(user=user, date=day))
-    # Тренировка попадает в бюджет ТОЛЬКО после подтверждения (есть workout_log)
-    # и по факту — kcal_burned уже посчитан из ВЫПОЛНЕННЫХ упражнений (done_workout_stats).
-    # До подтверждения плановый расход НЕ добавляем.
-    workout_kcal = sum((w.kcal_burned or 0) for w in today_workouts)
-
-    # Базовый бюджет — БЕЗ активности. На нём действуют пол (безопасный минимум)
-    # и потолок. Активность добавляем сверх, иначе на агрессивном дефиците база
-    # упирается в пол и расход тренировки/ходьбы становится не виден.
-    floor = round(bmr * 1.1)
-    cap = round((bmr + baseline) * mult * 1.4)
-    base = max(floor, min(cap, round((bmr + baseline) * mult)))
-    # «Возврат» части расхода (ходьба + подтверждённая тренировка) в лимит — сверх базы.
-    # Потолок по-прежнему ограничивает общее раздувание лимита.
-    activity_kcal = round((walk_kcal + workout_kcal) * mult)
-    target = min(base + activity_kcal, cap)
 
     tp = profile.target_protein_g or 0
     tf = profile.target_fat_g or 0
@@ -404,6 +454,7 @@ def compute_dashboard(user, day):
         "date": day.isoformat(),
         "workout_today": workout_today,
         "kcal": kcal,
+        "budget": bd,
         "protein": protein,
         "fat": {"target": tf, "eaten": today_sum["fat"]},
         "carbs": {"target": tc, "eaten": today_sum["carbs"]},
@@ -494,6 +545,8 @@ def compute_workout(user, day, forced_block=None):
         "exercises": block_exercises(user, day, selected) if selected else [],
         # расчётный расход по уже отмеченным упражнениям (для кнопки «Завершить»)
         "est_kcal": done_workout_stats(user, day, selected)[0] if selected else 0,
+        # разбор дневного лимита: сожжено vs реально вернулось в лимит (для пояснения)
+        "budget": budget_breakdown(user, day),
     }
     # подсказка про отдых только для сегодня, если по циклу выходной
     if is_today and exp and exp["type"] == "rest":
