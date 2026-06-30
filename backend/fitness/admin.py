@@ -6,8 +6,8 @@
 from django.contrib import admin
 
 from .models import (
-    BodyParams, BotUsage, DayResult, FoodLog, Payment, Product, Profile, Streak,
-    TgUser, WalkingLog, WorkoutBlock, WorkoutCatalog, WorkoutDone, WorkoutLog,
+    BodyParams, BotUsage, DayResult, ExerciseLibrary, FoodLog, Payment, Product, Profile,
+    Streak, TgUser, WalkingLog, WaterLog, WorkoutBlock, WorkoutCatalog, WorkoutDone, WorkoutLog,
 )
 
 
@@ -112,3 +112,17 @@ class DayResultAdmin(admin.ModelAdmin):
     list_display = ("user", "date", "nutrition_ok", "workout_ok", "evaluated_at")
     list_filter = ("date", "nutrition_ok", "workout_ok")
     date_hierarchy = "date"
+
+
+@admin.register(WaterLog)
+class WaterLogAdmin(admin.ModelAdmin):
+    list_display = ("user", "date", "ml", "updated_at")
+    list_filter = ("date",)
+    date_hierarchy = "date"
+
+
+@admin.register(ExerciseLibrary)
+class ExerciseLibraryAdmin(admin.ModelAdmin):
+    list_display = ("name", "section", "muscle_group", "equipment", "sets", "reps", "met", "updated_at")
+    list_filter = ("section", "muscle_group")
+    search_fields = ("name", "key", "muscle_group")

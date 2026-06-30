@@ -25,6 +25,13 @@ TELEGRAM_BOT_TOKEN = env("TELEGRAM_BOT_TOKEN", "")
 # авторизация по заголовку X-Cron-Secret. Значение — в .env.
 CRON_SECRET = env("CRON_SECRET", "")
 
+# Источник справочника упражнений (курированный RU-JSON в публичном фронт-репо, отдаётся
+# GitHub Pages). Крон /api/cron/refresh-exercises фетчит его и апсертит ExerciseLibrary.
+EXERCISES_SOURCE_URL = env(
+    "EXERCISES_SOURCE_URL",
+    "https://perevyazko1.github.io/n8n-fitness-scan/data/exercises_ru.json",
+)
+
 # --- Платежи (Platega) — заготовка под оплату подписки --------------------
 # Пока MERCHANT_ID/SECRET пустые — платежи ВЫКЛЮЧЕНЫ и приложение работает
 # по флагу TgUser.has_bot_access (как сейчас). Заполнишь .env → включится.

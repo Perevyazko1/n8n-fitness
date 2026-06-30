@@ -39,7 +39,9 @@ urlpatterns = [
     path("subscription/status", views.subscription_status),
     path("subscription/create", views.subscription_create),
     path("payments/platega/callback", views.payments_platega_callback),
+    path("exercises", views.exercises),
     # cron (n8n по расписанию, авторизация по X-Cron-Secret)
     path("cron/meal-reminders", views.cron_meal_reminders),
     path("cron/evaluate-day", views.cron_evaluate_day),
+    path("cron/refresh-exercises", views.cron_refresh_exercises),
 ]

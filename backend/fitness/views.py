@@ -18,8 +18,8 @@ from django.utils import timezone
 
 from . import calc, platega, streak
 from .models import (
-    BodyParams, FoodLog, Payment, Product, Profile, WalkingLog, WaterLog, WorkoutBlock,
-    WorkoutCatalog, WorkoutDone, WorkoutLog,
+    BodyParams, ExerciseLibrary, FoodLog, Payment, Product, Profile, WalkingLog, WaterLog,
+    WorkoutBlock, WorkoutCatalog, WorkoutDone, WorkoutLog,
 )
 
 
@@ -126,6 +126,10 @@ def update_food(request):
         fields["meal_type"] = str(p.get("meal_type"))[:32]
     if p.get("description") is not None:
         fields["description"] = str(p.get("description"))
+    if p.get("date") is not None:               # перенос записи на другой день
+        d = parse_date(p.get("date"))
+        if d:
+            fields["date"] = d
     if p.get("kcal") is not None:
         fields["kcal"] = round(float(p.get("kcal") or 0))
     for k in ("protein", "fat", "carbs"):
@@ -248,6 +252,63 @@ def cron_evaluate_day(request):
     day = parse_date(request.payload.get("date")) or (today() - timedelta(days=1))
     msgs = streak.evaluate_all(day)
     return ok({"ok": True, "date": day.isoformat(), "messages": msgs})
+
+
+def cron_refresh_exercises(request):
+    """Синхронизация справочника упражнений из публичного JSON (фронт-репо на Pages).
+    Апсерт по `key`, удаление отсутствующих в источнике. Дёргает n8n-крон раз в месяц
+    (и можно вручную для первого импорта). Авторизация — X-Cron-Secret в middleware."""
+    url = settings.EXERCISES_SOURCE_URL
+    try:
+        req = Request(url, headers={"User-Agent": "fitness-bot", "Accept": "application/json"})
+        with urlopen(req, timeout=20) as r:
+            payload = json.loads(r.read().decode("utf-8"))
+    except Exception as e:
+        return ok({"ok": False, "error": "fetch_failed", "detail": str(e)}, status=502)
+
+    items = payload.get("exercises") if isinstance(payload, dict) else payload
+    if not isinstance(items, list) or not items:
+        return ok({"ok": False, "error": "empty_source"}, status=502)
+
+    seen = set()
+    created = updated = 0
+    for it in items:
+        key = (it.get("key") or "").strip()
+        name = (it.get("name") or "").strip()
+        if not key or not name:
+            continue
+        seen.add(key)
+        fields = {
+            "name": name,
+            "section": (it.get("section") or "").strip(),
+            "muscle_group": (it.get("muscle_group") or "").strip(),
+            "equipment": (it.get("equipment") or "").strip(),
+            "sets": str(it.get("sets") or "").strip(),
+            "reps": str(it.get("reps") or "").strip(),
+            "met": _f(it.get("met")),
+            "default_min": _i(it.get("default_min")),
+            "cue": (it.get("cue") or "").strip(),
+        }
+        _, was_created = ExerciseLibrary.objects.update_or_create(key=key, defaults=fields)
+        created += int(was_created)
+        updated += int(not was_created)
+    deleted, _ = ExerciseLibrary.objects.exclude(key__in=seen).delete()
+    return ok({"ok": True, "imported": created, "updated": updated,
+               "deleted": deleted, "total": len(seen)})
+
+
+def exercises(request):
+    """Справочник упражнений для приложения/будущего коуча. Опц. фильтр ?section / по группе."""
+    qs = ExerciseLibrary.objects.all().order_by("section", "muscle_group", "name")
+    section = (request.payload.get("section") or "").strip()
+    if section:
+        qs = qs.filter(section=section)
+    items = [{
+        "key": e.key, "name": e.name, "section": e.section, "muscle_group": e.muscle_group,
+        "equipment": e.equipment, "sets": e.sets, "reps": e.reps,
+        "met": e.met, "default_min": e.default_min, "cue": e.cue,
+    } for e in qs]
+    return ok({"ok": True, "items": items, "count": len(items)})
 
 
 # ---------- платежи / подписка (Platega) — заготовка ----------

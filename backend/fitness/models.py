@@ -255,3 +255,19 @@ class DayResult(models.Model):
     class Meta:
         unique_together = [("user", "date")]
         indexes = [models.Index(fields=["user", "date"], name="dayresult_user_date_idx")]
+
+
+class ExerciseLibrary(models.Model):
+    """Глобальный справочник упражнений (курированный RU-набор). Источник — JSON в публичном
+    фронт-репо, синхронизируется кроном раз в месяц. Апсерт по `key`."""
+    key = models.CharField(max_length=64, unique=True)
+    name = models.CharField(max_length=200)
+    section = models.CharField(max_length=32, blank=True, default="")   # Разминка/Силовая/Кор/Кардио/Заминка
+    muscle_group = models.CharField(max_length=64, blank=True, default="")
+    equipment = models.CharField(max_length=128, blank=True, default="")
+    sets = models.CharField(max_length=16, blank=True, default="")
+    reps = models.CharField(max_length=32, blank=True, default="")
+    met = models.FloatField(null=True, blank=True)
+    default_min = models.IntegerField(null=True, blank=True)
+    cue = models.TextField(blank=True, default="")
+    updated_at = models.DateTimeField(auto_now=True)
