@@ -422,6 +422,59 @@ def profile_recalc(request):
     return ok({"ok": True, **upd})
 
 
+# обхваты тела (см) — поля BodyParams, общие для progress/log_body
+BODY_MEASURES = ("waist", "chest", "hips", "biceps", "thigh")
+
+
+def progress(request):
+    """Экран «Прогресс»: недельный дефицит + динамика веса/% жира/обхватов из BodyParams."""
+    user = request.tg_user
+    day = parse_date(request.payload.get("date")) or today()
+    profile = getattr(user, "profile", None)
+    goal = ((profile.goal if profile else None) or "maintain").lower()
+    since = day - timedelta(days=120)
+    rows = list(BodyParams.objects
+                .filter(user=user, date__gte=since, date__lte=day)
+                .order_by("date", "id"))
+
+    def series(attr):
+        return [{"date": r.date.isoformat(), "value": getattr(r, attr)}
+                for r in rows if getattr(r, attr) is not None]
+
+    measurements = {k: series(k) for k in BODY_MEASURES}
+    return ok({
+        "ok": True, "goal": goal,
+        "weekly": calc.weekly_deficit(user, day),
+        "weight": series("weight"), "body_fat": series("body_fat_pct"),
+        "measurements": measurements,
+        "current_weight": (profile.weight_kg if profile else None),
+    })
+
+
+def log_body(request):
+    """Быстрый замер из приложения: вес и/или % жира за сегодня (upsert BodyParams).
+    Только замер для графика — план калорий меняется в Настройках (там auto/manual)."""
+    user = request.tg_user
+    p = request.payload
+    weight = _f(p.get("weight"))
+    bf = _f(p.get("body_fat_pct"))
+    meas = {k: _f(p.get(k)) for k in BODY_MEASURES}
+    if weight is None and bf is None and all(v is None for v in meas.values()):
+        return ok({"ok": False, "error": "empty"})
+    day = today()
+    bp = BodyParams.objects.filter(user=user, date=day).order_by("-id").first() \
+        or BodyParams(user=user, date=day)
+    if weight is not None:
+        bp.weight = weight
+    if bf is not None:
+        bp.body_fat_pct = bf
+    for k, v in meas.items():
+        if v is not None:
+            setattr(bp, k, v)
+    bp.save()
+    return ok({"ok": True})
+
+
 def products(request):
     """Справочник продуктов (что бот «знает»). Просмотр."""
     items = []

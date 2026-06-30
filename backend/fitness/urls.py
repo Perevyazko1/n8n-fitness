@@ -30,6 +30,8 @@ urlpatterns = [
     path("profile", views.profile),
     path("profile-save", views.profile_save),
     path("profile-recalc", views.profile_recalc),
+    path("progress", views.progress),
+    path("log-body", views.log_body),
     path("prefs-save", views.prefs_save),
     # подписка / платежи (Platega). status/create — под initData (есть tg_user);
     # callback — сервер-сервер, авторизация секретом в middleware (/api/payments/*).

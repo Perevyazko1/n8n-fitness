@@ -5,6 +5,7 @@
 """
 import random
 import re
+from datetime import timedelta
 
 from .models import (
     BodyParams, FoodLog, Streak, WalkingLog, WorkoutBlock, WorkoutCatalog, WorkoutDone, WorkoutLog,
@@ -399,6 +400,30 @@ def budget_breakdown(user, day):
     }
 
 
+def weekly_deficit(user, day, days=7):
+    """Накопленный дефицит/профицит за последние `days` дней (вкл. сегодня):
+    сумма (цель − съедено) по дням. Плюс = недобор (дефицит), минус = перебор.
+    Незалогированные дни (eaten=0) в сумму НЕ берём — иначе фейковый дефицит."""
+    profile = getattr(user, "profile", None)
+    goal = ((profile.goal if profile else None) or "maintain").lower()
+    per_day = []
+    total = 0
+    for i in range(days - 1, -1, -1):
+        d = day - timedelta(days=i)
+        target = budget_breakdown(user, d)["target"]
+        eaten = _food_sum(user, d)["kcal"]
+        deficit = round(target - eaten)
+        logged = eaten > 0
+        if logged:
+            total += deficit
+        per_day.append({"date": d.isoformat(), "target": round(target),
+                        "eaten": round(eaten), "deficit": deficit, "logged": logged})
+    logged_days = sum(1 for x in per_day if x["logged"])
+    avg = round(total / logged_days) if logged_days else 0
+    return {"days": days, "total": round(total), "avg": avg, "goal": goal,
+            "logged_days": logged_days, "per_day": per_day}
+
+
 def compute_dashboard(user, day):
     profile = getattr(user, "profile", None)
     if not profile:
@@ -449,12 +474,17 @@ def compute_dashboard(user, day):
     kcal = {"target": target, "eaten": today_sum["kcal"], "left": round(target - today_sum["kcal"])}
     protein = {"target": tp, "eaten": today_sum["protein"], "left": r1(tp - today_sum["protein"])}
 
+    wk = weekly_deficit(user, day)   # компактная сводка для карточки на дашборде
+    weekly = {"total": wk["total"], "avg": wk["avg"], "goal": wk["goal"],
+              "days": wk["days"], "logged_days": wk["logged_days"]}
+
     return {
         "ok": True,
         "date": day.isoformat(),
         "workout_today": workout_today,
         "kcal": kcal,
         "budget": bd,
+        "weekly": weekly,
         "protein": protein,
         "fat": {"target": tf, "eaten": today_sum["fat"]},
         "carbs": {"target": tc, "eaten": today_sum["carbs"]},

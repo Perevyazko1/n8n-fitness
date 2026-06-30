@@ -157,6 +157,12 @@ class BodyParams(models.Model):
     date = models.DateField()
     weight = models.FloatField(null=True, blank=True)
     body_fat_pct = models.FloatField(null=True, blank=True)
+    # обхваты (см) — динамика тела для экрана «Прогресс»
+    waist = models.FloatField(null=True, blank=True)
+    chest = models.FloatField(null=True, blank=True)
+    hips = models.FloatField(null=True, blank=True)
+    biceps = models.FloatField(null=True, blank=True)
+    thigh = models.FloatField(null=True, blank=True)
     notes = models.TextField(blank=True, default="")
 
 
