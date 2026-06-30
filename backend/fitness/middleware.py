@@ -12,6 +12,7 @@ from django.conf import settings
 from django.http import JsonResponse
 
 from .auth import AuthError, ensure_user, verify_init_data
+from .models import TgUser
 
 OPEN_PATHS = {"/api/health"}
 
@@ -49,6 +50,20 @@ class ApiMiddleware:
                 return self._cors(JsonResponse({"ok": False, "error": "cron_auth"}, status=403))
             request.payload = body
             request.tg_user = None
+            return self._cors(self.get_response(request))
+
+        # бот (n8n) — сервер-сервер: правки от LLM-коуча (например, замена плана). Без initData,
+        # авторизация секретом X-Cron-Secret; пользователя резолвим из тела по telegram_id.
+        if request.path.startswith("/api/bot/"):
+            secret = request.headers.get("X-Cron-Secret", "")
+            if not settings.CRON_SECRET or secret != settings.CRON_SECRET:
+                return self._cors(JsonResponse({"ok": False, "error": "bot_auth"}, status=403))
+            tid = body.get("telegram_id")
+            user = TgUser.objects.filter(telegram_id=tid).first() if tid else None
+            if not user:
+                return self._cors(JsonResponse({"ok": False, "error": "no_user"}, status=404))
+            request.payload = body
+            request.tg_user = user
             return self._cors(self.get_response(request))
 
         # колбэк платёжного провайдера: сервер-сервер, без initData. Авторизация —

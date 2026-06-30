@@ -724,6 +724,52 @@ def block_delete(request):
     return ok({"ok": True})
 
 
+@transaction.atomic
+def plan_apply(request):
+    """Замена плана тренировок ЦЕЛИКОМ (коуч-бот, по подтверждению пользователя).
+    Server-server через /api/bot/* (секрет + telegram_id в middleware). Транзакционно:
+    сносим блоки+упражнения юзера и пересоздаём из присланного плана. Историю
+    (workout_log/workout_done) НЕ трогаем. MET/мин дозаполняем calc.estimate_met."""
+    user = request.tg_user
+    plan = request.payload.get("plan") or {}
+    blocks = plan.get("blocks")
+    if not isinstance(blocks, list) or not blocks:
+        return ok({"ok": False, "error": "empty_plan"}, status=400)
+
+    WorkoutCatalog.objects.filter(user=user).delete()
+    WorkoutBlock.objects.filter(user=user).delete()
+
+    nb = ne = 0
+    for i, b in enumerate(blocks, start=1):
+        bn = _i(b.get("block_num")) or i
+        label = (str(b.get("label") or "").strip() or f"№{bn}")[:64]
+        WorkoutBlock.objects.update_or_create(
+            user=user, block_num=bn, defaults={"label": label, "active": True})
+        nb += 1
+        for ex in (b.get("exercises") or []):
+            name = (ex.get("exercise") or ex.get("name") or "").strip()
+            if not name:
+                continue
+            group = (ex.get("group") or ex.get("section") or "").strip()
+            met = _f(ex.get("met"))
+            dmin = _i(ex.get("default_min"))
+            if met is None or dmin is None:
+                est_met, est_min = calc.estimate_met(group, name)
+                met = met if met is not None else est_met
+                dmin = dmin if dmin is not None else est_min
+            WorkoutCatalog.objects.create(
+                user=user, block_num=bn, group=group[:64], exercise=name[:200],
+                sets=str(ex.get("sets") or "").strip()[:16],
+                reps=str(ex.get("reps") or "").strip()[:16],
+                weight=str(ex.get("weight") or "").strip()[:32],
+                note=str(ex.get("note") or "").strip()[:200],
+                met=met, default_min=dmin,
+            )
+            ne += 1
+    return ok({"ok": True, "blocks": nb, "exercises": ne,
+               "summary": f"План обновлён: {nb} блок(ов), {ne} упражнений."})
+
+
 def log_walking(request):
     """Дневная ходьба из приложения: км + темп → нет-MET расход. Upsert по (user, date).
     Общий потолок дневной цели (1.4×) в compute_dashboard не даёт лимиту раздуться."""
