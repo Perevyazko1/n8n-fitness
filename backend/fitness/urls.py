@@ -27,6 +27,7 @@ urlpatterns = [
     path("log-sport", views.log_sport),
     path("sport", views.sport),
     path("sport-delete", views.sport_delete),
+    path("log-water", views.log_water),
     path("profile", views.profile),
     path("profile-save", views.profile_save),
     path("profile-recalc", views.profile_recalc),

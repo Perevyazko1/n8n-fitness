@@ -8,7 +8,8 @@ import re
 from datetime import timedelta
 
 from .models import (
-    BodyParams, FoodLog, Streak, WalkingLog, WorkoutBlock, WorkoutCatalog, WorkoutDone, WorkoutLog,
+    BodyParams, FoodLog, Streak, WalkingLog, WaterLog, WorkoutBlock, WorkoutCatalog,
+    WorkoutDone, WorkoutLog,
 )
 
 # Лис стартует НЕЙТРАЛЬНЫМ (тамагочи: к телу юзера не привязываем — форма растёт/тает
@@ -400,6 +401,14 @@ def budget_breakdown(user, day):
     }
 
 
+def water_target(profile):
+    """Дневная цель по воде (мл): вес × 30, кратно 50. Фолбэк 2000, если веса нет."""
+    weight = (profile.weight_kg if profile else None) or 0
+    if weight <= 0:
+        return 2000
+    return int(round(weight * 30 / 50.0) * 50)
+
+
 def weekly_deficit(user, day, days=7):
     """Накопленный дефицит/профицит за последние `days` дней (вкл. сегодня):
     сумма (цель − съедено) по дням. Плюс = недобор (дефицит), минус = перебор.
@@ -478,6 +487,9 @@ def compute_dashboard(user, day):
     weekly = {"total": wk["total"], "avg": wk["avg"], "goal": wk["goal"],
               "days": wk["days"], "logged_days": wk["logged_days"]}
 
+    wrow = WaterLog.objects.filter(user=user, date=day).first()
+    water = {"ml": (wrow.ml if wrow else 0), "target_ml": water_target(profile)}
+
     return {
         "ok": True,
         "date": day.isoformat(),
@@ -485,6 +497,7 @@ def compute_dashboard(user, day):
         "kcal": kcal,
         "budget": bd,
         "weekly": weekly,
+        "water": water,
         "protein": protein,
         "fat": {"target": tf, "eaten": today_sum["fat"]},
         "carbs": {"target": tc, "eaten": today_sum["carbs"]},

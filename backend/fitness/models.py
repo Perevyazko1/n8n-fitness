@@ -152,6 +152,17 @@ class WalkingLog(models.Model):
         indexes = [models.Index(fields=["user", "date"])]
 
 
+class WaterLog(models.Model):
+    """Дневной счётчик воды (мл). Один апсерт-ряд на день."""
+    user = models.ForeignKey(TgUser, on_delete=models.CASCADE, related_name="water_log")
+    date = models.DateField()
+    ml = models.IntegerField(default=0)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [("user", "date")]
+
+
 class BodyParams(models.Model):
     user = models.ForeignKey(TgUser, on_delete=models.CASCADE, related_name="body_params")
     date = models.DateField()

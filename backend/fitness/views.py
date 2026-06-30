@@ -18,7 +18,7 @@ from django.utils import timezone
 
 from . import calc, platega, streak
 from .models import (
-    BodyParams, FoodLog, Payment, Product, Profile, WalkingLog, WorkoutBlock,
+    BodyParams, FoodLog, Payment, Product, Profile, WalkingLog, WaterLog, WorkoutBlock,
     WorkoutCatalog, WorkoutDone, WorkoutLog,
 )
 
@@ -761,6 +761,18 @@ def sport_delete(request):
     WalkingLog.objects.filter(user=user, id=rid, source="app_sport").delete()
     day = parse_date(request.payload.get("date")) or today()
     return ok({"ok": True, "budget": calc.budget_breakdown(user, day)})
+
+
+def log_water(request):
+    """Счётчик воды за сегодня: прибавить/убавить delta мл (upsert по дню, клампим ≥0)."""
+    user = request.tg_user
+    delta = _i(request.payload.get("delta")) or 0
+    day = today()
+    row, _ = WaterLog.objects.get_or_create(user=user, date=day, defaults={"ml": 0})
+    row.ml = max(0, (row.ml or 0) + delta)
+    row.save()
+    profile = getattr(user, "profile", None)
+    return ok({"ok": True, "ml": row.ml, "target_ml": calc.water_target(profile)})
 
 
 def scan_barcode(request):
