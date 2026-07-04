@@ -125,21 +125,32 @@ def _apply_streak(user, kind, day, ok, score_delta):
 
 def evaluate_day(user, day):
     """Оценивает день одного юзера, двигает обе серии, кэширует DayResult.
-    Возвращает список текстов для отправки этому юзеру."""
+    Возвращает список текстов для отправки этому юзеру.
+
+    Отключённый домен (nutrition_enabled/workout_enabled = False) НЕ двигает свою серию
+    и ось лисёнка, а в DayResult пишется None. DayResult при этом всё равно создаётся —
+    курсор catch_up (Max(date)) двигается, поэтому при повторном включении домена
+    прошлые «отключённые» дни не засчитаются задним числом как промахи."""
+    profile = getattr(user, "profile", None)
+    nutri_on = getattr(profile, "nutrition_enabled", True) if profile else True
+    workout_on = getattr(profile, "workout_enabled", True) if profile else True
+
     nutri_ok, belly_delta = nutrition_eval(user, day)
     w_opp, w_ok = workout_opportunity(user, day)
     muscle_delta = (MUSCLE_DONE if w_ok else MUSCLE_MISS) if w_opp else 0
 
     DayResult.objects.update_or_create(
         user=user, date=day,
-        defaults={"nutrition_ok": nutri_ok, "workout_ok": (w_ok if w_opp else None)},
+        defaults={"nutrition_ok": (nutri_ok if nutri_on else None),
+                  "workout_ok": (w_ok if (w_opp and workout_on) else None)},
     )
 
     msgs = []
-    m = _apply_streak(user, "nutrition", day, nutri_ok, belly_delta)
-    if m:
-        msgs.append(m)
-    if w_opp:  # форму/серию мышц двигаем только в трен-дни (отдых нейтрален)
+    if nutri_on:
+        m = _apply_streak(user, "nutrition", day, nutri_ok, belly_delta)
+        if m:
+            msgs.append(m)
+    if w_opp and workout_on:  # форму/серию мышц двигаем только в трен-дни (отдых нейтрален)
         m = _apply_streak(user, "workout", day, w_ok, muscle_delta)
         if m:
             msgs.append(m)
@@ -200,7 +211,7 @@ def meal_reminders(window, day):
     out = []
     for user in TgUser.objects.filter(approved=True):
         profile = getattr(user, "profile", None)
-        if not profile or not profile.notifications_enabled:
+        if not profile or not profile.notifications_enabled or not profile.nutrition_enabled:
             continue
         if FoodLog.objects.filter(user=user, date=day).exists():
             continue
@@ -215,7 +226,7 @@ def undereating_warnings(day):
     out = []
     for user in TgUser.objects.filter(approved=True):
         profile = getattr(user, "profile", None)
-        if not profile or not profile.notifications_enabled:
+        if not profile or not profile.notifications_enabled or not profile.nutrition_enabled:
             continue
         dash = calc.compute_dashboard(user, day)
         if not dash.get("ok"):

@@ -18,7 +18,7 @@ from django.utils import timezone
 
 from . import calc, platega, streak
 from .models import (
-    BodyParams, ExerciseLibrary, FoodLog, Payment, Product, Profile, WalkingLog, WaterLog,
+    BodyParams, ExerciseLibrary, FoodLog, Payment, Product, Profile, Streak, WalkingLog, WaterLog,
     WorkoutBlock, WorkoutCatalog, WorkoutDone, WorkoutLog,
 )
 
@@ -417,6 +417,9 @@ def profile(request):
         "target_kcal": p.target_kcal, "target_protein_g": p.target_protein_g,
         "target_fat_g": p.target_fat_g, "target_carbs_g": p.target_carbs_g,
         "notifications_enabled": p.notifications_enabled, "theme": p.theme or "light",
+        "nutrition_enabled": p.nutrition_enabled, "workout_enabled": p.workout_enabled,
+        "include_activity_kcal": p.include_activity_kcal,
+        "calorie_formula": p.calorie_formula or "mifflin",
     })
 
 
@@ -458,17 +461,48 @@ def profile_save(request):
     return ok({"ok": True})
 
 
+def _reset_streak_neutral(user, kind):
+    """Обнулить серию/ось лисёнка домена в нейтраль (при отключении отслеживания).
+    Ось лисёнка → 50 (нейтраль), серия → 0/active. Идемпотентно."""
+    s, _ = Streak.objects.get_or_create(user=user, kind=kind)
+    s.level_score = 50
+    s.current = 0
+    s.misses_in_row = 0
+    s.status = "active"
+    s.last_ok_date = None
+    s.last_eval_date = None
+    s.save()
+
+
 def prefs_save(request):
-    """Лёгкое сохранение преференсов Mini App (тема, тумблер уведомлений). НЕ трогает
-    параметры тела/КБЖУ — отдельно от profile-save, чтобы тоггл не затирал профиль."""
+    """Лёгкое сохранение преференсов Mini App (тема, уведомления, отслеживание доменов,
+    учёт активности в лимите, формула калорий). НЕ трогает параметры тела/КБЖУ — отдельно
+    от profile-save, чтобы тоггл не затирал профиль. При ОТКЛЮЧЕНИИ домена его серия и ось
+    лисёнка сбрасываются в нейтраль (см. _reset_streak_neutral)."""
     p = request.payload
     prof, _ = Profile.objects.get_or_create(user=request.tg_user)
     if p.get("notifications_enabled") is not None:
         prof.notifications_enabled = bool(p.get("notifications_enabled"))
     if p.get("theme") in ("light", "dark"):
         prof.theme = p.get("theme")
+    if p.get("nutrition_enabled") is not None:
+        prof.nutrition_enabled = bool(p.get("nutrition_enabled"))
+        if not prof.nutrition_enabled:
+            _reset_streak_neutral(request.tg_user, "nutrition")
+    if p.get("workout_enabled") is not None:
+        prof.workout_enabled = bool(p.get("workout_enabled"))
+        if not prof.workout_enabled:
+            _reset_streak_neutral(request.tg_user, "workout")
+    if p.get("include_activity_kcal") is not None:
+        prof.include_activity_kcal = bool(p.get("include_activity_kcal"))
+    if p.get("calorie_formula") in ("mifflin", "harris"):
+        prof.calorie_formula = p.get("calorie_formula")
     prof.save()
-    return ok({"ok": True, "notifications_enabled": prof.notifications_enabled, "theme": prof.theme})
+    return ok({"ok": True, "notifications_enabled": prof.notifications_enabled,
+               "theme": prof.theme, "nutrition_enabled": prof.nutrition_enabled,
+               "workout_enabled": prof.workout_enabled,
+               "include_activity_kcal": prof.include_activity_kcal,
+               "calorie_formula": prof.calorie_formula})
 
 
 def profile_recalc(request):

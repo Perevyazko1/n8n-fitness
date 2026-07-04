@@ -86,6 +86,14 @@ class Profile(models.Model):
     # (серии всё равно считаются, глушится только отправка). theme — "light" | "dark".
     notifications_enabled = models.BooleanField(default=True)
     theme = models.CharField(max_length=8, blank=True, default="light")
+    # Отслеживание по доменам: можно логировать только еду / только тренировки.
+    # Отключённый домен не двигает серию/ось лисёнка, глушит напоминания и прячет свой таб.
+    nutrition_enabled = models.BooleanField(default=True)
+    workout_enabled = models.BooleanField(default=True)
+    # Учитывать ли калории активности (тренировки/ходьба/спорт) в дневном лимите.
+    include_activity_kcal = models.BooleanField(default=True)
+    # Формула расчёта BMR: "mifflin" (Mifflin-St Jeor) | "harris" (Harris-Benedict).
+    calorie_formula = models.CharField(max_length=16, blank=True, default="mifflin")
     updated_at = models.DateTimeField(auto_now=True)
 
 

@@ -34,17 +34,30 @@ GOAL_MULT = {"lose": 0.8, "maintain": 1.0, "gain": 1.15}
 ACT_BASELINE = {"sedentary": 150, "light": 250, "moderate": 350, "active": 500, "very": 650}
 
 
-def recalc_targets(profile):
-    """ЕДИНАЯ динамическая модель: bmr (Mifflin), фон от активности, и БАЗОВАЯ дневная
-    цель (день без логированной активности) = clamp((bmr+фон)×goal). На дашборде сверху
-    добавляются реальные ходьба/тренировки. Возвращает dict полей для сохранения."""
+def _bmr(profile):
+    """BMR по выбранной формуле профиля (calorie_formula): mifflin | harris.
+    Обе используют вес/рост/возраст/пол — параметры уже собираем в профиле."""
     sex = "f" if str(profile.sex or "m").lower()[:1] in ("f", "ж") else "m"
     h = profile.height_cm or 0
     w = profile.weight_kg or 0
     a = profile.age or 0
+    formula = str(getattr(profile, "calorie_formula", None) or "mifflin").lower()
+    if formula == "harris":  # Harris-Benedict (пересмотр Roza-Shizgal, 1984)
+        if sex == "m":
+            return round(88.362 + 13.397 * w + 4.799 * h - 5.677 * a)
+        return round(447.593 + 9.247 * w + 3.098 * h - 4.330 * a)
+    # Mifflin-St Jeor (по умолчанию)
+    return round(10 * w + 6.25 * h - 5 * a + (5 if sex == "m" else -161))
+
+
+def recalc_targets(profile):
+    """ЕДИНАЯ динамическая модель: bmr (по выбранной формуле), фон от активности, и БАЗОВАЯ
+    дневная цель (день без логированной активности) = clamp((bmr+фон)×goal). На дашборде сверху
+    добавляются реальные ходьба/тренировки. Возвращает dict полей для сохранения."""
+    w = profile.weight_kg or 0
     baseline = ACT_BASELINE.get(str(profile.activity_level or "moderate").lower(), 350)
     gmult = GOAL_MULT.get(str(profile.goal or "maintain").lower(), 1.0)
-    bmr = round(10 * w + 6.25 * h - 5 * a + (5 if sex == "m" else -161))
+    bmr = _bmr(profile)
     floor = round(bmr * 1.1)
     ref = max(floor, round((bmr + baseline) * gmult))   # базовая цель (rest day), как в compute_dashboard
     tp = round(w * 1.8)
@@ -388,7 +401,10 @@ def budget_breakdown(user, day):
     floor = round(bmr * 1.1)
     cap = round((bmr + baseline) * mult * 1.4)
     base = max(floor, min(cap, round((bmr + baseline) * mult)))
-    activity_kcal = round((walk_kcal + workout_kcal) * mult)
+    # Если юзер отключил учёт активности в лимите — расход показываем честно (burned),
+    # но в дневной лимит НЕ добавляем (target = base, returned = 0).
+    include_activity = getattr(profile, "include_activity_kcal", True) if profile else True
+    activity_kcal = round((walk_kcal + workout_kcal) * mult) if include_activity else 0
     target = min(base + activity_kcal, cap)
     burned = round(walk_kcal + workout_kcal)            # сколько сожжено активностью всего
     returned = max(0, target - base)                    # сколько из этого реально в лимите
@@ -507,6 +523,10 @@ def compute_dashboard(user, day):
         "prefs": {
             "theme": profile.theme or "light",
             "notifications_enabled": profile.notifications_enabled,
+            "nutrition_enabled": profile.nutrition_enabled,
+            "workout_enabled": profile.workout_enabled,
+            "include_activity_kcal": profile.include_activity_kcal,
+            "calorie_formula": profile.calorie_formula or "mifflin",
         },
     }
 
