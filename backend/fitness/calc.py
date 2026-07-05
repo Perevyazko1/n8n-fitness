@@ -107,10 +107,12 @@ def belly_tier(score):
     return 3
 
 
-def ryzh_voice(streaks, muscle_score, belly_score, kcal, protein, workout_today):
+def ryzh_voice(streaks, muscle_score, belly_score, kcal, protein, workout_today,
+               nutrition_on=True, workout_on=True):
     """Реплика Рыжа для облачка на дашборде. Объясняет, ПОЧЕМУ он такой: связывает
     серии + форму (тиры мышц/живота) + сегодняшние КБЖУ. Возвращает строку (без «Рыж:»).
-    Приоритет — от срочного к фоновому: первое сработавшее правило и возвращаем."""
+    Приоритет — от срочного к фоновому: первое сработавшее правило и возвращаем.
+    nutrition_on/workout_on — отключённый домен не порождает своих реплик."""
     n = streaks.get("nutrition") or {}
     w = streaks.get("workout") or {}
     eaten = kcal.get("eaten") or 0
@@ -119,8 +121,8 @@ def ryzh_voice(streaks, muscle_score, belly_score, kcal, protein, workout_today)
 
     # На каждый слот — пара фраз (где есть), одна подставляется случайно. Без эмодзи.
 
-    # 1. ничего не съедено — голодный лис
-    if eaten <= 0:
+    # 1. ничего не съедено — голодный лис (только если следим за питанием)
+    if nutrition_on and eaten <= 0:
         return random.choice([
             "Урчит в животе! Закинь, что съел сегодня — и я приободрюсь.",
             "Я голодный как волк… ну, как лис. Запиши первый приём — оживу.",
@@ -134,37 +136,42 @@ def ryzh_voice(streaks, muscle_score, belly_score, kcal, protein, workout_today)
         ])
 
     # 3. длинная серия тренировок — лис в форме
-    if (w.get("current") or 0) >= 14:
+    if workout_on and (w.get("current") or 0) >= 14:
         return f"Тренируемся {w['current']} дней подряд — мышцы прут, я в топ-форме!"
 
     # 4. живот подрос — недавний перебор по калориям
-    if b_tier >= 2:
+    if nutrition_on and b_tier >= 2:
         return "Последние дни перебор — я нагулял бочок. Давай аккуратнее, и он сдуется."
 
     # 5. мышцы в тонусе
-    if m_tier >= 3:
+    if workout_on and m_tier >= 3:
         return "Мышцы в тонусе — держим режим, красавчик!"
 
     # 6. длинная серия питания
-    if (n.get("current") or 0) >= 7:
+    if nutrition_on and (n.get("current") or 0) >= 7:
         return f"Питание под контролем уже {n['current']} дней — так и держим!"
 
     # 7. сегодня перебор
-    if left < 0:
+    if nutrition_on and left < 0:
         return random.choice([
             f"Перебрали на {-left} ккал — бывает. Завтра подровняем, я рядом.",
             f"На {-left} ккал больше плана. Не страшно — держим курс дальше.",
         ])
 
     # 8. тренировка закрыта сегодня
-    if workout_today.get("is_workout") and workout_today.get("done"):
+    if workout_on and workout_today.get("is_workout") and workout_today.get("done"):
+        if nutrition_on:
+            return random.choice([
+                "Тренировка в кармане, питание в норме — ты сегодня машина!",
+                "Зал закрыт, еда под контролем. Горжусь, честно.",
+            ])
         return random.choice([
-            "Тренировка в кармане, питание в норме — ты сегодня машина!",
-            "Зал закрыт, еда под контролем. Горжусь, честно.",
+            "Тренировка в кармане — ты сегодня машина!",
+            "Зал закрыт, дело сделано. Горжусь, честно.",
         ])
 
     # 9. ещё есть запас по калориям
-    if left > 0:
+    if nutrition_on and left > 0:
         return random.choice([
             f"В запасе ещё {left} ккал — идём ровно, не сбавляй.",
             f"Осталось {left} ккал на день. Темп отличный, продолжаем.",
@@ -519,7 +526,9 @@ def compute_dashboard(user, day):
         "carbs": {"target": tc, "eaten": today_sum["carbs"]},
         "streaks": streaks,
         "avatar": avatar,
-        "ryzh_says": ryzh_voice(streaks, muscle_score, belly_score, kcal, protein, workout_today),
+        "ryzh_says": ryzh_voice(streaks, muscle_score, belly_score, kcal, protein, workout_today,
+                                nutrition_on=profile.nutrition_enabled,
+                                workout_on=profile.workout_enabled),
         "prefs": {
             "theme": profile.theme or "light",
             "notifications_enabled": profile.notifications_enabled,
