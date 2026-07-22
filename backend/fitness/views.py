@@ -318,9 +318,33 @@ def exercises(request):
 _PAY_SUCCESS = {"CONFIRMED", "SUCCESS", "PAID", "COMPLETED"}
 
 
+def _sub_plans():
+    """Тарифы подписки — единый источник истины (для paywall во фронте И для
+    начисления дней в колбэке). Цена в валюте провайдера (RUB), срок в днях."""
+    return {
+        "month": {"title": "Месяц", "price": settings.SUBSCRIPTION_PRICE_RUB,
+                  "days": settings.SUBSCRIPTION_DAYS},
+        "year":  {"title": "Год", "price": settings.SUBSCRIPTION_YEAR_PRICE_RUB,
+                  "days": settings.SUBSCRIPTION_YEAR_DAYS},
+    }
+
+
+def _resolve_plan(name):
+    """Нормализовать план из запроса/записи к известному тарифу (фолбэк — месяц)."""
+    plans = _sub_plans()
+    return plans.get(str(name or "month"), plans["month"])
+
+
+def _payments_live():
+    """Кнопку подписки можно жать: ключи Platega заданы И рубильник в .env включён."""
+    return bool(settings.SUBSCRIPTION_ENABLED and platega.configured())
+
+
 def subscription_status(request):
-    """Состояние подписки для фронта (paywall). `configured` — включены ли платежи
-    вообще: если нет, фронт остаётся на флаге («Скоро»)."""
+    """Состояние подписки для фронта (paywall). `enabled` — можно ли инициировать
+    оплату (ключи заданы И SUBSCRIPTION_ENABLED); если нет — фронт держит «Скоро».
+    `plans` — тарифы (цена/дни): фронт рисует цены отсюда, чтобы UI не расходился
+    со списанием."""
     u = request.tg_user
     until = u.subscription_until
     return ok({
@@ -328,23 +352,28 @@ def subscription_status(request):
         "active": u.subscription_active,
         "until": until.isoformat() if until else None,
         "configured": platega.configured(),
+        "enabled": _payments_live(),
         "price": settings.SUBSCRIPTION_PRICE_RUB,
         "currency": "RUB",
         "days": settings.SUBSCRIPTION_DAYS,
         "method": settings.SUBSCRIPTION_PAYMENT_METHOD,   # дефолтный способ (2=СБП)
+        "plans": _sub_plans(),
     })
 
 
 def subscription_create(request):
     """Создать платёж за подписку → вернуть ссылку на оплату Platega.
-    Пока платежи не настроены — отдаём payments_disabled (фронт показывает «Скоро»)."""
+    Пока платежи не настроены / выключены — отдаём payments_disabled (фронт «Скоро»)."""
     u = request.tg_user
-    if not platega.configured():
+    if not _payments_live():
         return ok({"ok": False, "error": "payments_disabled"}, status=503)
 
-    plan = str(request.payload.get("plan") or "monthly")[:32]
+    plan = str(request.payload.get("plan") or "month")[:32]
+    if plan not in _sub_plans():
+        plan = "month"
+    tariff = _resolve_plan(plan)
     method = platega.resolve_method(request.payload.get("method"))  # по умолчанию СБП(2)
-    amount = settings.SUBSCRIPTION_PRICE_RUB
+    amount = tariff["price"]                                         # цена ПО ПЛАНУ
     internal = f"sub:{u.telegram_id}:{plan}"
     pay = Payment.objects.create(user=u, amount=amount, currency="RUB", method=method,
                                  status="PENDING", plan=plan, payload=internal)
@@ -352,7 +381,7 @@ def subscription_create(request):
     try:
         res = platega.create_transaction(
             amount=amount, currency="RUB", payment_method=method,
-            description=f"Подписка Рыж ({plan})",
+            description=f"Подписка Рыж ({tariff['title']})",
             return_url=f"{base}/?paid=1", failed_url=f"{base}/?paid=0",
             payload=internal, user_id=u.telegram_id, user_name=u.first_name or "",
         )
@@ -390,8 +419,9 @@ def payments_platega_callback(request):
     if status in _PAY_SUCCESS and not was_success:
         u = pay.user
         now = timezone.now()
+        days = _resolve_plan(pay.plan)["days"]   # срок ПО ПЛАНУ (месяц/год)
         start = u.subscription_until if (u.subscription_until and u.subscription_until > now) else now
-        u.subscription_until = start + timedelta(days=settings.SUBSCRIPTION_DAYS)
+        u.subscription_until = start + timedelta(days=days)
         u.has_bot_access = True   # синхронизируем со старым флагом доступа к боту
         u.save(update_fields=["subscription_until", "has_bot_access"])
     return ok({"ok": True})

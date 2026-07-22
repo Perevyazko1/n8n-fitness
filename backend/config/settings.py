@@ -49,11 +49,21 @@ PLATEGA_CALLBACK_SECRET = env("PLATEGA_CALLBACK_SECRET", "")
 PUBLIC_BASE_URL = env("PUBLIC_BASE_URL", "https://perevyazko1.github.io/n8n-fitness-scan")
 # Параметры подписки (цена в рублях, срок в днях). TODO: уточнить, рубли это или
 # копейки в amount у Platega — пример в доке (amount:500, RUB) выглядит как рубли.
+# Месячный тариф:
 SUBSCRIPTION_PRICE_RUB = int(env("SUBSCRIPTION_PRICE_RUB", "299") or 299)
 SUBSCRIPTION_DAYS = int(env("SUBSCRIPTION_DAYS", "30") or 30)
+# Годовой тариф (в UI Mini App показан 2990 ₽ / 365 дн.). Цена/срок берутся ПО ПЛАНУ,
+# чтобы списание совпадало с выбранной карточкой (без этого «Год» списывал бы 299).
+SUBSCRIPTION_YEAR_PRICE_RUB = int(env("SUBSCRIPTION_YEAR_PRICE_RUB", "2990") or 2990)
+SUBSCRIPTION_YEAR_DAYS = int(env("SUBSCRIPTION_YEAR_DAYS", "365") or 365)
 # Способ оплаты по умолчанию (Platega paymentMethod). Сейчас только СБП(2), но
 # код принимает и другие (3=ЕРИП, 11=карта, 12=межд., 13=крипта) — см. platega.PAYMENT_METHODS.
 SUBSCRIPTION_PAYMENT_METHOD = int(env("SUBSCRIPTION_PAYMENT_METHOD", "2") or 2)
+# Рубильник кнопки подписки в Mini App: "0" → кнопка неактивна («Скоро») ДАЖЕ при
+# заданных ключах Platega. Удобно включать/выключать оплату из .env без правок кода.
+# По умолчанию включено (если ключи заданы). Выключить: SUBSCRIPTION_ENABLED=0
+SUBSCRIPTION_ENABLED = (env("SUBSCRIPTION_ENABLED", "1") or "1").strip().lower() \
+    not in ("0", "false", "no", "off", "")
 
 INSTALLED_APPS = [
     # contrib — нужны для веб-админки (/admin/)

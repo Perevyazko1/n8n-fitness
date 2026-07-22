@@ -98,7 +98,11 @@ services:
       - PUBLIC_BASE_URL=${PUBLIC_BASE_URL:-https://perevyazko1.github.io/n8n-fitness-scan}
       - SUBSCRIPTION_PRICE_RUB=${SUBSCRIPTION_PRICE_RUB:-299}
       - SUBSCRIPTION_DAYS=${SUBSCRIPTION_DAYS:-30}
+      - SUBSCRIPTION_YEAR_PRICE_RUB=${SUBSCRIPTION_YEAR_PRICE_RUB:-2990}
+      - SUBSCRIPTION_YEAR_DAYS=${SUBSCRIPTION_YEAR_DAYS:-365}
       - SUBSCRIPTION_PAYMENT_METHOD=${SUBSCRIPTION_PAYMENT_METHOD:-2}
+      # Рубильник кнопки подписки: 0 → «Скоро» даже при заданных ключах Platega.
+      - SUBSCRIPTION_ENABLED=${SUBSCRIPTION_ENABLED:-1}
       - TZ=${TZ:-Europe/Moscow}
     ports:
       - "127.0.0.1:8001:8001"
