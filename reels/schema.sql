@@ -73,6 +73,18 @@ CREATE TABLE IF NOT EXISTS reels_videos (
 
 CREATE INDEX IF NOT EXISTS reels_videos_script_idx ON reels_videos (script_id);
 
+-- Состояние пошагового диалога контент-бота (один активный «черновик» на чат).
+-- Нужна, т.к. формат/тип мема/голос/правки приходят разными сообщениями — надо
+-- помнить, на каком шаге чат и что уже выбрано. Живёт только до создания сценария.
+CREATE TABLE IF NOT EXISTS reels_session (
+    chat_id    bigint PRIMARY KEY,
+    step       text NOT NULL DEFAULT 'idle',   -- idle|format|memtype|collect|approve|edit
+    fmt        text,                            -- последовательность сегментов, напр. 'gen,mem,gen'
+    mem_kind   text,                            -- image | video (тип чужого мема)
+    draft      jsonb NOT NULL DEFAULT '{}'::jsonb,  -- транскрипт, таймлайн (RU+EN), ссылки на мемы, правки
+    updated_at timestamptz NOT NULL DEFAULT now()
+);
+
 -- Факт публикации (пока постим руками — строка ставится по кнопке «Запостил»).
 CREATE TABLE IF NOT EXISTS reels_posts (
     id         bigserial PRIMARY KEY,
