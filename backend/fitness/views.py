@@ -7,16 +7,17 @@ JSON-эндпоинты Mini App. Контракты совпадают с пр�
 """
 import hashlib
 import json
+import shutil
 from datetime import date as date_cls, timedelta
 from urllib.parse import quote
 from urllib.request import Request, urlopen
 
 from django.conf import settings
 from django.db import transaction
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
 
-from . import calc, platega, streak
+from . import calc, platega, reels, streak
 from .models import (
     BodyParams, ExerciseLibrary, FoodLog, Payment, Product, Profile, Streak, WalkingLog, WaterLog,
     WorkoutBlock, WorkoutCatalog, WorkoutDone, WorkoutLog,
@@ -295,6 +296,30 @@ def cron_refresh_exercises(request):
     deleted, _ = ExerciseLibrary.objects.exclude(key__in=seen).delete()
     return ok({"ok": True, "imported": created, "updated": updated,
                "deleted": deleted, "total": len(seen)})
+
+
+def reels_assemble(request):
+    """Сборщик Reels: таймлайн (ai/clip/image) → один вертикальный MP4. Сервер-сервер,
+    дёргает n8n по X-Cron-Secret (авторизация в middleware, ветка /api/reels/).
+    Отдаёт готовый MP4 бинарём — n8n forward'ит его в Telegram. БД не трогает.
+    Контракт входа — см. fitness/reels.py.
+
+    NB: рендер синхронный и может быть дольше gunicorn --timeout (60с) на длинных/
+    многосегментных роликах. Для теста (короткие ролики) ок; при удлинении — вынести
+    в фоновую задачу или поднять timeout только для этого маршрута."""
+    workdir = None
+    try:
+        final, workdir = reels.assemble(request.payload)
+        with open(final, "rb") as f:
+            data = f.read()
+    except reels.AssembleError as e:
+        return ok({"ok": False, "error": "assemble_failed", "detail": str(e)}, status=502)
+    finally:
+        if workdir:
+            shutil.rmtree(workdir, ignore_errors=True)
+    resp = HttpResponse(data, content_type="video/mp4")
+    resp["Content-Disposition"] = 'attachment; filename="reel.mp4"'
+    return resp
 
 
 def exercises(request):

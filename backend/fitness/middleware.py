@@ -52,6 +52,16 @@ class ApiMiddleware:
             request.tg_user = None
             return self._cors(self.get_response(request))
 
+        # reels-конвейер (n8n) — сервер-сервер: склейка таймлайна в MP4. Без initData,
+        # авторизация тем же секретом X-Cron-Secret. БД юзеров не касается → tg_user не нужен.
+        if request.path.startswith("/api/reels/"):
+            secret = request.headers.get("X-Cron-Secret", "")
+            if not settings.CRON_SECRET or secret != settings.CRON_SECRET:
+                return self._cors(JsonResponse({"ok": False, "error": "reels_auth"}, status=403))
+            request.payload = body
+            request.tg_user = None
+            return self._cors(self.get_response(request))
+
         # бот (n8n) — сервер-сервер: правки от LLM-коуча (например, замена плана). Без initData,
         # авторизация секретом X-Cron-Secret; пользователя резолвим из тела по telegram_id.
         if request.path.startswith("/api/bot/"):
