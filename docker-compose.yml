@@ -31,6 +31,17 @@ services:
       - CRON_SECRET=${CRON_SECRET}
       # Разрешаем built-in модуль crypto в Code-нодах (HMAC-валидация initData).
       - NODE_FUNCTION_ALLOW_BUILTIN=crypto
+      # --- История выполнений ---
+      # Прунинг в n8n включён по умолчанию (336 ч / 10 000 запусков), но наши воркфлоу
+      # тащат в payload целые дневники и ответы LLM, поэтому 10к запусков = ~1.4 ГБ
+      # database.sqlite. Ужимаем окно; ошибки за 7 дней для разбора остаются.
+      - EXECUTIONS_DATA_PRUNE=true
+      - EXECUTIONS_DATA_MAX_AGE=168            # часов = 7 дней
+      - EXECUTIONS_DATA_PRUNE_MAX_COUNT=2000
+      # SQLite не отдаёт место после DELETE — нужен VACUUM. По умолчанию выключен:
+      # он выполняется при КАЖДОМ старте и на большом файле держит n8n недоступным.
+      # Разовая чистка: N8N_SQLITE_VACUUM=true docker compose up -d n8n
+      - DB_SQLITE_VACUUM_ON_STARTUP=${N8N_SQLITE_VACUUM:-false}
     volumes:
       - n8n_data:/home/node/.n8n
     healthcheck:

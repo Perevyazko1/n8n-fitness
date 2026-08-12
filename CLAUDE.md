@@ -96,6 +96,18 @@ docker compose ps                 # статус
 docker compose pull && docker compose up -d   # обновление образа
 ```
 
+Разовая чистка истории выполнений n8n (`database.sqlite` пухнет от payload'ов —
+у нас в них целые дневники и ответы LLM). Окно хранения задано в compose
+(7 дней / 2000 запусков), VACUUM включается только на один старт:
+
+```bash
+docker compose up -d n8n                                  # применить новое окно хранения
+# подождать, пока прунинг удалит старое (soft delete раз в 60 мин, hard — раз в 15)
+N8N_SQLITE_VACUUM=true docker compose up -d n8n            # отдать место обратно ФС
+docker compose up -d n8n                                   # вернуть vacuum в false
+ls -la /var/lib/docker/volumes/n8n-fitness_n8n_data/_data/database.sqlite
+```
+
 Бэкап тома:
 
 ```bash
