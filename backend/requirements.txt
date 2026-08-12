@@ -1,4 +1,7 @@
-Django==5.1.4
+# Django 5.2 — LTS; поднят с 5.1.4 ради django-unfold (он требует django>=5.2).
+Django==5.2.17
+# Тема для /admin/ — сайдбар с группами, нормальные фильтры, действия-кнопки.
+django-unfold==0.104.1
 gunicorn==23.0.0
 psycopg2-binary==2.9.10
 openpyxl==3.1.5

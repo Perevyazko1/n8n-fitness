@@ -14,6 +14,8 @@ urlpatterns = [
     path("toggle-exercise", views.toggle_exercise),
     path("complete-workout", views.complete_workout),
     path("uncomplete-workout", views.uncomplete_workout),
+    path("workout-crowd", views.workout_crowd),
+    path("gym-crowd", views.gym_crowd),
     path("scan-barcode", views.scan_barcode),
     path("products", views.products),
     path("save-product", views.save_product),

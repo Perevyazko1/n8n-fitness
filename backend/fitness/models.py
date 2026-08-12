@@ -125,6 +125,11 @@ class WorkoutLog(models.Model):
     kcal_burned = models.IntegerField(null=True, blank=True)
     notes = models.TextField(blank=True, default="")
     source = models.CharField(max_length=32, blank=True, default="")  # bot|app|apple_watch
+    # тумблер «много людей в зале» на экране завершения. None = не отмечали.
+    crowd = models.BooleanField(null=True, blank=True)
+    # локальное время окончания тренировки (шлёт клиент). Нужно только для
+    # статистики загруженности «Пн 18:00 — обычно много»; для задним числом — None.
+    logged_time = models.TimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

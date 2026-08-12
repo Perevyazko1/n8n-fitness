@@ -8,7 +8,7 @@ JSON-эндпоинты Mini App. Контракты совпадают с пр�
 import hashlib
 import json
 import shutil
-from datetime import date as date_cls, timedelta
+from datetime import date as date_cls, time as time_cls, timedelta
 from urllib.parse import quote
 from urllib.request import Request, urlopen
 
@@ -36,6 +36,28 @@ def _i(v):
         return int(float(v)) if v not in (None, "") else None
     except (ValueError, TypeError):
         return None
+
+
+def _bool(v):
+    """None → «поле не прислали» (не трогаем), иначе строгий bool.
+    Фронт шлёт JSON true/false, бот может прислать строку."""
+    if v is None or v == "":
+        return None
+    if isinstance(v, bool):
+        return v
+    return str(v).strip().lower() in ("1", "true", "yes", "да")
+
+
+def _hhmm(v):
+    """\"18:40\" → datetime.time. Мусор/пусто → None."""
+    try:
+        h, m = str(v).strip().split(":")[:2]
+        h, m = int(h), int(m)
+    except (ValueError, TypeError, AttributeError):
+        return None
+    if not (0 <= h < 24 and 0 <= m < 60):
+        return None
+    return time_cls(hour=h, minute=m)
 
 
 # ---------- helpers ----------
@@ -211,10 +233,22 @@ def complete_workout(request):
     # ручной приоритет: если юзер задал расход — берём его
     override = _i(p.get("kcal_burned"))
     kcal = override if override is not None else kcal_auto
+    defaults = {"day_plan": label, "kcal_burned": kcal,
+                "duration_min": duration, "source": "app"}
+    # Загруженность зала. Кладём в defaults ТОЛЬКО если ключ реально пришёл —
+    # иначе повторное «Завершить» (или вызов из бота) затёрло бы отметку в None.
+    crowd = _bool(p.get("crowd"))
+    if crowd is not None:
+        defaults["crowd"] = crowd
+    # Время окончания — локальное клиентское; для задним числом фронт его не шлёт,
+    # и подставлять «сейчас» нельзя (испортит статистику по часам).
+    logged_time = _hhmm(p.get("time"))
+    if logged_time is None and day == today():
+        logged_time = timezone.localtime().time().replace(second=0, microsecond=0)
+    if logged_time is not None:
+        defaults["logged_time"] = logged_time
     obj, created = WorkoutLog.objects.update_or_create(
-        user=user, date=day,
-        defaults={"day_plan": label, "kcal_burned": kcal,
-                  "duration_min": duration, "source": "app"},
+        user=user, date=day, defaults=defaults,
     )
     return ok({"ok": True, "created": created, "kcal_burned": kcal,
                "budget": calc.budget_breakdown(user, day)})
@@ -228,6 +262,88 @@ def uncomplete_workout(request):
     day = parse_date(request.payload.get("date")) or today()
     deleted, _ = WorkoutLog.objects.filter(user=user, date=day).delete()
     return ok({"ok": True, "deleted": bool(deleted)})
+
+
+# ---------- загруженность зала ----------
+WEEKDAYS_RU = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
+CROWD_WINDOW_DAYS = 180   # глубже смотреть смысла нет: зал и расписание меняются
+CROWD_MIN_SAMPLES = 3     # меньше 3 отметок в слоте — это ещё не закономерность
+
+
+def workout_crowd(request):
+    """Переставить тумблер «много людей» у уже зафиксированной тренировки,
+    не пересчитывая заново ккал (отдельно от complete-workout)."""
+    user = request.tg_user
+    day = parse_date(request.payload.get("date")) or today()
+    crowd = _bool(request.payload.get("crowd"))
+    updated = WorkoutLog.objects.filter(user=user, date=day).update(crowd=crowd)
+    if not updated:
+        return ok({"ok": False, "error": "not_logged"}, status=400)
+    return ok({"ok": True, "crowd": crowd})
+
+
+def _gym_crowd_data(user, ref_day=None):
+    """Агрегация отметок загруженности по (день недели × 2-часовой слот).
+
+    Чистая функция (без request) — её удобно дёрнуть из manage.py shell.
+    Данных мало (~3 тренировки в неделю), поэтому считаем в Python, а не в SQL.
+    """
+    ref_day = ref_day or today()
+    since = ref_day - timedelta(days=CROWD_WINDOW_DAYS)
+    rows = list(
+        WorkoutLog.objects
+        .filter(user=user, date__gte=since, crowd__isnull=False, logged_time__isnull=False)
+        .order_by("-date")
+    )
+
+    buckets = {}
+    for r in rows:
+        key = (r.date.weekday(), r.logged_time.hour - r.logged_time.hour % 2)
+        b = buckets.setdefault(key, {"n": 0, "crowded": 0})
+        b["n"] += 1
+        b["crowded"] += 1 if r.crowd else 0
+
+    cells = []
+    for (wd, slot), b in sorted(buckets.items()):
+        pct = round(100 * b["crowded"] / b["n"])
+        cells.append({"wd": wd, "slot": slot, "n": b["n"], "crowded": b["crowded"], "pct": pct})
+
+    insights = []
+    for c in sorted(cells, key=lambda c: (-c["n"], c["wd"], c["slot"])):
+        if c["n"] < CROWD_MIN_SAMPLES:
+            continue
+        if c["pct"] >= 70:
+            verdict, cnt = "обычно много народу", c["crowded"]
+        elif c["pct"] <= 30:
+            verdict, cnt = "обычно свободно", c["n"] - c["crowded"]
+        else:
+            continue
+        insights.append({
+            "wd": c["wd"], "slot": c["slot"], "pct": c["pct"], "n": c["n"],
+            "text": "%s %02d:00–%02d:00 — %s (%d из %d)" % (
+                WEEKDAYS_RU[c["wd"]], c["slot"], c["slot"] + 2, verdict, cnt, c["n"]),
+        })
+
+    recent = [{
+        "date": r.date.isoformat(),
+        "wd": WEEKDAYS_RU[r.date.weekday()],
+        "time": r.logged_time.strftime("%H:%M"),
+        "crowd": r.crowd,
+        "label": r.day_plan,
+    } for r in rows[:10]]
+
+    return {
+        "ok": True,
+        "total": len(rows),
+        "min_samples": CROWD_MIN_SAMPLES,
+        "cells": cells,
+        "insights": insights[:3],
+        "recent": recent,
+    }
+
+
+def gym_crowd(request):
+    return ok(_gym_crowd_data(request.tg_user))
 
 
 # ---------- cron (серверные, токен-авторизация в middleware) ----------

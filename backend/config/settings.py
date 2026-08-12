@@ -7,6 +7,8 @@ Django settings — фитнес-API (Mini App backend).
 import os
 from pathlib import Path
 
+from django.urls import reverse_lazy
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -66,6 +68,11 @@ SUBSCRIPTION_ENABLED = (env("SUBSCRIPTION_ENABLED", "1") or "1").strip().lower()
     not in ("0", "false", "no", "off", "")
 
 INSTALLED_APPS = [
+    # unfold — тема админки; ДОЛЖНА идти строго перед django.contrib.admin,
+    # иначе Django возьмёт свои шаблоны и тема не применится.
+    "unfold",
+    "unfold.contrib.filters",  # фильтры-диапазоны (даты/числа) вместо бесконечных списков
+    "unfold.contrib.forms",    # стилизованные виджеты форм
     # contrib — нужны для веб-админки (/admin/)
     "django.contrib.admin",
     "django.contrib.auth",
@@ -155,6 +162,100 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
+
+
+# --- Тема админки (django-unfold) ------------------------------------------
+# Главное здесь — SIDEBAR.navigation: 16 моделей разложены по 4 смысловым группам,
+# иначе они висят одним плоским списком «FITNESS» и найти нужное тяжело.
+# Цвет primary — брендовый оранжевый Рыжа (--orange-600 #E85D1C из Mini App),
+# чтобы админка и приложение выглядели одним продуктом.
+UNFOLD = {
+    "SITE_TITLE": "Рыж — админка",
+    "SITE_HEADER": "Рыж",
+    "SITE_SUBHEADER": "фитнес-ассистент",
+    "SITE_SYMBOL": "fitness_center",   # Material Symbols
+    "SITE_URL": None,                  # «смотреть на сайте» не нужно: фронт — отдельный Mini App
+    "SHOW_HISTORY": True,
+    "SHOW_VIEW_ON_SITE": False,
+    "SHOW_LANGUAGES": False,
+    "COLORS": {
+        "primary": {
+            "50": "254 246 240",
+            "100": "253 234 221",
+            "200": "251 210 186",
+            "300": "247 176 138",
+            "400": "242 133 83",
+            "500": "238 108 46",
+            "600": "232 93 28",
+            "700": "192 73 20",
+            "800": "152 58 20",
+            "900": "122 49 20",
+            "950": "66 23 7",
+        },
+    },
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": True,
+        "navigation": [
+            {
+                "title": "Люди и доступ",
+                "separator": True,
+                "items": [
+                    {"title": "Пользователи", "icon": "person",
+                     "link": reverse_lazy("admin:fitness_tguser_changelist")},
+                    {"title": "Профили", "icon": "badge",
+                     "link": reverse_lazy("admin:fitness_profile_changelist")},
+                    {"title": "Платежи", "icon": "payments",
+                     "link": reverse_lazy("admin:fitness_payment_changelist")},
+                    {"title": "Лимиты бота", "icon": "speed",
+                     "link": reverse_lazy("admin:fitness_botusage_changelist")},
+                ],
+            },
+            {
+                "title": "Питание",
+                "separator": True,
+                "items": [
+                    {"title": "Дневник еды", "icon": "restaurant",
+                     "link": reverse_lazy("admin:fitness_foodlog_changelist")},
+                    {"title": "Вода", "icon": "water_drop",
+                     "link": reverse_lazy("admin:fitness_waterlog_changelist")},
+                    {"title": "Продукты", "icon": "shopping_basket",
+                     "link": reverse_lazy("admin:fitness_product_changelist")},
+                ],
+            },
+            {
+                "title": "Тренировки",
+                "separator": True,
+                "items": [
+                    {"title": "Завершённые тренировки", "icon": "exercise",
+                     "link": reverse_lazy("admin:fitness_workoutlog_changelist")},
+                    {"title": "Галочки упражнений", "icon": "checklist",
+                     "link": reverse_lazy("admin:fitness_workoutdone_changelist")},
+                    {"title": "Блоки плана", "icon": "view_week",
+                     "link": reverse_lazy("admin:fitness_workoutblock_changelist")},
+                    {"title": "Упражнения плана", "icon": "list_alt",
+                     "link": reverse_lazy("admin:fitness_workoutcatalog_changelist")},
+                    {"title": "Справочник упражнений", "icon": "menu_book",
+                     "link": reverse_lazy("admin:fitness_exerciselibrary_changelist")},
+                    {"title": "Ходьба и спорт", "icon": "directions_walk",
+                     "link": reverse_lazy("admin:fitness_walkinglog_changelist")},
+                ],
+            },
+            {
+                "title": "Прогресс и серии",
+                "separator": True,
+                "items": [
+                    {"title": "Замеры тела", "icon": "monitor_weight",
+                     "link": reverse_lazy("admin:fitness_bodyparams_changelist")},
+                    {"title": "Серии", "icon": "local_fire_department",
+                     "link": reverse_lazy("admin:fitness_streak_changelist")},
+                    {"title": "Итоги дня", "icon": "event_available",
+                     "link": reverse_lazy("admin:fitness_dayresult_changelist")},
+                ],
+            },
+        ],
+    },
+}
 
 LOGGING = {
     "version": 1,

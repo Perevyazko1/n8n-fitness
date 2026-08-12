@@ -614,6 +614,9 @@ def compute_workout(user, day, forced_block=None):
         "selected_block": selected,
         "label": label,
         "logged": bool(logged),
+        # отметка загруженности зала за этот день (тумблер в Mini App)
+        "crowd": logged.crowd if logged else None,
+        "logged_time": logged.logged_time.strftime("%H:%M") if logged and logged.logged_time else None,
         "exercises": block_exercises(user, day, selected) if selected else [],
         # расчётный расход по уже отмеченным упражнениям (для кнопки «Завершить»)
         "est_kcal": done_workout_stats(user, day, selected)[0] if selected else 0,
