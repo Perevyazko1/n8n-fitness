@@ -554,7 +554,10 @@ def block_exercises(user, day, block):
     profile = getattr(user, "profile", None)
     uw = (profile.weight_kg if profile else None) or 76
     out = []
-    for r in WorkoutCatalog.objects.filter(user=user, block_num=block):
+    # order_by("id") — порядок добавления упражнений = порядок выполнения. Без него
+    # Postgres отдаёт строки как попало: в утреннем сообщении и в Mini App группы
+    # («ГРУДЬ», «БИЦЕПС») рвутся и заголовки дублируются.
+    for r in WorkoutCatalog.objects.filter(user=user, block_num=block).order_by("id"):
         if not r.exercise:
             continue
         ex = r.exercise.strip()
