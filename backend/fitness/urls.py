@@ -45,6 +45,7 @@ urlpatterns = [
     # бот (n8n) сервер-сервер: /api/bot/* — секрет + telegram_id (см. middleware)
     path("bot/plan-apply", views.plan_apply),
     # cron (n8n по расписанию, авторизация по X-Cron-Secret)
+    path("cron/morning", views.cron_morning),
     path("cron/meal-reminders", views.cron_meal_reminders),
     path("cron/evaluate-day", views.cron_evaluate_day),
     path("cron/refresh-exercises", views.cron_refresh_exercises),

@@ -219,6 +219,82 @@ def meal_reminders(window, day):
     return out
 
 
+def morning_messages(day):
+    """[{chat_id, text}] — утренний план на день, ПО КАЖДОМУ approved-юзеру отдельно.
+
+    Раньше это считал JS-нод в n8n, который читал fitness_profile / fitness_workoutcatalog
+    БЕЗ WHERE user_id: план собирался из упражнений всех юзеров разом, а слался одному
+    (первому из выборки). Теперь всё считается тут, на тех же функциях, что и Mini App
+    (expected_today / block_exercises / GOAL_MULT) — один источник правды.
+    """
+    out = []
+    for user in TgUser.objects.filter(approved=True).select_related("profile"):
+        profile = getattr(user, "profile", None)
+        if not profile or not profile.notifications_enabled:
+            continue
+        text = _morning_text(user, profile, day)
+        if text:
+            out.append({"chat_id": user.telegram_id, "text": text})
+    return out
+
+
+def _morning_text(user, profile, day):
+    bmr = profile.bmr or 1600
+    baseline = profile.daily_baseline_kcal or 280
+    mult = calc.GOAL_MULT.get((profile.goal or "maintain").lower(), 1.0)
+    protein = round(profile.target_protein_g or 0)
+
+    exp = calc.expected_today(user, day) if profile.workout_enabled else {"type": "off"}
+
+    if exp["type"] == "workout":
+        exercises = calc.block_exercises(user, day, exp["number"])
+        plan_kcal = round(sum((e.get("kcal") or 0) for e in exercises))
+        lines = []
+        for e in exercises:
+            sets_reps = "×".join(x for x in (e["sets"], e["reps"]) if x)
+            tail = ", ".join(x for x in (sets_reps, e["weight"]) if x)
+            group = f"{e['group']}: " if e["group"] else ""
+            lines.append(f"- {group}{e['exercise']}" + (f", {tail}" if tail else ""))
+        expense = bmr + baseline + plan_kcal
+        parts = [
+            f"🌅 Доброе утро! Сегодня {exp['label']}.",
+            "",
+            "🎯 Ожидаемый расход:",
+            f"- BMR: {bmr} ккал",
+            f"- Повседневная: {baseline} ккал",
+            f"- Тренировка: ~{plan_kcal} ккал",
+            f"- Итого: ~{expense} ккал → цель ~{round(expense * mult)} ккал.",
+            "",
+            "💡 Каждые 30 мин ходьбы (3.5 км/ч) добавят ~107 ккал к бюджету.",
+            "",
+        ]
+        if lines:
+            parts += ["💪 План:"] + lines + [""]
+        parts += [f"🎯 Белок: {protein}г.", "", "Удачи! Жду отчёт вечером."]
+        return "\n".join(parts)
+
+    expense = bmr + baseline
+    parts = [
+        "🌅 Доброе утро! Сегодня день отдыха." if exp["type"] == "rest"
+        else "🌅 Доброе утро!",
+        "",
+        "🎯 Ожидаемый расход без активности:",
+        f"- BMR: {bmr} ккал",
+        f"- Повседневная: {baseline} ккал",
+        f"- Итого: ~{expense} ккал → цель ~{round(expense * mult)} ккал.",
+        "",
+        "💡 Чтобы добавить бюджет — походи. 30 мин = +107 ккал, 90 мин = +320 ккал.",
+        "",
+        f"🎯 Белок: {protein}г.",
+    ]
+    # какой блок будет следующим — только если тренировки вообще отслеживаются
+    if exp["type"] == "rest":
+        nxt = calc.expected_today(user, day + timedelta(days=exp.get("days_until_next") or 1))
+        if nxt["type"] == "workout":
+            parts += ["", f"💤 Следующая тренировка — {nxt['label']}."]
+    return "\n".join(parts)
+
+
 def undereating_warnings(day):
     """[{chat_id, text}] — на 22:00: кто за день съел < 50% плана ккал (в т.ч. 0).
     Рыж предупреждает, что день не пойдёт в серию и что недоедание — плохо.

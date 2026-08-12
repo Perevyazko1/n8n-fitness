@@ -360,6 +360,15 @@ def cron_meal_reminders(request):
     return ok({"ok": True, "window": window, "messages": msgs})
 
 
+def cron_morning(request):
+    """Утренний план на день по ВСЕМ approved-юзерам (крон 08:00). Возвращает
+    [{chat_id, text}] — n8n только разворачивает список и шлёт в Telegram.
+    Раньше текст собирал JS-нод в n8n, читавший таблицы без WHERE user_id."""
+    day = parse_date(request.payload.get("date")) or today()
+    msgs = streak.morning_messages(day)
+    return ok({"ok": True, "date": day.isoformat(), "messages": msgs})
+
+
 def cron_evaluate_day(request):
     """Оценка дня по всем юзерам: двигает серии, возвращает сообщения (вехи/заморозки/сбросы).
     По умолчанию (без явной даты в теле) оцениваем ВЧЕРАШНИЙ, уже полностью завершённый день:
