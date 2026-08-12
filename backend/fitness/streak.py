@@ -11,13 +11,15 @@ cron-эндпоинтами (n8n-крон по расписанию). Счита
   • Заморозка: 1 промах → frozen (серия на паузе + предупреждение),
                2-й промах подряд → серия сгорает (current=0). Успех всё размораживает.
 """
-from datetime import timedelta
+from datetime import date as date_cls, timedelta
 
 from django.db.models import Max
 from django.utils import timezone
 
 from . import calc
-from .models import DayResult, FoodLog, Streak, TgUser, WorkoutLog
+from .models import (
+    BodyParams, DayResult, FoodLog, Streak, TgUser, WalkingLog, WorkoutLog,
+)
 
 # --- порог «день засчитан» по питанию для СЕРИИ (крутить тут) ---
 NUTRI_KCAL_MIN_STREAK = 0.50  # для серии: съедено ≥ 50% плана (залогировал и не голодал в ноль)
@@ -236,6 +238,137 @@ def morning_messages(day):
         if text:
             out.append({"chat_id": user.telegram_id, "text": text})
     return out
+
+
+# --- недельная сводка (воскресенье 21:00) ---
+WEEKLY_PROTEIN_TOLERANCE = 10   # «белок добран», если не ниже цели больше чем на 10 г
+
+
+def weekly_reports(day):
+    """[{chat_id, text}] — итоги недели (7 дней, включая `day`) по каждому юзеру.
+
+    Раньше считал JS-нод в n8n: четыре запроса (еда/тренировки/ходьба/замеры) БЕЗ
+    WHERE user_id, а получатель — `profileRows.find(r => r.chat_id)`, то есть первый
+    профиль в выборке. Отчёт получал один человек, а цифры в нём были сложены по всем.
+    """
+    out = []
+    for user in TgUser.objects.filter(approved=True).select_related("profile"):
+        profile = getattr(user, "profile", None)
+        if not profile or not profile.notifications_enabled:
+            continue
+        text = _weekly_text(user, profile, day)
+        if text:
+            out.append({"chat_id": user.telegram_id, "text": text})
+    return out
+
+
+def _weekly_text(user, profile, day):
+    """Текст сводки или None, если оба домена отслеживания выключены."""
+    nutrition = profile.nutrition_enabled
+    workouts = profile.workout_enabled
+    if not nutrition and not workouts:
+        return None
+
+    start = day - timedelta(days=6)
+    lines = [f"📊 Итоги недели ({start.isoformat()} — {day.isoformat()})"]
+
+    if workouts:
+        logs = list(WorkoutLog.objects.filter(user=user, date__range=(start, day)).order_by("date"))
+        expected = 7 // max(1, profile.training_days_interval or 1)
+        burned = sum((w.kcal_burned or 0) for w in logs)
+        lines += ["", f"🏋 Тренировок: {len(logs)} из ~{expected} ожидаемых, "
+                      f"расход ~{round(burned)} ккал"]
+        for w in logs:
+            dur = f"{w.duration_min} мин" if w.duration_min else "? мин"
+            kcal = f"~{w.kcal_burned} ккал" if w.kcal_burned else "? ккал"
+            crowd = ""
+            if w.crowd is not None:
+                crowd = " · много народу" if w.crowd else " · свободно"
+            lines.append(f"- {w.day_plan or '?'} — {dur}, {kcal}{crowd}")
+
+        walks = list(WalkingLog.objects.filter(user=user, date__range=(start, day)))
+        walk_days = len({w.date for w in walks})
+        walk_min = sum((w.duration_min or 0) for w in walks)
+        walk_kcal = sum((w.kcal_burned or 0) for w in walks)
+        lines += ["", f"🚶 Ходьба: {walk_days} из 7 дней "
+                      f"(всего {walk_min} мин, ~{round(walk_kcal)} ккал)"]
+        if walk_days:
+            lines.append(f"- В среднем {round(walk_min / walk_days)} мин в день, когда ходил")
+        else:
+            lines.append("- За неделю ходьба ни разу не залогирована — при сидячей работе это слабо.")
+
+    # вес/жир показываем всегда: это прогресс тела, а не «питание»
+    body = list(BodyParams.objects.filter(user=user, date__range=(start, day)).order_by("date"))
+    weight_delta = None
+    with_weight = [b for b in body if b.weight]
+    if len(with_weight) >= 2:
+        w0, w1 = with_weight[0].weight, with_weight[-1].weight
+        weight_delta = w1 - w0
+        lines += ["", f"⚖️ Вес: {w0} → {w1} кг ({weight_delta:+.1f} кг)"]
+        f0, f1 = with_weight[0].body_fat_pct, with_weight[-1].body_fat_pct
+        if f0 and f1:
+            lines.append(f"📉 % жира: {f0} → {f1} ({f1 - f0:+.1f})")
+    elif len(with_weight) == 1:
+        lines += ["", f"⚖️ Вес: {with_weight[0].weight} кг (одно измерение, динамики нет)"]
+    else:
+        lines += ["", "⚖️ Вес: данных за неделю нет."]
+
+    if nutrition:
+        wk = calc.weekly_deficit(user, day, days=7)
+        logged = wk["logged_days"]
+        lines += ["", f"🍽 Еда: {logged} из 7 дней залогированы"]
+        if logged:
+            eaten_sum = sum(d["eaten"] for d in wk["per_day"] if d["logged"])
+            target_sum = sum(d["target"] for d in wk["per_day"] if d["logged"])
+            protein_target = round(profile.target_protein_g or 0)
+            protein_days, protein_sum = 0, 0.0
+            for d in wk["per_day"]:
+                if not d["logged"]:
+                    continue
+                got = calc._food_sum(user, date_cls.fromisoformat(d["date"]))["protein"]
+                protein_sum += got
+                if protein_target and got >= protein_target - WEEKLY_PROTEIN_TOLERANCE:
+                    protein_days += 1
+            lines.append(f"- Средние ккал: {round(eaten_sum / logged)} "
+                         f"(цель ~{round(target_sum / logged)})")
+            lines.append(f"- Средний белок: {round(protein_sum / logged)}г "
+                         f"(цель {protein_target}г)")
+            lines.append(f"- Белок добран в {protein_days} из {logged} дней "
+                         f"({round(100 * protein_days / logged)}%)")
+            sign = "дефицит" if wk["total"] >= 0 else "профицит"
+            lines.append(f"- Накопленный {sign}: {abs(wk['total'])} ккал "
+                         f"({abs(wk['avg'])} ккал/день)")
+
+    lines += ["", f"💡 {_weekly_verdict(weight_delta, profile)}"]
+    return "\n".join(lines)
+
+
+def _weekly_verdict(weight_delta, profile):
+    """Вердикт по темпу. Знак «хорошего» изменения веса зависит от ЦЕЛИ: на похудении
+    хотим минус, на массе — плюс. Старый n8n этого не учитывал и ругал набор веса
+    даже тем, кто набирает осознанно."""
+    if weight_delta is None:
+        return "Чтобы видеть динамику, взвешивайся хотя бы 1-2 раза в неделю."
+    goal = (profile.goal or "maintain").lower()
+    if goal == "gain":
+        if weight_delta > 0.7:
+            return "⚠️ Набор быстрее, чем нужно — часть уйдёт в жир. Сбавь профицит."
+        if weight_delta >= 0.2:
+            return "✅ Хороший темп набора. Продолжай."
+        return "😐 Масса не растёт — добавь калорий и следи за белком."
+    if goal == "lose":
+        if weight_delta < -1.2:
+            return "⚠️ Дефицит может быть слишком велик — подними ккал, чтобы не терять мышцы."
+        if weight_delta < -0.3:
+            return "✅ Отличный темп! Продолжай в том же духе."
+        if weight_delta <= 0.3:
+            return "😐 Темп тормозит — проверь точность подсчёта или добавь активности."
+        return "⚠️ Вес растёт — пересмотри размеры порций и проверь дефицит."
+    if abs(weight_delta) <= 0.5:
+        return "✅ Вес держится — ровно то, что нужно на поддержании."
+    return ("😐 Вес поехал вниз — если не планировал, добавь калорий."
+            if weight_delta < 0 else
+            "😐 Вес поехал вверх — проверь порции.")
 
 
 def workout_pings(day):

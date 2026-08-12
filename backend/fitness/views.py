@@ -377,6 +377,13 @@ def cron_workout_ping(request):
     return ok({"ok": True, "date": day.isoformat(), "messages": msgs})
 
 
+def cron_weekly(request):
+    """Итоги недели (крон вс 21:00) по всем approved-юзерам: [{chat_id, text}]."""
+    day = parse_date(request.payload.get("date")) or today()
+    msgs = streak.weekly_reports(day)
+    return ok({"ok": True, "date": day.isoformat(), "messages": msgs})
+
+
 def cron_evaluate_day(request):
     """Оценка дня по всем юзерам: двигает серии, возвращает сообщения (вехи/заморозки/сбросы).
     По умолчанию (без явной даты в теле) оцениваем ВЧЕРАШНИЙ, уже полностью завершённый день:
