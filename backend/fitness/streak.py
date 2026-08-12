@@ -239,55 +239,66 @@ def morning_messages(day):
 
 
 def _morning_text(user, profile, day):
+    """Текст утреннего сообщения или None, если юзеру нечего сказать.
+
+    Уважает оба тумблера отслеживания из профиля: при выключенном питании блок
+    про калории/белок не показываем вовсе (у юзера нет дневного лимита), при
+    выключенных тренировках — не показываем план. Выключено и то и другое → None.
+    """
+    nutrition = profile.nutrition_enabled
+    exp = calc.expected_today(user, day) if profile.workout_enabled else {"type": "off"}
+    if not nutrition and exp["type"] == "off":
+        return None
+
     bmr = profile.bmr or 1600
     baseline = profile.daily_baseline_kcal or 280
     mult = calc.GOAL_MULT.get((profile.goal or "maintain").lower(), 1.0)
     protein = round(profile.target_protein_g or 0)
 
-    exp = calc.expected_today(user, day) if profile.workout_enabled else {"type": "off"}
-
     if exp["type"] == "workout":
         exercises = calc.block_exercises(user, day, exp["number"])
         plan_kcal = round(sum((e.get("kcal") or 0) for e in exercises))
+        parts = [f"🌅 Доброе утро! Сегодня {exp['label']}."]
+        if nutrition:
+            expense = bmr + baseline + plan_kcal
+            parts += [
+                "",
+                "🎯 Ожидаемый расход:",
+                f"- BMR: {bmr} ккал",
+                f"- Повседневная: {baseline} ккал",
+                f"- Тренировка: ~{plan_kcal} ккал",
+                f"- Итого: ~{expense} ккал → цель ~{round(expense * mult)} ккал.",
+                "",
+                "💡 Каждые 30 мин ходьбы (3.5 км/ч) добавят ~107 ккал к бюджету.",
+            ]
         lines = []
         for e in exercises:
             sets_reps = "×".join(x for x in (e["sets"], e["reps"]) if x)
             tail = ", ".join(x for x in (sets_reps, e["weight"]) if x)
             group = f"{e['group']}: " if e["group"] else ""
             lines.append(f"- {group}{e['exercise']}" + (f", {tail}" if tail else ""))
-        expense = bmr + baseline + plan_kcal
-        parts = [
-            f"🌅 Доброе утро! Сегодня {exp['label']}.",
-            "",
-            "🎯 Ожидаемый расход:",
-            f"- BMR: {bmr} ккал",
-            f"- Повседневная: {baseline} ккал",
-            f"- Тренировка: ~{plan_kcal} ккал",
-            f"- Итого: ~{expense} ккал → цель ~{round(expense * mult)} ккал.",
-            "",
-            "💡 Каждые 30 мин ходьбы (3.5 км/ч) добавят ~107 ккал к бюджету.",
-            "",
-        ]
         if lines:
-            parts += ["💪 План:"] + lines + [""]
-        parts += [f"🎯 Белок: {protein}г.", "", "Удачи! Жду отчёт вечером."]
+            parts += ["", "💪 План:"] + lines
+        if nutrition:
+            parts += ["", f"🎯 Белок: {protein}г."]
+        parts += ["", "Удачи! Жду отчёт вечером."]
         return "\n".join(parts)
 
-    expense = bmr + baseline
-    parts = [
-        "🌅 Доброе утро! Сегодня день отдыха." if exp["type"] == "rest"
-        else "🌅 Доброе утро!",
-        "",
-        "🎯 Ожидаемый расход без активности:",
-        f"- BMR: {bmr} ккал",
-        f"- Повседневная: {baseline} ккал",
-        f"- Итого: ~{expense} ккал → цель ~{round(expense * mult)} ккал.",
-        "",
-        "💡 Чтобы добавить бюджет — походи. 30 мин = +107 ккал, 90 мин = +320 ккал.",
-        "",
-        f"🎯 Белок: {protein}г.",
-    ]
-    # какой блок будет следующим — только если тренировки вообще отслеживаются
+    parts = ["🌅 Доброе утро! Сегодня день отдыха." if exp["type"] == "rest"
+             else "🌅 Доброе утро!"]
+    if nutrition:
+        expense = bmr + baseline
+        parts += [
+            "",
+            "🎯 Ожидаемый расход без активности:",
+            f"- BMR: {bmr} ккал",
+            f"- Повседневная: {baseline} ккал",
+            f"- Итого: ~{expense} ккал → цель ~{round(expense * mult)} ккал.",
+            "",
+            "💡 Чтобы добавить бюджет — походи. 30 мин = +107 ккал, 90 мин = +320 ккал.",
+            "",
+            f"🎯 Белок: {protein}г.",
+        ]
     if exp["type"] == "rest":
         nxt = calc.expected_today(user, day + timedelta(days=exp.get("days_until_next") or 1))
         if nxt["type"] == "workout":
