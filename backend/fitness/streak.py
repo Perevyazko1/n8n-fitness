@@ -11,6 +11,7 @@ cron-эндпоинтами (n8n-крон по расписанию). Счита
   • Заморозка: 1 промах → frozen (серия на паузе + предупреждение),
                2-й промах подряд → серия сгорает (current=0). Успех всё размораживает.
 """
+import html
 from datetime import date as date_cls, timedelta
 
 from django.db.models import Max
@@ -39,6 +40,18 @@ BELLY_IN = 8       # КБЖУ в коридоре → живот уходит
 BELLY_OVER = -8    # переел (>110% ккал) → живот растёт
 MUSCLE_DONE = 8    # плановая трен выполнена → мышцы растут
 MUSCLE_MISS = -10  # плановую трен пропустил → мышцы уходят (запущенность наказуема)
+
+def esc(value):
+    """Экранирует текст для Telegram parse_mode=HTML.
+
+    Telegram-нода n8n при пустом parse_mode молча включает Markdown, поэтому во
+    всех воркфлоу он выставлен в HTML явно. В HTML-режиме сырые < > & в тексте
+    дают 400 «can't parse entities», и сообщение не уходит ВООБЩЕ. Через нас
+    проходят пользовательские строки (названия упражнений и блоков, day_plan),
+    поэтому их прогоняем здесь. Разметку мы не используем — экранируем всё.
+    """
+    return html.escape(str(value), quote=False)
+
 
 KIND_EMOJI = {"nutrition": "🍽", "workout": "🏋"}
 KIND_WORD = {"nutrition": "по питанию", "workout": "по тренировкам"}
@@ -284,7 +297,7 @@ def _weekly_text(user, profile, day):
             crowd = ""
             if w.crowd is not None:
                 crowd = " · много народу" if w.crowd else " · свободно"
-            lines.append(f"- {w.day_plan or '?'} — {dur}, {kcal}{crowd}")
+            lines.append(f"- {esc(w.day_plan or '?')} — {dur}, {kcal}{crowd}")
 
         walks = list(WalkingLog.objects.filter(user=user, date__range=(start, day)))
         walk_days = len({w.date for w in walks})
@@ -392,7 +405,7 @@ def workout_pings(day):
         exp = calc.expected_today(user, day)
         label = exp.get("label") or "тренировка"
         out.append({"chat_id": user.telegram_id, "text": (
-            f"🏋 Эй! Сегодня по плану была тренировка {label}, а отчёта от тебя нет. "
+            f"🏋 Эй! Сегодня по плану была тренировка {esc(label)}, а отчёта от тебя нет. "
             "Что случилось?\n\n"
             "Если всё-таки тренировался — отметь упражнения в приложении и нажми "
             "«Завершить»: день ещё успеет уйти в серию 🔥"
@@ -420,7 +433,7 @@ def _morning_text(user, profile, day):
     if exp["type"] == "workout":
         exercises = calc.block_exercises(user, day, exp["number"])
         plan_kcal = round(sum((e.get("kcal") or 0) for e in exercises))
-        parts = [f"🌅 Доброе утро! Сегодня {exp['label']}."]
+        parts = [f"🌅 Доброе утро! Сегодня {esc(exp['label'])}."]
         if nutrition:
             expense = bmr + baseline + plan_kcal
             parts += [
@@ -437,8 +450,9 @@ def _morning_text(user, profile, day):
         for e in exercises:
             sets_reps = "×".join(x for x in (e["sets"], e["reps"]) if x)
             tail = ", ".join(x for x in (sets_reps, e["weight"]) if x)
-            group = f"{e['group']}: " if e["group"] else ""
-            lines.append(f"- {group}{e['exercise']}" + (f", {tail}" if tail else ""))
+            group = f"{esc(e['group'])}: " if e["group"] else ""
+            lines.append(f"- {group}{esc(e['exercise'])}"
+                         + (f", {esc(tail)}" if tail else ""))
         if lines:
             parts += ["", "💪 План:"] + lines
         if nutrition:
@@ -464,7 +478,7 @@ def _morning_text(user, profile, day):
     if exp["type"] == "rest":
         nxt = calc.expected_today(user, day + timedelta(days=exp.get("days_until_next") or 1))
         if nxt["type"] == "workout":
-            parts += ["", f"💤 Следующая тренировка — {nxt['label']}."]
+            parts += ["", f"💤 Следующая тренировка — {esc(nxt['label'])}."]
     return "\n".join(parts)
 
 
