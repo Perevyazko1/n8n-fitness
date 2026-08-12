@@ -238,6 +238,35 @@ def morning_messages(day):
     return out
 
 
+def workout_pings(day):
+    """[{chat_id, text}] — вечерний пинг (23:00) тем, у кого сегодня по циклу была
+    тренировка, но подтверждения нет.
+
+    Раньше считал JS-нод в n8n, который читал fitness_workoutlog БЕЗ WHERE user_id:
+    «последняя тренировка» и «залогировано сегодня» брались по всем юзерам разом —
+    достаточно было ОДНОМУ подтвердить трен, и пинг не получал никто. Плюс названия
+    блоков были захардкожены (№1..№4) и цикл считался по модулю 4, игнорируя
+    fitness_workoutblock. Теперь всё через expected_today, как в Mini App.
+    """
+    out = []
+    for user in TgUser.objects.filter(approved=True).select_related("profile"):
+        profile = getattr(user, "profile", None)
+        if not profile or not profile.notifications_enabled or not profile.workout_enabled:
+            continue
+        opportunity, done = workout_opportunity(user, day)
+        if not opportunity or done:
+            continue
+        exp = calc.expected_today(user, day)
+        label = exp.get("label") or "тренировка"
+        out.append({"chat_id": user.telegram_id, "text": (
+            f"🏋 Эй! Сегодня по плану была тренировка {label}, а отчёта от тебя нет. "
+            "Что случилось?\n\n"
+            "Если всё-таки тренировался — отметь упражнения в приложении и нажми "
+            "«Завершить»: день ещё успеет уйти в серию 🔥"
+        )})
+    return out
+
+
 def _morning_text(user, profile, day):
     """Текст утреннего сообщения или None, если юзеру нечего сказать.
 

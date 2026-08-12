@@ -369,6 +369,14 @@ def cron_morning(request):
     return ok({"ok": True, "date": day.isoformat(), "messages": msgs})
 
 
+def cron_workout_ping(request):
+    """Вечерний пинг (крон 23:00): у кого сегодня был трен-день по циклу, но нет
+    подтверждения. Возвращает [{chat_id, text}] — n8n только шлёт в Telegram."""
+    day = parse_date(request.payload.get("date")) or today()
+    msgs = streak.workout_pings(day)
+    return ok({"ok": True, "date": day.isoformat(), "messages": msgs})
+
+
 def cron_evaluate_day(request):
     """Оценка дня по всем юзерам: двигает серии, возвращает сообщения (вехи/заморозки/сбросы).
     По умолчанию (без явной даты в теле) оцениваем ВЧЕРАШНИЙ, уже полностью завершённый день:

@@ -47,6 +47,7 @@ urlpatterns = [
     # cron (n8n по расписанию, авторизация по X-Cron-Secret)
     path("cron/morning", views.cron_morning),
     path("cron/meal-reminders", views.cron_meal_reminders),
+    path("cron/workout-ping", views.cron_workout_ping),
     path("cron/evaluate-day", views.cron_evaluate_day),
     path("cron/refresh-exercises", views.cron_refresh_exercises),
     # reels-конвейер (n8n сервер-сервер): склейка таймлайна в MP4. X-Cron-Secret.
