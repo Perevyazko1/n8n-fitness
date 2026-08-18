@@ -249,7 +249,10 @@ class Streak(models.Model):
     misses_in_row = models.IntegerField(default=0)       # промахов подряд (для заморозки)
     status = models.CharField(max_length=8, choices=STATUS_CHOICES, default="active")
     last_ok_date = models.DateField(null=True, blank=True)   # последний засчитанный день
-    last_eval_date = models.DateField(null=True, blank=True)  # последний оценённый день (идемпотентность)
+    last_eval_date = models.DateField(null=True, blank=True)  # последний оценённый день (для сообщений)
+    # с какой даты считать историю (пересчёт серии/формы). Ставится при отключении домена,
+    # чтобы после повторного включения старые дни не воскресли. None → вся история.
+    history_from = models.DateField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -257,12 +260,18 @@ class Streak(models.Model):
 
 
 class DayResult(models.Model):
-    """Кэш дневной оценки (для истории/календаря + идемпотентности).
-    workout_ok = NULL → день не был тренировочным по циклу (нейтральный для серии)."""
+    """Дневная оценка — ЕДИНСТВЕННЫЙ источник правды по сериям и форме лисёнка.
+    Серия и level_score не накапливаются инкрементом, а пересчитываются из этих строк
+    (см. streak.replay_state), поэтому переоценка дня всегда самолечится.
+
+    *_ok = NULL → день нейтральный (не тренировочный по циклу / домен отключён).
+    belly_delta = вклад дня в живот лисёнка (коридор/перебор/недобор — по флагу дня
+    не восстанавливается, поэтому храним). Ось мышц из флага выводится, её не храним."""
     user = models.ForeignKey(TgUser, on_delete=models.CASCADE, related_name="day_results")
     date = models.DateField()
     nutrition_ok = models.BooleanField(null=True, blank=True)
     workout_ok = models.BooleanField(null=True, blank=True)
+    belly_delta = models.IntegerField(null=True, blank=True)    # ось живота (питание)
     evaluated_at = models.DateTimeField(auto_now=True)
 
     class Meta:

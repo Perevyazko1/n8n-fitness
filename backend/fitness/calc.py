@@ -223,7 +223,10 @@ def expected_today(user, day):
     profile = getattr(user, "profile", None)
     interval = (profile.training_days_interval if profile else None) or 1
 
-    last = WorkoutLog.objects.filter(user=user).order_by("date").last()
+    # ВАЖНО: якорь цикла — последняя тренировка НЕ ПОЗЖЕ `day`. Раньше брался глобально
+    # последний лог, и ответ на «был ли день D тренировочным» зависел от момента вопроса:
+    # при оценке прошедшего дня поздняя тренировка сдвигала цикл и рождала фантомные промахи.
+    last = WorkoutLog.objects.filter(user=user, date__lte=day).order_by("date").last()
     state = blocks_state(user)
     active = sorted(n for n, v in state.items() if v["active"])
 

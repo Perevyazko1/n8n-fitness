@@ -296,7 +296,7 @@ class BodyParamsAdmin(UserScopedAdmin):
 @admin.register(Streak)
 class StreakAdmin(UserScopedAdmin):
     list_display = ("user_label", "kind", "current", "longest", "level_score", "status_badge",
-                    "misses_in_row", "last_ok_date", "last_eval_date")
+                    "misses_in_row", "last_ok_date", "last_eval_date", "history_from")
     list_filter = (("kind", ChoicesDropdownFilter), ("status", ChoicesDropdownFilter))
     search_fields = ("=user__telegram_id", "user__first_name")
     ordering = ("user", "kind")
@@ -309,7 +309,8 @@ class StreakAdmin(UserScopedAdmin):
 
 @admin.register(DayResult)
 class DayResultAdmin(UserScopedAdmin):
-    list_display = ("user_label", "date", "nutrition_ok", "workout_ok", "evaluated_at")
+    list_display = ("user_label", "date", "nutrition_ok", "workout_ok",
+                    "belly_delta", "evaluated_at")
     list_filter = (("date", RangeDateFilter), "nutrition_ok", "workout_ok")
     search_fields = ("=user__telegram_id", "user__first_name")
     date_hierarchy = "date"

@@ -10,6 +10,14 @@ cron-эндпоинтами (n8n-крон по расписанию). Счита
       workout   — выполнил плановую тренировку (или по циклу был отдых → день нейтральный).
   • Заморозка: 1 промах → frozen (серия на паузе + предупреждение),
                2-й промах подряд → серия сгорает (current=0). Успех всё размораживает.
+  • Форма лисёнка живёт по тем же правилам прощения: прощённый заморозкой промах тело
+    НЕ откатывает (в этот день просто нет прибавки), откат — только когда серия сгорела.
+
+Состояние серии и формы лисёнка НЕ накапливается инкрементом: `Streak` — это кэш, а
+источник правды — строки `DayResult`. Любая оценка дня пишет строку и следом гоняет
+`replay_state()` по всей истории (см. ниже). Так переоценка дня самолечится, а счётчик
+серии и «тело» лиса не могут разъехаться (раньше могли: гард идемпотентности пропускал
+инкремент, а строку DayResult при этом перезаписывал).
 """
 import html
 from datetime import date as date_cls, timedelta
@@ -29,6 +37,9 @@ NUTRI_KCAL_MIN_STREAK = 0.50  # для серии: съедено ≥ 50% пла
 NUTRI_KCAL_LOW = 0.80   # ниже — «недоел», тело не трогаем
 NUTRI_KCAL_HIGH = 1.10  # выше — «переел», живот растёт
 
+# сколько последних дней переоценивать при догоне (данные доезжают с опозданием)
+RECHECK_DAYS = 3
+
 # на каких значениях серии слать поздравление (иначе тихо — видно в приложении)
 MILESTONES = {3, 7, 14, 21, 30, 50, 75, 100, 150, 200, 300, 365}
 
@@ -39,7 +50,10 @@ MILESTONES = {3, 7, 14, 21, 30, 50, 75, 100, 150, 200, 300, 365}
 BELLY_IN = 8       # КБЖУ в коридоре → живот уходит
 BELLY_OVER = -8    # переел (>110% ккал) → живот растёт
 MUSCLE_DONE = 8    # плановая трен выполнена → мышцы растут
-MUSCLE_MISS = -10  # плановую трен пропустил → мышцы уходят (запущенность наказуема)
+# ВАЖНО: штраф вешаем только на промах, который РЕАЛЬНО сжигает серию (второй подряд).
+# Первый промах серия прощает заморозкой — значит и лис его прощает: тело не откатывается,
+# буст просто не начисляется. Иначе «прощённый» день всё равно тормозил рост аватара.
+MUSCLE_MISS = -10  # промах, сжёгший серию → мышцы уходят (запущенность наказуема)
 
 def esc(value):
     """Экранирует текст для Telegram parse_mode=HTML.
@@ -97,94 +111,170 @@ def workout_opportunity(user, day):
     return False, False     # по циклу отдых → нейтрально
 
 
-def _apply_streak(user, kind, day, ok, score_delta):
-    """Двигает серию (счётчик/заморозка) по `ok` и форму лисёнка по `score_delta`
-    (двунаправленно, по факту дня). Возвращает текст уведомления (или None)."""
-    profile = getattr(user, "profile", None)
-    s, _ = Streak.objects.get_or_create(
-        user=user, kind=kind,
-        defaults={"level_score": calc.initial_score(profile, kind)},
-    )
-    if s.last_eval_date == day:   # уже оценивали этот день — идемпотентность
-        return None
-    s.last_eval_date = day
-    emoji, word = KIND_EMOJI[kind], KIND_WORD[kind]
-    msg = None
+# оси лисёнка ↔ поля DayResult: (флаг дня, хранимый вклад в форму | None — выводим сами)
+KIND_FIELDS = {"nutrition": ("nutrition_ok", "belly_delta"),
+               "workout": ("workout_ok", None)}
+
+
+def _muscle_delta(ok, misses_in_row):
+    """Вклад трен-дня в мышцы. Промах штрафует ТОЛЬКО когда он сжёг серию (2-й подряд):
+    прощённый серией день не должен тормозить рост аватара (см. MUSCLE_MISS)."""
     if ok:
-        s.current += 1
-        s.misses_in_row = 0
-        s.status = "active"
-        s.last_ok_date = day
-        if s.current > s.longest:
-            s.longest = s.current
-        if s.current in MILESTONES:
-            msg = f"{emoji}🔥 Серия {word}: {s.current} дн подряд! Так держать."
-    else:
-        s.misses_in_row += 1
-        if s.misses_in_row >= 2:
-            lost = s.current
-            s.current = 0
-            s.status = "reset"
-            if lost > 0:
-                msg = f"💔 Серия {word} сгорела (была {lost} дн). Ничего — начинаем заново, погнали!"
+        return MUSCLE_DONE
+    return MUSCLE_MISS if misses_in_row >= 2 else 0
+
+
+def _legacy_belly_delta(ok):
+    """Вклад дня в живот для СТАРЫХ строк DayResult, записанных до появления belly_delta.
+    «Не засчитан» неоднозначен (недоел или переел) — берём нейтраль, чтобы не наказывать
+    задним числом за то, чего мы уже не знаем."""
+    return BELLY_IN if ok else 0
+
+
+def replay_state(user, kind, upto=None):
+    """Пересчитать состояние домена из истории DayResult (единственный источник правды).
+
+    Идём по дням в хронологическом порядке, нейтральные дни (флаг NULL) пропускаем:
+    серия — те же правила заморозки, форма — сумма дневных вкладов от нейтрали 50 с
+    клампом 0..100. Начало истории — `Streak.history_from` (ставится при отключении
+    домена, чтобы старые дни не воскресли при повторном включении).
+
+    Возвращает (state, transitions), где transitions = {date: (было, стало)} по дням,
+    на которых серия реально изменилась — из них собираются сообщения.
+    """
+    ok_field, delta_field = KIND_FIELDS[kind]
+    fields = ["date", ok_field] + ([delta_field] if delta_field else [])
+    s = Streak.objects.filter(user=user, kind=kind).first()
+    rows = DayResult.objects.filter(user=user).exclude(**{ok_field: None})
+    if s and s.history_from:
+        rows = rows.filter(date__gte=s.history_from)
+    if upto:
+        rows = rows.filter(date__lte=upto)
+
+    st = {"current": 0, "longest": 0, "misses_in_row": 0, "status": "active",
+          "last_ok_date": None, "last_eval_date": None,
+          "level_score": calc.NEUTRAL_START}
+    transitions = {}
+    for row in rows.order_by("date").values(*fields):
+        day, ok = row["date"], row[ok_field]
+        before = dict(st)
+        if ok:
+            st["current"] += 1
+            st["misses_in_row"] = 0
+            st["status"] = "active"
+            st["last_ok_date"] = day
+            st["longest"] = max(st["longest"], st["current"])
         else:
-            s.status = "frozen"
-            if s.current > 0:
-                msg = (f"⚠️ Сегодня не закрыл день {word} — серия {emoji}🔥{s.current} "
-                       f"заморожена. Ещё один пропуск и сгорит!")
-    # форма лисёнка двигается по факту дня, НЕЗАВИСИМО от заморозки серии
-    s.level_score = max(0, min(100, s.level_score + score_delta))
+            st["misses_in_row"] += 1
+            if st["misses_in_row"] >= 2:
+                st["current"] = 0
+                st["status"] = "reset"
+            else:
+                st["status"] = "frozen"
+        # мышцы выводим из состояния серии (прощённый промах = 0), живот берём из строки
+        if kind == "workout":
+            delta = _muscle_delta(ok, st["misses_in_row"])
+        else:
+            delta = row[delta_field]
+            if delta is None:
+                delta = _legacy_belly_delta(ok)
+        st["level_score"] = max(0, min(100, st["level_score"] + delta))
+        st["last_eval_date"] = day
+        transitions[day] = (before, dict(st))
+    return st, transitions
+
+
+def _transition_message(kind, before, after):
+    """Текст уведомления по переходу серии за день (или None — молчим)."""
+    emoji, word = KIND_EMOJI[kind], KIND_WORD[kind]
+    if after["current"] > before["current"]:
+        if after["current"] in MILESTONES:
+            return f"{emoji}🔥 Серия {word}: {after['current']} дн подряд! Так держать."
+        return None
+    if after["status"] == "reset" and before["current"] > 0:
+        return (f"💔 Серия {word} сгорела (была {before['current']} дн). "
+                f"Ничего — начинаем заново, погнали!")
+    if after["status"] == "frozen" and after["current"] > 0:
+        return (f"⚠️ Сегодня не закрыл день {word} — серия {emoji}🔥{after['current']} "
+                f"заморожена. Ещё один пропуск и сгорит!")
+    return None
+
+
+def sync_streak(user, kind, day=None):
+    """Пересчитать серию/форму домена из истории и сохранить кэш `Streak`.
+    Возвращает текст уведомления по дню `day` (или None). Сообщение отдаём только
+    когда день оценивается ВПЕРВЫЕ (day > last_eval_date) — чтобы повторный прогон
+    (крон после catch_up, бэкфилл) не слал дубли; сами числа при этом всегда свежие."""
+    s, _ = Streak.objects.get_or_create(user=user, kind=kind)
+    first_time = day is not None and (s.last_eval_date is None or day > s.last_eval_date)
+
+    st, transitions = replay_state(user, kind)
+    s.current = st["current"]
+    # longest — рекорд за всё время: history_from обрезает историю, старый рекорд храним
+    s.longest = max(s.longest or 0, st["longest"])
+    s.misses_in_row = st["misses_in_row"]
+    s.status = st["status"]
+    s.last_ok_date = st["last_ok_date"]
+    s.level_score = st["level_score"]
+    if st["last_eval_date"]:
+        s.last_eval_date = max(s.last_eval_date or st["last_eval_date"], st["last_eval_date"])
     s.save()
-    return msg
+
+    if not first_time or day not in transitions:
+        return None
+    before, after = transitions[day]
+    return _transition_message(kind, before, after)
 
 
 def evaluate_day(user, day):
-    """Оценивает день одного юзера, двигает обе серии, кэширует DayResult.
-    Возвращает список текстов для отправки этому юзеру.
+    """Оценивает день одного юзера: пишет строку DayResult и пересчитывает обе серии
+    из истории. Возвращает список текстов для отправки этому юзеру.
 
     Отключённый домен (nutrition_enabled/workout_enabled = False) НЕ двигает свою серию
-    и ось лисёнка, а в DayResult пишется None. DayResult при этом всё равно создаётся —
-    курсор catch_up (Max(date)) двигается, поэтому при повторном включении домена
-    прошлые «отключённые» дни не засчитаются задним числом как промахи."""
+    и ось лисёнка — в DayResult по нему пишется None (нейтральный день). DayResult при
+    этом всё равно создаётся: курсор catch_up (Max(date)) двигается, поэтому при повторном
+    включении домена прошлые «отключённые» дни не засчитаются задним числом как промахи.
+
+    Идемпотентно: повторная оценка того же дня перезапишет строку и пересчитает состояние
+    (в т.ч. ИСПРАВИТ прошлый вердикт, если он был вынесен по неполным данным)."""
     profile = getattr(user, "profile", None)
     nutri_on = getattr(profile, "nutrition_enabled", True) if profile else True
     workout_on = getattr(profile, "workout_enabled", True) if profile else True
 
     nutri_ok, belly_delta = nutrition_eval(user, day)
     w_opp, w_ok = workout_opportunity(user, day)
-    muscle_delta = (MUSCLE_DONE if w_ok else MUSCLE_MISS) if w_opp else 0
 
     DayResult.objects.update_or_create(
         user=user, date=day,
         defaults={"nutrition_ok": (nutri_ok if nutri_on else None),
+                  "belly_delta": (belly_delta if nutri_on else None),
                   "workout_ok": (w_ok if (w_opp and workout_on) else None)},
     )
 
     msgs = []
-    if nutri_on:
-        m = _apply_streak(user, "nutrition", day, nutri_ok, belly_delta)
-        if m:
-            msgs.append(m)
-    if w_opp and workout_on:  # форму/серию мышц двигаем только в трен-дни (отдых нейтрален)
-        m = _apply_streak(user, "workout", day, w_ok, muscle_delta)
+    for kind, enabled in (("nutrition", nutri_on), ("workout", workout_on)):
+        if not enabled:
+            continue
+        m = sync_streak(user, kind, day)
         if m:
             msgs.append(m)
     return msgs
 
 
 def catch_up(user, upto=None):
-    """Догоняет все ЗАВЕРШЁННЫЕ (≤ вчера), ещё не оценённые дни этого юзера.
-    Делает серию независимой от крона: при заходе в приложение и при логировании
-    пропущенные дни доеоцениваются сами. Сегодня НЕ трогаем — день ещё не закрыт.
+    """Догоняет все ЗАВЕРШЁННЫЕ (≤ вчера) дни этого юзера. Делает серию независимой от
+    крона: при заходе в приложение и при логировании пропущенные дни доеоцениваются сами.
+    Сегодня НЕ трогаем — день ещё не закрыт.
 
-    Курсор — max(DayResult.date): это «последний полностью оценённый день». Идём от
-    него +1 до вчера. Так не передаём в evaluate_day уже оценённые дни (иначе слабый
-    per-kind guard мог бы их пересчитать). Идемпотентно и безопасно при гонке с кроном.
+    Курсор — max(DayResult.date) минус окно RECHECK_DAYS: последние дни ПЕРЕоцениваются,
+    потому что данные за них могут доехать позже (тренировку отметили следующим утром,
+    еду занесли задним числом). Оценка идемпотентна и пересчитывает состояние из истории,
+    так что повторный прогон только уточняет вердикт; сообщения повторно не шлются.
     Возвращает накопленные сообщения (вехи/заморозки) — на случай отправки."""
     yesterday = (upto or timezone.localdate()) - timedelta(days=1)
     last = DayResult.objects.filter(user=user).aggregate(m=Max("date"))["m"]
     # новый юзер без истории — не отматываем прошлое, оцениваем только вчера
-    start = (last + timedelta(days=1)) if last else yesterday
+    start = (last + timedelta(days=1) - timedelta(days=RECHECK_DAYS)) if last else yesterday
     msgs, d, guard = [], start, 0
     while d <= yesterday and guard < 400:
         msgs += evaluate_day(user, d)

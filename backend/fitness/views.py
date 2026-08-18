@@ -658,7 +658,11 @@ def profile_save(request):
 
 def _reset_streak_neutral(user, kind):
     """Обнулить серию/ось лисёнка домена в нейтраль (при отключении отслеживания).
-    Ось лисёнка → 50 (нейтраль), серия → 0/active. Идемпотентно."""
+    Ось лисёнка → 50 (нейтраль), серия → 0/active. Идемпотентно.
+
+    `history_from = сегодня` обрезает историю для пересчёта (streak.replay_state): иначе
+    после повторного включения домена старые дни воскресли бы и вернули прежнее состояние.
+    `longest` не трогаем — это рекорд за всё время."""
     s, _ = Streak.objects.get_or_create(user=user, kind=kind)
     s.level_score = 50
     s.current = 0
@@ -666,6 +670,7 @@ def _reset_streak_neutral(user, kind):
     s.status = "active"
     s.last_ok_date = None
     s.last_eval_date = None
+    s.history_from = today()
     s.save()
 
 
