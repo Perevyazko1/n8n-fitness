@@ -93,3 +93,46 @@ CREATE TABLE IF NOT EXISTS reels_posts (
     permalink  text,
     posted_at  timestamptz NOT NULL DEFAULT now()
 );
+
+-- ---------------------------------------------------------------------------
+-- Канал Рыжа: текстовые посты в Telegram (отдельно от reels_* — там ролики).
+-- Конвейер: крон берёт тему из очереди -> LLM пишет черновик -> апрув в личке
+-- владельца -> публикация в канал. Правки приходят reply на сообщение бота.
+-- ---------------------------------------------------------------------------
+
+-- Очередь тем. Наполняется руками; позже сюда же будет складывать автосбор из RSS.
+CREATE TABLE IF NOT EXISTS ryzh_topics (
+    id         bigserial PRIMARY KEY,
+    title      text NOT NULL,                  -- сама тема, напр. «Творог: что с ним не так»
+    rubric     text,                           -- рубрика сетки: check|price|guess|myth|diary|qa|fox
+    note       text,                           -- обоснование: чей выброс / какой инфоповод
+    status     text NOT NULL DEFAULT 'queued', -- queued | used | skipped
+    created_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS ryzh_topics_queue_idx
+    ON ryzh_topics (status, id);
+
+-- Черновики и публикации. Одна строка живёт от черновика до поста в канале,
+-- правки НЕ плодят строки — растёт version и переписывается body.
+CREATE TABLE IF NOT EXISTS ryzh_posts (
+    id                  bigserial PRIMARY KEY,
+    topic_id            bigint REFERENCES ryzh_topics(id) ON DELETE SET NULL,
+    rubric              text,
+    body                text NOT NULL,                  -- текст поста (HTML для parse_mode)
+    version             smallint NOT NULL DEFAULT 1,    -- счётчик правок
+    edit_note           text,                           -- последний комментарий-правка владельца
+    status              text NOT NULL DEFAULT 'draft',  -- draft | posted | rejected
+    approval_message_id bigint,                         -- id сообщения с черновиком в личке;
+                                                        -- по нему находим пост при reply-правке
+    channel_message_id  bigint,                         -- id опубликованного сообщения в канале
+    created_at          timestamptz NOT NULL DEFAULT now(),
+    posted_at           timestamptz
+);
+
+-- Под поиск поста при reply и под «последний висящий черновик».
+CREATE INDEX IF NOT EXISTS ryzh_posts_approval_idx
+    ON ryzh_posts (approval_message_id) WHERE status = 'draft';
+
+CREATE INDEX IF NOT EXISTS ryzh_posts_draft_idx
+    ON ryzh_posts (status, id DESC);
