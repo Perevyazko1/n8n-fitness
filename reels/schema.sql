@@ -136,3 +136,9 @@ CREATE INDEX IF NOT EXISTS ryzh_posts_approval_idx
 
 CREATE INDEX IF NOT EXISTS ryzh_posts_draft_idx
     ON ryzh_posts (status, id DESC);
+
+-- Фактура темы: проверенные цифры, цены, состав, ссылки на исследования.
+-- Без неё рубрики price/check вырождаются в бланк из заглушек [X] ₽ — проверено
+-- на черновике #2. Заполняется при еженедельном сборе тем; LLM обязан писать
+-- ПО ЭТИМ данным и ставить заглушку только если поле пустое.
+ALTER TABLE ryzh_topics ADD COLUMN IF NOT EXISTS facts text;
