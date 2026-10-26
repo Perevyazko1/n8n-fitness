@@ -211,7 +211,7 @@ docker start nginx
 
 ## Шаг 4. nginx vhost
 
-В файле `/root/vacuum_remote/nginx/nginx.conf` внутрь `http { ... }` рядом с
+В файле `/root/nginx/nginx.conf` внутрь `http { ... }` рядом с
 существующими блоками для `dev-rs-auto.store` вставить server-блоки из
 `nginx-n8n.conf` этого репо.
 

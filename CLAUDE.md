@@ -61,8 +61,8 @@ workflow'ы конфигурируются внутри UI n8n и (опцион�
 - Сервер: `217.60.61.145`, Ubuntu 24.04, Docker 29.3.0, Compose v5.1.0.
 - Домен: `n8n-fitness.ru`. A-records `@` и `www` → `217.60.61.145`.
 - На сервере уже работает host-network контейнер `nginx`
-  (конфиг `/root/vacuum_remote/nginx/nginx.conf`), фронтит `dev-rs-auto.store`
-  для django:8000. Он же фронтит наш домен — добавляем vhost туда.
+  (конфиг `/root/nginx/nginx.conf`, сейчас в нём только наши vhost-блоки).
+  Наш домен фронтит он — vhost добавляем туда.
 - TLS: certbot 2.9.0 на хосте, тома `/etc/letsencrypt` уже монтируются в
   контейнер nginx. Сертификат на `n8n-fitness.ru` выпускается через
   `certbot certonly --webroot -w /var/www/certbot`.
@@ -71,7 +71,7 @@ workflow'ы конфигурируются внутри UI n8n и (опцион�
 
 ## Чужие сервисы на сервере (не трогать)
 
-- `nginx` (host net) — общий фронт, конфиг в репо `/root/vacuum_remote/`
+- `nginx` (host net) — общий фронт, конфиг `/root/nginx/nginx.conf`
 - `django-back` (8000), `vacuum_remote` — другой проект
 - `3x-ui` (2053), `amnezia-wg` (51820/51821), `mtproto-proxy` (993)
 - Менять их конфиги нельзя без явной просьбы; правка `nginx.conf` — только
@@ -130,3 +130,11 @@ docker run --rm -v n8n-fitness_n8n_data:/data -v $PWD:/backup alpine \
   требует нового листа `workout_done (date, block_num, exercise, done, updated_at)`.
 
 Контракты держим стабильными — это API для будущего переезда Sheets → БД.
+
+## Доступ к UI (с 2026-10-26)
+
+Google Safe Browsing пометил домен «обманные страницы» из-за публичной формы логина
+n8n. Теперь весь vhost за basic auth (`satisfy any`, без пароля с VPN `172.17.0.3`),
+публичны только `/webhook*/`, `/api/`, `/django-static/`, `/healthz`, `robots.txt`.
+htpasswd — `/etc/letsencrypt/n8n-fitness.htpasswd` (единственный каталог хоста,
+смонтированный в nginx-контейнер). Не открывать UI n8n / Django admin наружу.
