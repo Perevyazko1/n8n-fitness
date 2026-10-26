@@ -1,0 +1,132 @@
+{
+ "name": "Fitness_Bot_Morning",
+ "nodes": [
+  {
+   "parameters": {
+    "rule": {
+     "interval": [
+      {
+       "field": "cronExpression",
+       "expression": "0 0 8 * * *"
+      }
+     ]
+    }
+   },
+   "id": "mr-schedule-0800",
+   "name": "Cron 08:00 MSK",
+   "type": "n8n-nodes-base.scheduleTrigger",
+   "typeVersion": 1.2,
+   "position": [
+    2000,
+    -16
+   ]
+  },
+  {
+   "parameters": {
+    "method": "POST",
+    "url": "http://fitness-api:8001/api/cron/morning",
+    "authentication": "genericCredentialType",
+    "genericAuthType": "httpHeaderAuth",
+    "sendBody": true,
+    "contentType": "raw",
+    "rawContentType": "application/json",
+    "body": "={{ JSON.stringify({}) }}",
+    "options": {
+     "timeout": 60000
+    }
+   },
+   "id": "mr-http-morning",
+   "name": "Morning Plan (Django)",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    2256,
+    -16
+   ],
+   "credentials": {
+    "httpHeaderAuth": {
+     "id": "63SYGxUVPB6pDz0y",
+     "name": "X-Cron-Secret"
+    }
+   }
+  },
+  {
+   "parameters": {
+    "jsCode": "// Разворачиваем ответ Django {ok, date, messages:[{chat_id,text}]}\n// в один item на сообщение. Пусто → [] → Telegram не выполняется.\n// ВЕСЬ расчёт плана — в Django (streak.morning_messages), по каждому юзеру отдельно.\nconst res = $json || {};\nconst msgs = Array.isArray(res.messages) ? res.messages : [];\nreturn msgs\n  .filter(m => m && m.chat_id && m.text)\n  .map(m => ({ json: { chat_id: m.chat_id, text: m.text } }));"
+   },
+   "id": "mr-explode-messages",
+   "name": "Explode Messages",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    2512,
+    -16
+   ]
+  },
+  {
+   "parameters": {
+    "chatId": "={{ $json.chat_id }}",
+    "text": "={{ $json.text }}",
+    "additionalFields": {
+     "appendAttribution": false,
+     "parse_mode": "HTML"
+    }
+   },
+   "id": "mr-telegram-morning",
+   "name": "Telegram Morning",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    2768,
+    -16
+   ],
+   "credentials": {
+    "telegramApi": {
+     "id": "i66iQ2uUac0QdYNa",
+     "name": "Telegram account"
+    }
+   },
+   "onError": "continueRegularOutput"
+  }
+ ],
+ "connections": {
+  "Cron 08:00 MSK": {
+   "main": [
+    [
+     {
+      "node": "Morning Plan (Django)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Morning Plan (Django)": {
+   "main": [
+    [
+     {
+      "node": "Explode Messages",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Explode Messages": {
+   "main": [
+    [
+     {
+      "node": "Telegram Morning",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "active": false,
+ "settings": {
+  "executionOrder": "v1",
+  "binaryMode": "separate"
+ }
+}

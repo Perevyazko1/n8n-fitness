@@ -1,0 +1,182 @@
+{
+  "name": "TEMP Ryzh Frame Test",
+  "nodes": [
+    {
+      "id": "Manual",
+      "name": "Запуск вручную",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "Frames",
+      "name": "Кадры",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// ТЕСТ кадра Рыжа (этап 1 рилса #1). Воркфлоу временный — удалить после подгонки.\n// Только картинка: эталон-спрайт → nano-banana edit → кадр 9:16 в Телеграм. ~$0.04 за картинку.\n// Крутим тут: FRAMES (сцены), NUM (вариантов на сцену), MODEL.\n\n// 'fal-ai/nano-banana/edit' (~$0.04) или 'fal-ai/nano-banana-pro/edit' (дороже, обычно точнее держит персонажа).\nconst MODEL = 'fal-ai/nano-banana/edit';\nconst NUM = 2;\n\n// Эталоны = реальные спрайты приложения (GitHub Pages фронта). m — мышцы 0..3, b — живот 0..3.\nconst REF = (m, b, hungry) => `https://perevyazko1.github.io/n8n-fitness-scan/img/fox_m${m}_b${b}${hungry ? '_hungry' : ''}.png`;\n\n// Что НЕЛЬЗЯ менять в персонаже — Veo/модели любят «дорисовать» настоящую лису или Pixar.\nconst KEEP = [\n  \"Keep the fox character IDENTICAL to the reference image: same 2D flat vector cartoon style, same thick clean black outlines, same soft cel shading, same colors, same proportions, same face.\",\n  \"Orange fur #E8763A, cream #F7E4CF muzzle/chest/belly, orange paws with cream toes (NO black paws, NO dark gloves), ears orange with cream insides (NO black ear tips),\",\n  \"orange headband clearly separate from the head fur, orange wristbands on both wrists, black shorts with an orange side stripe.\",\n  \"BAREFOOT: bare cream fox paws on the feet, NO shoes, NO sneakers, NO socks.\",\n  \"Ears: orange with a thin orange-brown outline and cream insides, NO black or dark ear tips.\",\n  \"Headband: NARROW orange band sitting HIGH on the forehead, well above the eyebrows, with the orange hair tuft sticking up above it.\",\n  \"Eyebrows: short thin dark-brown brows, not thick black ones.\",\n  \"Fur edges: smooth clean outlines like the reference, NOT jagged, spiky or sketchy fur tufts on cheeks and arms.\",\n  \"Shorts: plain black shorts with ONE vertical orange stripe on the side only, NO colored trim on the hem, NO double stripes.\",\n  \"Do NOT make it 3D, Pixar-like, realistic or furry-detailed. Only change the pose, facial expression and background.\",\n].join(' ');\n\nconst STYLE_BG = \"The background must be drawn in the same flat 2D vector cartoon style with bold outlines and simple shapes, so the character and the scene look like one illustration. Vertical 9:16 composition. No text, no letters, no logos.\";\n\n// on: false — сцену пропустить (чтобы не платить за то, что уже устроило).\nconst FRAMES = [\n  {\n    key: 'hook',\n    on: false, // утверждён 23.09 — не перегенерим\n    ref: REF(2, 2),\n    scene: \"Night kitchen, open glowing fridge on the left. The fox stands in front of the fridge holding a half-eaten sandwich in one paw, looking down at his own round belly in shock: eyes wide, ears up, mouth open. Visible from the knees up, character takes most of the frame, head in the upper third. Warm dim light plus cool blue glow from the fridge.\",\n  },\n  {\n    key: 'cta',\n    on: false, // утверждён 23.09 (вариант 4) — не перегенерим\n    ref: REF(3, 0),\n    scene: \"Bright cozy home gym corner, soft daylight. The fox stands confidently facing the viewer, pointing one paw at the camera, giving a sly wink and a cheeky smile. Visible from the knees up, character centered and large in the frame, head in the upper third. The illustration fills the whole frame edge to edge, no borders.\",\n  },\n  {\n    // Сцена 2 «знакомство»: мостик к записи телефона — Рыж выпрыгивает из экрана.\n    key: 'intro',\n    on: false, // утверждён intro 2 (прогон 23.09 16:20)\n    ref: REF(2, 1),\n    scene: \"A big modern smartphone standing upright on a wooden desk in a cozy bright room. The fox is leaping OUT of the glowing phone screen toward the viewer: his upper body and one waving paw are already outside the screen, legs still inside the screen glow. Big friendly smile, excited eyes. The phone screen shows only a soft blue glow, no interface, no icons. Character large in the frame, head in the upper third.\",\n  },\n  {\n    // Сцена 5 «результат», СТАРТОВЫЙ кадр: пузатый Рыж в приседе — Veo доиграет до подтянутого.\n    key: 'result_start',\n    on: false, // утверждён вариант 1 (пузо, присед, капля пота)\n    ref: REF(2, 2),\n    scene: \"Bright cozy home gym corner with a yoga mat, a dumbbell rack and a window with daylight. The fox with a round belly is doing a bodyweight squat on the mat, arms stretched forward, determined face, a drop of sweat on his forehead. Visible from the knees up, character centered and large, head in the upper third.\",\n  },\n  {\n    // Сцена 5, ФИНАЛЬНЫЙ кадр — ПРАВКОЙ утверждённого стартового: та же комната/коврик/свет,\n    // меняется только тело Рыжа. Нужен для режима «первый + последний кадр» у Veo:\n    // если фон разный, Veo превращает всю комнату, а не лиса.\n    key: 'result_end',\n    on: true,\n    ref: [\n      \"https://v3b.fal.media/files/b/0aab9956/3lxFh3yVX2pAQLT3vNan0_jqbcTXFc.png\", // стартовый кадр — сцена\n      REF(3, 0),                                                                   // эталон тела\n    ],\n    scene: \"Edit the FIRST image. Keep the room, the purple yoga mat, the dumbbell rack, the window, the lighting, the camera angle and framing EXACTLY the same. Change only the fox: he is now fit with a flat toned stomach and defined abs like the fox in the SECOND image, standing upright on the same spot of the mat and proudly flexing one bicep with a big confident grin. No sweat drop.\",\n  },\n];\n\nconst out = [];\nfor (const f of FRAMES) {\n  if (!f.on) continue;\n  out.push({ json: {\n    key: f.key,\n    model: MODEL,\n    ref_urls: Array.isArray(f.ref) ? f.ref : [f.ref],\n    num: NUM,\n    // Правка кадра (ref-массив): тело меняем намеренно и фон держим — фразы KEEP\n    // про «те же пропорции / меняй только фон» тут противоречили бы задаче.\n    prompt: (Array.isArray(f.ref)\n      ? [f.scene, KEEP.replace('same proportions, ', '').replace(' Only change the pose, facial expression and background.', ''), 'Same flat 2D cartoon style as both images. No text, no letters, no logos.']\n      : ['Use the character from the reference image.', f.scene, KEEP, STYLE_BG]).join('\\n'),\n  } });\n}\nreturn out;\n"
+      }
+    },
+    {
+      "id": "Gen",
+      "name": "Generate Frame (nano-banana)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://fal.run/{{ $json.model }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ prompt: $json.prompt, image_urls: $json.ref_urls, num_images: $json.num, aspect_ratio: '9:16', output_format: 'png' }) }}",
+        "options": {
+          "timeout": 180000,
+          "batching": {
+            "batch": {
+              "batchSize": 1
+            }
+          }
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "hcF81UREaspnNJ0A",
+          "name": "fal.ai"
+        }
+      }
+    },
+    {
+      "id": "Explode",
+      "name": "Split Images",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// Каждая картинка ответа fal → отдельный item для отправки в Телеграм.\nconst out = [];\n$input.all().forEach((it, i) => {\n  const src = $('Кадры').all()[i].json;\n  (it.json.images || []).forEach((img, j) => {\n    out.push({ json: { url: img.url, caption: `${src.key} · вариант ${j + 1} · ${src.model.split('/')[1]}` } });\n  });\n});\nreturn out;\n"
+      }
+    },
+    {
+      "id": "Download",
+      "name": "Download Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "data"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "Send",
+      "name": "Send Frame",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1100,
+        300
+      ],
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "648226895",
+        "binaryData": true,
+        "binaryPropertyName": "data",
+        "additionalFields": {
+          "caption": "={{ $('Split Images').item.json.caption + '\\n' + $('Split Images').item.json.url }}"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "pHZXJrCzy1YaZyjX",
+          "name": "Content Bot"
+        }
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Запуск вручную": {
+      "main": [
+        [
+          {
+            "node": "Кадры",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Кадры": {
+      "main": [
+        [
+          {
+            "node": "Generate Frame (nano-banana)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Frame (nano-banana)": {
+      "main": [
+        [
+          {
+            "node": "Split Images",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Images": {
+      "main": [
+        [
+          {
+            "node": "Download Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Image": {
+      "main": [
+        [
+          {
+            "node": "Send Frame",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

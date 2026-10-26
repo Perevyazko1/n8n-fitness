@@ -1,0 +1,1648 @@
+{
+  "name": "Ryzh Post Control",
+  "nodes": [
+    {
+      "id": "Trigger",
+      "name": "Bot Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -820,
+        320
+      ],
+      "parameters": {
+        "updates": [
+          "message",
+          "callback_query"
+        ],
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      }
+    },
+    {
+      "id": "Route",
+      "name": "Route",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -620,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Единая точка входа бота канала Рыжа. Кто редактор — решает следующая нода\n// (таблица ryzh_editors), здесь только разбор апдейта.\n// Три случая: нажата кнопка черновика; текст-правка (reply на черновик или просто текст);\n// всё остальное — подсказка.\nconst j = $input.first().json;\n\nconst cq = j.callback_query;\nif (cq) {\n  const [act, id] = (cq.data || '').split(':');\n  if (!['pok','pno','pnx','ppv','pim'].includes(act)) return [];\n  return [{ json: {\n    kind: act === 'pok' ? 'approve' : act === 'pno' ? 'reject' : act === 'pim' ? 'redraw' : 'nav',\n    dir: act === 'pnx' ? 'next' : act === 'ppv' ? 'prev' : null,\n    post_id: Number(id),\n    chat_id: cq.from.id,\n    by: cq.from.first_name || cq.from.username || String(cq.from.id),\n    callback_query_id: cq.id,\n    message_id: cq.message?.message_id ?? null,\n  }}];\n}\n\nconst m = j.message || {};\nif (!m.from || m.chat?.type !== 'private') return [];  // только личка\n\nconst text = (m.text || '').trim();\nif (!text || text.startsWith('/')) {\n  return [{ json: { kind: 'help', chat_id: m.from.id } }];\n}\n\n// Правка. Если это ответ на сообщение с черновиком — привязываемся к нему точно,\n// иначе правим последний висящий черновик.\nreturn [{ json: {\n  kind: 'edit',\n  chat_id: m.from.id,\n  edit_note: text,\n  reply_to: m.reply_to_message?.message_id ?? null,\n}}];\n"
+      }
+    },
+    {
+      "id": "By_Kind",
+      "name": "By Kind",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -420,
+        320
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "k1",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Route').item.json.kind }}",
+                    "rightValue": "approve"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "approve"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "k2",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Route').item.json.kind }}",
+                    "rightValue": "reject"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "reject"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "k3",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Route').item.json.kind }}",
+                    "rightValue": "edit"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "edit"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "k5",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Route').item.json.kind }}",
+                    "rightValue": "nav"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "nav"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "k4",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Route').item.json.kind }}",
+                    "rightValue": "help"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "help"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "k6",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Route').item.json.kind }}",
+                    "rightValue": "redraw"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "redraw"
+            }
+          ]
+        },
+        "options": {
+          "looseTypeValidation": true
+        }
+      }
+    },
+    {
+      "id": "Load_Post",
+      "name": "Load Post",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -180,
+        40
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, body, rubric, image_file_id,\n       length(regexp_replace(body, '<[^>]+>', '', 'g')) <= 1024 AS fits\nFROM ryzh_posts WHERE id = $1;",
+        "options": {
+          "queryReplacement": "={{ [ $('Route').item.json.post_id ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "id": "Post_Channel",
+      "name": "Post To Channel",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        40,
+        40
+      ],
+      "parameters": {
+        "chatId": "@ryzh_trener",
+        "additionalFields": {
+          "caption": "={{ $json.body }}",
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        },
+        "operation": "sendPhoto",
+        "binaryData": false,
+        "file": "={{ $json.image_file_id }}"
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      }
+    },
+    {
+      "id": "Mark_Posted",
+      "name": "Mark Posted",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        260,
+        40
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE ryzh_posts\nSET status = 'posted', channel_message_id = $1, posted_at = now()\nWHERE id = $2\nRETURNING id, channel_message_id;",
+        "options": {
+          "queryReplacement": "={{ [ $json.result?.message_id ?? $json.message_id, $('Route').item.json.post_id ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "id": "Ack_Ok",
+      "name": "Answer Callback (ok)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        40
+      ],
+      "parameters": {
+        "resource": "callback",
+        "operation": "answerQuery",
+        "queryId": "={{ $('Route').item.json.callback_query_id }}",
+        "additionalFields": {
+          "text": "Опубликовано"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      }
+    },
+    {
+      "id": "Strip_Ok",
+      "name": "Confirm Published",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        920,
+        20
+      ],
+      "parameters": {
+        "chatId": "={{ $('Clear Approvals (ok)').item.json.chat_id }}",
+        "text": "=✅ <b>#{{ $('Mark Posted').first().json.id }} опубликован</b> · {{ $('Route').first().json.by }}\nhttps://t.me/ryzh_trener/{{ $('Mark Posted').first().json.channel_message_id }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      }
+    },
+    {
+      "id": "Mark_Rejected",
+      "name": "Mark Rejected",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -180,
+        240
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE ryzh_posts SET status = 'rejected' WHERE id = $1;",
+        "options": {
+          "queryReplacement": "={{ [ $('Route').item.json.post_id ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "id": "Ack_No",
+      "name": "Answer Callback (no)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        40,
+        240
+      ],
+      "parameters": {
+        "resource": "callback",
+        "operation": "answerQuery",
+        "queryId": "={{ $('Route').item.json.callback_query_id }}",
+        "additionalFields": {
+          "text": "Отклонено"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      }
+    },
+    {
+      "id": "Strip_No",
+      "name": "Mark Message Rejected",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        240
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "deleteMessage",
+        "chatId": "={{ $json.chat_id }}",
+        "messageId": "={{ $json.message_id }}"
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "Find_Post",
+      "name": "Find Draft",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -180,
+        460
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT p.id, p.body, p.rubric, p.version, p.image_file_id,\n       coalesce(t.title, '') AS title\nFROM ryzh_posts p LEFT JOIN ryzh_topics t ON t.id = p.topic_id\nWHERE p.status = 'draft'\n  AND ($1::bigint IS NULL OR EXISTS (\n        SELECT 1 FROM ryzh_approvals a\n        WHERE a.post_id = p.id AND a.chat_id = $2 AND a.message_id = $1))\nORDER BY p.id DESC\nLIMIT 1;",
+        "options": {
+          "queryReplacement": "={{ [ $('Route').item.json.reply_to, $('Route').item.json.chat_id ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "id": "Found",
+      "name": "Draft Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        40,
+        460
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f1",
+              "operator": {
+                "type": "number",
+                "operation": "exists"
+              },
+              "leftValue": "={{ $json.id }}",
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      }
+    },
+    {
+      "id": "Rewrite",
+      "name": "Rewrite",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        260,
+        380
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Ты правишь готовый пост Telegram-канала «Тренер Рыж». Голос Рыжа — лис-питомец: на «ты», тепло, с юмором, жалуется и просит, но не стыдит; рекомендации, а не экспертиза. Тебе дают текущий текст и замечание владельца. Внеси ТОЛЬКО то, что просят, остальное сохрани как есть. Правила неизменны: хук не про приложение и не про КБЖУ; бот — только в развязке; цифры не выдумывать и заглушек не ставить; объём до 800 знаков (подпись к картинке); разметка Telegram HTML (<b>, <i>), без markdown; в конце реплика Рыжа с 🦊. Верни ТОЛЬКО исправленный текст поста, без пояснений."
+            },
+            {
+              "content": "=Текущий текст поста:\n{{ $json.body }}\n\nЗамечание владельца:\n{{ $('Route').item.json.edit_note }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "reasoningEffort": "low"
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "SkPovYGQlL1P1Ft5",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "id": "Parse_Rewrite",
+      "name": "Parse Rewrite",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        380
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "function extractText(j) {\n  if (Array.isArray(j.output)) {\n    for (const o of j.output) {\n      const part = Array.isArray(o.content) && o.content.find(c => c.text);\n      if (part?.text) return part.text;\n    }\n  }\n  if (Array.isArray(j.content)) {\n    const part = j.content.find(c => c.text);\n    if (part?.text) return part.text;\n  }\n  return j.message?.content ?? j.content ?? j.text ?? '';\n}\nconst raw = String(extractText($input.first().json) || '').trim();\nconst body = raw.replace(/^```(?:html)?\\s*/i, '').replace(/```\\s*$/, '').trim();\nif (!body) throw new Error('LLM вернул пустой текст при переписывании');\nreturn [{ json: { body } }];\n"
+      }
+    },
+    {
+      "id": "Save_Version",
+      "name": "Save Version",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        700,
+        380
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE ryzh_posts\nSET body = $1, edit_note = $2, version = version + 1\nWHERE id = $3\nRETURNING id, version;",
+        "options": {
+          "queryReplacement": "={{ [ $json.body, $('Route').item.json.edit_note, $('Find Draft').item.json.id ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "id": "Send_Again",
+      "name": "Send Approval (v2)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1360,
+        420
+      ],
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "operation": "sendPhoto",
+        "binaryData": false,
+        "file": "={{ $('Find Draft').first().json.image_file_id }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Опубликовать",
+                    "additionalFields": {
+                      "callback_data": "=pok:{{ $('Caption (v2)').first().json.post_id }}"
+                    }
+                  },
+                  {
+                    "text": "❌ Отклонить",
+                    "additionalFields": {
+                      "callback_data": "=pno:{{ $('Caption (v2)').first().json.post_id }}"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "◀️ Тема",
+                    "additionalFields": {
+                      "callback_data": "=ppv:{{ $('Caption (v2)').first().json.post_id }}"
+                    }
+                  },
+                  {
+                    "text": "🎨 Картинка",
+                    "additionalFields": {
+                      "callback_data": "=pim:{{ $('Caption (v2)').first().json.post_id }}"
+                    }
+                  },
+                  {
+                    "text": "Тема ▶️",
+                    "additionalFields": {
+                      "callback_data": "=pnx:{{ $('Caption (v2)').first().json.post_id }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "caption": "={{ $('Caption (v2)').first().json.caption }}",
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "No_Draft",
+      "name": "No Draft",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        260,
+        560
+      ],
+      "parameters": {
+        "chatId": "={{ $('Route').item.json.chat_id }}",
+        "text": "🦊 Не нашёл черновик для правки. Ответь на сообщение с нужным постом.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      }
+    },
+    {
+      "id": "Help",
+      "name": "Send Help",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -180,
+        660
+      ],
+      "parameters": {
+        "chatId": "={{ $('Route').item.json.chat_id }}",
+        "text": "🦊 Я приношу черновик поста каждый день в 10:00 — темы беру из постов, которые выстрелили у других каналов.\n\n• «Опубликовать» — пост уходит в канал\n• «Отклонить» — черновик закрывается\n• «◀️ Тема» / «Тема ▶️» — тот же день, другая тема\n• «🎨 Картинка» — перерисовать картинку\n• Ответь текстом на черновик — перепишу с учётом правки (сколько угодно раз)",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      }
+    },
+    {
+      "id": "Nav_Find",
+      "name": "Find Sibling Topic",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -180,
+        860
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH cur AS (SELECT topic_id FROM ryzh_posts WHERE id = $1)\nSELECT t.id\nFROM ryzh_topics t, cur\nWHERE ( $2 = 'next' AND t.id > cur.topic_id\n     OR $2 = 'prev' AND t.id < cur.topic_id )\n  AND ( t.status IN ('queued', 'skipped')\n     OR t.status = 'proposed' AND t.created_at > now() - interval '14 days' )\nORDER BY CASE WHEN $2 = 'next' THEN t.id END ASC,\n         CASE WHEN $2 = 'prev' THEN t.id END DESC\nLIMIT 1;",
+        "options": {
+          "queryReplacement": "={{ [ $('Route').item.json.post_id, $('Route').item.json.dir ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "id": "Nav_Found",
+      "name": "Sibling Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        40,
+        860
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "s1",
+              "operator": {
+                "type": "number",
+                "operation": "exists"
+              },
+              "leftValue": "={{ $json.id }}",
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      }
+    },
+    {
+      "id": "Nav_Release",
+      "name": "Release Old Topic",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        260,
+        780
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE ryzh_topics SET status = 'skipped'\nWHERE id = (SELECT topic_id FROM ryzh_posts WHERE id = $1);\nUPDATE ryzh_posts SET status = 'rejected' WHERE id = $1;",
+        "options": {
+          "queryReplacement": "={{ [ $('Route').item.json.post_id ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "id": "Nav_Ack",
+      "name": "Answer Callback (nav)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        840
+      ],
+      "parameters": {
+        "resource": "callback",
+        "operation": "answerQuery",
+        "queryId": "={{ $('Route').item.json.callback_query_id }}",
+        "additionalFields": {
+          "text": "Беру другую тему…"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      }
+    },
+    {
+      "id": "Nav_None",
+      "name": "No More Topics",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        260,
+        960
+      ],
+      "parameters": {
+        "chatId": "={{ $('Route').item.json.chat_id }}",
+        "text": "🦊 В эту сторону тем больше нет — очередь кончилась.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      }
+    },
+    {
+      "id": "Has_Img",
+      "name": "Has Image?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -40,
+        40
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "i1",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "leftValue": "={{ $json.image_file_id }}",
+              "rightValue": ""
+            },
+            {
+              "id": "i2",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.fits }}",
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      }
+    },
+    {
+      "id": "Post_Text",
+      "name": "Post To Channel (text)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        40,
+        150
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      },
+      "parameters": {
+        "chatId": "@ryzh_trener",
+        "text": "={{ $json.body }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      }
+    },
+    {
+      "id": "Delete_Approval_ok",
+      "name": "Delete Approval (ok)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        700,
+        20
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "deleteMessage",
+        "chatId": "={{ $json.chat_id }}",
+        "messageId": "={{ $json.message_id }}"
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "Caption_v2",
+      "name": "Caption (v2)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        700,
+        420
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const RUBRICS = { check: 'Рыж проверяет', price: 'Почём белок', recipe: 'Рецепт Рыжа', guess: 'На глаз', swap: 'Вместо этого', tried: 'Рыж пробует', fox: 'Лис' };\nconst esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst plain = s => String(s ?? '').replace(/<[^>]+>/g, '').replace(/&(lt|gt|amp|quot);/g, '_');\nfunction buildCaption(c) {\n  const head = `<b>#${c.post_id}</b> · ${esc(RUBRICS[c.rubric] || c.rubric || '—')} · v${c.version}\\n<i>${esc(c.title)}</i>\\n\\n`;\n  const len = plain(c.body).length;\n  if (plain(head + c.body).length <= 1024) return { caption: head + c.body, fits: true, len };\n  const note = `<b>#${c.post_id}</b> ⚠️ ${len} зн. — длиннее подписи (1024). Ответь «сократи до 800».\\n\\n`;\n  return { caption: note + esc(plain(c.body).slice(0, 850)) + '…', fits: false, len };\n}\n\nconst f = $('Find Draft').first().json;\nconst c = { post_id: $json.id, title: f.title, rubric: f.rubric,\n            body: $('Parse Rewrite').first().json.body, version: $json.version };\nreturn [{ json: { ...c, ...buildCaption(c) } }];"
+      }
+    },
+    {
+      "id": "Nav_Args",
+      "name": "Nav Args",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        700,
+        840
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Аргументы для Ryzh Post Draft: какую тему писать и чей черновик убрать после отправки.\nreturn [{ json: { topic_id: $('Find Sibling Topic').first().json.id,\n                  old_post_id: $('Route').first().json.post_id } }];"
+      }
+    },
+    {
+      "id": "Call_Draft_nav",
+      "name": "Call Draft (nav)",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        920,
+        840
+      ],
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list",
+          "cachedResultName": "Ryzh Post Draft"
+        },
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      }
+    },
+    {
+      "id": "Answer_Callback_redraw",
+      "name": "Answer Callback (redraw)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -180,
+        1000
+      ],
+      "parameters": {
+        "resource": "callback",
+        "operation": "answerQuery",
+        "queryId": "={{ $('Route').item.json.callback_query_id }}",
+        "additionalFields": {
+          "text": "Перерисовываю…"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      }
+    },
+    {
+      "id": "Redraw_Args",
+      "name": "Redraw Args",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        1000
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [{ json: { post_id: $('Route').first().json.post_id,\n                  old_post_id: $('Route').first().json.post_id } }];"
+      }
+    },
+    {
+      "id": "Call_Draft_redraw",
+      "name": "Call Draft (redraw)",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        260,
+        1000
+      ],
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list",
+          "cachedResultName": "Ryzh Post Draft"
+        },
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      }
+    },
+    {
+      "id": "Editor_Check",
+      "name": "Editor Check",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -600,
+        480
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT EXISTS (SELECT 1 FROM ryzh_editors WHERE chat_id = $1) AS ok;",
+        "options": {
+          "queryReplacement": "={{ [ $json.chat_id ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "id": "Is_Editor",
+      "name": "Is Editor?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -400,
+        480
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      }
+    },
+    {
+      "id": "Clear_Approvals_ok",
+      "name": "Clear Approvals (ok)",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        480,
+        20
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM ryzh_approvals WHERE post_id = $1 RETURNING chat_id, message_id;",
+        "options": {
+          "queryReplacement": "={{ [ $('Route').item.json.post_id ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "id": "Clear_Approvals_no",
+      "name": "Clear Approvals (no)",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        260,
+        240
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM ryzh_approvals WHERE post_id = $1 RETURNING chat_id, message_id;",
+        "options": {
+          "queryReplacement": "={{ [ $('Route').item.json.post_id ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "id": "Editors_v2",
+      "name": "Editors (v2)",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        920,
+        420
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT (SELECT array_agg(chat_id ORDER BY chat_id) FROM ryzh_editors) AS editors,\n       (SELECT coalesce(json_agg(json_build_object('chat_id', chat_id, 'message_id', message_id)), '[]'::json)\n        FROM ryzh_approvals WHERE post_id = $1) AS old;",
+        "options": {
+          "queryReplacement": "={{ [ $json.post_id ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "id": "Fan_Out_v2",
+      "name": "Fan Out (v2)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1140,
+        420
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Новая версия — каждому редактору (картинка та же, по file_id).\nconst eds = $input.first().json.editors || [];\nreturn eds.map(chat_id => ({ json: { chat_id } }));"
+      }
+    },
+    {
+      "id": "Save_Approval_v2",
+      "name": "Save Approval (v2)",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1580,
+        420
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH a AS (\n  INSERT INTO ryzh_approvals (chat_id, message_id, post_id)\n  SELECT $1::bigint, $2::bigint, $3::bigint WHERE $2::bigint IS NOT NULL\n  ON CONFLICT DO NOTHING\n)\nUPDATE ryzh_posts SET image_file_id = coalesce($4, image_file_id) WHERE id = $3::bigint RETURNING id;",
+        "options": {
+          "queryReplacement": "={{ [ $json.result?.chat?.id ?? $json.chat?.id ?? null, $json.result?.message_id ?? $json.message_id ?? null, $('Caption (v2)').first().json.post_id, ($json.result?.photo ?? $json.photo ?? []).slice(-1)[0]?.file_id ?? null ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "id": "Old_v2",
+      "name": "Old (v2)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1800,
+        420
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Прошлая версия черновика у каждого редактора — удалить после отправки новой.\nreturn ($('Editors (v2)').first().json.old || []).map(o => ({ json: o }));"
+      }
+    },
+    {
+      "id": "Delete_Old_Version",
+      "name": "Delete Old Version",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2020,
+        420
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "deleteMessage",
+        "chatId": "={{ $json.chat_id }}",
+        "messageId": "={{ $json.message_id }}"
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "Forget_Old_v2",
+      "name": "Forget Old (v2)",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2240,
+        420
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM ryzh_approvals WHERE chat_id = $1 AND message_id = $2;",
+        "options": {
+          "queryReplacement": "={{ [ $('Old (v2)').item.json.chat_id, $('Old (v2)').item.json.message_id ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Bot Trigger": {
+      "main": [
+        [
+          {
+            "node": "Route",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route": {
+      "main": [
+        [
+          {
+            "node": "Editor Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "By Kind": {
+      "main": [
+        [
+          {
+            "node": "Load Post",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark Rejected",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Find Draft",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Find Sibling Topic",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Help",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Answer Callback (redraw)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Post": {
+      "main": [
+        [
+          {
+            "node": "Has Image?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post To Channel": {
+      "main": [
+        [
+          {
+            "node": "Mark Posted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Posted": {
+      "main": [
+        [
+          {
+            "node": "Answer Callback (ok)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer Callback (ok)": {
+      "main": [
+        [
+          {
+            "node": "Clear Approvals (ok)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Rejected": {
+      "main": [
+        [
+          {
+            "node": "Answer Callback (no)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer Callback (no)": {
+      "main": [
+        [
+          {
+            "node": "Clear Approvals (no)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Draft": {
+      "main": [
+        [
+          {
+            "node": "Draft Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft Found?": {
+      "main": [
+        [
+          {
+            "node": "Rewrite",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rewrite": {
+      "main": [
+        [
+          {
+            "node": "Parse Rewrite",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Rewrite": {
+      "main": [
+        [
+          {
+            "node": "Save Version",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Version": {
+      "main": [
+        [
+          {
+            "node": "Caption (v2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Approval (v2)": {
+      "main": [
+        [
+          {
+            "node": "Save Approval (v2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Sibling Topic": {
+      "main": [
+        [
+          {
+            "node": "Sibling Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sibling Found?": {
+      "main": [
+        [
+          {
+            "node": "Release Old Topic",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No More Topics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Release Old Topic": {
+      "main": [
+        [
+          {
+            "node": "Answer Callback (nav)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer Callback (nav)": {
+      "main": [
+        [
+          {
+            "node": "Nav Args",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Image?": {
+      "main": [
+        [
+          {
+            "node": "Post To Channel",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Post To Channel (text)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post To Channel (text)": {
+      "main": [
+        [
+          {
+            "node": "Mark Posted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Approval (ok)": {
+      "main": [
+        [
+          {
+            "node": "Confirm Published",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Caption (v2)": {
+      "main": [
+        [
+          {
+            "node": "Editors (v2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nav Args": {
+      "main": [
+        [
+          {
+            "node": "Call Draft (nav)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer Callback (redraw)": {
+      "main": [
+        [
+          {
+            "node": "Redraw Args",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redraw Args": {
+      "main": [
+        [
+          {
+            "node": "Call Draft (redraw)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Editor Check": {
+      "main": [
+        [
+          {
+            "node": "Is Editor?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Editor?": {
+      "main": [
+        [
+          {
+            "node": "By Kind",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Clear Approvals (ok)": {
+      "main": [
+        [
+          {
+            "node": "Delete Approval (ok)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear Approvals (no)": {
+      "main": [
+        [
+          {
+            "node": "Mark Message Rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Editors (v2)": {
+      "main": [
+        [
+          {
+            "node": "Fan Out (v2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fan Out (v2)": {
+      "main": [
+        [
+          {
+            "node": "Send Approval (v2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Approval (v2)": {
+      "main": [
+        [
+          {
+            "node": "Old (v2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Old (v2)": {
+      "main": [
+        [
+          {
+            "node": "Delete Old Version",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Old Version": {
+      "main": [
+        [
+          {
+            "node": "Forget Old (v2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Moscow"
+  },
+  "pinData": {},
+  "tags": [],
+  "versionId": "ryzh-control-holding-02"
+}

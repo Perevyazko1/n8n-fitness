@@ -1,0 +1,816 @@
+{
+ "name": "Content Reels Bot (manual v0)",
+ "nodes": [
+  {
+   "id": "Content_Trigger",
+   "name": "Content Trigger",
+   "type": "n8n-nodes-base.telegramTrigger",
+   "typeVersion": 1.2,
+   "position": [
+    -40,
+    300
+   ],
+   "parameters": {
+    "updates": [
+     "message",
+     "callback_query"
+    ],
+    "additionalFields": {}
+   },
+   "credentials": {
+    "telegramApi": {
+     "id": "pHZXJrCzy1YaZyjX",
+     "name": "Content Bot"
+    }
+   }
+  },
+  {
+   "id": "Route",
+   "name": "Route",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    180,
+    300
+   ],
+   "parameters": {
+    "jsCode": "// Единственная точка входа контент-бота. Личный бот: всё не от владельца — игнор.\n// Собираем сообщение (мем-файл + сценарий в подписи) ИЛИ нажатие инлайн-кнопки апрува.\nconst OWNER = 648226895;\nconst cq = $json.callback_query;\nif (cq) {\n  if (cq.from?.id !== OWNER) return [];\n  const [act, id] = (cq.data || '').split(':');\n  return [{ json: {\n    kind: act === 'ok' ? 'approve' : 'reject',\n    script_id: Number(id), chat_id: cq.from.id, callback_query_id: cq.id,\n  }}];\n}\nconst m = $json.message || {};\nif (m.from?.id !== OWNER) return [];\nlet file_id = null, file_kind = null;\nif (m.video) { file_id = m.video.file_id; file_kind = 'clip'; }\nelse if (m.animation) { file_id = m.animation.file_id; file_kind = 'clip'; }\nelse if (m.document && (m.document.mime_type || '').startsWith('video')) { file_id = m.document.file_id; file_kind = 'clip'; }\nelse if (m.photo) { file_id = m.photo[m.photo.length - 1].file_id; file_kind = 'image'; }\nconst scenario = (m.caption || m.text || '').trim();\nif (file_id && scenario) return [{ json: { kind: 'new', chat_id: m.from.id, file_id, file_kind, scenario } }];\nreturn [{ json: { kind: 'help', chat_id: m.from.id,\n  text: 'Пришли мем-видео (или картинку) с подписью-сценарием одним сообщением — соберу ролик.' } }];\n"
+   }
+  },
+  {
+   "id": "By_Kind",
+   "name": "By Kind",
+   "type": "n8n-nodes-base.switch",
+   "typeVersion": 3.2,
+   "position": [
+    400,
+    300
+   ],
+   "parameters": {
+    "rules": {
+     "values": [
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "typeValidation": "loose",
+         "version": 2
+        },
+        "conditions": [
+         {
+          "id": "={{ $json.kind }}new",
+          "leftValue": "={{ $json.kind }}",
+          "rightValue": "new",
+          "operator": {
+           "type": "string",
+           "operation": "equals"
+          }
+         }
+        ],
+        "combinator": "and"
+       },
+       "renameOutput": true,
+       "outputKey": "new"
+      },
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "typeValidation": "loose",
+         "version": 2
+        },
+        "conditions": [
+         {
+          "id": "={{ $json.kind }}approve",
+          "leftValue": "={{ $json.kind }}",
+          "rightValue": "approve",
+          "operator": {
+           "type": "string",
+           "operation": "equals"
+          }
+         }
+        ],
+        "combinator": "and"
+       },
+       "renameOutput": true,
+       "outputKey": "approve"
+      },
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "typeValidation": "loose",
+         "version": 2
+        },
+        "conditions": [
+         {
+          "id": "={{ $json.kind }}reject",
+          "leftValue": "={{ $json.kind }}",
+          "rightValue": "reject",
+          "operator": {
+           "type": "string",
+           "operation": "equals"
+          }
+         }
+        ],
+        "combinator": "and"
+       },
+       "renameOutput": true,
+       "outputKey": "reject"
+      },
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "typeValidation": "loose",
+         "version": 2
+        },
+        "conditions": [
+         {
+          "id": "={{ $json.kind }}help",
+          "leftValue": "={{ $json.kind }}",
+          "rightValue": "help",
+          "operator": {
+           "type": "string",
+           "operation": "equals"
+          }
+         }
+        ],
+        "combinator": "and"
+       },
+       "renameOutput": true,
+       "outputKey": "help"
+      }
+     ]
+    },
+    "options": {}
+   }
+  },
+  {
+   "id": "Download_Meme",
+   "name": "Download Meme",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    640,
+    60
+   ],
+   "parameters": {
+    "resource": "file",
+    "fileId": "={{ $json.file_id }}",
+    "additionalFields": {}
+   },
+   "credentials": {
+    "telegramApi": {
+     "id": "pHZXJrCzy1YaZyjX",
+     "name": "Content Bot"
+    }
+   }
+  },
+  {
+   "id": "Meme_To_Base64",
+   "name": "Meme To Base64",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    860,
+    60
+   ],
+   "parameters": {
+    "jsCode": "// Скачанный мем лежит в binary. ВАЖНО: при binaryDataMode=filesystem поле\n// binary[key].data пустое (байты на диске) — базу64 достаём через хелпер, он\n// работает в любом режиме.\nconst item = $input.first();\nconst bin = item.binary || {};\nconst key = Object.keys(bin)[0];\nif (!key) throw new Error('Download Meme не вернул бинарь — проверь fileId и что прислано видео/фото');\nconst buffer = await this.helpers.getBinaryDataBuffer(0, key);\nconst r = $('Route').first().json;\nreturn [{ json: {\n  scenario: r.scenario, file_kind: r.file_kind, chat_id: r.chat_id,\n  meme_b64: buffer.toString('base64'),\n}}];\n"
+   }
+  },
+  {
+   "id": "Build_Timeline",
+   "name": "Build Timeline",
+   "type": "@n8n/n8n-nodes-langchain.openAi",
+   "typeVersion": 2.3,
+   "position": [
+    1080,
+    60
+   ],
+   "parameters": {
+    "modelId": {
+     "__rl": true,
+     "value": "gpt-5-mini",
+     "mode": "list",
+     "cachedResultName": "gpt-5-mini"
+    },
+    "responses": {
+     "values": [
+      {
+       "role": "system",
+       "content": "Ты сценарист коротких вирусных Reels для фитнес-приложения (маскот — тренер-лис Рыж). Тебе дают сценарий пользователя; в него вставляется ОДИН чужой мем-ролик. Верни СТРОГО JSON без markdown-фенсов: {\"hook\":\"...\",\"caption\":\"...\",\"hashtags\":\"#...\",\"theme\":\"...\",\"timeline\":[...]}. Сегменты timeline (любой порядок, 2-4 штуки, суммарно до ~20с): {\"type\":\"ai\",\"line\":\"<реплика Рыжа по-русски>\",\"action\":\"<кратко действие, англ.>\",\"duration\":6} — клип с Рыжем; внешность Рыжа НЕ описывай (задана системой), только реплику и действие. {\"type\":\"clip\",\"meme\":true} — место чужого мема (видео подставим сами). {\"type\":\"card\",\"text\":\"...\",\"duration\":2.5,\"color\":\"black\"} — текст-плашка. Типично: Рыж-вступление (ai) → мем (clip) → Рыж-питч приложения (ai) или CTA-плашка."
+      },
+      {
+       "content": "=Сценарий пользователя:\n{{ $('Meme To Base64').item.json.scenario }}"
+      }
+     ]
+    },
+    "builtInTools": {},
+    "options": {
+     "reasoningEffort": "low"
+    }
+   },
+   "credentials": {
+    "openAiApi": {
+     "id": "SkPovYGQlL1P1Ft5",
+     "name": "OpenAI account"
+    }
+   }
+  },
+  {
+   "id": "Parse_Timeline",
+   "name": "Parse Timeline",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1300,
+    60
+   ],
+   "parameters": {
+    "jsCode": "// Достаём текст ответа LLM. openAi v2.3 отдаёт Responses-формат:\n// { output: [ { content: [ { type:'output_text', text:'...' } ] } ] } — берём его\n// первым, плюс запасные пути под другие форматы ноды.\nfunction extractText(j) {\n  if (Array.isArray(j.output)) {\n    for (const o of j.output) {\n      const part = Array.isArray(o.content) && o.content.find(c => c.text);\n      if (part?.text) return part.text;\n    }\n  }\n  if (Array.isArray(j.content)) {\n    const part = j.content.find(c => c.text);\n    if (part?.text) return part.text;\n  }\n  return j.message?.content ?? j.content ?? j.text ?? j.choices?.[0]?.message?.content ?? '';\n}\nconst raw = extractText($json);\nlet s = String(raw).trim().replace(/^```(json)?/i, '').replace(/```$/,'').trim();\nlet obj;\ntry { obj = JSON.parse(s); }\ncatch (e) { throw new Error('LLM вернул не-JSON: ' + s.slice(0, 300)); }\n\nconst meme = $('Meme To Base64').item.json;\n// Подставляем base64 мема в сегмент {meme:true} и приводим тип к реальному (clip/image).\nconst timeline = (obj.timeline || []).map(seg => {\n  if (seg.meme) return { type: meme.file_kind === 'image' ? 'image' : 'clip',\n                         data: meme.meme_b64, keep_audio: true,\n                         ...(meme.file_kind === 'image' ? { duration: seg.duration || 3 } : {}) };\n  return seg;\n});\n// Человекочитаемое превью таймлайна (без JSON: никаких _ < [ , ломающих парсер TG).\nconst summary = timeline.map((s, i) => {\n  const n = i + 1;\n  if (s.type === 'card')  return `${n}. плашка: \"${s.text || ''}\" (${s.duration || '?'}с)`;\n  if (s.type === 'clip')  return `${n}. мем-видео`;\n  if (s.type === 'image') return `${n}. мем-картинка (${s.duration || '?'}с)`;\n  if (s.type === 'ai')    return `${n}. AI-клип`;\n  return `${n}. ${s.type}`;\n}).join('\\n');\n// Экранируем HTML-спецсимволы — сообщение уйдёт с parse_mode HTML.\nconst esc = t => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst msg = `<b>Хук:</b> ${esc(obj.hook || '')}\\n<b>Caption:</b> ${esc(obj.caption || '')}\\n\\n<b>Таймлайн:</b>\\n${esc(summary)}`;\nreturn [{ json: {\n  chat_id: meme.chat_id,\n  hook: obj.hook || '', caption: obj.caption || '', hashtags: obj.hashtags || '', theme: obj.theme || '',\n  timeline, msg,\n}}];\n"
+   }
+  },
+  {
+   "id": "Save_Script",
+   "name": "Save Script",
+   "type": "n8n-nodes-base.postgres",
+   "typeVersion": 2.6,
+   "position": [
+    1520,
+    60
+   ],
+   "parameters": {
+    "operation": "executeQuery",
+    "query": "INSERT INTO reels_scripts (origin, hook, timeline, caption, hashtags, theme, status)\nVALUES ('manual', $1, $2::jsonb, $3, $4, $5, 'scripted')\nRETURNING id;",
+    "options": {
+     "queryReplacement": "={{ [$json.hook, JSON.stringify($json.timeline), $json.caption, $json.hashtags, $json.theme] }}"
+    }
+   },
+   "credentials": {
+    "postgres": {
+     "id": "1Vpr6VdwzI4rfpHh",
+     "name": "PG"
+    }
+   }
+  },
+  {
+   "id": "Send_Approval",
+   "name": "Send Approval",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    1740,
+    60
+   ],
+   "parameters": {
+    "chatId": "={{ $('Parse Timeline').item.json.chat_id }}",
+    "text": "=Сценарий готов #{{ $json.id }}\n\n{{ $('Parse Timeline').item.json.msg }}",
+    "replyMarkup": "inlineKeyboard",
+    "inlineKeyboard": {
+     "rows": [
+      {
+       "row": {
+        "buttons": [
+         {
+          "text": "✅ Собрать",
+          "additionalFields": {
+           "callback_data": "=ok:{{ $json.id }}"
+          }
+         },
+         {
+          "text": "❌ Отклонить",
+          "additionalFields": {
+           "callback_data": "=no:{{ $json.id }}"
+          }
+         }
+        ]
+       }
+      }
+     ]
+    },
+    "additionalFields": {
+     "parse_mode": "HTML",
+     "appendAttribution": false
+    }
+   },
+   "credentials": {
+    "telegramApi": {
+     "id": "pHZXJrCzy1YaZyjX",
+     "name": "Content Bot"
+    }
+   }
+  },
+  {
+   "id": "Load_Script",
+   "name": "Load Script",
+   "type": "n8n-nodes-base.postgres",
+   "typeVersion": 2.6,
+   "position": [
+    620,
+    300
+   ],
+   "parameters": {
+    "operation": "executeQuery",
+    "query": "SELECT id, timeline, caption FROM reels_scripts WHERE id = $1;",
+    "options": {
+     "queryReplacement": "={{ [$json.script_id] }}"
+    }
+   },
+   "credentials": {
+    "postgres": {
+     "id": "1Vpr6VdwzI4rfpHh",
+     "name": "PG"
+    }
+   }
+  },
+  {
+   "id": "Has_AI?",
+   "name": "Has AI?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.2,
+   "position": [
+    820,
+    300
+   ],
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "typeValidation": "loose",
+      "version": 2
+     },
+     "conditions": [
+      {
+       "id": "has-ai",
+       "leftValue": "={{ ($json.timeline || []).some(s => s.type === 'ai') }}",
+       "rightValue": "",
+       "operator": {
+        "type": "boolean",
+        "operation": "true",
+        "singleValue": true
+       }
+      }
+     ],
+     "combinator": "and"
+    },
+    "options": {}
+   }
+  },
+  {
+   "id": "Prep_AI_Jobs",
+   "name": "Prep AI Jobs",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1020,
+    480
+   ],
+   "parameters": {
+    "jsCode": "// Один item на каждый ai-сегмент. Внешность Рыжа ЗАШИТА тут (залоченный вид) —\n// LLM даёт лишь line/action, а полный промт для Veo собираем сами → Рыж одинаков\n// во всех клипах. duration -> enum fal 4s/6s/8s.\nconst RYZH = \"Vertical 9:16 2D flat cartoon animation. Anthropomorphic athletic bipedal fox mascot Ryzh: orange fur (#E8763A), cream muzzle and belly (#F7E4CF), big expressive eyes, pointy ears, fluffy tail with white tip, fit athletic build, wearing an orange sport headband (#FF7A30). Style: thick clean black outlines, soft cel shading, rounded friendly shapes, vibrant. Sly friendly fitness-mentor vibe.\";\nconst tl = $json.timeline || [];\nconst jobs = [];\ntl.forEach((s, i) => {\n  if (s.type !== 'ai') return;\n  const d = Math.round(Number(s.duration) || 8);\n  const action = s.action ? (s.action.trim().replace(/\\.?$/, '. ')) : '';\n  const line = s.line ? ('He speaks in Russian, lip-synced: «' + s.line + '». Audio: playful upbeat male voice saying the line, no music.') : '';\n  const prompt = s.prompt || (RYZH + ' ' + action + line).trim();\n  jobs.push({ json: { seg_index: i, prompt, duration: d <= 4 ? '4s' : d <= 6 ? '6s' : '8s' } });\n});\nreturn jobs;\n"
+   }
+  },
+  {
+   "id": "Generate_Ryzh_(fal_Veo)",
+   "name": "Generate Ryzh (fal Veo)",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    1220,
+    480
+   ],
+   "parameters": {
+    "method": "POST",
+    "url": "https://fal.run/fal-ai/veo3.1/fast",
+    "authentication": "genericCredentialType",
+    "genericAuthType": "httpHeaderAuth",
+    "sendBody": true,
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify({ prompt: $json.prompt, aspect_ratio: '9:16', duration: $json.duration, resolution: '720p', generate_audio: true }) }}",
+    "options": {
+     "timeout": 300000
+    }
+   },
+   "credentials": {
+    "httpHeaderAuth": {
+     "id": "hcF81UREaspnNJ0A",
+     "name": "fal.ai"
+    }
+   }
+  },
+  {
+   "id": "Merge_Timeline",
+   "name": "Merge Timeline",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1420,
+    480
+   ],
+   "parameters": {
+    "jsCode": "// Возвращаем url сгенерённых клипов в таймлайн по seg_index (порядок сохранён), чистим prompt.\nconst base = JSON.parse(JSON.stringify($('Load Script').first().json.timeline || []));\nconst jobs = $('Prep AI Jobs').all();\nconst gens = $input.all();\ngens.forEach((g, k) => {\n  const idx = jobs[k]?.json?.seg_index;\n  const url = g.json?.video?.url;\n  if (url != null && idx != null && base[idx]) {\n    base[idx] = { ...base[idx], url };\n    delete base[idx].prompt;\n  }\n});\nreturn [{ json: { timeline: base } }];\n"
+   }
+  },
+  {
+   "id": "Assemble",
+   "name": "Assemble",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    1620,
+    300
+   ],
+   "parameters": {
+    "method": "POST",
+    "url": "http://fitness-api:8001/api/reels/assemble",
+    "authentication": "genericCredentialType",
+    "genericAuthType": "httpHeaderAuth",
+    "sendBody": true,
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify({ output: {width:1080,height:1920,fps:30}, timeline: $json.timeline }) }}",
+    "options": {
+     "response": {
+      "response": {
+       "responseFormat": "file",
+       "outputPropertyName": "data"
+      }
+     }
+    }
+   },
+   "credentials": {
+    "httpHeaderAuth": {
+     "id": "oAJXIoUzL4MBgXpy",
+     "name": "X-Cron-Secret"
+    }
+   },
+   "retryOnFail": true,
+   "maxTries": 2
+  },
+  {
+   "id": "Send_Video",
+   "name": "Send Video",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    1820,
+    300
+   ],
+   "parameters": {
+    "operation": "sendVideo",
+    "chatId": "={{ $('Route').item.json.chat_id }}",
+    "binaryData": true,
+    "binaryPropertyName": "data",
+    "additionalFields": {
+     "caption": "={{ $('Load Script').item.json.caption }}"
+    }
+   },
+   "credentials": {
+    "telegramApi": {
+     "id": "pHZXJrCzy1YaZyjX",
+     "name": "Content Bot"
+    }
+   }
+  },
+  {
+   "id": "Mark_Posted",
+   "name": "Mark Posted",
+   "type": "n8n-nodes-base.postgres",
+   "typeVersion": 2.6,
+   "position": [
+    2020,
+    300
+   ],
+   "parameters": {
+    "operation": "executeQuery",
+    "query": "WITH v AS (INSERT INTO reels_videos (script_id, status) VALUES ($1, 'video_ok') RETURNING id)\nUPDATE reels_scripts SET status = 'posted' WHERE id = $1;",
+    "options": {
+     "queryReplacement": "={{ [ $('Route').item.json.script_id ] }}"
+    }
+   },
+   "credentials": {
+    "postgres": {
+     "id": "1Vpr6VdwzI4rfpHh",
+     "name": "PG"
+    }
+   }
+  },
+  {
+   "id": "Answer_Callback",
+   "name": "Answer Callback",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    2220,
+    300
+   ],
+   "parameters": {
+    "resource": "callback",
+    "operation": "answerQuery",
+    "queryId": "={{ $('Route').item.json.callback_query_id }}",
+    "additionalFields": {}
+   },
+   "credentials": {
+    "telegramApi": {
+     "id": "pHZXJrCzy1YaZyjX",
+     "name": "Content Bot"
+    }
+   }
+  },
+  {
+   "id": "Mark_Rejected",
+   "name": "Mark Rejected",
+   "type": "n8n-nodes-base.postgres",
+   "typeVersion": 2.6,
+   "position": [
+    640,
+    520
+   ],
+   "parameters": {
+    "operation": "executeQuery",
+    "query": "UPDATE reels_scripts SET status = 'rejected' WHERE id = $1;",
+    "options": {
+     "queryReplacement": "={{ [$json.script_id] }}"
+    }
+   },
+   "credentials": {
+    "postgres": {
+     "id": "1Vpr6VdwzI4rfpHh",
+     "name": "PG"
+    }
+   }
+  },
+  {
+   "id": "Send_Rejected",
+   "name": "Send Rejected",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    860,
+    520
+   ],
+   "parameters": {
+    "chatId": "={{ $('Route').item.json.chat_id }}",
+    "text": "Отклонил ❌",
+    "additionalFields": {
+     "appendAttribution": false,
+     "parse_mode": "HTML"
+    }
+   },
+   "credentials": {
+    "telegramApi": {
+     "id": "pHZXJrCzy1YaZyjX",
+     "name": "Content Bot"
+    }
+   }
+  },
+  {
+   "id": "Send_Help",
+   "name": "Send Help",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    640,
+    700
+   ],
+   "parameters": {
+    "chatId": "={{ $json.chat_id }}",
+    "text": "={{ $json.text }}",
+    "additionalFields": {
+     "appendAttribution": false,
+     "parse_mode": "HTML"
+    }
+   },
+   "credentials": {
+    "telegramApi": {
+     "id": "pHZXJrCzy1YaZyjX",
+     "name": "Content Bot"
+    }
+   }
+  }
+ ],
+ "connections": {
+  "Content Trigger": {
+   "main": [
+    [
+     {
+      "node": "Route",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Route": {
+   "main": [
+    [
+     {
+      "node": "By Kind",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "By Kind": {
+   "main": [
+    [
+     {
+      "node": "Download Meme",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Load Script",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Mark Rejected",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Send Help",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Download Meme": {
+   "main": [
+    [
+     {
+      "node": "Meme To Base64",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Meme To Base64": {
+   "main": [
+    [
+     {
+      "node": "Build Timeline",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Build Timeline": {
+   "main": [
+    [
+     {
+      "node": "Parse Timeline",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Parse Timeline": {
+   "main": [
+    [
+     {
+      "node": "Save Script",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Save Script": {
+   "main": [
+    [
+     {
+      "node": "Send Approval",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Load Script": {
+   "main": [
+    [
+     {
+      "node": "Has AI?",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Has AI?": {
+   "main": [
+    [
+     {
+      "node": "Prep AI Jobs",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Assemble",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Prep AI Jobs": {
+   "main": [
+    [
+     {
+      "node": "Generate Ryzh (fal Veo)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Generate Ryzh (fal Veo)": {
+   "main": [
+    [
+     {
+      "node": "Merge Timeline",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Merge Timeline": {
+   "main": [
+    [
+     {
+      "node": "Assemble",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Assemble": {
+   "main": [
+    [
+     {
+      "node": "Send Video",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Send Video": {
+   "main": [
+    [
+     {
+      "node": "Mark Posted",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Mark Posted": {
+   "main": [
+    [
+     {
+      "node": "Answer Callback",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Mark Rejected": {
+   "main": [
+    [
+     {
+      "node": "Send Rejected",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "active": false,
+ "settings": {
+  "executionOrder": "v1",
+  "timezone": "Europe/Moscow"
+ },
+ "pinData": {},
+ "tags": []
+}

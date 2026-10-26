@@ -1,0 +1,1013 @@
+{
+  "name": "Fitness_Bot_FlightWatch_REN",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 */10 * * * *"
+            }
+          ]
+        }
+      },
+      "id": "fwr-schedule",
+      "name": "Every 10 min",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://calendar.tutu.ru/v2/min_price_calendar/",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "product",
+              "value": "avia"
+            },
+            {
+              "name": "departure_geo_id",
+              "value": "75"
+            },
+            {
+              "name": "arrival_geo_id",
+              "value": "64"
+            },
+            {
+              "name": "geo_mode",
+              "value": "avia"
+            },
+            {
+              "name": "do_best_price",
+              "value": "true"
+            },
+            {
+              "name": "serviceClass",
+              "value": "Y"
+            },
+            {
+              "name": "adult",
+              "value": "1"
+            },
+            {
+              "name": "child",
+              "value": "0"
+            },
+            {
+              "name": "infant",
+              "value": "0"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json, text/plain, */*"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7"
+            },
+            {
+              "name": "Referer",
+              "value": "https://avia.tutu.ru/"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "fwr-tutu-ren",
+      "name": "Tutu LED-REN",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        420,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://calendar.tutu.ru/v2/min_price_calendar/",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "product",
+              "value": "avia"
+            },
+            {
+              "name": "departure_geo_id",
+              "value": "75"
+            },
+            {
+              "name": "arrival_geo_id",
+              "value": "65"
+            },
+            {
+              "name": "geo_mode",
+              "value": "avia"
+            },
+            {
+              "name": "do_best_price",
+              "value": "true"
+            },
+            {
+              "name": "serviceClass",
+              "value": "Y"
+            },
+            {
+              "name": "adult",
+              "value": "1"
+            },
+            {
+              "name": "child",
+              "value": "0"
+            },
+            {
+              "name": "infant",
+              "value": "0"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json, text/plain, */*"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7"
+            },
+            {
+              "name": "Referer",
+              "value": "https://avia.tutu.ru/"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "fwr-tutu-osw",
+      "name": "Tutu LED-OSW",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        640,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://flysmartavia.com/search/calendar",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "origin",
+              "value": "LED"
+            },
+            {
+              "name": "destination",
+              "value": "REN"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "fwr-sv-ren",
+      "name": "Smartavia LED-REN",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        860,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Окно 10-19.09.2026 целиком внутри одного месяца, поэтому помесячная нарезка\n// (как в LED-CEK воркфлоу) тут не нужна — просто два направления.\nconst MONTH = '2026-09';\nreturn [\n  { json: { origin: 'LED', destination: 'REN', month: MONTH } },\n  { json: { origin: 'LED', destination: 'OSW', month: MONTH } },\n];\n"
+      },
+      "id": "fwr-tp-queries",
+      "name": "TP Queries",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1080,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.travelpayouts.com/aviasales/v3/prices_for_dates",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "origin",
+              "value": "={{ $json.origin }}"
+            },
+            {
+              "name": "destination",
+              "value": "={{ $json.destination }}"
+            },
+            {
+              "name": "departure_at",
+              "value": "={{ $json.month }}"
+            },
+            {
+              "name": "currency",
+              "value": "rub"
+            },
+            {
+              "name": "one_way",
+              "value": "true"
+            },
+            {
+              "name": "direct",
+              "value": "false"
+            },
+            {
+              "name": "sorting",
+              "value": "price"
+            },
+            {
+              "name": "market",
+              "value": "ru"
+            },
+            {
+              "name": "limit",
+              "value": "1000"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "fwr-tp",
+      "name": "Travelpayouts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1300,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "F6BXX0xCsKy7qfoO",
+          "name": "Travelpayouts"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Сводим три источника в один плоский список предложений.\n// Победы тут нет намеренно: она не летает ни в Оренбург, ни в Орск.\n// Аэрофлот напрямую недоступен — его цены приходят через tutu и Aviasales.\nconst SUF = ''; // '' для крона, ' Cmd' для ветки команды\nconst WINDOW = { min: '2026-09-10', max: '2026-09-19' };\nconst ROUTES = {\n  REN: { label: 'СПб → Оренбург', node: 'Tutu LED-REN' },\n  OSW: { label: 'СПб → Орск',     node: 'Tutu LED-OSW' },\n};\n\nconst AIRLINES = { DP:'Победа', '5N':'Смартавиа', U6:'Уральские', FV:'Россия', SU:'Аэрофлот',\n  S7:'S7', N4:'Nordwind', WZ:'Red Wings', A4:'Азимут', YC:'Ямал', UT:'ЮТэйр',\n  DN:'Nordwind', ZF:'Азур', EO:'Икар', RL:'Роял Флайт', UK:'ЮВТ-Аэро' };\n\nconst parseRub = s => {\n  if (!s) return null;\n  const digits = String(s).replace(/[^0-9]/g, '');\n  return digits ? Number(digits) : null;\n};\nconst ruToIso = s => {\n  const m = String(s || '').match(/^(\\d{2})\\.(\\d{2})\\.(\\d{4})$/);\n  return m ? `${m[3]}-${m[2]}-${m[1]}` : null;\n};\nconst inRange = d => Boolean(d && d >= WINDOW.min && d <= WINDOW.max);\n\nconst results = [];\n\n// 1. tutu — минимальная цена на каждую дату по всем перевозчикам (включая Аэрофлот/Россию)\nfor (const [dest, r] of Object.entries(ROUTES)) {\n  try {\n    const data = $(r.node + SUF).first().json || {};\n    for (const [dru, v] of Object.entries(data)) {\n      const date = ruToIso(dru);\n      if (!inRange(date)) continue;\n      const price = Number(v && v.price);\n      if (!Number.isFinite(price) || price <= 0) continue;\n      results.push({ to: dest, airline: 'мин. цена tutu', date, price,\n                     direct: null, src: 'tutu', month_best: Boolean(v && v.is_best) });\n    }\n  } catch (e) {}\n}\n\n// 2. Смартавиа — прямой рейс LED→REN. В Орск не летает, ноды для OSW нет.\ntry {\n  const data = ($('Smartavia LED-REN' + SUF).first().json.data || {})['LED-REN'] || {};\n  for (const [date, v] of Object.entries(data)) {\n    if (!inRange(date)) continue;\n    const price = parseRub(v && v.label && v.label.value);\n    if (price) results.push({ to: 'REN', airline: 'Смартавиа', date, price,\n                              direct: true, src: 'smartavia' });\n  }\n} catch (e) {}\n\n// 3. Travelpayouts — единственный источник, который называет перевозчика\ntry {\n  for (const item of $('Travelpayouts' + SUF).all()) {\n    const r = item.json || {};\n    if (r.success === false) continue;\n    const rows = Array.isArray(r.data) ? r.data : (Array.isArray(r) ? r : []);\n    for (const t of rows) {\n      const date = String(t.departure_at || t.depart_date || '').slice(0, 10);\n      if (!inRange(date)) continue;\n      if (t.origin !== 'LED') continue;\n      const to = t.destination;\n      if (!ROUTES[to]) continue;\n      const price = Number(t.price != null ? t.price : t.value);\n      if (!Number.isFinite(price) || price <= 0) continue;\n      const stops = Number(t.transfers != null ? t.transfers : t.number_of_changes);\n      results.push({ to, airline: AIRLINES[t.airline] || t.airline || 'н/д', date, price,\n                     direct: Number.isFinite(stops) ? stops === 0 : null, src: 'aviasales' });\n    }\n  }\n} catch (e) {}\n\nconst cheapest = list => list.slice().sort((a, b) => a.price - b.price)[0] || null;\n\nconst routes = {};\nfor (const [dest, r] of Object.entries(ROUTES)) {\n  const rows = results.filter(x => x.to === dest);\n\n  // минимум отдельно по каждому источнику — чтобы глазами ловить расхождение в свежести\n  const bySource = {};\n  for (const src of ['smartavia', 'tutu', 'aviasales']) {\n    const m = cheapest(rows.filter(x => x.src === src));\n    if (m) bySource[src] = m;\n  }\n\n  const byDate = {};\n  for (const x of rows) {\n    if (!byDate[x.date] || x.price < byDate[x.date].price) byDate[x.date] = x;\n  }\n\n  routes[dest] = {\n    label: r.label,\n    best: cheapest(rows),\n    bySource,\n    byDate: Object.values(byDate).sort((a, b) => (a.date < b.date ? -1 : 1)),\n    count: rows.length,\n  };\n}\n\nreturn [{ json: { window: WINDOW, routes } }];\n"
+      },
+      "id": "fwr-aggregate",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1520,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ===================== НАСТРОЙКИ =====================\nconst ROUTES = {\n  REN: { label: 'СПб → Оренбург', threshold: 8000 },   // 🔥 жёсткий порог\n  OSW: { label: 'СПб → Орск',     threshold: 13000 },\n};\nconst DROP_PCT = 10;            // 📉 мягкий алерт: падение от прошлого минимума, %\nconst CHAT_ID = '648226895';\n// =====================================================\n// Last-minute ветки («вылет сегодня») тут нет намеренно: окно вылета фиксированное\n// и на месяц вперёд, такой алерт был бы чистым шумом.\n\nconst agg = $('Aggregate').first().json;\nconst store = $getWorkflowStaticData('global'); // переживает запуски, без внешней БД\n\nconst NOTE = {\n  smartavia: '\\n⚠️ Цена из календаря Смартавиа, ориентировочная.',\n  tutu: '\\n⚠️ Цена из календаря tutu, на сайте перевозчика может отличаться.',\n  aviasales: '\\n⚠️ Цена из кэша Aviasales — проверь на сайте перевозчика.',\n};\nconst SRC_LABEL = { smartavia: 'Смартавиа', tutu: 'tutu', aviasales: 'Aviasales' };\nconst MONTHS = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн',\n                'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];\n\nconst dm = iso => {\n  const p = String(iso).split('-');\n  return p.length === 3 ? `${Number(p[2])} ${MONTHS[Number(p[1]) - 1]}` : iso;\n};\nconst rub = n => String(n).replace(/\\B(?=(\\d{3})+(?!\\d))/g, ' ') + ' ₽';\nconst describe = m => `${rub(m.price)} · ${dm(m.date)} · ${m.airline}` +\n  (m.direct === true ? ', прямой' : m.direct === false ? ', с пересадкой' : '');\n\nconst out = [];\n\nfor (const [dest, cfg] of Object.entries(ROUTES)) {\n  const r = (agg.routes || {})[dest];\n  if (!r || !r.best) continue;\n\n  const price = r.best.price;\n  const last = (store[dest] == null) ? null : Number(store[dest]);\n  const was = (last == null) ? '' : ` (было ${rub(last)})`;\n\n  let head = null;\n  if (price <= cfg.threshold && (last == null || price < last)) {\n    head = `🔥 ${cfg.label}`;\n  } else if (last != null && price <= last * (1 - DROP_PCT / 100)) {\n    head = `📉 ${cfg.label}: цена упала`;\n  }\n  store[dest] = price;\n  if (!head) continue;\n\n  let text = `${head}\\n${describe(r.best)}${was}`;\n\n  // остальные источники — чтобы сразу видеть, кто отстаёт по свежести\n  for (const [src, m] of Object.entries(r.bySource || {})) {\n    if (src === r.best.src) continue;\n    text += `\\n  ${SRC_LABEL[src]}: ${rub(m.price)} · ${dm(m.date)} · ${m.airline}`;\n  }\n\n  text += NOTE[r.best.src] || '';\n  if (head.startsWith('🔥')) text += '\\nБери, пока не разобрали!';\n\n  out.push({ json: { chat_id: CHAT_ID, text } });\n}\n\nreturn out; // 0..2 сообщения -> прямо в Telegram\n"
+      },
+      "id": "fwr-prepare",
+      "name": "Prepare",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1740,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "fwr-telegram",
+      "name": "Telegram Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1960,
+        0
+      ],
+      "webhookId": "flightwatch-ren-alert-hook",
+      "credentials": {
+        "telegramApi": {
+          "id": "xI8aQzM6Sgc5I2Tw",
+          "name": "Telegram FlightWatch"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "fwr-error-trigger",
+      "name": "On Error",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        200,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const QUIET_MS = 30 * 60 * 1000;\nconst e = $json.execution || {};\nconst err = e.error || {};\nconst wf = $json.workflow || {};\nconst node = e.lastNodeExecuted || '?';\nconst s = $getWorkflowStaticData('global');\nif (!s.errAlerts) s.errAlerts = {};\nconst st = s.errAlerts[node] || { last: 0, suppressed: 0 };\nconst now = Date.now();\nif (now - st.last < QUIET_MS) { st.suppressed += 1; s.errAlerts[node] = st; return []; }\nconst repeats = st.suppressed;\ns.errAlerts[node] = { last: now, suppressed: 0 };\nconst text =\n  `⚠️ FlightWatch REN упал\\nВоркфлоу: ${wf.name || '?'}\\nНода: ${node}\\n` +\n  `Ошибка: ${err.message || 'без текста'}` +\n  (repeats ? `\\n(за последние 30 мин ещё ${repeats} таких, они скрыты)` : '') +\n  (e.url ? `\\n${e.url}` : '');\nreturn [{ json: { chat_id: '648226895', text } }];\n"
+      },
+      "id": "fwr-format-error",
+      "name": "Format Error",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "fwr-telegram-error",
+      "name": "Telegram Error",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        640,
+        700
+      ],
+      "webhookId": "flightwatch-ren-error-hook",
+      "credentials": {
+        "telegramApi": {
+          "id": "xI8aQzM6Sgc5I2Tw",
+          "name": "Telegram FlightWatch"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "fwr-cmd-trigger",
+      "name": "On Command",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        320
+      ],
+      "webhookId": "flightwatch-ren-cmd-hook",
+      "credentials": {
+        "telegramApi": {
+          "id": "xI8aQzM6Sgc5I2Tw",
+          "name": "Telegram FlightWatch"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-prices",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "/prices",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "fwr-cmd-if",
+      "name": "Is /prices",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        420,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://calendar.tutu.ru/v2/min_price_calendar/",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "product",
+              "value": "avia"
+            },
+            {
+              "name": "departure_geo_id",
+              "value": "75"
+            },
+            {
+              "name": "arrival_geo_id",
+              "value": "64"
+            },
+            {
+              "name": "geo_mode",
+              "value": "avia"
+            },
+            {
+              "name": "do_best_price",
+              "value": "true"
+            },
+            {
+              "name": "serviceClass",
+              "value": "Y"
+            },
+            {
+              "name": "adult",
+              "value": "1"
+            },
+            {
+              "name": "child",
+              "value": "0"
+            },
+            {
+              "name": "infant",
+              "value": "0"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json, text/plain, */*"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7"
+            },
+            {
+              "name": "Referer",
+              "value": "https://avia.tutu.ru/"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "fwr-tutu-ren-c",
+      "name": "Tutu LED-REN Cmd",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        640,
+        320
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://calendar.tutu.ru/v2/min_price_calendar/",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "product",
+              "value": "avia"
+            },
+            {
+              "name": "departure_geo_id",
+              "value": "75"
+            },
+            {
+              "name": "arrival_geo_id",
+              "value": "65"
+            },
+            {
+              "name": "geo_mode",
+              "value": "avia"
+            },
+            {
+              "name": "do_best_price",
+              "value": "true"
+            },
+            {
+              "name": "serviceClass",
+              "value": "Y"
+            },
+            {
+              "name": "adult",
+              "value": "1"
+            },
+            {
+              "name": "child",
+              "value": "0"
+            },
+            {
+              "name": "infant",
+              "value": "0"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json, text/plain, */*"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7"
+            },
+            {
+              "name": "Referer",
+              "value": "https://avia.tutu.ru/"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "fwr-tutu-osw-c",
+      "name": "Tutu LED-OSW Cmd",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        860,
+        320
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://flysmartavia.com/search/calendar",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "origin",
+              "value": "LED"
+            },
+            {
+              "name": "destination",
+              "value": "REN"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "fwr-sv-ren-c",
+      "name": "Smartavia LED-REN Cmd",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1080,
+        320
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Окно 10-19.09.2026 целиком внутри одного месяца, поэтому помесячная нарезка\n// (как в LED-CEK воркфлоу) тут не нужна — просто два направления.\nconst MONTH = '2026-09';\nreturn [\n  { json: { origin: 'LED', destination: 'REN', month: MONTH } },\n  { json: { origin: 'LED', destination: 'OSW', month: MONTH } },\n];\n"
+      },
+      "id": "fwr-tp-queries-c",
+      "name": "TP Queries Cmd",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.travelpayouts.com/aviasales/v3/prices_for_dates",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "origin",
+              "value": "={{ $json.origin }}"
+            },
+            {
+              "name": "destination",
+              "value": "={{ $json.destination }}"
+            },
+            {
+              "name": "departure_at",
+              "value": "={{ $json.month }}"
+            },
+            {
+              "name": "currency",
+              "value": "rub"
+            },
+            {
+              "name": "one_way",
+              "value": "true"
+            },
+            {
+              "name": "direct",
+              "value": "false"
+            },
+            {
+              "name": "sorting",
+              "value": "price"
+            },
+            {
+              "name": "market",
+              "value": "ru"
+            },
+            {
+              "name": "limit",
+              "value": "1000"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "fwr-tp-c",
+      "name": "Travelpayouts Cmd",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1520,
+        320
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "F6BXX0xCsKy7qfoO",
+          "name": "Travelpayouts"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Сводим три источника в один плоский список предложений.\n// Победы тут нет намеренно: она не летает ни в Оренбург, ни в Орск.\n// Аэрофлот напрямую недоступен — его цены приходят через tutu и Aviasales.\nconst SUF = ' Cmd'; // '' для крона, ' Cmd' для ветки команды\nconst WINDOW = { min: '2026-09-10', max: '2026-09-19' };\nconst ROUTES = {\n  REN: { label: 'СПб → Оренбург', node: 'Tutu LED-REN' },\n  OSW: { label: 'СПб → Орск',     node: 'Tutu LED-OSW' },\n};\n\nconst AIRLINES = { DP:'Победа', '5N':'Смартавиа', U6:'Уральские', FV:'Россия', SU:'Аэрофлот',\n  S7:'S7', N4:'Nordwind', WZ:'Red Wings', A4:'Азимут', YC:'Ямал', UT:'ЮТэйр',\n  DN:'Nordwind', ZF:'Азур', EO:'Икар', RL:'Роял Флайт', UK:'ЮВТ-Аэро' };\n\nconst parseRub = s => {\n  if (!s) return null;\n  const digits = String(s).replace(/[^0-9]/g, '');\n  return digits ? Number(digits) : null;\n};\nconst ruToIso = s => {\n  const m = String(s || '').match(/^(\\d{2})\\.(\\d{2})\\.(\\d{4})$/);\n  return m ? `${m[3]}-${m[2]}-${m[1]}` : null;\n};\nconst inRange = d => Boolean(d && d >= WINDOW.min && d <= WINDOW.max);\n\nconst results = [];\n\n// 1. tutu — минимальная цена на каждую дату по всем перевозчикам (включая Аэрофлот/Россию)\nfor (const [dest, r] of Object.entries(ROUTES)) {\n  try {\n    const data = $(r.node + SUF).first().json || {};\n    for (const [dru, v] of Object.entries(data)) {\n      const date = ruToIso(dru);\n      if (!inRange(date)) continue;\n      const price = Number(v && v.price);\n      if (!Number.isFinite(price) || price <= 0) continue;\n      results.push({ to: dest, airline: 'мин. цена tutu', date, price,\n                     direct: null, src: 'tutu', month_best: Boolean(v && v.is_best) });\n    }\n  } catch (e) {}\n}\n\n// 2. Смартавиа — прямой рейс LED→REN. В Орск не летает, ноды для OSW нет.\ntry {\n  const data = ($('Smartavia LED-REN' + SUF).first().json.data || {})['LED-REN'] || {};\n  for (const [date, v] of Object.entries(data)) {\n    if (!inRange(date)) continue;\n    const price = parseRub(v && v.label && v.label.value);\n    if (price) results.push({ to: 'REN', airline: 'Смартавиа', date, price,\n                              direct: true, src: 'smartavia' });\n  }\n} catch (e) {}\n\n// 3. Travelpayouts — единственный источник, который называет перевозчика\ntry {\n  for (const item of $('Travelpayouts' + SUF).all()) {\n    const r = item.json || {};\n    if (r.success === false) continue;\n    const rows = Array.isArray(r.data) ? r.data : (Array.isArray(r) ? r : []);\n    for (const t of rows) {\n      const date = String(t.departure_at || t.depart_date || '').slice(0, 10);\n      if (!inRange(date)) continue;\n      if (t.origin !== 'LED') continue;\n      const to = t.destination;\n      if (!ROUTES[to]) continue;\n      const price = Number(t.price != null ? t.price : t.value);\n      if (!Number.isFinite(price) || price <= 0) continue;\n      const stops = Number(t.transfers != null ? t.transfers : t.number_of_changes);\n      results.push({ to, airline: AIRLINES[t.airline] || t.airline || 'н/д', date, price,\n                     direct: Number.isFinite(stops) ? stops === 0 : null, src: 'aviasales' });\n    }\n  }\n} catch (e) {}\n\nconst cheapest = list => list.slice().sort((a, b) => a.price - b.price)[0] || null;\n\nconst routes = {};\nfor (const [dest, r] of Object.entries(ROUTES)) {\n  const rows = results.filter(x => x.to === dest);\n\n  // минимум отдельно по каждому источнику — чтобы глазами ловить расхождение в свежести\n  const bySource = {};\n  for (const src of ['smartavia', 'tutu', 'aviasales']) {\n    const m = cheapest(rows.filter(x => x.src === src));\n    if (m) bySource[src] = m;\n  }\n\n  const byDate = {};\n  for (const x of rows) {\n    if (!byDate[x.date] || x.price < byDate[x.date].price) byDate[x.date] = x;\n  }\n\n  routes[dest] = {\n    label: r.label,\n    best: cheapest(rows),\n    bySource,\n    byDate: Object.values(byDate).sort((a, b) => (a.date < b.date ? -1 : 1)),\n    count: rows.length,\n  };\n}\n\nreturn [{ json: { window: WINDOW, routes } }];\n"
+      },
+      "id": "fwr-aggregate-c",
+      "name": "Aggregate Cmd",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1740,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Ответ на /prices: обе цели, разбивка по источникам и цена на каждую дату окна.\nconst a = $('Aggregate Cmd').first().json;\nconst chat_id = $('On Command').first().json.message.chat.id;\n\nconst SRC_LABEL = { smartavia: 'Смартавиа', tutu: 'tutu', aviasales: 'Aviasales' };\nconst MONTHS = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн',\n                'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];\n\nconst dm = iso => {\n  const p = String(iso).split('-');\n  return p.length === 3 ? `${Number(p[2])} ${MONTHS[Number(p[1]) - 1]}` : iso;\n};\nconst rub = n => String(n).replace(/\\B(?=(\\d{3})+(?!\\d))/g, ' ') + ' ₽';\nconst marks = m => (m.direct === true ? ', прямой' : m.direct === false ? ', с пересадкой' : '');\nconst fmt = m => m ? `${rub(m.price)} · ${dm(m.date)} · ${m.airline}${marks(m)}` : 'нет мест';\n\nfunction block(r) {\n  if (!r) return '';\n  let s = `${r.label}\\nДешевле всего: ${fmt(r.best)}\\n`;\n  for (const [src, m] of Object.entries(r.bySource || {})) {\n    // перевозчика показываем только у Aviasales — у остальных он и так в названии источника\n    const who = src === 'aviasales' ? ` · ${m.airline}` : '';\n    s += `  ${SRC_LABEL[src] || src}: ${rub(m.price)} · ${dm(m.date)}${who}${marks(m)}\\n`;\n  }\n  if ((r.byDate || []).length) {\n    s += '  По датам:\\n';\n    for (const m of r.byDate) s += `   ${dm(m.date)} — ${rub(m.price)}\\n`;\n  }\n  return s;\n}\n\nconst w = a.window || {};\nconst text =\n  `✈️ Вылет из СПб, ${dm(w.min)} – ${dm(w.max)}\\n\\n` +\n  block((a.routes || {}).REN) + `\\n` +\n  block((a.routes || {}).OSW) +\n  `\\nДаты, которых нет в списке, — рейсов не нашлось.\\n` +\n  `Цены ориентировочные: календари перевозчика и агрегаторов, на сайте может отличаться.`;\n\nreturn [{ json: { chat_id, text } }];\n"
+      },
+      "id": "fwr-format-reply",
+      "name": "Format Reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1960,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "fwr-telegram-reply",
+      "name": "Telegram Reply",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2180,
+        320
+      ],
+      "webhookId": "flightwatch-ren-reply-hook",
+      "credentials": {
+        "telegramApi": {
+          "id": "xI8aQzM6Sgc5I2Tw",
+          "name": "Telegram FlightWatch"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Every 10 min": {
+      "main": [
+        [
+          {
+            "node": "Tutu LED-REN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tutu LED-REN": {
+      "main": [
+        [
+          {
+            "node": "Tutu LED-OSW",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tutu LED-OSW": {
+      "main": [
+        [
+          {
+            "node": "Smartavia LED-REN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Smartavia LED-REN": {
+      "main": [
+        [
+          {
+            "node": "TP Queries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TP Queries": {
+      "main": [
+        [
+          {
+            "node": "Travelpayouts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Travelpayouts": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Prepare",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare": {
+      "main": [
+        [
+          {
+            "node": "Telegram Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tutu LED-REN Cmd": {
+      "main": [
+        [
+          {
+            "node": "Tutu LED-OSW Cmd",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tutu LED-OSW Cmd": {
+      "main": [
+        [
+          {
+            "node": "Smartavia LED-REN Cmd",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Smartavia LED-REN Cmd": {
+      "main": [
+        [
+          {
+            "node": "TP Queries Cmd",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TP Queries Cmd": {
+      "main": [
+        [
+          {
+            "node": "Travelpayouts Cmd",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Travelpayouts Cmd": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Cmd",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Cmd": {
+      "main": [
+        [
+          {
+            "node": "Format Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Reply": {
+      "main": [
+        [
+          {
+            "node": "Telegram Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On Command": {
+      "main": [
+        [
+          {
+            "node": "Is /prices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is /prices": {
+      "main": [
+        [
+          {
+            "node": "Tutu LED-REN Cmd",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "On Error": {
+      "main": [
+        [
+          {
+            "node": "Format Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Error": {
+      "main": [
+        [
+          {
+            "node": "Telegram Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null
+}

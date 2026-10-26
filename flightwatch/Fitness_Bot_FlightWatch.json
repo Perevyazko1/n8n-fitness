@@ -1,0 +1,1098 @@
+{
+ "name": "Fitness_Bot_FlightWatch",
+ "description": null,
+ "active": false,
+ "isArchived": false,
+ "nodes": [
+  {
+   "parameters": {
+    "rule": {
+     "interval": [
+      {
+       "field": "cronExpression",
+       "expression": "0 */5 * * * *"
+      }
+     ]
+    }
+   },
+   "id": "fw-schedule",
+   "name": "Every 5 min",
+   "type": "n8n-nodes-base.scheduleTrigger",
+   "typeVersion": 1.2,
+   "position": [
+    200,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "method": "POST",
+    "url": "https://flysmartavia.com/search/calendar",
+    "sendBody": true,
+    "contentType": "form-urlencoded",
+    "bodyParameters": {
+     "parameters": [
+      {
+       "name": "origin",
+       "value": "LED"
+      },
+      {
+       "name": "destination",
+       "value": "CEK"
+      }
+     ]
+    },
+    "options": {
+     "timeout": 20000
+    }
+   },
+   "id": "fw-sv-lc",
+   "name": "Smartavia LED-CEK",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    420,
+    -120
+   ],
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 5000,
+   "onError": "continueRegularOutput"
+  },
+  {
+   "parameters": {
+    "method": "POST",
+    "url": "https://flysmartavia.com/search/calendar",
+    "sendBody": true,
+    "contentType": "form-urlencoded",
+    "bodyParameters": {
+     "parameters": [
+      {
+       "name": "origin",
+       "value": "CEK"
+      },
+      {
+       "name": "destination",
+       "value": "LED"
+      }
+     ]
+    },
+    "options": {
+     "timeout": 20000
+    }
+   },
+   "id": "fw-sv-cl",
+   "name": "Smartavia CEK-LED",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    640,
+    -120
+   ],
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 5000,
+   "onError": "continueRegularOutput"
+  },
+  {
+   "parameters": {
+    "url": "https://site-api.flypobeda.ru/best-offers/multi",
+    "sendQuery": true,
+    "queryParameters": {
+     "parameters": [
+      {
+       "name": "dates[]",
+       "value": "2026-08-30"
+      },
+      {
+       "name": "dates[]",
+       "value": "2026-09-05"
+      },
+      {
+       "name": "short",
+       "value": "true"
+      }
+     ]
+    },
+    "options": {
+     "timeout": 20000
+    }
+   },
+   "id": "fw-pobeda",
+   "name": "Pobeda",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    860,
+    -120
+   ],
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 5000,
+   "onError": "continueRegularOutput"
+  },
+  {
+   "parameters": {
+    "jsCode": "// Собираем минимальные цены LED<->CEK из трёх источников.\n// 1) Победа websky   — точная выдача поиска по датам окна поездки (exact).\n// 2) Победа best-offers + календарь Смартавиа — витрины, цена ориентировочная.\n// 3) Travelpayouts (Aviasales) — кэш ВСЕХ перевозчиков и агентств, данные до 48 ч давности.\n// Смысл третьего: Победа+Смартавиа — это два сайта, а дешёвый тариф может быть у кого угодно.\n// Окно поездки задаётся ОТДЕЛЬНО по направлениям: туда фиксировано, обратно (CEK->LED)\n// смотрим на два дня дальше — дата возврата гибкая.\nconst WINDOW = {\n  'LED|CEK': { min: '2026-08-30', max: '2026-09-05' },\n  'CEK|LED': { min: '2026-08-30', max: '2026-09-07' },\n};\nconst pad = n => String(n).padStart(2, '0');\nconst d = new Date();\nconst today = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;\n\nconst parseRub = s => {\n  if (!s) return null;\n  const digits = String(s).replace(/[^0-9]/g, '');\n  return digits ? Number(digits) : null;\n};\nconst ruToIso = s => {\n  const m = String(s || '').match(/^(\\d{2})\\.(\\d{2})\\.(\\d{4})$/);\n  return m ? `${m[3]}-${m[2]}-${m[1]}` : null;\n};\n// Неизвестное направление в окно не попадает вообще — это заодно отсекает чужие пары.\nconst inRange = (date, from, to) => {\n  const w = WINDOW[`${from}|${to}`];\n  return Boolean(w && date && date >= w.min && date <= w.max);\n};\nconst isOurPair = (from, to) =>\n  (from === 'LED' && to === 'CEK') || (from === 'CEK' && to === 'LED');\n\n// IATA -> человеческое имя. Незнакомый код оставляем как есть.\nconst AIRLINES = {\n  DP: 'Победа', '5N': 'Смартавиа', U6: 'Уральские', FV: 'Россия', SU: 'Аэрофлот',\n  S7: 'S7', N4: 'Nordwind', WZ: 'Red Wings', A4: 'Азимут', YC: 'Ямал', UT: 'ЮТэйр',\n  DN: 'Nordwind', ZF: 'Азур', EO: 'Икар', RL: 'Роял Флайт',\n};\n\nconst results = [];\n\n// --- Смартавиа: календарь, цена ориентировочная (страница поиска под антиботом) ---\nconst sv = [\n  { node: 'Smartavia LED-CEK', key: 'LED-CEK', from: 'LED', to: 'CEK' },\n  { node: 'Smartavia CEK-LED', key: 'CEK-LED', from: 'CEK', to: 'LED' },\n];\nfor (const s of sv) {\n  try {\n    const data = ($(s.node).first().json.data || {})[s.key] || {};\n    for (const [date, v] of Object.entries(data)) {\n      if (!inRange(date, s.from, s.to)) continue;\n      const p = parseRub(v && v.label && v.label.value);\n      if (p) results.push({ airline: 'Смартавиа', from: s.from, to: s.to, date, price: p, direct: true, exact: false, src: 'calendar' });\n    }\n  } catch (e) {}\n}\n\n// --- Победа, витрина best-offers (дальний горизонт, ближние даты не отдаёт) ---\ntry {\n  const routes = $('Pobeda').all().map(i => i.json);\n  for (const r of routes) {\n    if (!isOurPair(r.departure, r.arrival)) continue;\n    for (const o of (r.offers || [])) {\n      if (!inRange(o.depDate, r.departure, r.arrival)) continue;\n      if (typeof o.price === 'number') {\n        results.push({ airline: 'Победа', from: r.departure, to: r.arrival, date: o.depDate, price: o.price, direct: true, exact: false, src: 'offers' });\n      }\n    }\n  }\n} catch (e) {}\n\n// --- Победа, websky (реальная выдача поиска по конкретной дате) ---\ntry {\n  for (const item of $('Pobeda Websky').all()) {\n    const r = item.json || {};\n    const priceMap = {};\n    for (const blk of (r.prices || [])) Object.assign(priceMap, blk);\n\n    for (const chain of (r.flights || [])) {\n      const segs = chain.flights || [];\n      if (!segs.length) continue;\n      const from = segs[0].origincity;\n      const to = segs[segs.length - 1].destinationcity;\n      if (!isOurPair(from, to)) continue;\n\n      const date = ruToIso(segs[0].departuredate);\n      if (!inRange(date, from, to)) continue;\n\n      const prices = (priceMap[chain.chainId] || [])\n        .map(p => Number(p.price))\n        .filter(n => Number.isFinite(n) && n > 0);\n      if (!prices.length) continue;\n\n      results.push({ airline: 'Победа', from, to, date, price: Math.min(...prices), direct: segs.length === 1, exact: true, src: 'websky' });\n    }\n  }\n} catch (e) {}\n\n// --- Travelpayouts / Aviasales: все перевозчики и агентства, кэш до 48 ч ---\n// Схему полей не проверяли живьём (доки закрыты), поэтому читаем и v3, и v2-варианты имён.\ntry {\n  for (const item of $('Travelpayouts').all()) {\n    const r = item.json || {};\n    if (r.success === false) continue;\n    const rows = Array.isArray(r.data) ? r.data : (Array.isArray(r) ? r : []);\n\n    for (const t of rows) {\n      const date = String(t.departure_at || t.depart_date || '').slice(0, 10);\n\n      const from = t.origin;\n      const to = t.destination;\n      if (!isOurPair(from, to)) continue;\n      if (!inRange(date, from, to)) continue;\n\n      const price = Number(t.price != null ? t.price : t.value);\n      if (!Number.isFinite(price) || price <= 0) continue;\n\n      const stops = Number(t.transfers != null ? t.transfers : t.number_of_changes);\n      const code = t.airline;\n\n      results.push({\n        airline: AIRLINES[code] || code || 'н/д',\n        from, to, date, price,\n        direct: Number.isFinite(stops) ? stops === 0 : null,\n        exact: false, src: 'aviasales',\n      });\n    }\n  }\n} catch (e) {}\n\n// websky — живой поиск Победы, и он авторитетен ПО ПОБЕДЕ на те даты, что мы реально спрашивали.\n// Проверено 2026-07-20: витрина best-offers показывала CEK->LED на сегодня за 19598 ₽,\n// а поиск на эту дату отвечает \"рейсов нет\". Поэтому витрину/кэш по Победе на спрошенных датах\n// выкидываем целиком — иначе бот зовёт на несуществующий рейс.\n// Про других перевозчиков websky не знает ничего, их записи не трогаем.\n// Важно: с 2026-08 websky иногда отдаёт 403 (анти-бот). Нода настроена на retry +\n// continueRegularOutput, поэтому упавшая дата приходит item'ом с json.error. Такую дату\n// НЕЛЬЗЯ считать спрошенной — иначе мы выкинем витринную цену Победы, ничего не получив взамен.\nconst queried = new Set();\ntry {\n  const asked = $('Websky Dates').all();\n  const answers = $('Pobeda Websky').all();\n  const sameShape = answers.length === asked.length;\n  asked.forEach((q, i) => {\n    const a = sameShape ? answers[i] : null;\n    if (sameShape && (!a || (a.json && a.json.error && !a.json.result))) return; // 403/сбой — дату не считаем\n    const iso = ruToIso(q.json.date_ru);\n    if (iso) queried.add(`${q.json.from}|${q.json.to}|${iso}`);\n  });\n} catch (e) {}\n\nconst merged = results.filter(r => {\n  if (r.exact) return true;\n  if (r.airline === 'Победа' && queried.has(`${r.from}|${r.to}|${r.date}`)) return false;\n  return true;\n});\n\nconst isToday = r => r.date === today;\nconst pickMin = (from, to, extra) => {\n  const f = merged\n    .filter(r => r.from === from && r.to === to && (!extra || extra(r)))\n    .sort((a, b) => a.price - b.price);\n  return f[0] || null;\n};\n\nreturn [{ json: {\n  today,\n  // минимум по всему окну направления (LED->CEK по 05.09, CEK->LED по 07.09)\n  ledcek: pickMin('LED', 'CEK'),\n  cekled: pickMin('CEK', 'LED'),\n  // отдельно — вылет СЕГОДНЯ (last-minute, свой порог в Prepare)\n  ledcek_today: pickMin('LED', 'CEK', isToday),\n  cekled_today: pickMin('CEK', 'LED', isToday),\n  count: merged.length,\n  bySource: merged.reduce((acc, r) => { acc[r.src] = (acc[r.src] || 0) + 1; return acc; }, {}),\n} }];"
+   },
+   "id": "fw-aggregate",
+   "name": "Aggregate",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1960,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "// ===================== НАСТРОЙКИ =====================\nconst THRESHOLD = 8000;         // 🔥 жёсткий порог по всему окну дат\nconst TODAY_THRESHOLD = 12000;  // ⏰ порог для вылета СЕГОДНЯ (last-minute сброс)\nconst DROP_PCT = 10;            // 📉 мягкий алерт: падение от прошлого минимума, %\nconst CHAT_ID = '648226895';\n// =====================================================\n\nconst agg = $('Aggregate').first().json;\nconst store = $getWorkflowStaticData('global'); // переживает запуски, без внешней БД\nconst today = agg.today;\n\nconst NOTE = {\n  websky: '',\n  aviasales: '\\n⚠️ Цена из кэша Aviasales — проверь на сайте перевозчика.',\n  offers: '\\n⚠️ Цена с витрины Победы, ориентировочная.',\n  calendar: '\\n⚠️ Цена из календаря Смартавиа, ориентировочная.',\n};\n\nconst out = [];\nconst push = text => out.push({ json: { chat_id: CHAT_ID, text } });\nconst describe = m =>\n  `${m.airline} · ${m.date} — ${m.price} ₽${m.direct === false ? ' · с пересадкой' : ''}`;\n\nconst dirs = [\n  { route: 'LED-CEK', label: 'СПб → Челябинск', cur: agg.ledcek, curToday: agg.ledcek_today },\n  { route: 'CEK-LED', label: 'Челябинск → СПб', cur: agg.cekled, curToday: agg.cekled_today },\n];\n\nfor (const dir of dirs) {\n  // ---------- минимум по всему окну ----------\n  if (dir.cur) {\n    const price = dir.cur.price;\n    const last = (store[dir.route] == null) ? null : Number(store[dir.route]);\n    const note = NOTE[dir.cur.src] || '';\n    const was = (last == null) ? '' : ` (было ${last} ₽)`;\n\n    if (price <= THRESHOLD && (last == null || price < last)) {\n      push(`🔥 ${dir.label}\\n${describe(dir.cur)}${was}\\nБери, пока не разобрали!${note}`);\n    } else if (last != null && price <= last * (1 - DROP_PCT / 100)) {\n      // цена всё ещё выше порога, но заметно упала — раньше такое бот пропускал молча\n      push(`📉 ${dir.label}: цена упала\\n${describe(dir.cur)}${was}${note}`);\n    }\n    store[dir.route] = price;\n  }\n\n  // ---------- отдельно: вылет СЕГОДНЯ ----------\n  // Свой порог и свой счётчик минимума, который обнуляется с началом новых суток.\n  if (dir.curToday) {\n    const key = `${dir.route}:today`;\n    const prev = store[key];\n    const lastToday = (prev && prev.date === today) ? Number(prev.price) : null;\n    const price = dir.curToday.price;\n\n    if (price <= TODAY_THRESHOLD && (lastToday == null || price < lastToday)) {\n      const was = (lastToday == null) ? '' : ` (было ${lastToday} ₽)`;\n      push(`⏰ Вылет СЕГОДНЯ: ${dir.label}\\n${describe(dir.curToday)}${was}\\n` +\n           `Последний шанс!${NOTE[dir.curToday.src] || ''}`);\n    }\n    store[key] = { date: today, price };\n  }\n}\n\n// чистим хвосты за прошлые дни, чтобы staticData не пух\nfor (const k of Object.keys(store)) {\n  if (k.endsWith(':today') && store[k] && store[k].date !== today) delete store[k];\n}\n\nreturn out; // 0..4 сообщения -> прямо в Telegram"
+   },
+   "id": "fw-prepare",
+   "name": "Prepare",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    2180,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "chatId": "={{ $json.chat_id }}",
+    "text": "={{ $json.text }}",
+    "additionalFields": {
+     "appendAttribution": false,
+     "parse_mode": "HTML"
+    }
+   },
+   "id": "fw-telegram",
+   "name": "Telegram Alert",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    2400,
+    0
+   ],
+   "webhookId": "flightwatch-alert-hook",
+   "credentials": {
+    "telegramApi": {
+     "id": "xI8aQzM6Sgc5I2Tw",
+     "name": "Telegram FlightWatch"
+    }
+   }
+  },
+  {
+   "parameters": {
+    "updates": [
+     "message"
+    ],
+    "additionalFields": {}
+   },
+   "id": "fw-cmd-trigger",
+   "name": "On Command",
+   "type": "n8n-nodes-base.telegramTrigger",
+   "typeVersion": 1.2,
+   "position": [
+    200,
+    380
+   ],
+   "webhookId": "flightwatch-cmd-hook",
+   "credentials": {
+    "telegramApi": {
+     "id": "xI8aQzM6Sgc5I2Tw",
+     "name": "Telegram FlightWatch"
+    }
+   }
+  },
+  {
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": false,
+      "typeValidation": "loose",
+      "version": 2
+     },
+     "conditions": [
+      {
+       "id": "cond-prices",
+       "leftValue": "={{ $json.message.text }}",
+       "rightValue": "/prices",
+       "operator": {
+        "type": "string",
+        "operation": "startsWith"
+       }
+      }
+     ],
+     "combinator": "and"
+    },
+    "options": {}
+   },
+   "id": "fw-cmd-if",
+   "name": "Is /prices",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.2,
+   "position": [
+    420,
+    380
+   ]
+  },
+  {
+   "parameters": {
+    "method": "POST",
+    "url": "https://flysmartavia.com/search/calendar",
+    "sendBody": true,
+    "contentType": "form-urlencoded",
+    "bodyParameters": {
+     "parameters": [
+      {
+       "name": "origin",
+       "value": "LED"
+      },
+      {
+       "name": "destination",
+       "value": "CEK"
+      }
+     ]
+    },
+    "options": {
+     "timeout": 20000
+    }
+   },
+   "id": "fw-sv-lc-cmd",
+   "name": "Smartavia LED-CEK Cmd",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    640,
+    280
+   ],
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 5000,
+   "onError": "continueRegularOutput"
+  },
+  {
+   "parameters": {
+    "method": "POST",
+    "url": "https://flysmartavia.com/search/calendar",
+    "sendBody": true,
+    "contentType": "form-urlencoded",
+    "bodyParameters": {
+     "parameters": [
+      {
+       "name": "origin",
+       "value": "CEK"
+      },
+      {
+       "name": "destination",
+       "value": "LED"
+      }
+     ]
+    },
+    "options": {
+     "timeout": 20000
+    }
+   },
+   "id": "fw-sv-cl-cmd",
+   "name": "Smartavia CEK-LED Cmd",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    860,
+    280
+   ],
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 5000,
+   "onError": "continueRegularOutput"
+  },
+  {
+   "parameters": {
+    "url": "https://site-api.flypobeda.ru/best-offers/multi",
+    "sendQuery": true,
+    "queryParameters": {
+     "parameters": [
+      {
+       "name": "dates[]",
+       "value": "2026-08-30"
+      },
+      {
+       "name": "dates[]",
+       "value": "2026-09-05"
+      },
+      {
+       "name": "short",
+       "value": "true"
+      }
+     ]
+    },
+    "options": {
+     "timeout": 20000
+    }
+   },
+   "id": "fw-pobeda-cmd",
+   "name": "Pobeda Cmd",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    1080,
+    280
+   ],
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 5000,
+   "onError": "continueRegularOutput"
+  },
+  {
+   "parameters": {
+    "jsCode": "// Собираем минимальные цены LED<->CEK из трёх источников.\n// 1) Победа websky   — точная выдача поиска по датам окна поездки (exact).\n// 2) Победа best-offers + календарь Смартавиа — витрины, цена ориентировочная.\n// 3) Travelpayouts (Aviasales) — кэш ВСЕХ перевозчиков и агентств, данные до 48 ч давности.\n// Смысл третьего: Победа+Смартавиа — это два сайта, а дешёвый тариф может быть у кого угодно.\n// Окно поездки задаётся ОТДЕЛЬНО по направлениям: туда фиксировано, обратно (CEK->LED)\n// смотрим на два дня дальше — дата возврата гибкая.\nconst WINDOW = {\n  'LED|CEK': { min: '2026-08-30', max: '2026-09-05' },\n  'CEK|LED': { min: '2026-08-30', max: '2026-09-07' },\n};\nconst pad = n => String(n).padStart(2, '0');\nconst d = new Date();\nconst today = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;\n\nconst parseRub = s => {\n  if (!s) return null;\n  const digits = String(s).replace(/[^0-9]/g, '');\n  return digits ? Number(digits) : null;\n};\nconst ruToIso = s => {\n  const m = String(s || '').match(/^(\\d{2})\\.(\\d{2})\\.(\\d{4})$/);\n  return m ? `${m[3]}-${m[2]}-${m[1]}` : null;\n};\n// Неизвестное направление в окно не попадает вообще — это заодно отсекает чужие пары.\nconst inRange = (date, from, to) => {\n  const w = WINDOW[`${from}|${to}`];\n  return Boolean(w && date && date >= w.min && date <= w.max);\n};\nconst isOurPair = (from, to) =>\n  (from === 'LED' && to === 'CEK') || (from === 'CEK' && to === 'LED');\n\n// IATA -> человеческое имя. Незнакомый код оставляем как есть.\nconst AIRLINES = {\n  DP: 'Победа', '5N': 'Смартавиа', U6: 'Уральские', FV: 'Россия', SU: 'Аэрофлот',\n  S7: 'S7', N4: 'Nordwind', WZ: 'Red Wings', A4: 'Азимут', YC: 'Ямал', UT: 'ЮТэйр',\n  DN: 'Nordwind', ZF: 'Азур', EO: 'Икар', RL: 'Роял Флайт',\n};\n\nconst results = [];\n\n// --- Смартавиа: календарь, цена ориентировочная (страница поиска под антиботом) ---\nconst sv = [\n  { node: 'Smartavia LED-CEK Cmd', key: 'LED-CEK', from: 'LED', to: 'CEK' },\n  { node: 'Smartavia CEK-LED Cmd', key: 'CEK-LED', from: 'CEK', to: 'LED' },\n];\nfor (const s of sv) {\n  try {\n    const data = ($(s.node).first().json.data || {})[s.key] || {};\n    for (const [date, v] of Object.entries(data)) {\n      if (!inRange(date, s.from, s.to)) continue;\n      const p = parseRub(v && v.label && v.label.value);\n      if (p) results.push({ airline: 'Смартавиа', from: s.from, to: s.to, date, price: p, direct: true, exact: false, src: 'calendar' });\n    }\n  } catch (e) {}\n}\n\n// --- Победа, витрина best-offers (дальний горизонт, ближние даты не отдаёт) ---\ntry {\n  const routes = $('Pobeda Cmd').all().map(i => i.json);\n  for (const r of routes) {\n    if (!isOurPair(r.departure, r.arrival)) continue;\n    for (const o of (r.offers || [])) {\n      if (!inRange(o.depDate, r.departure, r.arrival)) continue;\n      if (typeof o.price === 'number') {\n        results.push({ airline: 'Победа', from: r.departure, to: r.arrival, date: o.depDate, price: o.price, direct: true, exact: false, src: 'offers' });\n      }\n    }\n  }\n} catch (e) {}\n\n// --- Победа, websky (реальная выдача поиска по конкретной дате) ---\ntry {\n  for (const item of $('Pobeda Websky Cmd').all()) {\n    const r = item.json || {};\n    const priceMap = {};\n    for (const blk of (r.prices || [])) Object.assign(priceMap, blk);\n\n    for (const chain of (r.flights || [])) {\n      const segs = chain.flights || [];\n      if (!segs.length) continue;\n      const from = segs[0].origincity;\n      const to = segs[segs.length - 1].destinationcity;\n      if (!isOurPair(from, to)) continue;\n\n      const date = ruToIso(segs[0].departuredate);\n      if (!inRange(date, from, to)) continue;\n\n      const prices = (priceMap[chain.chainId] || [])\n        .map(p => Number(p.price))\n        .filter(n => Number.isFinite(n) && n > 0);\n      if (!prices.length) continue;\n\n      results.push({ airline: 'Победа', from, to, date, price: Math.min(...prices), direct: segs.length === 1, exact: true, src: 'websky' });\n    }\n  }\n} catch (e) {}\n\n// --- Travelpayouts / Aviasales: все перевозчики и агентства, кэш до 48 ч ---\n// Схему полей не проверяли живьём (доки закрыты), поэтому читаем и v3, и v2-варианты имён.\ntry {\n  for (const item of $('Travelpayouts Cmd').all()) {\n    const r = item.json || {};\n    if (r.success === false) continue;\n    const rows = Array.isArray(r.data) ? r.data : (Array.isArray(r) ? r : []);\n\n    for (const t of rows) {\n      const date = String(t.departure_at || t.depart_date || '').slice(0, 10);\n\n      const from = t.origin;\n      const to = t.destination;\n      if (!isOurPair(from, to)) continue;\n      if (!inRange(date, from, to)) continue;\n\n      const price = Number(t.price != null ? t.price : t.value);\n      if (!Number.isFinite(price) || price <= 0) continue;\n\n      const stops = Number(t.transfers != null ? t.transfers : t.number_of_changes);\n      const code = t.airline;\n\n      results.push({\n        airline: AIRLINES[code] || code || 'н/д',\n        from, to, date, price,\n        direct: Number.isFinite(stops) ? stops === 0 : null,\n        exact: false, src: 'aviasales',\n      });\n    }\n  }\n} catch (e) {}\n\n// websky — живой поиск Победы, и он авторитетен ПО ПОБЕДЕ на те даты, что мы реально спрашивали.\n// Проверено 2026-07-20: витрина best-offers показывала CEK->LED на сегодня за 19598 ₽,\n// а поиск на эту дату отвечает \"рейсов нет\". Поэтому витрину/кэш по Победе на спрошенных датах\n// выкидываем целиком — иначе бот зовёт на несуществующий рейс.\n// Про других перевозчиков websky не знает ничего, их записи не трогаем.\n// См. комментарий в Aggregate: упавшую по 403 дату не считаем спрошенной.\nconst queried = new Set();\ntry {\n  const asked = $('Websky Dates Cmd').all();\n  const answers = $('Pobeda Websky Cmd').all();\n  const sameShape = answers.length === asked.length;\n  asked.forEach((q, i) => {\n    const a = sameShape ? answers[i] : null;\n    if (sameShape && (!a || (a.json && a.json.error && !a.json.result))) return;\n    const iso = ruToIso(q.json.date_ru);\n    if (iso) queried.add(`${q.json.from}|${q.json.to}|${iso}`);\n  });\n} catch (e) {}\n\nconst merged = results.filter(r => {\n  if (r.exact) return true;\n  if (r.airline === 'Победа' && queried.has(`${r.from}|${r.to}|${r.date}`)) return false;\n  return true;\n});\n\nconst isToday = r => r.date === today;\nconst pick = (from, to) => {\n  const f = merged.filter(r => r.from === from && r.to === to).sort((a, b) => a.price - b.price);\n  const byAir = {};\n  for (const r of f) { if (!byAir[r.airline]) byAir[r.airline] = r; }\n  const top = Object.values(byAir).sort((a, b) => a.price - b.price).slice(0, 5);\n  const todayList = f.filter(isToday);\n  return { best: f[0] || null, top, today: todayList[0] || null };\n};\n\nreturn [{ json: { today, LEDCEK: pick('LED', 'CEK'), CEKLED: pick('CEK', 'LED'), count: merged.length } }];"
+   },
+   "id": "fw-agg-cmd",
+   "name": "Aggregate Cmd",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    2180,
+    380
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "// Форматируем ответ на команду /prices.\nconst a = $('Aggregate Cmd').first().json;\nconst chat_id = $('On Command').first().json.message.chat.id;\n\n// 2026-08-30 -> 30.08\nconst dm = d => { const p = String(d).split('-'); return p.length === 3 ? `${p[2]}.${p[1]}` : d; };\n\n// Откуда цена. Живой поиск не помечаем никак — это норма, помечаем только неточное.\nconst SRC = {\n  websky: '',\n  offers: ' · примерно',\n  calendar: ' · примерно',\n  aviasales: ' · примерно (Aviasales)',\n};\nconst marks = m => `${m.direct === false ? ' · с пересадкой' : ''}${SRC[m.src] || ''}`;\nconst fmt = m => m ? `${m.price} ₽ · ${m.airline} · ${dm(m.date)}${marks(m)}` : 'нет мест';\n\nfunction block(title, pick) {\n  let s = `${title}\\nДешевле всего: ${fmt(pick.best)}\\n`;\n  for (const m of (pick.top || [])) {\n    s += `  • ${m.airline}: ${m.price} ₽ (${dm(m.date)})${marks(m)}\\n`;\n  }\n  return s;\n}\n\nconst text =\n  `✈️ Цены LED↔CEK (30 авг – 5 сен)\\n\\n` +\n  block('СПб → Челябинск', a.LEDCEK) + `\\n` +\n  block('Челябинск → СПб', a.CEKLED) +\n  `\\nВсего вариантов: ${a.count}\\n\\n` +\n  `«примерно» — цена из календаря или витрины перевозчика, на сайте может отличаться.\\n` +\n  `Без пометки — цена из живого поиска, ей можно верить.`;\n\nreturn [{ json: { chat_id, text } }];"
+   },
+   "id": "fw-format-cmd",
+   "name": "Format Reply",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    2400,
+    380
+   ]
+  },
+  {
+   "parameters": {
+    "chatId": "={{ $json.chat_id }}",
+    "text": "={{ $json.text }}",
+    "additionalFields": {
+     "appendAttribution": false,
+     "parse_mode": "HTML"
+    }
+   },
+   "id": "fw-tg-reply",
+   "name": "Telegram Reply",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    2620,
+    380
+   ],
+   "webhookId": "flightwatch-reply-hook",
+   "credentials": {
+    "telegramApi": {
+     "id": "xI8aQzM6Sgc5I2Tw",
+     "name": "Telegram FlightWatch"
+    }
+   }
+  },
+  {
+   "parameters": {},
+   "id": "fw-error-trigger",
+   "name": "On Error",
+   "type": "n8n-nodes-base.errorTrigger",
+   "typeVersion": 1,
+   "position": [
+    200,
+    640
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "// Формируем уведомление о падении воркфлоу.\n// Крон раз в 5 мин: если внешний API лежит часами, без троттлинга прилетают десятки\n// одинаковых сообщений (05.08 их пришло 40 подряд). Поэтому по каждой ноде шлём\n// не чаще раза в 30 мин, а сколько раз подавили — дописываем в следующее сообщение.\nconst QUIET_MS = 30 * 60 * 1000;\n\nconst e = $json.execution || {};\nconst err = e.error || {};\nconst wf = $json.workflow || {};\nconst node = e.lastNodeExecuted || '?';\n\nconst s = $getWorkflowStaticData('global');\nif (!s.errAlerts) s.errAlerts = {};\nconst st = s.errAlerts[node] || { last: 0, suppressed: 0 };\nconst now = Date.now();\n\nif (now - st.last < QUIET_MS) {\n  st.suppressed += 1;\n  s.errAlerts[node] = st;\n  return [];\n}\n\nconst repeats = st.suppressed;\ns.errAlerts[node] = { last: now, suppressed: 0 };\n\nconst text =\n  `⚠️ FlightWatch упал\\n` +\n  `Воркфлоу: ${wf.name || '?'}\\n` +\n  `Нода: ${node}\\n` +\n  `Ошибка: ${err.message || 'без текста'}` +\n  (repeats ? `\\n(за последние 30 мин ещё ${repeats} таких, они скрыты)` : '') +\n  (e.url ? `\\n${e.url}` : '');\n\nreturn [{ json: { chat_id: '648226895', text } }];\n"
+   },
+   "id": "fw-format-err",
+   "name": "Format Error",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    420,
+    640
+   ]
+  },
+  {
+   "parameters": {
+    "chatId": "={{ $json.chat_id }}",
+    "text": "={{ $json.text }}",
+    "additionalFields": {
+     "appendAttribution": false,
+     "parse_mode": "HTML"
+    }
+   },
+   "id": "fw-tg-error",
+   "name": "Telegram Error",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    640,
+    640
+   ],
+   "webhookId": "flightwatch-error-hook",
+   "credentials": {
+    "telegramApi": {
+     "id": "xI8aQzM6Sgc5I2Tw",
+     "name": "Telegram FlightWatch"
+    }
+   }
+  },
+  {
+   "parameters": {
+    "jsCode": "// Точный поиск Победы по всем датам окна поездки, оба направления.\n// Окно фиксированное — поездка 30.08–05.09.2026, обратно смотрим до 07.09 (гибкий возврат).\nconst WINDOW = {\n  'LED|CEK': { min: '2026-08-30', max: '2026-09-05' },\n  'CEK|LED': { min: '2026-08-30', max: '2026-09-07' },\n};\n\nconst days = (min, max) => {\n  const out = [];\n  const cur = new Date(`${min}T00:00:00Z`);\n  const end = new Date(`${max}T00:00:00Z`);\n  while (cur <= end && out.length < 60) {\n    out.push(cur.toISOString().slice(0, 10));\n    cur.setUTCDate(cur.getUTCDate() + 1);\n  }\n  return out;\n};\n\nconst out = [];\nfor (const [pair, w] of Object.entries(WINDOW)) {\n  const [from, to] = pair.split('|');\n  for (const iso of days(w.min, w.max)) {\n    const [y, m, dd] = iso.split('-');\n    out.push({ json: { date_ru: `${dd}.${m}.${y}`, from, to } });\n  }\n}\nreturn out;\n"
+   },
+   "id": "fw-websky-dates",
+   "name": "Websky Dates",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1080,
+    -120
+   ]
+  },
+  {
+   "parameters": {
+    "method": "POST",
+    "url": "https://ticket.flypobeda.ru/websky/json/search-variants-mono-brand-cartesian",
+    "sendBody": true,
+    "contentType": "form-urlencoded",
+    "bodyParameters": {
+     "parameters": [
+      {
+       "name": "searchGroupId",
+       "value": "standard"
+      },
+      {
+       "name": "segmentsCount",
+       "value": "1"
+      },
+      {
+       "name": "date[0]",
+       "value": "={{ $json.date_ru }}"
+      },
+      {
+       "name": "origin-city-code[0]",
+       "value": "={{ $json.from }}"
+      },
+      {
+       "name": "destination-city-code[0]",
+       "value": "={{ $json.to }}"
+      },
+      {
+       "name": "adultsCount",
+       "value": "1"
+      },
+      {
+       "name": "youngAdultsCount",
+       "value": "0"
+      },
+      {
+       "name": "childrenCount",
+       "value": "0"
+      },
+      {
+       "name": "infantsWithSeatCount",
+       "value": "0"
+      },
+      {
+       "name": "infantsWithoutSeatCount",
+       "value": "0"
+      }
+     ]
+    },
+    "options": {
+     "batching": {
+      "batch": {
+       "batchSize": 1,
+       "batchInterval": 1200
+      }
+     },
+     "timeout": 20000
+    },
+    "sendHeaders": true,
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "User-Agent",
+       "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+      },
+      {
+       "name": "Accept",
+       "value": "application/json, text/javascript, */*; q=0.01"
+      },
+      {
+       "name": "Accept-Language",
+       "value": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7"
+      },
+      {
+       "name": "X-Requested-With",
+       "value": "XMLHttpRequest"
+      },
+      {
+       "name": "Origin",
+       "value": "https://ticket.flypobeda.ru"
+      },
+      {
+       "name": "Referer",
+       "value": "https://ticket.flypobeda.ru/websky/"
+      }
+     ]
+    }
+   },
+   "id": "fw-websky",
+   "name": "Pobeda Websky",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    1300,
+    -120
+   ],
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 5000,
+   "onError": "continueRegularOutput",
+   "alwaysOutputData": false
+  },
+  {
+   "parameters": {
+    "jsCode": "// Точный поиск Победы по всем датам окна поездки, оба направления.\n// Окно фиксированное — поездка 30.08–05.09.2026, обратно смотрим до 07.09 (гибкий возврат).\nconst WINDOW = {\n  'LED|CEK': { min: '2026-08-30', max: '2026-09-05' },\n  'CEK|LED': { min: '2026-08-30', max: '2026-09-07' },\n};\n\nconst days = (min, max) => {\n  const out = [];\n  const cur = new Date(`${min}T00:00:00Z`);\n  const end = new Date(`${max}T00:00:00Z`);\n  while (cur <= end && out.length < 60) {\n    out.push(cur.toISOString().slice(0, 10));\n    cur.setUTCDate(cur.getUTCDate() + 1);\n  }\n  return out;\n};\n\nconst out = [];\nfor (const [pair, w] of Object.entries(WINDOW)) {\n  const [from, to] = pair.split('|');\n  for (const iso of days(w.min, w.max)) {\n    const [y, m, dd] = iso.split('-');\n    out.push({ json: { date_ru: `${dd}.${m}.${y}`, from, to } });\n  }\n}\nreturn out;\n"
+   },
+   "id": "fw-websky-dates-cmd",
+   "name": "Websky Dates Cmd",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1300,
+    280
+   ]
+  },
+  {
+   "parameters": {
+    "method": "POST",
+    "url": "https://ticket.flypobeda.ru/websky/json/search-variants-mono-brand-cartesian",
+    "sendBody": true,
+    "contentType": "form-urlencoded",
+    "bodyParameters": {
+     "parameters": [
+      {
+       "name": "searchGroupId",
+       "value": "standard"
+      },
+      {
+       "name": "segmentsCount",
+       "value": "1"
+      },
+      {
+       "name": "date[0]",
+       "value": "={{ $json.date_ru }}"
+      },
+      {
+       "name": "origin-city-code[0]",
+       "value": "={{ $json.from }}"
+      },
+      {
+       "name": "destination-city-code[0]",
+       "value": "={{ $json.to }}"
+      },
+      {
+       "name": "adultsCount",
+       "value": "1"
+      },
+      {
+       "name": "youngAdultsCount",
+       "value": "0"
+      },
+      {
+       "name": "childrenCount",
+       "value": "0"
+      },
+      {
+       "name": "infantsWithSeatCount",
+       "value": "0"
+      },
+      {
+       "name": "infantsWithoutSeatCount",
+       "value": "0"
+      }
+     ]
+    },
+    "options": {
+     "batching": {
+      "batch": {
+       "batchSize": 1,
+       "batchInterval": 1200
+      }
+     },
+     "timeout": 20000
+    },
+    "sendHeaders": true,
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "User-Agent",
+       "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+      },
+      {
+       "name": "Accept",
+       "value": "application/json, text/javascript, */*; q=0.01"
+      },
+      {
+       "name": "Accept-Language",
+       "value": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7"
+      },
+      {
+       "name": "X-Requested-With",
+       "value": "XMLHttpRequest"
+      },
+      {
+       "name": "Origin",
+       "value": "https://ticket.flypobeda.ru"
+      },
+      {
+       "name": "Referer",
+       "value": "https://ticket.flypobeda.ru/websky/"
+      }
+     ]
+    }
+   },
+   "id": "fw-websky-cmd",
+   "name": "Pobeda Websky Cmd",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    1520,
+    280
+   ],
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 5000,
+   "onError": "continueRegularOutput",
+   "alwaysOutputData": false
+  },
+  {
+   "parameters": {
+    "jsCode": "// Запросы в Travelpayouts: оба направления × месяцы окна поездки.\n// departure_at принимает YYYY-MM, поэтому режем окно помесячно; лишние даты\n// внутри месяца отсекает inRange в Aggregate.\nconst MIN_DATE = '2026-08-30';\nconst MAX_DATE = '2026-09-07'; // самая дальняя граница по направлениям\nconst pad = n => String(n).padStart(2, '0');\n\nconst cur = new Date(Number(MIN_DATE.slice(0, 4)), Number(MIN_DATE.slice(5, 7)) - 1, 1);\nconst end = new Date(Number(MAX_DATE.slice(0, 4)), Number(MAX_DATE.slice(5, 7)) - 1, 1);\n\nconst months = [];\nwhile (cur <= end && months.length < 24) {\n  months.push(`${cur.getFullYear()}-${pad(cur.getMonth() + 1)}`);\n  cur.setMonth(cur.getMonth() + 1);\n}\n\nconst out = [];\nfor (const month of months) {\n  out.push({ json: { origin: 'LED', destination: 'CEK', month } });\n  out.push({ json: { origin: 'CEK', destination: 'LED', month } });\n}\nreturn out;"
+   },
+   "id": "fw-tp-queries",
+   "name": "TP Queries",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1520,
+    -120
+   ]
+  },
+  {
+   "parameters": {
+    "url": "https://api.travelpayouts.com/aviasales/v3/prices_for_dates",
+    "authentication": "genericCredentialType",
+    "genericAuthType": "httpHeaderAuth",
+    "sendQuery": true,
+    "queryParameters": {
+     "parameters": [
+      {
+       "name": "origin",
+       "value": "={{ $json.origin }}"
+      },
+      {
+       "name": "destination",
+       "value": "={{ $json.destination }}"
+      },
+      {
+       "name": "departure_at",
+       "value": "={{ $json.month }}"
+      },
+      {
+       "name": "currency",
+       "value": "rub"
+      },
+      {
+       "name": "one_way",
+       "value": "true"
+      },
+      {
+       "name": "direct",
+       "value": "false"
+      },
+      {
+       "name": "sorting",
+       "value": "price"
+      },
+      {
+       "name": "market",
+       "value": "ru"
+      },
+      {
+       "name": "limit",
+       "value": "1000"
+      }
+     ]
+    },
+    "options": {}
+   },
+   "id": "fw-tp",
+   "name": "Travelpayouts",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    1740,
+    -120
+   ],
+   "onError": "continueRegularOutput",
+   "retryOnFail": true,
+   "maxTries": 2,
+   "credentials": {
+    "httpHeaderAuth": {
+     "id": "F6BXX0xCsKy7qfoO",
+     "name": "Travelpayouts"
+    }
+   }
+  },
+  {
+   "parameters": {
+    "jsCode": "// Запросы в Travelpayouts: оба направления × месяцы окна поездки.\n// departure_at принимает YYYY-MM, поэтому режем окно помесячно; лишние даты\n// внутри месяца отсекает inRange в Aggregate.\nconst MIN_DATE = '2026-08-30';\nconst MAX_DATE = '2026-09-07'; // самая дальняя граница по направлениям\nconst pad = n => String(n).padStart(2, '0');\n\nconst cur = new Date(Number(MIN_DATE.slice(0, 4)), Number(MIN_DATE.slice(5, 7)) - 1, 1);\nconst end = new Date(Number(MAX_DATE.slice(0, 4)), Number(MAX_DATE.slice(5, 7)) - 1, 1);\n\nconst months = [];\nwhile (cur <= end && months.length < 24) {\n  months.push(`${cur.getFullYear()}-${pad(cur.getMonth() + 1)}`);\n  cur.setMonth(cur.getMonth() + 1);\n}\n\nconst out = [];\nfor (const month of months) {\n  out.push({ json: { origin: 'LED', destination: 'CEK', month } });\n  out.push({ json: { origin: 'CEK', destination: 'LED', month } });\n}\nreturn out;"
+   },
+   "id": "fw-tp-queries-cmd",
+   "name": "TP Queries Cmd",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1740,
+    280
+   ]
+  },
+  {
+   "parameters": {
+    "url": "https://api.travelpayouts.com/aviasales/v3/prices_for_dates",
+    "authentication": "genericCredentialType",
+    "genericAuthType": "httpHeaderAuth",
+    "sendQuery": true,
+    "queryParameters": {
+     "parameters": [
+      {
+       "name": "origin",
+       "value": "={{ $json.origin }}"
+      },
+      {
+       "name": "destination",
+       "value": "={{ $json.destination }}"
+      },
+      {
+       "name": "departure_at",
+       "value": "={{ $json.month }}"
+      },
+      {
+       "name": "currency",
+       "value": "rub"
+      },
+      {
+       "name": "one_way",
+       "value": "true"
+      },
+      {
+       "name": "direct",
+       "value": "false"
+      },
+      {
+       "name": "sorting",
+       "value": "price"
+      },
+      {
+       "name": "market",
+       "value": "ru"
+      },
+      {
+       "name": "limit",
+       "value": "1000"
+      }
+     ]
+    },
+    "options": {}
+   },
+   "id": "fw-tp-cmd",
+   "name": "Travelpayouts Cmd",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    1960,
+    280
+   ],
+   "onError": "continueRegularOutput",
+   "retryOnFail": true,
+   "maxTries": 2,
+   "credentials": {
+    "httpHeaderAuth": {
+     "id": "F6BXX0xCsKy7qfoO",
+     "name": "Travelpayouts"
+    }
+   }
+  }
+ ],
+ "connections": {
+  "Every 5 min": {
+   "main": [
+    [
+     {
+      "node": "Smartavia LED-CEK",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Smartavia LED-CEK": {
+   "main": [
+    [
+     {
+      "node": "Smartavia CEK-LED",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Smartavia CEK-LED": {
+   "main": [
+    [
+     {
+      "node": "Pobeda",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Pobeda": {
+   "main": [
+    [
+     {
+      "node": "Websky Dates",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Aggregate": {
+   "main": [
+    [
+     {
+      "node": "Prepare",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Prepare": {
+   "main": [
+    [
+     {
+      "node": "Telegram Alert",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "On Command": {
+   "main": [
+    [
+     {
+      "node": "Is /prices",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Is /prices": {
+   "main": [
+    [
+     {
+      "node": "Smartavia LED-CEK Cmd",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Smartavia LED-CEK Cmd": {
+   "main": [
+    [
+     {
+      "node": "Smartavia CEK-LED Cmd",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Smartavia CEK-LED Cmd": {
+   "main": [
+    [
+     {
+      "node": "Pobeda Cmd",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Pobeda Cmd": {
+   "main": [
+    [
+     {
+      "node": "Websky Dates Cmd",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Aggregate Cmd": {
+   "main": [
+    [
+     {
+      "node": "Format Reply",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Format Reply": {
+   "main": [
+    [
+     {
+      "node": "Telegram Reply",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "On Error": {
+   "main": [
+    [
+     {
+      "node": "Format Error",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Format Error": {
+   "main": [
+    [
+     {
+      "node": "Telegram Error",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Websky Dates": {
+   "main": [
+    [
+     {
+      "node": "Pobeda Websky",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Pobeda Websky": {
+   "main": [
+    [
+     {
+      "node": "TP Queries",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Websky Dates Cmd": {
+   "main": [
+    [
+     {
+      "node": "Pobeda Websky Cmd",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Pobeda Websky Cmd": {
+   "main": [
+    [
+     {
+      "node": "TP Queries Cmd",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "TP Queries": {
+   "main": [
+    [
+     {
+      "node": "Travelpayouts",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Travelpayouts": {
+   "main": [
+    [
+     {
+      "node": "Aggregate",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "TP Queries Cmd": {
+   "main": [
+    [
+     {
+      "node": "Travelpayouts Cmd",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Travelpayouts Cmd": {
+   "main": [
+    [
+     {
+      "node": "Aggregate Cmd",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "settings": {
+  "executionOrder": "v1",
+  "binaryMode": "separate"
+ },
+ "staticData": null
+}

@@ -1,0 +1,131 @@
+{
+ "name": "Fitness_Bot_EvaluateDay",
+ "nodes": [
+  {
+   "parameters": {
+    "rule": {
+     "interval": [
+      {
+       "field": "cronExpression",
+       "expression": "0 40 23 * * *"
+      }
+     ]
+    }
+   },
+   "id": "ed-schedule-2340",
+   "name": "Cron 23:40 MSK",
+   "type": "n8n-nodes-base.scheduleTrigger",
+   "typeVersion": 1.2,
+   "position": [
+    2000,
+    -16
+   ]
+  },
+  {
+   "parameters": {
+    "method": "POST",
+    "url": "http://fitness-api:8001/api/cron/evaluate-day",
+    "authentication": "genericCredentialType",
+    "genericAuthType": "httpHeaderAuth",
+    "sendBody": true,
+    "contentType": "raw",
+    "rawContentType": "application/json",
+    "body": "={{ JSON.stringify({}) }}",
+    "options": {
+     "timeout": 60000
+    }
+   },
+   "id": "ed-http-evaluate",
+   "name": "Evaluate Day (Django)",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    2256,
+    -16
+   ],
+   "credentials": {
+    "httpHeaderAuth": {
+     "id": "",
+     "name": "Cron Secret (X-Cron-Secret)"
+    }
+   }
+  },
+  {
+   "parameters": {
+    "jsCode": "// Разворачиваем ответ Django {ok, date, messages:[{chat_id,text}]}\n// в один item на сообщение. Пусто → [] → Telegram не выполняется.\nconst res = $json || {};\nconst msgs = Array.isArray(res.messages) ? res.messages : [];\nreturn msgs\n  .filter(m => m && m.chat_id && m.text)\n  .map(m => ({ json: { chat_id: m.chat_id, text: m.text } }));"
+   },
+   "id": "ed-explode-messages",
+   "name": "Explode Messages",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    2512,
+    -16
+   ]
+  },
+  {
+   "parameters": {
+    "chatId": "={{ $json.chat_id }}",
+    "text": "={{ $json.text }}",
+    "additionalFields": {
+     "appendAttribution": false,
+     "parse_mode": "HTML"
+    }
+   },
+   "id": "ed-telegram-notify",
+   "name": "Telegram Notify",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    2768,
+    -16
+   ],
+   "credentials": {
+    "telegramApi": {
+     "id": "i66iQ2uUac0QdYNa",
+     "name": "Telegram account"
+    }
+   }
+  }
+ ],
+ "connections": {
+  "Cron 23:40 MSK": {
+   "main": [
+    [
+     {
+      "node": "Evaluate Day (Django)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Evaluate Day (Django)": {
+   "main": [
+    [
+     {
+      "node": "Explode Messages",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Explode Messages": {
+   "main": [
+    [
+     {
+      "node": "Telegram Notify",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "active": false,
+ "settings": {
+  "executionOrder": "v1",
+  "binaryMode": "separate"
+ }
+}

@@ -1,0 +1,161 @@
+{
+  "name": "Ryzh Weekly Bridge",
+  "nodes": [
+    {
+      "id": "Sunday_20:00",
+      "name": "Sunday 20:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 20 * * 0"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Week_Top",
+      "name": "Week Top",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT sp.post_no, s.views, s.reactions, coalesce(t.title, left(sp.text, 80)) AS title,\n       rp.id AS ryzh_post_id\nFROM content_source_posts sp\nJOIN content_sources c ON c.username = sp.source AND c.is_own\nJOIN LATERAL (SELECT views, reactions FROM content_post_snapshots\n              WHERE source = sp.source AND post_no = sp.post_no\n              ORDER BY captured_at DESC LIMIT 1) s ON true\nLEFT JOIN ryzh_posts rp ON rp.channel_message_id = sp.post_no\nLEFT JOIN ryzh_topics t ON t.id = rp.topic_id\nWHERE sp.posted_at > now() - interval '9 days'\n  AND sp.posted_at < now() - interval '2 days'\nORDER BY s.views DESC\nLIMIT 3;",
+        "options": {}
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "Build_Message",
+      "name": "Build Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst rows = $input.all().map(i => i.json).filter(r => r.post_no);\nif (!rows.length) {\n  return [{ json: { text: '🦊 Итог недели: свежих постов в канале старше 2 суток нет — роликам не за что зацепиться.' } }];\n}\nconst lines = rows.map((r, k) =>\n  `${k + 1}. <b>${esc(r.title)}</b> — ${r.views} просмотров, ${r.reactions} реакций\\nhttps://t.me/ryzh_trener/${r.post_no}` +\n  (r.ryzh_post_id ? ` · пост #${r.ryzh_post_id}` : ''));\nconst text = '🦊 <b>Тема недели для ролика</b>\\n\\n' + lines.join('\\n\\n') +\n  '\\n\\nРолик ставит проблему, пост её решает: подпись ролика — «Подробности — в канале Рыжа, ссылка в шапке», ' +\n  'в сторис — стикер-ссылка на пост. Связку записать в content_links (reel_no, ryzh_post_id).';\nreturn [{ json: { text } }];"
+      }
+    },
+    {
+      "id": "Send_To_Owner",
+      "name": "Send To Editors",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $('Build Message').first().json.text }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false,
+          "disable_web_page_preview": true
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      }
+    },
+    {
+      "id": "Editors",
+      "name": "Editors",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT chat_id FROM ryzh_editors ORDER BY chat_id;",
+        "options": {}
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Sunday 20:00": {
+      "main": [
+        [
+          {
+            "node": "Week Top",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Week Top": {
+      "main": [
+        [
+          {
+            "node": "Build Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Message": {
+      "main": [
+        [
+          {
+            "node": "Editors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Editors": {
+      "main": [
+        [
+          {
+            "node": "Send To Editors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Moscow"
+  },
+  "versionId": "ryzh-bridge-02",
+  "pinData": {},
+  "tags": []
+}

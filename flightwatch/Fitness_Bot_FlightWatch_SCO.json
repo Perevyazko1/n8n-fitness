@@ -1,0 +1,951 @@
+{
+  "name": "Fitness_Bot_FlightWatch_SCO",
+  "description": "",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "id": "fwsco-schedule",
+      "name": "Every 15 min",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 */15 * * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "fwsco-tpq",
+      "name": "TP Queries",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Запросы в Travelpayouts под первое плечо: Питер -> Актау, сентябрь 2026.\n// Кроме сквозного маршрута тянем соседей, и вот зачем:\n//   legA/legB — половинки московской схемы, из них в Aggregate собирается self-transfer;\n//   deep      — города «за» Актау, нужны для подсказок hidden-city.\nconst MONTH = '2026-09';\n\nconst Q = [\n  { origin: 'LED', destination: 'SCO', leg: 'through' },\n  { origin: 'LED', destination: 'MOW', leg: 'legA' },   // MOW — метро-код: SVO+DME+VKO+ZIA\n  { origin: 'MOW', destination: 'SCO', leg: 'legB' },\n  { origin: 'LED', destination: 'ALA', leg: 'deep' },\n  { origin: 'LED', destination: 'NQZ', leg: 'deep' },\n  { origin: 'LED', destination: 'TAS', leg: 'deep' },\n  { origin: 'LED', destination: 'GUW', leg: 'deep' },\n];\n\nreturn Q.map(q => ({ json: { ...q, month: MONTH } }));\n"
+      }
+    },
+    {
+      "id": "fwsco-tp",
+      "name": "Travelpayouts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        640,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "F6BXX0xCsKy7qfoO",
+          "name": "Travelpayouts"
+        }
+      },
+      "parameters": {
+        "url": "https://api.travelpayouts.com/aviasales/v3/prices_for_dates",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "origin",
+              "value": "={{ $json.origin }}"
+            },
+            {
+              "name": "destination",
+              "value": "={{ $json.destination }}"
+            },
+            {
+              "name": "departure_at",
+              "value": "={{ $json.month }}"
+            },
+            {
+              "name": "currency",
+              "value": "rub"
+            },
+            {
+              "name": "one_way",
+              "value": "true"
+            },
+            {
+              "name": "direct",
+              "value": "false"
+            },
+            {
+              "name": "sorting",
+              "value": "price"
+            },
+            {
+              "name": "market",
+              "value": "ru"
+            },
+            {
+              "name": "limit",
+              "value": "1000"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 20000,
+          "batching": {
+            "batch": {
+              "batchSize": 5,
+              "batchInterval": 400
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "fwsco-histq",
+      "name": "TP History Queries",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        860,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Исторические цены Travelpayouts — нужны, чтобы ответить на вопрос\n// «а 28 000 ₽ это вообще дёшево?». Своей таблицы не заводим, берём чужой архив.\n// Эндпоинт один — /v2/prices/latest: реально найденные цены за период\n// (show_to_affiliates=false), по ним считаем медиану и исторический минимум.\n// /v1/prices/calendar пробовали 2026-08-17 и ВЫКИНУЛИ: он отдаёт цены ТУДА-ОБРАТНО\n// (все записи с return_at, 45–64 тыс. против one-way 12–22 тыс.) и игнорирует\n// запрошенный месяц, растягиваясь на год вперёд. В медиане это давало +60 % к «обычной цене».\n// URL и query собираются здесь, HTTP-нода их только исполняет.\nconst YEAR_START = '2026-01-01';\nconst ROUTES = [['LED', 'SCO'], ['LED', 'MOW'], ['MOW', 'SCO']];\n\nconst out = [];\nfor (const [origin, destination] of ROUTES) {\n  out.push({ json: {\n    key: `${origin}-${destination}`, kind: 'latest',\n    url: 'https://api.travelpayouts.com/v2/prices/latest',\n    qs: {\n      origin, destination, currency: 'rub',\n      period_type: 'year', beginning_of_period: YEAR_START,\n      group_by: 'dates', one_way: 'true', sorting: 'price',\n      page: '1', limit: '1000', show_to_affiliates: 'false',\n    },\n  } });\n}\nreturn out;\n"
+      }
+    },
+    {
+      "id": "fwsco-hist",
+      "name": "TP History",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1080,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "F6BXX0xCsKy7qfoO",
+          "name": "Travelpayouts"
+        }
+      },
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "specifyQuery": "json",
+        "jsonQuery": "={{ JSON.stringify($json.qs) }}",
+        "options": {
+          "timeout": 20000,
+          "batching": {
+            "batch": {
+              "batchSize": 5,
+              "batchInterval": 400
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "fwsco-agg",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1740,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// ===== Плечо 1: Питер -> Актау (SCO), 15-25 сентября 2026 =====\n// На старте живой источник один — Travelpayouts (кэш Aviasales, данные до 48 ч).\n// Ноды перевозчиков (SCAT, Air Astana, FlyArystan, Уральские) добавляются позже,\n// поэтому разбор идёт через общий плоский список offers[]: новому источнику\n// достаточно положить туда свои записи в том же формате и он поедет дальше сам.\n//\n// offer = { from, to, date, depart_at, price, airline, transfers, src, kind }\n//   kind: 'direct' | 'connect' | 'self' | 'hidden'\n//   'self' (две отдельные брони) и 'hidden' считаются отдельно и в основной\n//   порог алерта НЕ попадают — у них своя цена риска.\nconst SUF = ''; // '' для крона, ' Cmd' для ветки команды\n\nconst WINDOW = { min: '2026-09-15', max: '2026-09-25' };\nconst HOME = 'LED';\nconst TARGET = 'SCO';\nconst HUB = 'MOW';                        // self-transfer через Москву\nconst DEEP = ['ALA', 'NQZ', 'TAS', 'GUW']; // города «за» Актау — под hidden-city\nconst ASSUMED_LEG_H = 3;                   // если перевозчик не отдал длительность\nconst MIN_LAYOVER_H = 4;                   // меньше — на самостоятельную стыковку не идём\nconst MAX_LAYOVER_H = 36;\n\nconst AIRLINES = {\n  DP: 'Победа', '5N': 'Смартавиа', U6: 'Уральские', FV: 'Россия', SU: 'Аэрофлот',\n  S7: 'S7', N4: 'Nordwind', WZ: 'Red Wings', A4: 'Азимут', YC: 'Ямал', UT: 'ЮТэйр',\n  DV: 'SCAT', KC: 'Air Astana', IQ: 'Qazaq Air', HY: 'Uzbekistan', TK: 'Turkish',\n  FZ: 'flydubai', J2: 'AZAL', VJ: 'VietJet', EK: 'Emirates', ZF: 'Азур', EO: 'Икар',\n  // добавлены по факту выдачи 17.08.2026; C6 не расшифрован — покажется кодом как есть\n  PC: 'Pegasus', B2: 'Belavia', '6R': 'Алроса',\n};\nconst CITY = {\n  LED: 'Санкт-Петербург', MOW: 'Москва', SCO: 'Актау', ALA: 'Алматы',\n  NQZ: 'Астана', TAS: 'Ташкент', GUW: 'Атырау',\n};\n\nconst inWindow = d => Boolean(d && d >= WINDOW.min && d <= WINDOW.max);\nconst hours = ms => ms / 3600000;\n\n// --- 1. Travelpayouts v3: единственный источник на старте -------------------\nconst offers = [];\ntry {\n  for (const item of $('Travelpayouts' + SUF).all()) {\n    const r = item.json || {};\n    if (r.success === false) continue;\n    const rows = Array.isArray(r.data) ? r.data : (Array.isArray(r) ? r : []);\n\n    for (const t of rows) {\n      const depart_at = String(t.departure_at || t.depart_date || '');\n      const date = depart_at.slice(0, 10);\n      if (!inWindow(date)) continue;\n\n      const price = Number(t.price != null ? t.price : t.value);\n      if (!Number.isFinite(price) || price <= 0) continue;\n\n      const transfers = Number(t.transfers != null ? t.transfers : t.number_of_changes);\n      const dur = Number(t.duration_to || t.duration);\n\n      offers.push({\n        from: t.origin, to: t.destination, date, depart_at,\n        price,\n        airline: AIRLINES[t.airline] || t.airline || 'н/д',\n        transfers: Number.isFinite(transfers) ? transfers : null,\n        duration_min: Number.isFinite(dur) && dur > 0 ? dur : null,\n        src: 'tp',\n        kind: transfers === 0 ? 'direct' : 'connect',\n        link: t.link || null,\n      });\n    }\n  }\n} catch (e) {}\n\n// --- 1b. tutu: минимум по всем перевозчикам, включая тех, кого нет в кэше TP ---\n// Ответ — плоский объект по датам, направление в нём НЕ указано, поэтому\n// сопоставляем с запросами по индексу. Упавший запрос (continueRegularOutput)\n// приходит item'ом с json.error — такую пару просто пропускаем.\nconst ruToIso = s => {\n  const m = String(s || '').match(/^(\\d{2})\\.(\\d{2})\\.(\\d{4})$/);\n  return m ? `${m[3]}-${m[2]}-${m[1]}` : null;\n};\ntry {\n  const asked = $('Tutu Queries' + SUF).all();\n  const answers = $('Tutu' + SUF).all();\n  if (answers.length === asked.length) {\n    asked.forEach((q, i) => {\n      const data = (answers[i] || {}).json || {};\n      if (data.error || Array.isArray(data)) return;\n      for (const [dru, v] of Object.entries(data)) {\n        const date = ruToIso(dru);\n        if (!inWindow(date)) continue;\n        const price = Number(v && v.price);\n        if (!Number.isFinite(price) || price <= 0) continue;\n        offers.push({\n          from: q.json.from, to: q.json.to, date,\n          // времени вылета tutu не даёт — для стыковки берём условный полдень,\n          // поэтому self-transfer на tutu-ценах помечен как приблизительный\n          depart_at: `${date}T12:00:00+03:00`,\n          price, airline: 'мин. цена tutu', transfers: null, duration_min: null,\n          src: 'tutu', kind: 'connect', link: null,\n        });\n      }\n    });\n  }\n} catch (e) {}\n\n// --- 2. Self-transfer через Москву -----------------------------------------\n// Две отдельные брони: дешёвый лоукостер до Москвы + отдельный билет до Актау.\n// Стыковку проверяем по времени вылета/прилёта, а не «по датам» — иначе бот\n// предложит схему, где второй рейс улетает раньше, чем прилетает первый.\nconst legMin = (from, to) => {\n  const byDate = {};\n  for (const o of offers) {\n    if (o.from !== from || o.to !== to) continue;\n    if (!byDate[o.date] || o.price < byDate[o.date].price) byDate[o.date] = o;\n  }\n  return Object.values(byDate);\n};\n\nconst arrivalOf = o => {\n  const dep = new Date(o.depart_at);\n  if (isNaN(dep)) return null;\n  const mins = o.duration_min != null ? o.duration_min : ASSUMED_LEG_H * 60;\n  return new Date(dep.getTime() + mins * 60000);\n};\n\nconst selfCombos = [];\nconst legA = legMin(HOME, HUB);\nconst legB = legMin(HUB, TARGET);\nfor (const a of legA) {\n  const arr = arrivalOf(a);\n  for (const b of legB) {\n    const dep = new Date(b.depart_at);\n    if (!arr || isNaN(dep)) continue;\n    const gap = hours(dep - arr);\n    if (gap < MIN_LAYOVER_H || gap > MAX_LAYOVER_H) continue;\n    selfCombos.push({\n      price: a.price + b.price,\n      date: a.date, arrive_date: b.date,\n      layover_h: Math.round(gap * 10) / 10,\n      legA: a, legB: b,\n      kind: 'self', src: 'tp',\n      from: HOME, to: TARGET,\n      airline: `${a.airline} + ${b.airline}`,\n    });\n  }\n}\nselfCombos.sort((x, y) => x.price - y.price);\n\n// --- 3. Hidden-city: пока только подсказка ---------------------------------\n// Настоящий hidden-city требует сегментов маршрута, а Travelpayouts их не отдаёт.\n// Поэтому честно сравниваем: если долететь «дальше» дешевле, чем до Актау —\n// сообщаем цифру и просим проверить глазами, есть ли там стыковка в SCO.\nconst cheapest = list => list.slice().sort((a, b) => a.price - b.price)[0] || null;\nconst through = offers.filter(o => o.from === HOME && o.to === TARGET);\nconst bestThrough = cheapest(through);\n\nconst hidden = [];\nfor (const dst of DEEP) {\n  const best = cheapest(offers.filter(o => o.from === HOME && o.to === dst));\n  if (!best) continue;\n  if (bestThrough && best.price >= bestThrough.price) continue; // не дешевле — не подсказка\n  hidden.push({\n    ...best, kind: 'hidden',\n    saving: bestThrough ? bestThrough.price - best.price : null,\n    city: CITY[dst] || dst,\n  });\n}\nhidden.sort((a, b) => a.price - b.price);\n\n// --- 4. Архив цен: медиана и исторический минимум ---------------------------\n// Ответ на «дёшево или нет». Схемы этих эндпоинтов живьём не проверены,\n// поэтому читаем максимально терпимо и молча пропускаем всё, что не разобралось.\n// Копим два пула: цены на даты НАШЕГО окна (точнее) и вообще все (шире выборка).\n// Если по окну набралось мало точек — падаем на общий пул, иначе медиана скачет.\nconst history = {}, historyWin = {};\nconst pushHist = (key, price, date) => {\n  if (!Number.isFinite(price) || price <= 0) return;\n  (history[key] = history[key] || []).push(price);\n  if (inWindow(date)) (historyWin[key] = historyWin[key] || []).push(price);\n};\ntry {\n  for (const item of $('TP History' + SUF).all()) {\n    const r = item.json || {};\n    if (r.success === false) continue;\n    const data = r.data;\n\n    if (!Array.isArray(data)) continue;               // ждём массив от /v2/prices/latest\n    for (const t of data) {\n      if (!t || !t.origin || !t.destination) continue;\n      if (t.return_date) continue;                     // цены туда-обратно нам не с чем сравнивать\n      pushHist(`${t.origin}-${t.destination}`,\n               Number(t.value != null ? t.value : t.price),\n               String(t.depart_date || '').slice(0, 10));\n    }\n  }\n} catch (e) {}\n\nconst MIN_SAMPLE = 10;\nconst stats = {};\nfor (const key of Object.keys(history)) {\n  const win = historyWin[key] || [];\n  const useWin = win.length >= MIN_SAMPLE;\n  const s = (useWin ? win : history[key]).slice().sort((a, b) => a - b);\n  stats[key] = {\n    min: s[0],\n    median: s[Math.floor(s.length / 2)],\n    count: s.length,\n    scope: useWin ? 'наши даты' : 'все даты',\n  };\n}\n\n// --- 5. Сводка --------------------------------------------------------------\nconst byDate = {};\nfor (const o of through) {\n  if (!byDate[o.date] || o.price < byDate[o.date].price) byDate[o.date] = o;\n}\n\nreturn [{ json: {\n  window: WINDOW,\n  route: { from: HOME, to: TARGET, label: `${CITY[HOME]} → ${CITY[TARGET]}` },\n  through: {\n    best: bestThrough,\n    byDate: Object.values(byDate).sort((a, b) => (a.date < b.date ? -1 : 1)),\n    count: through.length,\n  },\n  self: { best: selfCombos[0] || null, top: selfCombos.slice(0, 3), count: selfCombos.length },\n  hidden: { top: hidden.slice(0, 3), count: hidden.length },\n  stats,\n  count: offers.length,\n  bySource: offers.reduce((acc, o) => { acc[o.src] = (acc[o.src] || 0) + 1; return acc; }, {}),\n} }];\n"
+      }
+    },
+    {
+      "id": "fwsco-prep",
+      "name": "Prepare",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1960,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// ===================== НАСТРОЙКИ =====================\nconst THRESHOLD = 17000;       // 🔥 жёсткий порог по сквозному LED→SCO, ₽\nconst SELF_THRESHOLD = 17000;  // 🔥 порог для суммы двух отдельных броней\nconst DROP_PCT = 12;           // 📉 мягкий алерт: падение от прошлого минимума, %\nconst CHAT_ID = '648226895';\n// Окно сузилось до 15–25.09, пороги пересчитаны по живому прогону 17.08.2026:\n//   сквозной LED→SCO в окне — 17 375 ₽ (Pegasus, 15.09), медиана по датам 23 337 ₽;\n//   через Москву — 22 631 ₽, то есть ХУЖЕ сквозного.\n// (Для справки: вне окна, 26–27.09, было 12 703–13 352 ₽ — самые дешёвые даты сентября.)\n// Пороги стоят у текущего минимума: алерт = реальное падение, а не «оно и так столько».\n// Две брони имеют смысл только когда бьют сквозной билет — отсюда одинаковый порог.\n// =====================================================\n\nconst agg = $('Aggregate').first().json;\nconst store = $getWorkflowStaticData('global'); // переживает запуски, без внешней БД\n\nconst MONTHS = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн',\n                'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];\nconst dm = iso => {\n  const p = String(iso).split('-');\n  return p.length === 3 ? `${Number(p[2])} ${MONTHS[Number(p[1]) - 1]}` : iso;\n};\nconst rub = n => String(Math.round(n)).replace(/\\B(?=(\\d{3})+(?!\\d))/g, ' ') + ' ₽';\nconst stops = o => o.transfers === 0 ? 'прямой'\n  : o.transfers > 0 ? `${o.transfers} пересадк${o.transfers === 1 ? 'а' : 'и'}`\n  : 'пересадки не указаны';\nconst describe = o => `${rub(o.price)} · ${dm(o.date)} · ${o.airline} · ${stops(o)}`;\n\n// «дёшево или нет» — по чужому архиву Travelpayouts\nconst verdict = (key, price) => {\n  const s = (agg.stats || {})[key];\n  if (!s || !s.median || !s.count) return '';\n  const pct = Math.round((price / s.median) * 100);\n  // ВАЖНО про смысл цифры: /v2/prices/latest с group_by=dates отдаёт по одной\n  // самой дешёвой цене НА КАЖДУЮ ДАТУ. Значит медиана — это «типичная дата», а не\n  // «исторический уровень цен». Сравнение идёт с соседними датами, не со временем.\n  const where = s.scope === 'наши даты' ? 'дату окна' : 'дату в архиве';\n  return `\\n📊 ${pct} % от цены на типичную ${where} ` +\n         `(медиана по датам ${rub(s.median)}, самая дешёвая ${rub(s.min)}, дат: ${s.count})`;\n};\n\nconst out = [];\nconst push = text => out.push({ json: { chat_id: CHAT_ID, text } });\nconst label = agg.route.label;\n\n// ---------- сквозной билет ----------\nconst t = agg.through.best;\nif (t) {\n  const last = (store.through == null) ? null : Number(store.through);\n  const was = (last == null) ? '' : ` (было ${rub(last)})`;\n\n  let head = null;\n  if (t.price <= THRESHOLD && (last == null || t.price < last)) head = `🔥 ${label}`;\n  else if (last != null && t.price <= last * (1 - DROP_PCT / 100)) head = `📉 ${label}: цена упала`;\n  store.through = t.price;\n\n  if (head) {\n    let text = `${head}\\n${describe(t)}${was}` +\n               verdict(`${agg.route.from}-${agg.route.to}`, t.price);\n    if (head.startsWith('🔥')) text += '\\nБери, пока не разобрали!';\n    text += '\\n⚠️ Цена из кэша Aviasales — проверь на сайте перевозчика.';\n    push(text);\n  }\n}\n\n// ---------- самостоятельная стыковка через Москву ----------\n// Отдельный порог и отдельный счётчик: это две брони, риск на нас.\nconst s = agg.self.best;\nif (s) {\n  const last = (store.self == null) ? null : Number(store.self);\n  const was = (last == null) ? '' : ` (было ${rub(last)})`;\n\n  let head = null;\n  if (s.price <= SELF_THRESHOLD && (last == null || s.price < last)) head = `🔥 ${label} через Москву`;\n  else if (last != null && s.price <= last * (1 - DROP_PCT / 100)) head = `📉 ${label} через Москву: дешевле`;\n  store.self = s.price;\n\n  if (head) {\n    push(`${head}\\n${rub(s.price)} — две отдельные брони${was}\\n` +\n      `  1) ${describe(s.legA)}\\n` +\n      `  2) ${describe(s.legB)}\\n` +\n      `  стыковка ${s.layover_h} ч\\n` +\n      `⚠️ Билеты разные: опоздал на второй — никто ничего не должен. ` +\n      `Багаж перерегистрировать, время стыковки проверить руками.` +\n      // tutu отдаёт только цену на дату, без времени вылета — стыковка тут условная\n      ((s.legA.src === 'tutu' || s.legB.src === 'tutu')\n        ? `\\n⚠️ Цена из календаря tutu: времени вылета там нет, стыковка посчитана грубо.`\n        : ''));\n  }\n}\n\n// ---------- hidden-city: только подсказка, без порога ----------\n// Шлём не чаще раза в сутки и только если экономия заметная — иначе это спам.\nconst h = (agg.hidden.top || [])[0];\nif (h && h.saving && h.saving >= 3000) {\n  const day = new Date().toISOString().slice(0, 10);\n  if (store.hiddenDay !== day) {\n    store.hiddenDay = day;\n    push(`🕵️ Подсказка hidden-city\\n` +\n      `${agg.route.from} → ${h.city} стоит ${rub(h.price)} — на ${rub(h.saving)} дешевле, ` +\n      `чем до Актау (${dm(h.date)}, ${h.airline}, ${stops(h)}).\\n` +\n      `Проверь глазами: если этот рейс садится в Актау на стыковке — выходишь там.\\n` +\n      `⚠️ Только ручная кладь, только one-way, на пропускаемый сегмент не регистрироваться.`);\n  }\n}\n\nreturn out; // 0..3 сообщения -> прямо в Telegram\n"
+      }
+    },
+    {
+      "id": "fwsco-tg",
+      "name": "Telegram Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2180,
+        0
+      ],
+      "webhookId": "fwsco-alert-hook",
+      "credentials": {
+        "telegramApi": {
+          "id": "xI8aQzM6Sgc5I2Tw",
+          "name": "Telegram FlightWatch"
+        }
+      },
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      }
+    },
+    {
+      "id": "fwsco-cmd-trigger",
+      "name": "On Command",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        320
+      ],
+      "webhookId": "fwsco-cmd-hook",
+      "credentials": {
+        "telegramApi": {
+          "id": "xI8aQzM6Sgc5I2Tw",
+          "name": "Telegram FlightWatch"
+        }
+      },
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      }
+    },
+    {
+      "id": "fwsco-cmd-if",
+      "name": "Is /prices",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        420,
+        320
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-prices",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "/prices",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "fwsco-tpq-cmd",
+      "name": "TP Queries Cmd",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        320
+      ],
+      "parameters": {
+        "jsCode": "// Запросы в Travelpayouts под первое плечо: Питер -> Актау, сентябрь 2026.\n// Кроме сквозного маршрута тянем соседей, и вот зачем:\n//   legA/legB — половинки московской схемы, из них в Aggregate собирается self-transfer;\n//   deep      — города «за» Актау, нужны для подсказок hidden-city.\nconst MONTH = '2026-09';\n\nconst Q = [\n  { origin: 'LED', destination: 'SCO', leg: 'through' },\n  { origin: 'LED', destination: 'MOW', leg: 'legA' },   // MOW — метро-код: SVO+DME+VKO+ZIA\n  { origin: 'MOW', destination: 'SCO', leg: 'legB' },\n  { origin: 'LED', destination: 'ALA', leg: 'deep' },\n  { origin: 'LED', destination: 'NQZ', leg: 'deep' },\n  { origin: 'LED', destination: 'TAS', leg: 'deep' },\n  { origin: 'LED', destination: 'GUW', leg: 'deep' },\n];\n\nreturn Q.map(q => ({ json: { ...q, month: MONTH } }));\n"
+      }
+    },
+    {
+      "id": "fwsco-tp-cmd",
+      "name": "Travelpayouts Cmd",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        860,
+        320
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "F6BXX0xCsKy7qfoO",
+          "name": "Travelpayouts"
+        }
+      },
+      "parameters": {
+        "url": "https://api.travelpayouts.com/aviasales/v3/prices_for_dates",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "origin",
+              "value": "={{ $json.origin }}"
+            },
+            {
+              "name": "destination",
+              "value": "={{ $json.destination }}"
+            },
+            {
+              "name": "departure_at",
+              "value": "={{ $json.month }}"
+            },
+            {
+              "name": "currency",
+              "value": "rub"
+            },
+            {
+              "name": "one_way",
+              "value": "true"
+            },
+            {
+              "name": "direct",
+              "value": "false"
+            },
+            {
+              "name": "sorting",
+              "value": "price"
+            },
+            {
+              "name": "market",
+              "value": "ru"
+            },
+            {
+              "name": "limit",
+              "value": "1000"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 20000,
+          "batching": {
+            "batch": {
+              "batchSize": 5,
+              "batchInterval": 400
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "fwsco-histq-cmd",
+      "name": "TP History Queries Cmd",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1080,
+        320
+      ],
+      "parameters": {
+        "jsCode": "// Исторические цены Travelpayouts — нужны, чтобы ответить на вопрос\n// «а 28 000 ₽ это вообще дёшево?». Своей таблицы не заводим, берём чужой архив.\n// Эндпоинт один — /v2/prices/latest: реально найденные цены за период\n// (show_to_affiliates=false), по ним считаем медиану и исторический минимум.\n// /v1/prices/calendar пробовали 2026-08-17 и ВЫКИНУЛИ: он отдаёт цены ТУДА-ОБРАТНО\n// (все записи с return_at, 45–64 тыс. против one-way 12–22 тыс.) и игнорирует\n// запрошенный месяц, растягиваясь на год вперёд. В медиане это давало +60 % к «обычной цене».\n// URL и query собираются здесь, HTTP-нода их только исполняет.\nconst YEAR_START = '2026-01-01';\nconst ROUTES = [['LED', 'SCO'], ['LED', 'MOW'], ['MOW', 'SCO']];\n\nconst out = [];\nfor (const [origin, destination] of ROUTES) {\n  out.push({ json: {\n    key: `${origin}-${destination}`, kind: 'latest',\n    url: 'https://api.travelpayouts.com/v2/prices/latest',\n    qs: {\n      origin, destination, currency: 'rub',\n      period_type: 'year', beginning_of_period: YEAR_START,\n      group_by: 'dates', one_way: 'true', sorting: 'price',\n      page: '1', limit: '1000', show_to_affiliates: 'false',\n    },\n  } });\n}\nreturn out;\n"
+      }
+    },
+    {
+      "id": "fwsco-hist-cmd",
+      "name": "TP History Cmd",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1300,
+        320
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "F6BXX0xCsKy7qfoO",
+          "name": "Travelpayouts"
+        }
+      },
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "specifyQuery": "json",
+        "jsonQuery": "={{ JSON.stringify($json.qs) }}",
+        "options": {
+          "timeout": 20000,
+          "batching": {
+            "batch": {
+              "batchSize": 5,
+              "batchInterval": 400
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "fwsco-agg-cmd",
+      "name": "Aggregate Cmd",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1960,
+        320
+      ],
+      "parameters": {
+        "jsCode": "// ===== Плечо 1: Питер -> Актау (SCO), 15-25 сентября 2026 =====\n// На старте живой источник один — Travelpayouts (кэш Aviasales, данные до 48 ч).\n// Ноды перевозчиков (SCAT, Air Astana, FlyArystan, Уральские) добавляются позже,\n// поэтому разбор идёт через общий плоский список offers[]: новому источнику\n// достаточно положить туда свои записи в том же формате и он поедет дальше сам.\n//\n// offer = { from, to, date, depart_at, price, airline, transfers, src, kind }\n//   kind: 'direct' | 'connect' | 'self' | 'hidden'\n//   'self' (две отдельные брони) и 'hidden' считаются отдельно и в основной\n//   порог алерта НЕ попадают — у них своя цена риска.\nconst SUF = ' Cmd'; // '' для крона, ' Cmd' для ветки команды\n\nconst WINDOW = { min: '2026-09-15', max: '2026-09-25' };\nconst HOME = 'LED';\nconst TARGET = 'SCO';\nconst HUB = 'MOW';                        // self-transfer через Москву\nconst DEEP = ['ALA', 'NQZ', 'TAS', 'GUW']; // города «за» Актау — под hidden-city\nconst ASSUMED_LEG_H = 3;                   // если перевозчик не отдал длительность\nconst MIN_LAYOVER_H = 4;                   // меньше — на самостоятельную стыковку не идём\nconst MAX_LAYOVER_H = 36;\n\nconst AIRLINES = {\n  DP: 'Победа', '5N': 'Смартавиа', U6: 'Уральские', FV: 'Россия', SU: 'Аэрофлот',\n  S7: 'S7', N4: 'Nordwind', WZ: 'Red Wings', A4: 'Азимут', YC: 'Ямал', UT: 'ЮТэйр',\n  DV: 'SCAT', KC: 'Air Astana', IQ: 'Qazaq Air', HY: 'Uzbekistan', TK: 'Turkish',\n  FZ: 'flydubai', J2: 'AZAL', VJ: 'VietJet', EK: 'Emirates', ZF: 'Азур', EO: 'Икар',\n  // добавлены по факту выдачи 17.08.2026; C6 не расшифрован — покажется кодом как есть\n  PC: 'Pegasus', B2: 'Belavia', '6R': 'Алроса',\n};\nconst CITY = {\n  LED: 'Санкт-Петербург', MOW: 'Москва', SCO: 'Актау', ALA: 'Алматы',\n  NQZ: 'Астана', TAS: 'Ташкент', GUW: 'Атырау',\n};\n\nconst inWindow = d => Boolean(d && d >= WINDOW.min && d <= WINDOW.max);\nconst hours = ms => ms / 3600000;\n\n// --- 1. Travelpayouts v3: единственный источник на старте -------------------\nconst offers = [];\ntry {\n  for (const item of $('Travelpayouts' + SUF).all()) {\n    const r = item.json || {};\n    if (r.success === false) continue;\n    const rows = Array.isArray(r.data) ? r.data : (Array.isArray(r) ? r : []);\n\n    for (const t of rows) {\n      const depart_at = String(t.departure_at || t.depart_date || '');\n      const date = depart_at.slice(0, 10);\n      if (!inWindow(date)) continue;\n\n      const price = Number(t.price != null ? t.price : t.value);\n      if (!Number.isFinite(price) || price <= 0) continue;\n\n      const transfers = Number(t.transfers != null ? t.transfers : t.number_of_changes);\n      const dur = Number(t.duration_to || t.duration);\n\n      offers.push({\n        from: t.origin, to: t.destination, date, depart_at,\n        price,\n        airline: AIRLINES[t.airline] || t.airline || 'н/д',\n        transfers: Number.isFinite(transfers) ? transfers : null,\n        duration_min: Number.isFinite(dur) && dur > 0 ? dur : null,\n        src: 'tp',\n        kind: transfers === 0 ? 'direct' : 'connect',\n        link: t.link || null,\n      });\n    }\n  }\n} catch (e) {}\n\n// --- 1b. tutu: минимум по всем перевозчикам, включая тех, кого нет в кэше TP ---\n// Ответ — плоский объект по датам, направление в нём НЕ указано, поэтому\n// сопоставляем с запросами по индексу. Упавший запрос (continueRegularOutput)\n// приходит item'ом с json.error — такую пару просто пропускаем.\nconst ruToIso = s => {\n  const m = String(s || '').match(/^(\\d{2})\\.(\\d{2})\\.(\\d{4})$/);\n  return m ? `${m[3]}-${m[2]}-${m[1]}` : null;\n};\ntry {\n  const asked = $('Tutu Queries' + SUF).all();\n  const answers = $('Tutu' + SUF).all();\n  if (answers.length === asked.length) {\n    asked.forEach((q, i) => {\n      const data = (answers[i] || {}).json || {};\n      if (data.error || Array.isArray(data)) return;\n      for (const [dru, v] of Object.entries(data)) {\n        const date = ruToIso(dru);\n        if (!inWindow(date)) continue;\n        const price = Number(v && v.price);\n        if (!Number.isFinite(price) || price <= 0) continue;\n        offers.push({\n          from: q.json.from, to: q.json.to, date,\n          // времени вылета tutu не даёт — для стыковки берём условный полдень,\n          // поэтому self-transfer на tutu-ценах помечен как приблизительный\n          depart_at: `${date}T12:00:00+03:00`,\n          price, airline: 'мин. цена tutu', transfers: null, duration_min: null,\n          src: 'tutu', kind: 'connect', link: null,\n        });\n      }\n    });\n  }\n} catch (e) {}\n\n// --- 2. Self-transfer через Москву -----------------------------------------\n// Две отдельные брони: дешёвый лоукостер до Москвы + отдельный билет до Актау.\n// Стыковку проверяем по времени вылета/прилёта, а не «по датам» — иначе бот\n// предложит схему, где второй рейс улетает раньше, чем прилетает первый.\nconst legMin = (from, to) => {\n  const byDate = {};\n  for (const o of offers) {\n    if (o.from !== from || o.to !== to) continue;\n    if (!byDate[o.date] || o.price < byDate[o.date].price) byDate[o.date] = o;\n  }\n  return Object.values(byDate);\n};\n\nconst arrivalOf = o => {\n  const dep = new Date(o.depart_at);\n  if (isNaN(dep)) return null;\n  const mins = o.duration_min != null ? o.duration_min : ASSUMED_LEG_H * 60;\n  return new Date(dep.getTime() + mins * 60000);\n};\n\nconst selfCombos = [];\nconst legA = legMin(HOME, HUB);\nconst legB = legMin(HUB, TARGET);\nfor (const a of legA) {\n  const arr = arrivalOf(a);\n  for (const b of legB) {\n    const dep = new Date(b.depart_at);\n    if (!arr || isNaN(dep)) continue;\n    const gap = hours(dep - arr);\n    if (gap < MIN_LAYOVER_H || gap > MAX_LAYOVER_H) continue;\n    selfCombos.push({\n      price: a.price + b.price,\n      date: a.date, arrive_date: b.date,\n      layover_h: Math.round(gap * 10) / 10,\n      legA: a, legB: b,\n      kind: 'self', src: 'tp',\n      from: HOME, to: TARGET,\n      airline: `${a.airline} + ${b.airline}`,\n    });\n  }\n}\nselfCombos.sort((x, y) => x.price - y.price);\n\n// --- 3. Hidden-city: пока только подсказка ---------------------------------\n// Настоящий hidden-city требует сегментов маршрута, а Travelpayouts их не отдаёт.\n// Поэтому честно сравниваем: если долететь «дальше» дешевле, чем до Актау —\n// сообщаем цифру и просим проверить глазами, есть ли там стыковка в SCO.\nconst cheapest = list => list.slice().sort((a, b) => a.price - b.price)[0] || null;\nconst through = offers.filter(o => o.from === HOME && o.to === TARGET);\nconst bestThrough = cheapest(through);\n\nconst hidden = [];\nfor (const dst of DEEP) {\n  const best = cheapest(offers.filter(o => o.from === HOME && o.to === dst));\n  if (!best) continue;\n  if (bestThrough && best.price >= bestThrough.price) continue; // не дешевле — не подсказка\n  hidden.push({\n    ...best, kind: 'hidden',\n    saving: bestThrough ? bestThrough.price - best.price : null,\n    city: CITY[dst] || dst,\n  });\n}\nhidden.sort((a, b) => a.price - b.price);\n\n// --- 4. Архив цен: медиана и исторический минимум ---------------------------\n// Ответ на «дёшево или нет». Схемы этих эндпоинтов живьём не проверены,\n// поэтому читаем максимально терпимо и молча пропускаем всё, что не разобралось.\n// Копим два пула: цены на даты НАШЕГО окна (точнее) и вообще все (шире выборка).\n// Если по окну набралось мало точек — падаем на общий пул, иначе медиана скачет.\nconst history = {}, historyWin = {};\nconst pushHist = (key, price, date) => {\n  if (!Number.isFinite(price) || price <= 0) return;\n  (history[key] = history[key] || []).push(price);\n  if (inWindow(date)) (historyWin[key] = historyWin[key] || []).push(price);\n};\ntry {\n  for (const item of $('TP History' + SUF).all()) {\n    const r = item.json || {};\n    if (r.success === false) continue;\n    const data = r.data;\n\n    if (!Array.isArray(data)) continue;               // ждём массив от /v2/prices/latest\n    for (const t of data) {\n      if (!t || !t.origin || !t.destination) continue;\n      if (t.return_date) continue;                     // цены туда-обратно нам не с чем сравнивать\n      pushHist(`${t.origin}-${t.destination}`,\n               Number(t.value != null ? t.value : t.price),\n               String(t.depart_date || '').slice(0, 10));\n    }\n  }\n} catch (e) {}\n\nconst MIN_SAMPLE = 10;\nconst stats = {};\nfor (const key of Object.keys(history)) {\n  const win = historyWin[key] || [];\n  const useWin = win.length >= MIN_SAMPLE;\n  const s = (useWin ? win : history[key]).slice().sort((a, b) => a - b);\n  stats[key] = {\n    min: s[0],\n    median: s[Math.floor(s.length / 2)],\n    count: s.length,\n    scope: useWin ? 'наши даты' : 'все даты',\n  };\n}\n\n// --- 5. Сводка --------------------------------------------------------------\nconst byDate = {};\nfor (const o of through) {\n  if (!byDate[o.date] || o.price < byDate[o.date].price) byDate[o.date] = o;\n}\n\nreturn [{ json: {\n  window: WINDOW,\n  route: { from: HOME, to: TARGET, label: `${CITY[HOME]} → ${CITY[TARGET]}` },\n  through: {\n    best: bestThrough,\n    byDate: Object.values(byDate).sort((a, b) => (a.date < b.date ? -1 : 1)),\n    count: through.length,\n  },\n  self: { best: selfCombos[0] || null, top: selfCombos.slice(0, 3), count: selfCombos.length },\n  hidden: { top: hidden.slice(0, 3), count: hidden.length },\n  stats,\n  count: offers.length,\n  bySource: offers.reduce((acc, o) => { acc[o.src] = (acc[o.src] || 0) + 1; return acc; }, {}),\n} }];\n"
+      }
+    },
+    {
+      "id": "fwsco-reply",
+      "name": "Format Reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2180,
+        320
+      ],
+      "parameters": {
+        "jsCode": "// Ответ на /prices по первому плечу: Питер -> Актау.\nconst a = $('Aggregate Cmd').first().json;\nconst chat_id = $('On Command').first().json.message.chat.id;\n\nconst MONTHS = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн',\n                'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];\nconst dm = iso => {\n  const p = String(iso).split('-');\n  return p.length === 3 ? `${Number(p[2])} ${MONTHS[Number(p[1]) - 1]}` : iso;\n};\nconst rub = n => String(Math.round(n)).replace(/\\B(?=(\\d{3})+(?!\\d))/g, ' ') + ' ₽';\nconst stops = o => o.transfers === 0 ? 'прямой'\n  : o.transfers > 0 ? `${o.transfers} пересадк${o.transfers === 1 ? 'а' : 'и'}`\n  : '';\nconst describe = o => `${rub(o.price)} · ${dm(o.date)} · ${o.airline}` +\n  (stops(o) ? ` · ${stops(o)}` : '');\n\nlet text = `✈️ ${a.route.label}, ${dm(a.window.min)} – ${dm(a.window.max)}\\n\\n`;\n\nif (a.through.best) {\n  text += `Одним билетом: ${describe(a.through.best)}\\n`;\n  const s = (a.stats || {})[`${a.route.from}-${a.route.to}`];\n  if (s && s.median) {\n    text += `  ${Math.round((a.through.best.price / s.median) * 100)} % от цены на типичную дату ` +\n            `(медиана по датам ${rub(s.median)}, самая дешёвая ${rub(s.min)}, дат: ${s.count})\\n`;\n  }\n} else {\n  text += `Одним билетом: ничего не нашлось\\n`;\n}\n\nif (a.self.best) {\n  text += `\\nЧерез Москву двумя билетами: ${rub(a.self.best.price)}\\n`;\n  for (const c of a.self.top) {\n    text += `  • ${rub(c.price)}: ${describe(c.legA)} + ${describe(c.legB)}, стыковка ${c.layover_h} ч\\n`;\n  }\n  text += `  ⚠️ Две отдельные брони, стыковка на твой риск.\\n`;\n}\n\nif ((a.hidden.top || []).length) {\n  text += `\\n🕵️ Дальше Актау стоит дешевле (проверить на стыковку в SCO):\\n`;\n  for (const h of a.hidden.top) {\n    text += `  • ${a.route.from} → ${h.city}: ${rub(h.price)} (${dm(h.date)}, ${h.airline})` +\n            (h.saving ? ` — минус ${rub(h.saving)}\\n` : '\\n');\n  }\n}\n\nif ((a.through.byDate || []).length) {\n  text += `\\nПо датам (одним билетом):\\n`;\n  for (const o of a.through.byDate) text += `  ${dm(o.date)} — ${rub(o.price)}\\n`;\n}\n\ntext += `\\nВсего вариантов: ${a.count} (${Object.entries(a.bySource || {})\n  .map(([k, v]) => `${k}: ${v}`).join(', ')}).\\n` +\n  `«мин. цена tutu» — минимум по всем перевозчикам без указания рейса, ` +\n  `остальное — кэш Aviasales до 48 ч. Перед покупкой проверь на сайте перевозчика.`;\n\nreturn [{ json: { chat_id, text } }];\n"
+      }
+    },
+    {
+      "id": "fwsco-tg-reply",
+      "name": "Telegram Reply",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2400,
+        320
+      ],
+      "webhookId": "fwsco-reply-hook",
+      "credentials": {
+        "telegramApi": {
+          "id": "xI8aQzM6Sgc5I2Tw",
+          "name": "Telegram FlightWatch"
+        }
+      },
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      }
+    },
+    {
+      "id": "fwsco-error-trigger",
+      "name": "On Error",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        200,
+        640
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "fwsco-error-fmt",
+      "name": "Format Error",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        640
+      ],
+      "parameters": {
+        "jsCode": "// Уведомление о падении воркфлоу. Троттлинг на ноду — 30 мин:\n// без него лежащий внешний API заваливает чат десятками одинаковых сообщений.\nconst QUIET_MS = 30 * 60 * 1000;\nconst e = $json.execution || {};\nconst err = e.error || {};\nconst wf = $json.workflow || {};\nconst node = e.lastNodeExecuted || '?';\nconst s = $getWorkflowStaticData('global');\nif (!s.errAlerts) s.errAlerts = {};\nconst st = s.errAlerts[node] || { last: 0, suppressed: 0 };\nconst now = Date.now();\nif (now - st.last < QUIET_MS) { st.suppressed += 1; s.errAlerts[node] = st; return []; }\nconst repeats = st.suppressed;\ns.errAlerts[node] = { last: now, suppressed: 0 };\nconst text =\n  `⚠️ FlightWatch SCO упал\\nВоркфлоу: ${wf.name || '?'}\\nНода: ${node}\\n` +\n  `Ошибка: ${err.message || 'без текста'}` +\n  (repeats ? `\\n(за последние 30 мин ещё ${repeats} таких, они скрыты)` : '') +\n  (e.url ? `\\n${e.url}` : '');\nreturn [{ json: { chat_id: '648226895', text } }];\n"
+      }
+    },
+    {
+      "id": "fwsco-tg-error",
+      "name": "Telegram Error",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        640,
+        640
+      ],
+      "webhookId": "fwsco-error-hook",
+      "credentials": {
+        "telegramApi": {
+          "id": "xI8aQzM6Sgc5I2Tw",
+          "name": "Telegram FlightWatch"
+        }
+      },
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      }
+    },
+    {
+      "id": "fwsco-tutuq",
+      "name": "Tutu Queries",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// tutu.ru — открытый календарь минимальных цен, без токена и капчи.\n// Ценен тем, что показывает минимум по ВСЕМ перевозчикам, включая тех, кого нет\n// в кэше Aviasales. Перевозчика при этом не называет — только цену на дату.\n// ВАЖНО: departure_geo_id — это внутренний id tutu, НЕ IATA.\n// Достаётся из https://avia.tutu.ru/suggest/city/v5/?name=Город&direction=to (поле id).\n// Проверено 2026-08-17: LED=75, MOW=491, Актау=112, Алматы=117, Астана=128, Ташкент=424.\nconst ROUTES = [\n  { from: 'LED', to: 'SCO', dep: 75,  arr: 112, leg: 'through' },\n  { from: 'LED', to: 'MOW', dep: 75,  arr: 491, leg: 'legA' },\n  { from: 'MOW', to: 'SCO', dep: 491, arr: 112, leg: 'legB' },\n  { from: 'LED', to: 'ALA', dep: 75,  arr: 117, leg: 'deep' },\n  { from: 'LED', to: 'NQZ', dep: 75,  arr: 128, leg: 'deep' },\n  { from: 'LED', to: 'TAS', dep: 75,  arr: 424, leg: 'deep' },\n];\nreturn ROUTES.map(r => ({ json: r }));\n"
+      }
+    },
+    {
+      "id": "fwsco-tutu",
+      "name": "Tutu",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1520,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "url": "https://calendar.tutu.ru/v2/min_price_calendar/",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "product",
+              "value": "avia"
+            },
+            {
+              "name": "departure_geo_id",
+              "value": "={{ $json.dep }}"
+            },
+            {
+              "name": "arrival_geo_id",
+              "value": "={{ $json.arr }}"
+            },
+            {
+              "name": "geo_mode",
+              "value": "avia"
+            },
+            {
+              "name": "do_best_price",
+              "value": "true"
+            },
+            {
+              "name": "serviceClass",
+              "value": "Y"
+            },
+            {
+              "name": "adult",
+              "value": "1"
+            },
+            {
+              "name": "child",
+              "value": "0"
+            },
+            {
+              "name": "infant",
+              "value": "0"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json, text/plain, */*"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7"
+            },
+            {
+              "name": "Referer",
+              "value": "https://avia.tutu.ru/"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 20000,
+          "batching": {
+            "batch": {
+              "batchSize": 3,
+              "batchInterval": 600
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "fwsco-tutuq-cmd",
+      "name": "Tutu Queries Cmd",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1520,
+        320
+      ],
+      "parameters": {
+        "jsCode": "// tutu.ru — открытый календарь минимальных цен, без токена и капчи.\n// Ценен тем, что показывает минимум по ВСЕМ перевозчикам, включая тех, кого нет\n// в кэше Aviasales. Перевозчика при этом не называет — только цену на дату.\n// ВАЖНО: departure_geo_id — это внутренний id tutu, НЕ IATA.\n// Достаётся из https://avia.tutu.ru/suggest/city/v5/?name=Город&direction=to (поле id).\n// Проверено 2026-08-17: LED=75, MOW=491, Актау=112, Алматы=117, Астана=128, Ташкент=424.\nconst ROUTES = [\n  { from: 'LED', to: 'SCO', dep: 75,  arr: 112, leg: 'through' },\n  { from: 'LED', to: 'MOW', dep: 75,  arr: 491, leg: 'legA' },\n  { from: 'MOW', to: 'SCO', dep: 491, arr: 112, leg: 'legB' },\n  { from: 'LED', to: 'ALA', dep: 75,  arr: 117, leg: 'deep' },\n  { from: 'LED', to: 'NQZ', dep: 75,  arr: 128, leg: 'deep' },\n  { from: 'LED', to: 'TAS', dep: 75,  arr: 424, leg: 'deep' },\n];\nreturn ROUTES.map(r => ({ json: r }));\n"
+      }
+    },
+    {
+      "id": "fwsco-tutu-cmd",
+      "name": "Tutu Cmd",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1740,
+        320
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "url": "https://calendar.tutu.ru/v2/min_price_calendar/",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "product",
+              "value": "avia"
+            },
+            {
+              "name": "departure_geo_id",
+              "value": "={{ $json.dep }}"
+            },
+            {
+              "name": "arrival_geo_id",
+              "value": "={{ $json.arr }}"
+            },
+            {
+              "name": "geo_mode",
+              "value": "avia"
+            },
+            {
+              "name": "do_best_price",
+              "value": "true"
+            },
+            {
+              "name": "serviceClass",
+              "value": "Y"
+            },
+            {
+              "name": "adult",
+              "value": "1"
+            },
+            {
+              "name": "child",
+              "value": "0"
+            },
+            {
+              "name": "infant",
+              "value": "0"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json, text/plain, */*"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7"
+            },
+            {
+              "name": "Referer",
+              "value": "https://avia.tutu.ru/"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 20000,
+          "batching": {
+            "batch": {
+              "batchSize": 3,
+              "batchInterval": 600
+            }
+          }
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Every 15 min": {
+      "main": [
+        [
+          {
+            "node": "TP Queries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TP Queries": {
+      "main": [
+        [
+          {
+            "node": "Travelpayouts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Travelpayouts": {
+      "main": [
+        [
+          {
+            "node": "TP History Queries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TP History Queries": {
+      "main": [
+        [
+          {
+            "node": "TP History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TP History": {
+      "main": [
+        [
+          {
+            "node": "Tutu Queries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Prepare",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare": {
+      "main": [
+        [
+          {
+            "node": "Telegram Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On Command": {
+      "main": [
+        [
+          {
+            "node": "Is /prices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TP Queries Cmd": {
+      "main": [
+        [
+          {
+            "node": "Travelpayouts Cmd",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Travelpayouts Cmd": {
+      "main": [
+        [
+          {
+            "node": "TP History Queries Cmd",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TP History Queries Cmd": {
+      "main": [
+        [
+          {
+            "node": "TP History Cmd",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TP History Cmd": {
+      "main": [
+        [
+          {
+            "node": "Tutu Queries Cmd",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Cmd": {
+      "main": [
+        [
+          {
+            "node": "Format Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Reply": {
+      "main": [
+        [
+          {
+            "node": "Telegram Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On Error": {
+      "main": [
+        [
+          {
+            "node": "Format Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Error": {
+      "main": [
+        [
+          {
+            "node": "Telegram Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tutu Queries": {
+      "main": [
+        [
+          {
+            "node": "Tutu",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tutu": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tutu Queries Cmd": {
+      "main": [
+        [
+          {
+            "node": "Tutu Cmd",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tutu Cmd": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Cmd",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is /prices": {
+      "main": [
+        [
+          {
+            "node": "TP Queries Cmd",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null
+}

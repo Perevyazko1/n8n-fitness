@@ -1,0 +1,333 @@
+{
+  "name": "Ryzh Scout",
+  "nodes": [
+    {
+      "id": "Daily_07:00",
+      "name": "Daily 07:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Scout_(Django)",
+      "name": "Scout (Django)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://fitness-api:8001/api/content/scout",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({}) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "63SYGxUVPB6pDz0y",
+          "name": "X-Cron-Secret"
+        }
+      }
+    },
+    {
+      "id": "Has_Outliers",
+      "name": "Has Outliers?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "h1",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.outliers.length }}",
+              "rightValue": 0
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      }
+    },
+    {
+      "id": "Recent_Titles",
+      "name": "Recent Titles",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        660,
+        280
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT coalesce(string_agg(title, E'\\n'), '') AS titles\nFROM (SELECT title FROM ryzh_topics ORDER BY id DESC LIMIT 80) t;",
+        "options": {}
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "id": "Build_Prompt",
+      "name": "Build Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        280
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Один запрос к LLM на все выбросы: так модель видит их вместе и не делает дублей.\nconst outs = $('Scout (Django)').first().json.outliers;\nconst posts = outs.map((o, i) =>\n  `#${i}. ${o.views} просмотров, ${o.reactions} реакций, ×${o.score} к медиане канала\\n${o.text}`\n).join('\\n\\n---\\n\\n');\nconst prompt = `Уже были (не повторять):\\n${$json.titles || '—'}\\n\\nПосты:\\n\\n${posts}`;\nreturn [{ json: { prompt } }];"
+      }
+    },
+    {
+      "id": "Make_Topics",
+      "name": "Make Topics",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        1100,
+        280
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Ты редактор Telegram-канала «Тренер Рыж»: еда, простые рецепты, покупки еды, движение и привычки в быту. Тон канала — рекомендации, а не экспертиза. Тебе дают посты других каналов, которые набрали заметно больше просмотров или реакций, чем обычно у их авторов. Из каждого подходящего поста сделай ОДНУ тему для нашего поста.\n\nОтбрасывай (verdict \"skip\"): личная жизнь автора, реклама, розыгрыши, продажа курсов; медицина, лечение, анализы, БАДы, гормоны, беременность, болезни; политика, война, катастрофы, чужая беда, смерти; эзотерика и «биохакинг»; всё, что не про еду, покупки еды, вес, движение и привычки; темы, похожие на список «Уже были».\n\nДля подходящих (verdict \"ok\"):\n— title: тема по-русски, 4–10 слов, без кликбейта и без названия чужого канала;\n— rubric: одна из check, price, recipe, guess, swap, tried, fox (check — продукт под подозрением; price — цена еды; recipe — рецепт; guess — угадай, что сытнее; swap — чем заменить; tried — популярный совет, как он в жизни; fox — смешная сценка);\n— angle: 1–2 фразы — чем наш пост отличится от донора (голос лиса-питомца, быт, деньги, «можно так»);\n— facts: конкретика ИЗ ТЕКСТА донора — ингредиенты с граммовкой, шаги, цены, калории. Только то, что есть в тексте; если нет — пустая строка. Без медицинских утверждений.\n\nВерни СТРОГО JSON без пояснений и без markdown:\n{\"topics\":[{\"i\":<номер поста>,\"verdict\":\"ok\"|\"skip\",\"reason\":\"коротко\",\"title\":\"\",\"rubric\":\"\",\"angle\":\"\",\"facts\":\"\"}]}"
+            },
+            {
+              "content": "={{ $json.prompt }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "reasoningEffort": "low"
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "SkPovYGQlL1P1Ft5",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "id": "Parse_Topics",
+      "name": "Parse Topics",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        280
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "function extractText(j) {\n  if (Array.isArray(j.output)) {\n    for (const o of j.output) {\n      const part = Array.isArray(o.content) && o.content.find(c => c.text);\n      if (part?.text) return part.text;\n    }\n  }\n  if (Array.isArray(j.content)) {\n    const part = j.content.find(c => c.text);\n    if (part?.text) return part.text;\n  }\n  return j.message?.content ?? j.content ?? j.text ?? '';\n}\n\nconst RUBRICS = ['check', 'price', 'recipe', 'guess', 'swap', 'tried', 'fox'];\nconst outs = $('Scout (Django)').first().json.outliers;\nconst raw = String(extractText($input.first().json) || '').replace(/^```(?:json)?\\s*/i, '').replace(/```\\s*$/, '').trim();\nlet parsed;\ntry { parsed = JSON.parse(raw); } catch (e) { throw new Error('LLM вернул не JSON: ' + raw.slice(0, 300)); }\nconst rows = (parsed.topics || [])\n  .filter(t => t.verdict === 'ok' && t.title && outs[t.i])\n  .map(t => {\n    const o = outs[t.i];\n    return {\n      title: String(t.title).trim(),\n      rubric: RUBRICS.includes(t.rubric) ? t.rubric : 'check',\n      angle: t.angle || null,\n      facts: (t.facts || '').trim() || null,\n      note: `донор @${o.source}: ×${o.score} к медиане канала, ${o.views} просмотров, ${o.reactions} реакций`,\n      source_url: o.url,\n      score: o.score,\n    };\n  });\nconst skipped = (parsed.topics || []).filter(t => t.verdict !== 'ok').map(t => `#${t.i}: ${t.reason}`);\nreturn [{ json: { rows, count: rows.length, skipped } }];"
+      }
+    },
+    {
+      "id": "Has_Topics",
+      "name": "Has Topics?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1540,
+        280
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "h2",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.count }}",
+              "rightValue": 0
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      }
+    },
+    {
+      "id": "Insert_Topics",
+      "name": "Insert Topics",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1760,
+        260
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO ryzh_topics (title, rubric, angle, facts, note, source_url, score, status)\nSELECT x.title, x.rubric, x.angle, x.facts, x.note, x.source_url, x.score, 'proposed'\nFROM jsonb_to_recordset($1::jsonb) AS x(title text, rubric text, angle text, facts text,\n                                         note text, source_url text, score real)\nWHERE NOT EXISTS (SELECT 1 FROM ryzh_topics t WHERE t.source_url = x.source_url)\nRETURNING id;",
+        "options": {
+          "queryReplacement": "={{ [ JSON.stringify($json.rows) ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Daily 07:00": {
+      "main": [
+        [
+          {
+            "node": "Scout (Django)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scout (Django)": {
+      "main": [
+        [
+          {
+            "node": "Has Outliers?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Outliers?": {
+      "main": [
+        [
+          {
+            "node": "Recent Titles",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Recent Titles": {
+      "main": [
+        [
+          {
+            "node": "Build Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Prompt": {
+      "main": [
+        [
+          {
+            "node": "Make Topics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Make Topics": {
+      "main": [
+        [
+          {
+            "node": "Parse Topics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Topics": {
+      "main": [
+        [
+          {
+            "node": "Has Topics?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Topics?": {
+      "main": [
+        [
+          {
+            "node": "Insert Topics",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Moscow"
+  },
+  "versionId": "ryzh-scout-01",
+  "pinData": {},
+  "tags": []
+}

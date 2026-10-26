@@ -1,0 +1,896 @@
+{
+  "name": "Ryzh Post Draft",
+  "nodes": [
+    {
+      "id": "Cron",
+      "name": "Daily Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -620,
+        300
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 10 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Pick_Topic",
+      "name": "Pick Topic",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -420,
+        300
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, title, rubric, note, facts, angle, source_url, NULL::bigint AS old_post_id\nFROM ryzh_topics\nWHERE status = 'queued'\n   OR (status = 'proposed' AND created_at > now() - interval '14 days')\nORDER BY (status = 'queued') DESC,\n         (rubric = (ARRAY['check','price','recipe','guess','recipe','swap','tried'])\n                   [extract(isodow FROM now() AT TIME ZONE 'Europe/Moscow')::int]) DESC,\n         score DESC NULLS LAST,\n         id\nLIMIT 1;",
+        "options": {}
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "id": "Has_Topic",
+      "name": "Has Topic?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -220,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "operator": {
+                "type": "number",
+                "operation": "exists"
+              },
+              "leftValue": "={{ $json.id }}",
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      }
+    },
+    {
+      "id": "Write_Draft",
+      "name": "Write Draft",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        700,
+        300
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Ты пишешь посты для Telegram-канала «Тренер Рыж». Автор — Рыж, рыжий лис-питомец из фитнес-приложения: что ест и как двигается хозяин, то и с телом лиса.\n\nГОЛОС РЫЖА (как в роликах):\n— питомец, а не надзиратель: жалуется и просит, но НЕ стыдит и не ругает; сочувствие вместо вины («Это нормально — Рыж тоже не отказывался», «Он не ругается. Он просит»);\n— на «ты», коротко, тепло, с юмором; живые бытовые сценки («01:07. Ты: только посмотрю»);\n— рекомендации, а не экспертиза: «я попробовал», «мне зашло», «можно так», «если хочется — вот вариант». Никаких «учёные доказали», «врачи рекомендуют», диагнозов, лечения, добавок;\n— не обещаем килограммы и сроки; не пишем «сфоткай еду», «AI», «нейросеть», «следит за тобой», «бесплатно навсегда».\n\nЖЁСТКИЕ ПРАВИЛА:\n1) Первая строка — хук про конкретный продукт, блюдо или ситуацию из жизни. Никогда не начинай с приложения, бота, калорий или КБЖУ.\n2) Бот @fitness_fox_bot — только в развязке, одной строкой, и только если к месту; в большинстве постов его нет.\n3) Цифры (цены, граммы, калории, проценты) — ТОЛЬКО из блока «Фактура». Нет фактуры — строй пост так, чтобы цифры были не нужны. Заглушки в квадратных скобках запрещены.\n4) Объём 500–800 знаков: это подпись к картинке, у Telegram лимит 1024. Короткие абзацы, без воды.\n5) Разметка — Telegram HTML: только <b> и <i>. Никакого markdown, <p>, <br>, списков через «*».\n6) Последняя строка — реплика Рыжа, начинается с 🦊.\n7) Пост-донор — только источник идеи и фактов: не пересказывай его подряд, не копируй фразы, не упоминай чужой канал.\n\nРУБРИКИ:\ncheck — «Рыж проверяет»: продукт под подозрением, на что смотреть на полке и в составе;\nprice — «Почём белок»: цена еды, пересчёт на порцию или на 100 г белка;\nrecipe — «Рецепт Рыжа»: простой рецепт с крючком (дёшево / за 10 минут / вместо …): ингредиенты строками с «—», 3–5 коротких шагов;\nguess — «На глаз»: что сытнее или калорийнее — загадка в начале, разгадка в конце;\nswap — «Вместо этого»: чем заменить привычное, чтобы было не хуже;\ntried — «Рыж пробует»: популярный совет или тренд — честно, как это в жизни, без научных вердиктов;\nfox — «Лис»: короткая смешная сценка из жизни Рыжа.\n\nВерни ТОЛЬКО текст поста, без заголовков и пояснений."
+            },
+            {
+              "content": "=Рубрика: {{ $json.rubric || 'check' }}\nТема: {{ $json.title }}\nУгол: {{ $json.angle || '—' }}\nКонтекст (не переносить дословно): {{ $json.note || '—' }}\n\nФактура:\n{{ $json.facts || '(нет — пиши так, чтобы цифры были не нужны)' }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "reasoningEffort": "low"
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "SkPovYGQlL1P1Ft5",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "id": "Parse_Draft",
+      "name": "Parse Draft",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        920,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// openAi v2.3 отдаёт Responses-формат: { output:[{ content:[{ text }] }] }.\n// Запасные пути — под другие версии ноды.\nfunction extractText(j) {\n  if (Array.isArray(j.output)) {\n    for (const o of j.output) {\n      const part = Array.isArray(o.content) && o.content.find(c => c.text);\n      if (part?.text) return part.text;\n    }\n  }\n  if (Array.isArray(j.content)) {\n    const part = j.content.find(c => c.text);\n    if (part?.text) return part.text;\n  }\n  return j.message?.content ?? j.content ?? j.text ?? '';\n}\nconst raw = String(extractText($input.first().json) || '').trim();\n// Срезаем markdown-фенсы, если модель их всё-таки поставила.\nconst body = raw.replace(/^```(?:html)?\\s*/i, '').replace(/```\\s*$/, '').trim();\nif (!body) throw new Error('LLM вернул пустой текст');\nreturn [{ json: { body } }];\n"
+      }
+    },
+    {
+      "id": "Save_Draft",
+      "name": "Save Draft",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1140,
+        300
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO ryzh_posts (topic_id, rubric, body, version, status)\nVALUES ($1, $2, $3, 1, 'draft')\nRETURNING id;",
+        "options": {
+          "queryReplacement": "={{ [ $('Topic').item.json.id, $('Topic').item.json.rubric, $json.body ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "id": "Mark_Used",
+      "name": "Mark Topic Used",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1140,
+        160
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE ryzh_topics SET status = 'used' WHERE id = $1;",
+        "options": {
+          "queryReplacement": "={{ [ $('Topic').item.json.id ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "id": "Send_Approval",
+      "name": "Send Approval",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2460,
+        420
+      ],
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Опубликовать",
+                    "additionalFields": {
+                      "callback_data": "=pok:{{ $('Ctx').first().json.post_id }}"
+                    }
+                  },
+                  {
+                    "text": "❌ Отклонить",
+                    "additionalFields": {
+                      "callback_data": "=pno:{{ $('Ctx').first().json.post_id }}"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "◀️ Тема",
+                    "additionalFields": {
+                      "callback_data": "=ppv:{{ $('Ctx').first().json.post_id }}"
+                    }
+                  },
+                  {
+                    "text": "🎨 Картинка",
+                    "additionalFields": {
+                      "callback_data": "=pim:{{ $('Ctx').first().json.post_id }}"
+                    }
+                  },
+                  {
+                    "text": "Тема ▶️",
+                    "additionalFields": {
+                      "callback_data": "=pnx:{{ $('Ctx').first().json.post_id }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "caption": "={{ $('Ctx').first().json.caption }}",
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        },
+        "operation": "sendPhoto",
+        "binaryData": true,
+        "binaryPropertyName": "data"
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "Notify_Empty",
+      "name": "Notify Empty Queue",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        700,
+        520
+      ],
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "🦊 Очередь тем пуста — сегодняшний пост не готовился. Разведка (Ryzh Scout) ничего свежего не принесла: проверь её последний запуск или добавь темы в ryzh_topics руками.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      }
+    },
+    {
+      "id": "Scene",
+      "name": "Image Scene",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        1580,
+        420
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Ты придумываешь ОДНУ короткую сцену для картинки-иллюстрации к посту. В кадре — маскот-лис (его внешность задана системой отдельно, НЕ описывай её). Лис — добрый питомец: эмоция тёплая или комичная, без злости и осуждения. Верни ТОЛЬКО английскую фразу 6-14 слов: что лис делает и какой предмет держит, плюс эмоция. Предмет должен быть буквально из темы поста (продукт, блюдо, тарелка, ценник, корзина). Без текста и надписей в кадре, без людей, без брендов. Пример ответа: holding a pack of cottage cheese, squinting suspiciously at the label"
+            },
+            {
+              "content": "=Тема поста: {{ $('Ctx').first().json.title }}\n\nТекст поста:\n{{ $('Ctx').first().json.body }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "reasoningEffort": "low"
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "SkPovYGQlL1P1Ft5",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "id": "Scene_Parse",
+      "name": "Build Image Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1800,
+        420
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Внешность Рыжа ЗАШИТА тут, LLM даёт только действие — так лис не «плывёт» от поста к посту.\nfunction extractText(j) {\n  if (Array.isArray(j.output)) {\n    for (const o of j.output) {\n      const part = Array.isArray(o.content) && o.content.find(c => c.text);\n      if (part?.text) return part.text;\n    }\n  }\n  return j.message?.content ?? j.content ?? j.text ?? '';\n}\nconst scene = String(extractText($input.first().json) || '').trim().replace(/^[\"']|[\"']$/g, '');\nconst CHAR = \"athletic anthropomorphic fox, bipedal, big expressive eyes, pointy ears, fluffy tail with white tip, cream muzzle and belly, orange fur #E8763A, fit athletic build, slightly soft belly, wearing green headband #3FBF6F\";\nconst STYLE = \"flat vector mascot illustration, thick clean black outlines, soft cel shading, rounded friendly shapes, vibrant, centered, solid dark background #15151a, mobile app sticker, expressive, no text, no letters, square 1:1\";\nconst prompt = `${CHAR}, ${scene || 'standing confidently, paws on hips'}. ${STYLE}`;\nreturn [{ json: { prompt, scene } }];"
+      }
+    },
+    {
+      "id": "Gen_Image",
+      "name": "Generate Ryzh",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        2020,
+        420
+      ],
+      "parameters": {
+        "resource": "image",
+        "operation": "generate",
+        "model": "gpt-image-1",
+        "prompt": "={{ $json.prompt }}",
+        "options": {
+          "size": "1024x1024",
+          "quality": "low",
+          "returnImageUrls": false
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "SkPovYGQlL1P1Ft5",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "id": "Called_Trigger",
+      "name": "Called Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -180,
+        620
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      }
+    },
+    {
+      "id": "Is_Redraw",
+      "name": "Is Redraw?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        40,
+        620
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "r1",
+              "operator": {
+                "type": "number",
+                "operation": "exists"
+              },
+              "leftValue": "={{ $json.post_id }}",
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      }
+    },
+    {
+      "id": "Pick_Topic_(by_id)",
+      "name": "Pick Topic (by id)",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        260,
+        720
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, title, rubric, note, facts, angle, source_url, $2::bigint AS old_post_id\nFROM ryzh_topics WHERE id = $1;",
+        "options": {
+          "queryReplacement": "={{ [ $json.topic_id, $json.old_post_id ?? null ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "id": "Load_Post",
+      "name": "Load Post",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        260,
+        540
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT p.id, p.rubric, p.body, p.version, coalesce(t.title, '') AS title,\n       $2::bigint AS old_post_id\nFROM ryzh_posts p LEFT JOIN ryzh_topics t ON t.id = p.topic_id\nWHERE p.id = $1;",
+        "options": {
+          "queryReplacement": "={{ [ $json.post_id, $json.old_post_id ?? null ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "id": "Topic",
+      "name": "Topic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Тема для черновика: с крона (Pick Topic) или по id из Control (Pick Topic (by id)).\nreturn $input.all();"
+      }
+    },
+    {
+      "id": "Ctx",
+      "name": "Ctx",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        420
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const RUBRICS = { check: 'Рыж проверяет', price: 'Почём белок', recipe: 'Рецепт Рыжа', guess: 'На глаз', swap: 'Вместо этого', tried: 'Рыж пробует', fox: 'Лис' };\nconst esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst plain = s => String(s ?? '').replace(/<[^>]+>/g, '').replace(/&(lt|gt|amp|quot);/g, '_');\nfunction buildCaption(c) {\n  const head = `<b>#${c.post_id}</b> · ${esc(RUBRICS[c.rubric] || c.rubric || '—')} · v${c.version}\\n<i>${esc(c.title)}</i>\\n\\n`;\n  const len = plain(c.body).length;\n  if (plain(head + c.body).length <= 1024) return { caption: head + c.body, fits: true, len };\n  const note = `<b>#${c.post_id}</b> ⚠️ ${len} зн. — длиннее подписи (1024). Ответь «сократи до 800».\\n\\n`;\n  return { caption: note + esc(plain(c.body).slice(0, 850)) + '…', fits: false, len };\n}\n\n// Новый черновик приходит после Mark Topic Used, перерисовка — после Load Post (там есть body).\nconst inp = $input.first().json;\nlet c;\nif (inp.body !== undefined) {\n  c = { post_id: inp.id, title: inp.title, rubric: inp.rubric, body: inp.body,\n        version: inp.version, old_post_id: inp.old_post_id };\n} else {\n  const t = $('Topic').first().json;\n  c = { post_id: $('Save Draft').first().json.id, title: t.title, rubric: t.rubric,\n        body: $('Parse Draft').first().json.body, version: 1, old_post_id: t.old_post_id };\n}\nreturn [{ json: { ...c, ...buildCaption(c) } }];"
+      }
+    },
+    {
+      "id": "Editors",
+      "name": "Editors",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1360,
+        600
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT (SELECT array_agg(chat_id ORDER BY chat_id) FROM ryzh_editors) AS editors,\n       (SELECT coalesce(json_agg(json_build_object('chat_id', chat_id, 'message_id', message_id)), '[]'::json)\n        FROM ryzh_approvals WHERE post_id = $1) AS old;",
+        "options": {
+          "queryReplacement": "={{ [ $json.old_post_id ?? null ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "id": "Fan_Out",
+      "name": "Fan Out",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        420
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Одна и та же картинка каждому редактору — отдельным item (бинарь копируется).\nconst bin = $input.first().binary;\nconst eds = $('Editors').first().json.editors || [];\nif (!eds.length) throw new Error('ryzh_editors пуст — некому слать черновик');\nreturn eds.map(chat_id => ({ json: { chat_id }, binary: bin }));"
+      }
+    },
+    {
+      "id": "Save_Approval",
+      "name": "Save Approval",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2680,
+        420
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH a AS (\n  INSERT INTO ryzh_approvals (chat_id, message_id, post_id)\n  SELECT $1::bigint, $2::bigint, $3::bigint WHERE $2::bigint IS NOT NULL\n  ON CONFLICT DO NOTHING\n)\nUPDATE ryzh_posts SET image_file_id = coalesce($4, image_file_id) WHERE id = $3::bigint RETURNING id;",
+        "options": {
+          "queryReplacement": "={{ [ $json.result?.chat?.id ?? $json.chat?.id ?? null, $json.result?.message_id ?? $json.message_id ?? null, $('Ctx').first().json.post_id, ($json.result?.photo ?? $json.photo ?? []).slice(-1)[0]?.file_id ?? null ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "id": "Old_Approvals",
+      "name": "Old Approvals",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2900,
+        420
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Прошлая версия черновика у каждого редактора — удалить после отправки новой.\nreturn ($('Editors').first().json.old || []).map(o => ({ json: o }));"
+      }
+    },
+    {
+      "id": "Delete_Old_Message",
+      "name": "Delete Old Message",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3120,
+        420
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "deleteMessage",
+        "chatId": "={{ $json.chat_id }}",
+        "messageId": "={{ $json.message_id }}"
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "Forget_Old",
+      "name": "Forget Old",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3340,
+        420
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM ryzh_approvals WHERE chat_id = $1 AND message_id = $2;",
+        "options": {
+          "queryReplacement": "={{ [ $('Old Approvals').item.json.chat_id, $('Old Approvals').item.json.message_id ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "id": "Editors_empty",
+      "name": "Editors (empty)",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        480,
+        520
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT chat_id FROM ryzh_editors ORDER BY chat_id;",
+        "options": {}
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Daily Trigger": {
+      "main": [
+        [
+          {
+            "node": "Pick Topic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick Topic": {
+      "main": [
+        [
+          {
+            "node": "Has Topic?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Topic?": {
+      "main": [
+        [
+          {
+            "node": "Topic",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Editors (empty)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Draft": {
+      "main": [
+        [
+          {
+            "node": "Parse Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Draft": {
+      "main": [
+        [
+          {
+            "node": "Save Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Draft": {
+      "main": [
+        [
+          {
+            "node": "Mark Topic Used",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Topic Used": {
+      "main": [
+        [
+          {
+            "node": "Ctx",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Approval": {
+      "main": [
+        [
+          {
+            "node": "Save Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Scene": {
+      "main": [
+        [
+          {
+            "node": "Build Image Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Image Prompt": {
+      "main": [
+        [
+          {
+            "node": "Generate Ryzh",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Ryzh": {
+      "main": [
+        [
+          {
+            "node": "Fan Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Called Trigger": {
+      "main": [
+        [
+          {
+            "node": "Is Redraw?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Redraw?": {
+      "main": [
+        [
+          {
+            "node": "Load Post",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Pick Topic (by id)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick Topic (by id)": {
+      "main": [
+        [
+          {
+            "node": "Topic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Topic": {
+      "main": [
+        [
+          {
+            "node": "Write Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Post": {
+      "main": [
+        [
+          {
+            "node": "Ctx",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ctx": {
+      "main": [
+        [
+          {
+            "node": "Editors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Editors (empty)": {
+      "main": [
+        [
+          {
+            "node": "Notify Empty Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Editors": {
+      "main": [
+        [
+          {
+            "node": "Image Scene",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fan Out": {
+      "main": [
+        [
+          {
+            "node": "Send Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Approval": {
+      "main": [
+        [
+          {
+            "node": "Old Approvals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Old Approvals": {
+      "main": [
+        [
+          {
+            "node": "Delete Old Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Old Message": {
+      "main": [
+        [
+          {
+            "node": "Forget Old",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Moscow"
+  },
+  "pinData": {},
+  "tags": [],
+  "versionId": "ryzh-draft-holding-02"
+}

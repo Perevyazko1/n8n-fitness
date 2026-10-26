@@ -108,9 +108,11 @@ def _normalize(seg, out_ts, w, h, fps, workdir):
         cmd += ["-loop", "1", "-t", str(duration), "-i", src]
         use_own_audio = False
     else:
-        cmd += ["-i", src]
+        # -t ДО -i — обрезка самого клипа. После -i он относился к следующему входу
+        # (тишине), и duration у клипов со своим звуком не работал.
         if duration:
             cmd += ["-t", str(duration)]
+        cmd += ["-i", src]
         use_own_audio = keep_audio and _has_audio(src)
     cmd += ["-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo"]
 

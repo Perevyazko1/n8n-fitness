@@ -1,0 +1,160 @@
+{
+  "name": "TEMP Ryzh Kling Test",
+  "nodes": [
+    {
+      "id": "Manual",
+      "name": "Запуск вручную",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "Clips",
+      "name": "Клипы",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// Рилс #1 на Kling v3 Standard (fal) — сравнение с Veo. Воркфлоу временный.\n// Кадры = утверждённые на этапе 1. Звук ВЫКЛ: русскую речь Kling не умеет (только EN/CN),\n// голос Рыжа — в CapCut (TTS или свой). На репликах просим «говорящий» рот.\n// Цена: $0.084/сек без звука → все 5 клипов (19с) ≈ $1.60.\n\nconst STYLE = \"2D flat vector cartoon animation. Keep the exact art style of the image for the whole clip: thick clean black outlines, soft cel shading, flat colors. The fox stays identical to the first frame: same face, colors, headband, wristbands, black shorts, bare cream paws. Smooth natural cartoon motion.\";\nconst NEGATIVE = \"3D render, Pixar style, realistic fur, photorealism, morphing, body deformation, hernia, bulge or lump on the belly, object merging into the body, extra limbs, extra fingers, distorted face, changing outfit, shoes, sneakers, black paws, subtitles, text, letters, watermark, blur, low quality\";\nconst TALK = \"His mouth moves naturally as if he is talking to the viewer.\";\n\n// on: false — клип пропустить (не платить повторно за удачный).\nconst CLIPS = [\n  {\n    key: '1_hook',\n    on: true,\n    frame: \"https://v3b.fal.media/files/b/0aab9714/Iuz6RGfrSebBNf0CNpqVj_GqMfseGK.png\",\n    duration: 5,\n    talk: true,\n    line: \"Стоп. Жрёшь по ночам ТЫ — а пузо растёт у МЕНЯ?!\",\n    action: \"The fox takes a bite of the sandwich with his mouth and chews, the sandwich stays in his hand and never touches his belly. Then he looks down at his round belly in shock, looks up at the viewer and complains, outraged, his other paw on his belly.\",\n  },\n  {\n    key: '2_intro',\n    on: true,\n    frame: \"https://v3b.fal.media/files/b/0aab9956/j03TEZJ_NWQ3g1ujIDhTg_mhuoPvAs.png\",\n    duration: 5,\n    talk: true,\n    line: \"Я Рыж. Живу у тебя в Телеграме — и становлюсь таким, как ты.\",\n    action: \"The fox jumps fully out of the glowing phone screen, lands on the desk in front of the phone keeping the same size, then waves at the viewer with a big friendly grin and speaks.\",\n  },\n  {\n    key: '5a_result_before',\n    on: true,\n    frame: \"https://v3b.fal.media/files/b/0aab9956/oQF_6cpK9oxtBpyKu24U-_o2Wj8zzb.png\",\n    duration: 3,\n    talk: false,\n    line: \"\",\n    action: \"The fox does two natural bodyweight squats, straining and puffing, a small sweat drop on his forehead. His round belly stays smooth.\",\n  },\n  {\n    key: '5b_result_after',\n    on: true,\n    frame: \"https://v3b.fal.media/files/b/0aab9956/KuCcZyboKHJlcUbU7Y0Kc_tEXEOlDj.png\",\n    duration: 3,\n    talk: true,\n    line: \"Держишь норму — и пузо уходит. У обоих!\",\n    action: \"The fox flexes his bicep proudly, grins at the viewer and speaks.\",\n  },\n  {\n    key: '6_cta',\n    on: true,\n    frame: \"https://v3b.fal.media/files/b/0aab977f/g728kX2AST-SjW-X-Z8JB_iCs7LNBf.png\",\n    duration: 3,\n    talk: true,\n    line: \"Заведи своего лиса. Не бросай меня, а?\",\n    action: \"The fox winks, then lowers his raised finger to point straight at the camera and speaks with a cheeky pleading grin.\",\n  },\n];\n\nreturn CLIPS.filter(s => s.on).map(s => ({ json: {\n  key: s.key,\n  line: s.line,\n  image_url: s.frame,\n  prompt: [STYLE, s.action, s.talk ? TALK : 'He does not talk.', 'Static camera.'].join(' '),\n  negative_prompt: NEGATIVE,\n  duration: String(s.duration),\n} }));\n"
+      }
+    },
+    {
+      "id": "Gen",
+      "name": "Generate Ryzh (Kling v3)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://fal.run/fal-ai/kling-video/v3/standard/image-to-video",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ prompt: $json.prompt, start_image_url: $json.image_url, duration: $json.duration, generate_audio: false, negative_prompt: $json.negative_prompt, cfg_scale: 0.5 }) }}",
+        "options": {
+          "timeout": 600000,
+          "batching": {
+            "batch": {
+              "batchSize": 1
+            }
+          }
+        }
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "hcF81UREaspnNJ0A",
+          "name": "fal.ai"
+        }
+      }
+    },
+    {
+      "id": "Download",
+      "name": "Download MP4",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        300
+      ],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "url": "={{ $json.video.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "data"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "Send",
+      "name": "Send Video",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        300
+      ],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "operation": "sendVideo",
+        "chatId": "648226895",
+        "binaryData": true,
+        "binaryPropertyName": "data",
+        "additionalFields": {
+          "caption": "={{ 'Kling · ' + $('Клипы').item.json.key + ': ' + $('Клипы').item.json.line + '\\n' + $('Generate Ryzh (Kling v3)').item.json.video.url }}"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "pHZXJrCzy1YaZyjX",
+          "name": "Content Bot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Запуск вручную": {
+      "main": [
+        [
+          {
+            "node": "Клипы",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Клипы": {
+      "main": [
+        [
+          {
+            "node": "Generate Ryzh (Kling v3)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Ryzh (Kling v3)": {
+      "main": [
+        [
+          {
+            "node": "Download MP4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download MP4": {
+      "main": [
+        [
+          {
+            "node": "Send Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

@@ -17,7 +17,7 @@ from django.db import transaction
 from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
 
-from . import calc, platega, reels, streak
+from . import calc, content, platega, reels, streak
 from .models import (
     BodyParams, ExerciseLibrary, FoodLog, Payment, Product, Profile, Streak, WalkingLog, WaterLog,
     WorkoutBlock, WorkoutCatalog, WorkoutDone, WorkoutLog,
@@ -461,6 +461,12 @@ def reels_assemble(request):
     resp["Content-Disposition"] = 'attachment; filename="reel.mp4"'
     return resp
 
+
+def content_scout(request):
+    """Разведка для канала Рыжа: ленты каналов-доноров → снапшоты → посты-выбросы.
+    Сервер-сервер, дёргает n8n (Ryzh_Scout) по X-Cron-Secret (ветка /api/content/ в
+    middleware). Логика и формат ответа — fitness/content.py."""
+    return ok(content.scout())
 
 def exercises(request):
     """Справочник упражнений для приложения/будущего коуча. Опц. фильтр ?section / по группе."""

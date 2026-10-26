@@ -1,0 +1,158 @@
+{
+  "name": "TEMP Ryzh Veo Test",
+  "nodes": [
+    {
+      "id": "Manual",
+      "name": "Запуск вручную",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "Clips",
+      "name": "Клипы",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// Рилс #1: оживляем УТВЕРЖДЁННЫЕ кадры в Veo 3.1 Fast image-to-video → клипы в Телеграм → склейка в CapCut.\n// Кадр не перегенерим — Veo стартует ровно с него, внешность Рыжа берётся с картинки.\n// Цена: $0.15/сек со звуком → 4с ≈ $0.6, 6с ≈ $0.9; все 5 клипов (24с) ≈ $3.6. Воркфлоу временный.\n\n// Стиль и запреты — чтобы Veo не «перерисовал» Рыжа в 3D/Pixar по ходу движения.\nconst STYLE = \"Keep the exact 2D flat vector cartoon style of the image for the whole clip: thick clean black outlines, soft cel shading, flat colors. NOT 3D, NOT Pixar, no realistic fur. The fox must stay identical to the first frame: same face, colors, headband, wristbands, black shorts, bare cream paws.\";\nconst NEGATIVE = \"hernia, bulge or lump on the belly, deformed belly, object merging into the body, sweat drop on the ear, 3D render, Pixar style, realistic fur, photorealism, shoes, sneakers, black paws, dark gloves, subtitles, captions, on-screen text, letters, watermark, logo, extra limbs, extra fingers, distorted face, changing outfit, human characters, background music\";\nconst VOICE = \"Young energetic male voice, playful and cheeky, like a pet complaining to its owner, clear Russian pronunciation, natural pace, accurate lip-sync.\";\n\n// on: false — клип пропустить (не платить повторно за то, что устроило).\n// Порядок = порядок в ролике. Сцены 3–4 (демо приложения) — видео с телефона, их тут нет.\n// Текст-плашки НЕ генерим (кириллицу Veo рисует криво) — добавляются в CapCut.\nconst CLIPS = [\n  {\n    key: '1_hook',\n    on: true,\n    frame: \"https://v3b.fal.media/files/b/0aab9714/Iuz6RGfrSebBNf0CNpqVj_GqMfseGK.png\",\n    duration: 6,\n    camera: \"Static medium shot, quick small push-in at the start to grab attention.\",\n    // v2: в v1 Veo «скормил» бутерброд животу. Прописываем явно: ест РТОМ, живота не касается.\n    action: [\n      \"0-2s: Ryzh brings the sandwich up to his MOUTH and takes a big bite with his teeth, chewing with puffed cheeks. The sandwich goes into his mouth only and never touches his belly.\",\n      \"2-3s: Still chewing, he glances down at his round belly and freezes in shock, eyes wide.\",\n      \"3-6s: He lifts his head to the viewer and speaks, outraged, holding the bitten sandwich near his chest, his other paw on his belly.\",\n    ],\n    line: \"Стоп. Жрёшь по ночам ТЫ — а пузо растёт у МЕНЯ?!\",\n    sfx: \"Quiet fridge hum. No music.\",\n  },\n  {\n    key: '2_intro',\n    on: true,\n    frame: \"https://v3b.fal.media/files/b/0aab9956/j03TEZJ_NWQ3g1ujIDhTg_mhuoPvAs.png\",\n    duration: 6,\n    camera: \"Static medium shot, slight push-in as he lands.\",\n    action: [\n      \"0-2s: Ryzh finishes leaping out of the glowing phone screen and lands on the desk in front of the phone.\",\n      \"2-6s: He waves at the viewer with a big friendly grin and speaks, then points back at the phone with his thumb.\",\n    ],\n    // v2: в v1 «в Телеграме» прозвучало как «Телеграмбане» — ставим ударение и просим\n    // произнести слово чётко (подсказка в pron → уходит в промт).\n    line: \"Я Рыж. Живу у тебя в Телегра́ме — и становлюсь таким, как ты.\",\n    pron: 'Pronounce the word «Телегра́ме» clearly and separately as \"te-le-GRA-me\", exactly this word, no extra syllables.',\n    sfx: \"A playful digital 'pop' when he jumps out of the screen, a soft thud on landing. No music.\",\n  },\n  {\n    // «До»: без реплики — кряхтит в приседе. В CapCut жёсткий стык со вспышкой на «после».\n    key: '5a_result_before',\n    on: true,\n    frame: \"https://v3b.fal.media/files/b/0aab9956/oQF_6cpK9oxtBpyKu24U-_o2Wj8zzb.png\",\n    duration: 4,\n    camera: \"Static medium shot.\",\n    // v2: в v1 капля пота прилипла к уху, а на животе вылезла «грыжа». Приседания и пот\n    // оставляем (естественно), но фиксируем: капля на лбу, живот гладкий.\n    // Без звука (дешевле, $0.10/с) — пыхтение наложить в CapCut; нужно в клипе — audio: true.\n    action: [\n      \"0-4s: Ryzh does two natural bodyweight squats, straining, determined face, puffing. A single small sweat drop sits on his forehead just below the headband and slowly slides down his forehead. His round belly stays smooth and soft with a small simple belly button, no bulges or lumps.\",\n    ],\n    line: \"\",\n    audio: false,\n    sfx: \"\",\n  },\n  {\n    key: '5b_result_after',\n    on: false, // ок с первого прогона\n    frame: \"https://v3b.fal.media/files/b/0aab9956/KuCcZyboKHJlcUbU7Y0Kc_tEXEOlDj.png\",\n    duration: 4,\n    camera: \"Static medium shot, slight slow push-in.\",\n    action: [\n      \"0-4s: Ryzh flexes his bicep, kisses it, grins at the viewer and speaks proudly.\",\n    ],\n    line: \"Держишь норму — и пузо уходит. У обоих!\",\n    sfx: \"A bright 'ding' sparkle sound on the flex. No music.\",\n  },\n  {\n    key: '6_cta',\n    on: false, // ок с первого прогона\n    frame: \"https://v3b.fal.media/files/b/0aab977f/g728kX2AST-SjW-X-Z8JB_iCs7LNBf.png\",\n    duration: 4,\n    camera: \"Static medium shot, slight slow push-in toward his face.\",\n    action: [\n      \"0-1s: Ryzh holds the raised finger, winking, as if he has an idea.\",\n      \"1-4s: He lowers the finger to point straight at the camera and speaks with a cheeky pleading grin.\",\n    ],\n    line: \"Заведи своего лиса. Не бросай меня, а?\",\n    sfx: \"Light cheerful 'ding' at the end. No music.\",\n  },\n];\n\nconst out = [];\nfor (const s of CLIPS) {\n  if (!s.on) continue;\n  const d = Math.round(Number(s.duration) || 8);\n  const prompt = [\n    'Animate this image. ' + STYLE,\n    'Camera: ' + s.camera,\n    'Action: ' + s.action.join(' '),\n    s.line ? 'Dialogue: the fox says in Russian: \"' + s.line + '\"' : '',\n    s.pron || '',\n    s.line ? 'Voice: ' + VOICE : 'The fox does not speak any words.',\n    s.audio === false ? '' : 'Audio: ' + (s.sfx || 'No music.'),\n    'Absolutely no subtitles, no captions, no on-screen text or letters anywhere in the frame.',\n  ].filter(Boolean).join('\\n');\n  out.push({ json: {\n    key: s.key,\n    line: s.line || '',\n    image_url: s.frame,\n    prompt,\n    negative_prompt: NEGATIVE,\n    duration: d <= 4 ? '4s' : d <= 6 ? '6s' : '8s',\n    audio: s.audio !== false,\n  } });\n}\nreturn out;\n"
+      }
+    },
+    {
+      "id": "Gen",
+      "name": "Generate Ryzh (Veo i2v)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://fal.run/fal-ai/veo3.1/fast/image-to-video",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ prompt: $json.prompt, negative_prompt: $json.negative_prompt, image_url: $json.image_url, aspect_ratio: '9:16', duration: $json.duration, resolution: '720p', generate_audio: $json.audio }) }}",
+        "options": {
+          "timeout": 300000,
+          "batching": {
+            "batch": {
+              "batchSize": 1
+            }
+          }
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "hcF81UREaspnNJ0A",
+          "name": "fal.ai"
+        }
+      }
+    },
+    {
+      "id": "Download",
+      "name": "Download MP4",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "url": "={{ $json.video.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "data"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "Send",
+      "name": "Send Video",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        300
+      ],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "operation": "sendVideo",
+        "chatId": "648226895",
+        "binaryData": true,
+        "binaryPropertyName": "data",
+        "additionalFields": {
+          "caption": "={{ $('Клипы').item.json.key + ': ' + $('Клипы').item.json.line + '\\n' + $('Generate Ryzh (Veo i2v)').item.json.video.url }}"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "pHZXJrCzy1YaZyjX",
+          "name": "Content Bot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Запуск вручную": {
+      "main": [
+        [
+          {
+            "node": "Клипы",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Клипы": {
+      "main": [
+        [
+          {
+            "node": "Generate Ryzh (Veo i2v)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Ryzh (Veo i2v)": {
+      "main": [
+        [
+          {
+            "node": "Download MP4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download MP4": {
+      "main": [
+        [
+          {
+            "node": "Send Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

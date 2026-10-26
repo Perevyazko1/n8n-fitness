@@ -1,0 +1,132 @@
+{
+ "name": "Fitness_Bot_WorkoutPing",
+ "nodes": [
+  {
+   "parameters": {
+    "rule": {
+     "interval": [
+      {
+       "field": "cronExpression",
+       "expression": "0 0 23 * * *"
+      }
+     ]
+    }
+   },
+   "id": "wp-schedule-2300",
+   "name": "Cron 23:00 MSK",
+   "type": "n8n-nodes-base.scheduleTrigger",
+   "typeVersion": 1.2,
+   "position": [
+    2000,
+    -16
+   ]
+  },
+  {
+   "parameters": {
+    "method": "POST",
+    "url": "http://fitness-api:8001/api/cron/workout-ping",
+    "authentication": "genericCredentialType",
+    "genericAuthType": "httpHeaderAuth",
+    "sendBody": true,
+    "contentType": "raw",
+    "rawContentType": "application/json",
+    "body": "={{ JSON.stringify({}) }}",
+    "options": {
+     "timeout": 60000
+    }
+   },
+   "id": "wp-http-ping",
+   "name": "Workout Ping (Django)",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    2256,
+    -16
+   ],
+   "credentials": {
+    "httpHeaderAuth": {
+     "id": "63SYGxUVPB6pDz0y",
+     "name": "X-Cron-Secret"
+    }
+   }
+  },
+  {
+   "parameters": {
+    "jsCode": "// Разворачиваем ответ Django {ok, date, messages:[{chat_id,text}]}\n// в один item на сообщение. Пусто → [] → Telegram не выполняется.\n// ВЕСЬ отбор (кому пинговать) — в Django (streak.workout_pings), по каждому юзеру отдельно.\nconst res = $json || {};\nconst msgs = Array.isArray(res.messages) ? res.messages : [];\nreturn msgs\n  .filter(m => m && m.chat_id && m.text)\n  .map(m => ({ json: { chat_id: m.chat_id, text: m.text } }));"
+   },
+   "id": "wp-explode-messages",
+   "name": "Explode Messages",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    2512,
+    -16
+   ]
+  },
+  {
+   "parameters": {
+    "chatId": "={{ $json.chat_id }}",
+    "text": "={{ $json.text }}",
+    "additionalFields": {
+     "appendAttribution": false,
+     "parse_mode": "HTML"
+    }
+   },
+   "id": "wp-telegram-ping",
+   "name": "Telegram Ping",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    2768,
+    -16
+   ],
+   "credentials": {
+    "telegramApi": {
+     "id": "i66iQ2uUac0QdYNa",
+     "name": "Telegram account"
+    }
+   },
+   "onError": "continueRegularOutput"
+  }
+ ],
+ "connections": {
+  "Cron 23:00 MSK": {
+   "main": [
+    [
+     {
+      "node": "Workout Ping (Django)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Workout Ping (Django)": {
+   "main": [
+    [
+     {
+      "node": "Explode Messages",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Explode Messages": {
+   "main": [
+    [
+     {
+      "node": "Telegram Ping",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "active": false,
+ "settings": {
+  "executionOrder": "v1",
+  "binaryMode": "separate"
+ }
+}

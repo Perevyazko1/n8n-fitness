@@ -52,9 +52,9 @@ class ApiMiddleware:
             request.tg_user = None
             return self._cors(self.get_response(request))
 
-        # reels-конвейер (n8n) — сервер-сервер: склейка таймлайна в MP4. Без initData,
+        # reels-конвейер и разведка канала Рыжа (n8n) — сервер-сервер. Без initData,
         # авторизация тем же секретом X-Cron-Secret. БД юзеров не касается → tg_user не нужен.
-        if request.path.startswith("/api/reels/"):
+        if request.path.startswith(("/api/reels/", "/api/content/")):
             secret = request.headers.get("X-Cron-Secret", "")
             if not settings.CRON_SECRET or secret != settings.CRON_SECRET:
                 return self._cors(JsonResponse({"ok": False, "error": "reels_auth"}, status=403))

@@ -1,0 +1,1897 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Срез контента Мирафона и конкурентов, съёмочный план и справочник топ-постов ниши.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📡</text></svg>">
+<title>Радар Мирафона</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+  :root {
+    --ground:      #F2F4F7;
+    --surface:     #FFFFFF;
+    --surface-alt: #E9ECF1;
+    --line:        #D5DAE3;
+    --line-soft:   #E4E8EE;
+    --ink:         #14161C;
+    --ink-2:       #3D434F;
+    --ink-3:       #6B7382;
+    --accent:      #C06A08;
+    --accent-soft: #F5E3CB;
+    --good:        #1B7A52;
+    --dead:        #98A0AD;
+    --bar:         #AFB7C4;
+    --bar-flat:    #C3CAD5;
+    --shadow:      0 1px 2px rgba(20,22,28,.06), 0 8px 24px -16px rgba(20,22,28,.22);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:      #0E1015;
+      --surface:     #171A21;
+      --surface-alt: #1F232C;
+      --line:        #2B3039;
+      --line-soft:   #23272F;
+      --ink:         #E9ECF1;
+      --ink-2:       #B4BBC6;
+      --ink-3:       #838C99;
+      --accent:      #E8A33F;
+      --accent-soft: #3A2C15;
+      --good:        #45B187;
+      --dead:        #666E7B;
+      --bar:         #3A414D;
+      --bar-flat:    #333A45;
+      --shadow:      0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.7);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:      #0E1015;
+    --surface:     #171A21;
+    --surface-alt: #1F232C;
+    --line:        #2B3039;
+    --line-soft:   #23272F;
+    --ink:         #E9ECF1;
+    --ink-2:       #B4BBC6;
+    --ink-3:       #838C99;
+    --accent:      #E8A33F;
+    --accent-soft: #3A2C15;
+    --good:        #45B187;
+    --dead:        #666E7B;
+    --bar:         #3A414D;
+    --bar-flat:    #333A45;
+    --shadow:      0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.7);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 24px 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+  }
+
+  h1, h2, h3 {
+    font-family: Archivo, "IBM Plex Sans", sans-serif;
+    text-wrap: balance;
+    margin: 0;
+    letter-spacing: -0.015em;
+  }
+
+  h1 { font-size: clamp(30px, 5vw, 44px); font-weight: 700; line-height: 1.1; }
+  h2 { font-size: clamp(21px, 3vw, 26px); font-weight: 600; line-height: 1.2; }
+  h3 { font-size: 17px; font-weight: 600; }
+
+  p { margin: 0; }
+
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  /* ---------- header ---------- */
+
+  .masthead {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding-bottom: 32px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .masthead .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+
+  .lede {
+    font-size: 18px;
+    line-height: 1.55;
+    color: var(--ink-2);
+    max-width: 62ch;
+  }
+
+  /* ---------- findings ---------- */
+
+  .findings {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 16px;
+  }
+
+  .finding {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: var(--shadow);
+  }
+
+  .finding .num {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 28px;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .finding .num.flat { color: var(--dead); }
+
+  .finding p { font-size: 14.5px; line-height: 1.5; color: var(--ink-2); }
+
+  .finding strong { color: var(--ink); font-weight: 600; }
+
+  /* ---------- sections ---------- */
+
+  section { display: flex; flex-direction: column; gap: 20px; }
+
+  .sec-head { display: flex; flex-direction: column; gap: 6px; }
+
+  .sec-note { font-size: 15px; color: var(--ink-2); max-width: 64ch; }
+
+  /* ---------- stat strip ---------- */
+
+  .stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .stat {
+    background: var(--surface);
+    padding: 14px 18px;
+    flex: 1 1 130px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .stat .k {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .stat .v {
+    font-family: Archivo, sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+  }
+
+  .stat .v.hi { color: var(--accent); }
+  .stat .v.low { color: var(--dead); }
+
+  /* ---------- bar chart ---------- */
+
+  .chart {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 20px 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    box-shadow: var(--shadow);
+  }
+
+  .row { display: grid; grid-template-columns: 1fr 74px; gap: 14px; align-items: center; }
+
+  .row .label {
+    font-size: 13.5px;
+    color: var(--ink-2);
+    line-height: 1.35;
+    overflow-wrap: break-word;
+  }
+
+  .row .track {
+    grid-column: 1 / -1;
+    height: 9px;
+    background: var(--surface-alt);
+    border-radius: 1px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .row .fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: var(--bar);
+    border-radius: 1px;
+  }
+
+  .row.spike .fill { background: var(--accent); }
+  .row.spike .label { color: var(--ink); font-weight: 600; }
+
+  .row .val {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    color: var(--ink-3);
+  }
+
+  .row.spike .val { color: var(--accent); font-weight: 500; }
+
+  .mult {
+    display: inline-block;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11px;
+    padding: 1px 5px;
+    border-radius: 2px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    margin-left: 6px;
+    white-space: nowrap;
+  }
+
+  .median-note {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11.5px;
+    color: var(--ink-3);
+    padding-top: 4px;
+    border-top: 1px dashed var(--line);
+  }
+
+  /* ---------- two-up ---------- */
+
+  .two-up {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+  }
+
+  /* ---------- verdict lists ---------- */
+
+  .verdicts { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+
+  .verdict {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--good);
+    border-radius: 3px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .verdict.no { border-left-color: var(--dead); }
+
+  .verdict ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 9px; }
+  .verdict li { font-size: 14.5px; line-height: 1.5; color: var(--ink-2); }
+  .verdict li strong { color: var(--ink); font-weight: 600; }
+
+  .plainlist { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 9px; }
+  .plainlist li { font-size: 14.5px; line-height: 1.5; color: var(--ink-2); }
+  .plainlist li strong { color: var(--ink); font-weight: 600; }
+  .chart > h3 { margin: 0 0 4px; }
+
+  /* ---------- table ---------- */
+
+  .table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 3px; background: var(--surface); }
+
+  table { border-collapse: collapse; width: 100%; min-width: 540px; }
+
+  th, td { text-align: left; padding: 11px 16px; border-bottom: 1px solid var(--line-soft); font-size: 14px; }
+
+  th {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    background: var(--surface-alt);
+    white-space: nowrap;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+
+  td.num { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  .pill {
+    display: inline-block;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  .pill.live { background: var(--accent-soft); color: var(--accent); }
+  .pill.flat { background: var(--surface-alt); color: var(--ink-3); }
+
+  /* ---------- method ---------- */
+
+  .method { display: flex; flex-direction: column; gap: 14px; }
+
+  .src {
+    display: grid;
+    grid-template-columns: 148px 1fr;
+    gap: 4px 20px;
+    padding: 15px 0;
+    border-top: 1px solid var(--line);
+    align-items: start;
+  }
+
+  .src:last-of-type { border-bottom: 1px solid var(--line); }
+
+  .src .name {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 12.5px;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+
+  .src .desc { font-size: 14.5px; color: var(--ink-2); line-height: 1.5; }
+
+  .caveat {
+    background: var(--surface-alt);
+    border-radius: 3px;
+    padding: 16px 20px;
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--ink-2);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .caveat strong { color: var(--ink); font-weight: 600; }
+
+  /* ---------- reels ---------- */
+
+  .reels { display: flex; flex-direction: column; gap: 16px; }
+
+  .reel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .reel-head {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    padding: 18px 20px;
+    background: var(--surface-alt);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .reel-n {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .reel-sub {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11.5px;
+    color: var(--ink-3);
+    margin-top: 3px;
+  }
+
+  .reel-body {
+    display: block;
+  }
+
+  .reel-body .col {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+
+
+
+  .col-h {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .reel-body .col p { font-size: 14.5px; line-height: 1.55; color: var(--ink-2); }
+
+  .shots { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+
+  .shots li {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ink-2);
+    padding-left: 66px;
+    position: relative;
+  }
+
+  .shots .t {
+    position: absolute;
+    left: 0;
+    top: 1px;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11px;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .req {
+    font-size: 13px !important;
+    color: var(--ink-3) !important;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line);
+  }
+
+  .req.warn { color: var(--accent) !important; border-top-color: var(--accent-soft); }
+
+  @media (max-width: 700px) {
+    .reel-head { grid-template-columns: auto 1fr; }
+    .reel-head .pill { grid-column: 2; justify-self: start; }
+  }
+
+
+
+  /* ---------- термины с пояснением ---------- */
+
+  .term {
+    position: relative;
+    border-bottom: 1px dashed var(--ink-3);
+    cursor: help;
+    color: inherit;
+  }
+
+  .term:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+  .term::after {
+    content: attr(data-tip);
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 8px);
+    z-index: 20;
+    width: max-content;
+    max-width: min(320px, 76vw);
+    background: var(--ink);
+    color: var(--ground);
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.45;
+    letter-spacing: 0;
+    text-transform: none;
+    padding: 10px 12px;
+    border-radius: 4px;
+    box-shadow: 0 8px 24px -8px rgba(0,0,0,.45);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(3px);
+    transition: opacity .14s ease, transform .14s ease, visibility .14s;
+    pointer-events: none;
+    white-space: normal;
+  }
+
+  .term:hover::after,
+  .term:focus::after,
+  .term:focus-visible::after { opacity: 1; visibility: visible; transform: translateY(0); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .term::after { transition: none; }
+  }
+
+  /* ---------- reference tables ---------- */
+  table.ref { min-width: 780px; }
+  table.ref td { font-size: 13.5px; vertical-align: top; }
+  table.ref td.post { max-width: 300px; line-height: 1.4; }
+  table.ref tr.top td { background: var(--accent-soft); }
+  table.ref tr.top td.post { font-weight: 600; color: var(--ink); }
+  .emoji { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; white-space: nowrap; }
+  .why { color: var(--ink-3); font-size: 12.5px; line-height: 1.4; }
+
+  .empty-note {
+    padding: 22px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--ink-3);
+    background: var(--surface);
+    border: 1px dashed var(--line);
+    border-radius: 3px;
+  }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding-top: 20px;
+    font-size: 13px;
+    color: var(--ink-3);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  @media (max-width: 560px) {
+    .src { grid-template-columns: 1fr; gap: 4px; }
+    .row { grid-template-columns: 1fr 62px; }
+  }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Мониторинг контента · срез 04</p>
+    <h1>Радар Мирафона</h1>
+    <p class="lede">
+      Что выстреливает на ваших каналах и у конкурентов, измеренное в просмотрах, а не на ощущениях.
+      Собирается автоматически из открытых источников — без доступов к вашим аккаунтам и без бюджета на сервисы аналитики.
+    </p>
+    <div class="meta">
+      <span>Дата среза: 24.08.2026</span>
+      <span>Каналов в наблюдении: 19</span>
+      <span>Стоимость сбора: 0 ₽</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Главное</p>
+      <h2>Три вывода этого среза</h2>
+      <p class="sec-note">Четвёртый замер. К вашим каналам добавилась общая повестка — десять крупных каналов вне вашей ниши, чтобы видеть темы до того, как их снимут конкуренты.</p>
+    </div>
+    <div class="findings">
+      <div class="finding">
+        <span class="num">×4</span>
+        <h3>Ваш выброс устоял</h3>
+        <p>Пост с итогами голосования держит <strong>478 просмотров и те же 48 реакций</strong> — <span class="term" tabindex="0" data-tip="Реакции, делённые на просмотры. Просмотр в Telegram засчитывается при прокрутке, то есть меряет показ. Доля реакций меряет интерес: сколько людей из увидевших дали отклик.">доля отклика</span> 10,04 % против обычных для канала 2,48 %. Четвёртый замер подряд: рецепт рабочий и повторяемый.</p>
+      </div>
+      <div class="finding">
+        <span class="num flat">≈200</span>
+        <h3>Охват упал вдвое, но нашёл дно</h3>
+        <p>До паузы посты брали <strong>406–503</strong>, после — держатся около <strong>200</strong>. Падение вдвое подтвердилось, дальше не проваливается. Вчерашние 135–197 были недобором по возрасту: те же посты сегодня показывают 200–202.</p>
+      </div>
+      <div class="finding">
+        <span class="num">×2</span>
+        <h3>Б/У-тема вышла на второе место</h3>
+        <p>Пост «что люди представляют, когда мы говорим, что продаём б/у технику» дал <strong>4,89 % отклика</strong> — вдвое выше обычного и второй результат канала после голосования. Ваша уникальная территория работает без всякого инфоповода.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Динамика</p>
+      <h2>Что изменилось с 22 августа</h2>
+      <p class="sec-note">Одни и те же каналы, измеренные тем же способом два раза подряд. Колонка «было» — срез 02, колонка «стало» — сегодняшний.</p>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Что меряем</th>
+            <th>Было · 22.08</th>
+            <th>Стало · 24.08</th>
+            <th>Как читать</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Ваш пост «итоги голосования»</strong></td>
+            <td class="num">384 просм. · 48 реакц.</td>
+            <td class="num">475 просм. · 48 реакц.</td>
+            <td>Отклик закончился, показы продолжились. Реакции живут первые двое суток.</td>
+          </tr>
+          <tr>
+            <td><strong>Ваш охват в Telegram</strong></td>
+            <td class="num">385</td>
+            <td class="num"><span class="pill flat">197</span></td>
+            <td>Провал после паузы 20–21 августа.</td>
+          </tr>
+          <tr>
+            <td>Ваш ролик про ремонт (YouTube)</td>
+            <td class="num">21 821</td>
+            <td class="num">21 881</td>
+            <td>+60 за четыре дня: раздача закончилась, окно закрылось.</td>
+          </tr>
+          <tr>
+            <td>Медиана Big Geek на YouTube</td>
+            <td class="num">12 210</td>
+            <td class="num">15 420</td>
+            <td>Выросли на складных Samsung: топ-ролик 114 415.</td>
+          </tr>
+          <tr>
+            <td>Доля отклика Big Geek в Telegram</td>
+            <td class="num">0,61 %</td>
+            <td class="num">1,45 %</td>
+            <td>Рост целиком из негативных реакций, см. ниже.</td>
+          </tr>
+          <tr>
+            <td>Apple33</td>
+            <td class="num">молчит</td>
+            <td class="num"><span class="pill flat">молчит с 11.06</span></td>
+            <td>Два с половиной месяца без публикаций.</td>
+          </tr>
+          <tr>
+            <td>ТЮН.РФ на YouTube</td>
+            <td class="num">молчит</td>
+            <td class="num"><span class="pill flat">молчит с 09.06</span></td>
+            <td>Канал заброшен, остался только Telegram.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="caveat">
+      <p><strong>Зачем нужен повторный замер.</strong> Первый срез показывал этот же пост с итогами голосования как дно канала: 193 просмотра и 8 реакций. Через два дня — 384 и 48, сегодня — 475 и те же 48. По одному замеру нельзя отличить провал от поста, который ещё не разошёлся.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Ваш канал · YouTube</p>
+      <h2>MIRAPHONE — сеть оригинальной техники</h2>
+      <p class="sec-note">15 роликов за 03–21 августа. Картина та же, что и в прошлые разы: одна тема оторвалась в девятнадцать раз, всё остальное лежит плотным ковром вокруг медианы. Но у выброса появилась новая деталь — он <strong>перестал расти</strong>.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><span class="k">Медиана</span><span class="v">1 144</span></div>
+      <div class="stat"><span class="k">Максимум</span><span class="v hi">21 881</span></div>
+      <div class="stat"><span class="k">Минимум</span><span class="v">831</span></div>
+      <div class="stat"><span class="k">Выбросов ≥2×</span><span class="v hi">1</span></div>
+    </div>
+
+    <div class="chart">
+      <div class="row spike">
+        <span class="label">Сломался Face ID  пропала связь после падения…<span class="mult">×19 1</span></span>
+        <span class="val">21 881</span>
+        <span class="track"><span class="fill" style="width:100.0%"></span></span>
+      </div>
+      <div class="row">
+        <span class="label">«Какой iPhone купить первым?»</span>
+        <span class="val">1 785</span>
+        <span class="track"><span class="fill" style="width:8.2%"></span></span>
+      </div>
+      <div class="row">
+        <span class="label">Что выбрали бы вы?</span>
+        <span class="val">1 345</span>
+        <span class="track"><span class="fill" style="width:6.1%"></span></span>
+      </div>
+      <div class="row">
+        <span class="label">За подбором телефона обращайтесь к нам в сообщения</span>
+        <span class="val">1 297</span>
+        <span class="track"><span class="fill" style="width:5.9%"></span></span>
+      </div>
+      <div class="row">
+        <span class="label">Ну что  уже готовы поспорить?</span>
+        <span class="val">1 289</span>
+        <span class="track"><span class="fill" style="width:5.9%"></span></span>
+      </div>
+      <div class="row">
+        <span class="label">Продаете iPhone на Авито? Точно теряете деньги</span>
+        <span class="val">1 223</span>
+        <span class="track"><span class="fill" style="width:5.6%"></span></span>
+      </div>
+      <div class="row">
+        <span class="label">Есть три вещи  о которых при покупке iPhone говорят не всегда</span>
+        <span class="val">1 189</span>
+        <span class="track"><span class="fill" style="width:5.4%"></span></span>
+      </div>
+      <div class="row">
+        <span class="label">MIRAPHONE — новые и б/у iPhone и другая техника</span>
+        <span class="val">1 144</span>
+        <span class="track"><span class="fill" style="width:5.2%"></span></span>
+      </div>
+      <div class="row">
+        <span class="label">Можно ли с первого взгляда отличить б/у iPhone от нового?</span>
+        <span class="val">1 128</span>
+        <span class="track"><span class="fill" style="width:5.2%"></span></span>
+      </div>
+      <div class="row">
+        <span class="label">Пара минут проверки может сэкономить много денег</span>
+        <span class="val">982</span>
+        <span class="track"><span class="fill" style="width:4.5%"></span></span>
+      </div>
+      <div class="row">
+        <span class="label">Одна ошибка перед отпуском может стоить нескольких тысяч</span>
+        <span class="val">922</span>
+        <span class="track"><span class="fill" style="width:4.2%"></span></span>
+      </div>
+      <div class="row">
+        <span class="label">Есть 50 тысяч? Тогда сначала ответьте на один вопрос</span>
+        <span class="val">831</span>
+        <span class="track"><span class="fill" style="width:3.8%"></span></span>
+      </div>
+      <p class="median-note">Шкала линейная. Медиана 1 144 — это 5,2 % ширины строки-выброса.</p>
+    </div>
+
+    <div class="caveat">
+      <p><strong>Ролик про ремонт закончил раздачу.</strong> За четыре дня между срезами он прибавил <strong>60 просмотров</strong> — 21 821 стало 21 881. Алгоритм больше не носит его новым зрителям. Это значит, что тема не «работает сама», а отработала: чтобы поток не прервался, формат нужно повторить новым роликом, а не ждать продолжения от старого.</p>
+      <p><strong>Второй по силе ролик — снова вопрос, а не витрина.</strong> «Какой iPhone купить первым?» — 1 785 при медиане 1 144. Рядом «Что выбрали бы вы?» и «Ну что, уже готовы поспорить?». Ровно та же механика, что дала вам выброс в Telegram: пост, который просит ответа, обгоняет пост, который сообщает.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Ваш канал · Telegram</p>
+      <h2>@miraphone</h2>
+      <p class="sec-note">Профиль просмотров переломился ровно на паузе. До 19 августа — коридор 385–501. После трёх дней молчания — 135–197, то есть <strong>вдвое меньше при том же содержании</strong>: те же витрины, те же цены.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><span class="k">Подписчиков</span><span class="v">2 710</span></div>
+      <div class="stat"><span class="k">Медиана</span><span class="v">385</span></div>
+      <div class="stat"><span class="k">До паузы / после</span><span class="v low">445 → 177</span></div>
+      <div class="stat"><span class="k">Выброс по отклику</span><span class="v hi">1</span></div>
+    </div>
+
+    <div class="chart">
+      <div class="row">
+        <span class="label">14.08 · Добро пожаловать в Miraphone: новые и б/у iPhone</span>
+        <span class="val">501</span>
+        <span class="track"><span class="fill" style="width:100.0%; background:var(--bar-flat)"></span></span>
+      </div>
+      <div class="row">
+        <span class="label">15.08 · Если бы у вас в руках оказалось 100 тысяч — какой телефон?</span>
+        <span class="val">452</span>
+        <span class="track"><span class="fill" style="width:90.2%; background:var(--bar-flat)"></span></span>
+      </div>
+      <div class="row">
+        <span class="label">16.08 · Устройства, которые можно купить прямо сейчас: список цен</span>
+        <span class="val">467</span>
+        <span class="track"><span class="fill" style="width:93.2%; background:var(--bar-flat)"></span></span>
+      </div>
+      <div class="row spike">
+        <span class="label">19.08 · Утром мы устроили голосование: вы выбрали iPhone 17 Pro<span class="mult">×3,98 по отклику</span></span>
+        <span class="val">475</span>
+        <span class="track"><span class="fill" style="width:94.8%"></span></span>
+      </div>
+      <div class="row">
+        <span class="label">18.08 · 🎧 Журналисты показали AirPods будущего — с камерами</span>
+        <span class="val">403</span>
+        <span class="track"><span class="fill" style="width:80.4%; background:var(--bar-flat)"></span></span>
+      </div>
+      <div class="row">
+        <span class="label">17.08 · iPhone от 25 990 до 63 990 ₽ — что сейчас в наличии</span>
+        <span class="val">402</span>
+        <span class="track"><span class="fill" style="width:80.2%; background:var(--bar-flat)"></span></span>
+      </div>
+      <div class="row">
+        <span class="label">19.08 · Видео без подписи</span>
+        <span class="val">385</span>
+        <span class="track"><span class="fill" style="width:76.8%; background:var(--bar-flat)"></span></span>
+      </div>
+      <div class="row">
+        <span class="label">22.08 · Рассказали, что выбрать, если хочется посвежее</span>
+        <span class="val">197</span>
+        <span class="track"><span class="fill" style="width:39.3%; background:var(--bar-flat)"></span></span>
+      </div>
+      <div class="row">
+        <span class="label">22.08 · Напоминаем про наш бот с наличием и ценами</span>
+        <span class="val">195</span>
+        <span class="track"><span class="fill" style="width:38.9%; background:var(--bar-flat)"></span></span>
+      </div>
+      <div class="row">
+        <span class="label">23.08 · Что люди представляют, когда мы говорим «б/у техника Apple»</span>
+        <span class="val">179</span>
+        <span class="track"><span class="fill" style="width:35.7%; background:var(--bar-flat)"></span></span>
+      </div>
+      <div class="row">
+        <span class="label">23.08 · iPhone 16 Pro Max — в наличии в MIRAPHONE</span>
+        <span class="val">135</span>
+        <span class="track"><span class="fill" style="width:26.9%; background:var(--bar-flat)"></span></span>
+      </div>
+      <p class="median-note">Шкала линейная, красным выделен пост с итогами голосования — он выигрывает не просмотрами, а откликом. Пост от 24 августа в график не взят: ему меньше суток.</p>
+    </div>
+
+    <div class="caveat">
+      <p><strong>Оговорка честности.</strong> На падение работают сразу две вещи, и по одному срезу их не разделить: пауза 20–21 августа и то, что 22 августа вышло <strong>три поста подряд за день</strong> — они делят между собой одно и то же внимание. Следующий замер покажет, какая из причин настоящая; пока верно одно — прежних 400 просмотров канал не набирает.</p>
+      <p><strong>Что с этим делать уже сейчас.</strong> Ровный график публикаций стоит дешевле любой идеи для поста: содержание постов до паузы и после не изменилось, а показов стало вдвое меньше.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Конкуренты</p>
+      <h2>Что у них отрывается от медианы</h2>
+      <p class="sec-note">Смотрим не абсолютные просмотры — каналы разного размера, — а во сколько раз тема обогнала обычный ролик того же канала, его <span class="term" tabindex="0" data-tip="Значение ровно посередине ряда: половина публикаций набрала больше, половина меньше. Показывает обычный результат канала. В отличие от среднего, не искажается одним вирусным постом.">медиану</span>.</p>
+    </div>
+
+    <div class="two-up">
+      <div class="chart">
+        <h3>BIG GEEK <span class="pill live">медиана 15 420</span></h3>
+        <div class="row spike">
+          <span class="label">Прожил неделю с Galaxy Fold 8 и ЭТО ТОП!<span class="mult">×7,4</span></span>
+          <span class="val">114 415</span>
+          <span class="track"><span class="fill" style="width:100.0%"></span></span>
+        </div>
+        <div class="row spike">
+          <span class="label">Fold 8 Ultra — не минорное обновление<span class="mult">×4,2</span></span>
+          <span class="val">64 181</span>
+          <span class="track"><span class="fill" style="width:56.1%"></span></span>
+        </div>
+        <div class="row spike">
+          <span class="label">Samsung Galaxy Fold 8 — лучшая раскладушка?<span class="mult">×2,2</span></span>
+          <span class="val">33 281</span>
+          <span class="track"><span class="fill" style="width:29.1%"></span></span>
+        </div>
+        <div class="row spike">
+          <span class="label">Fold 8 Ultra — идеальный Android-смартфон?<span class="mult">×2,1</span></span>
+          <span class="val">31 735</span>
+          <span class="track"><span class="fill" style="width:27.7%"></span></span>
+        </div>
+        <div class="row">
+          <span class="label">Смартфон с выдвижной камерой</span>
+          <span class="val">29 804</span>
+          <span class="track"><span class="fill" style="width:26.0%; background:var(--bar-flat)"></span></span>
+        </div>
+        <div class="row">
+          <span class="label">Новая линейка чехлов Pitaka</span>
+          <span class="val">8 377</span>
+          <span class="track"><span class="fill" style="width:7.3%; background:var(--bar-flat)"></span></span>
+        </div>
+        <div class="row">
+          <span class="label">Полезное приложение для вашего Mac</span>
+          <span class="val">8 199</span>
+          <span class="track"><span class="fill" style="width:7.2%; background:var(--bar-flat)"></span></span>
+        </div>
+        <p class="median-note">Верх канала третий срез подряд — складные Samsung. Их медиана за четыре дня выросла с 12 210 до 15 420: канал разгоняется на одной линейке устройств.</p>
+      </div>
+      <div class="chart">
+        <h3>Pedant.ru <span class="pill live">медиана 3 050</span></h3>
+        <div class="row spike">
+          <span class="label">ANDROID НАЗВАЛИ В ЧЕСТЬ КЕКСА<span class="mult">×2,5</span></span>
+          <span class="val">7 565</span>
+          <span class="track"><span class="fill" style="width:100.0%"></span></span>
+        </div>
+        <div class="row spike">
+          <span class="label">Карта всех крушений<span class="mult">×2,5</span></span>
+          <span class="val">7 557</span>
+          <span class="track"><span class="fill" style="width:99.9%"></span></span>
+        </div>
+        <div class="row spike">
+          <span class="label">Этот телефон перевернул весь мир<span class="mult">×2,4</span></span>
+          <span class="val">7 405</span>
+          <span class="track"><span class="fill" style="width:97.9%"></span></span>
+        </div>
+        <div class="row">
+          <span class="label">Этот телефон вышел в год твоего рождения</span>
+          <span class="val">4 114</span>
+          <span class="track"><span class="fill" style="width:54.4%; background:var(--bar-flat)"></span></span>
+        </div>
+        <div class="row">
+          <span class="label">Приложение, которое поможет заметить клеща</span>
+          <span class="val">3 700</span>
+          <span class="track"><span class="fill" style="width:48.9%; background:var(--bar-flat)"></span></span>
+        </div>
+        <div class="row">
+          <span class="label">Скрытые настройки галереи Samsung</span>
+          <span class="val">3 068</span>
+          <span class="track"><span class="fill" style="width:40.6%; background:var(--bar-flat)"></span></span>
+        </div>
+        <div class="row">
+          <span class="label">Он изобрёл Lego</span>
+          <span class="val">1 414</span>
+          <span class="track"><span class="fill" style="width:18.7%; background:var(--bar-flat)"></span></span>
+        </div>
+        <div class="row">
+          <span class="label">Как улучшить качество Stories</span>
+          <span class="val">1 077</span>
+          <span class="track"><span class="fill" style="width:14.2%; background:var(--bar-flat)"></span></span>
+        </div>
+        <p class="median-note">Пятнадцать роликов за пять дней — конвейер. Верх канала снова микро-факт без единого упоминания товара.</p>
+      </div>
+    </div>
+
+    <div class="caveat">
+      <p><strong>Pedant подтвердил свой формат третий раз подряд.</strong> Кекс, крушения, «телефон года твоего рождения» — ни в одном ролике нет ни товара, ни услуги, а верх канала держат именно они. Это ровно тот приём, что заложен в ваш ролик № 2 про буквы в номере модели: он самый дешёвый в производстве и не требует локации.</p>
+      <p><strong>Отдельно про темп.</strong> Pedant выпускает по три ролика в день. Догонять их по количеству бессмысленно и не нужно — но это объясняет, почему у них всегда есть свежий выброс, а у вас один за август.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Конкуренты · Telegram</p>
+      <h2>Вся ниша выглядит одинаково</h2>
+      <p class="sec-note">Прогнали пять каналов, включая ваш. Ни у одного нет <span class="term" tabindex="0" data-tip="Публикация, обогнавшая медиану своего канала вдвое и больше. Показывает тему, которая действительно зацепила, а не просто удачный день.">выброса</span> — темы, которая оторвалась бы от собственной медианы хотя бы вдвое — все работают витриной или новостной лентой.</p>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Канал</th>
+            <th>Подписчиков</th>
+            <th>Медиана</th>
+            <th>Охват</th>
+            <th>Выбросы</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Big Geek</td>
+            <td class="num">566 000</td>
+            <td class="num">31 750</td>
+            <td class="num">5,6 %</td>
+            <td class="num">0</td>
+          </tr>
+          <tr>
+            <td>ТЮН.РФ</td>
+            <td class="num">22 200</td>
+            <td class="num">1 505</td>
+            <td class="num">6,8 %</td>
+            <td class="num">0</td>
+          </tr>
+          <tr>
+            <td>Apple_BAS <span class="pill flat">Минск</span></td>
+            <td class="num">4 050</td>
+            <td class="num">2 890</td>
+            <td class="num">71 % ⚠</td>
+            <td class="num">0</td>
+          </tr>
+          <tr>
+            <td><strong>MIRAPHONE</strong></td>
+            <td class="num">2 710</td>
+            <td class="num">385</td>
+            <td class="num">14,2 %</td>
+            <td class="num">0</td>
+          </tr>
+          <tr>
+            <td>Apple33</td>
+            <td class="num">2 050</td>
+            <td class="num">2 200</td>
+            <td class="num">107 % ⚠</td>
+            <td class="num">0</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="verdicts">
+      <div class="verdict">
+        <h3>Что читают лучше обычного</h3>
+        <ul>
+          <li><strong>Новости о будущем.</strong> У ТЮН.РФ две верхние строки — интерфейс и цвета ещё не вышедшего iPhone 18. У Apple33 верх — слухи о MacBook с сенсорным экраном.</li>
+          <li>Ожидание нового собирает лучше, чем наличие текущего. Это же подтверждает ваш календарь: до презентации Apple шестнадцать дней.</li>
+        </ul>
+      </div>
+      <div class="verdict no">
+        <h3>Что проваливается у всех</h3>
+        <ul>
+          <li><strong>Прямая продажа услуги.</strong> У ТЮН.РФ дно канала — пост «Трейд-ин стал ещё выгоднее»: 993 при медиане 1 465.</li>
+          <li><strong>Витрина товара.</strong> У Apple33 нижняя строка — подборка б/у в наличии. У вас витрины с ценами лежат в нижней части и по отклику — 1,5–2 % против 2,5 % обычных для канала.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="caveat">
+      <p><strong>Ваше место в этой картине.</strong> По вовлечению вы в верхней половине: 14,2 % против 5,6 % у Big Geek и 6,8 % у ТЮН.РФ. Проблема не в том, что вас не читают, — а в том, что пока нечего сказать сверх ассортимента.</p>
+      <p><strong>Big Geek в Telegram и на YouTube — разные истории.</strong> Полмиллиона подписчиков при охвате 3,5 %: аудитория набрана, вовлечения нет. При этом на YouTube у них выбросы до ×9. Размер канала ничего не говорит о его силе.</p>
+      <p><strong>Две метрики помечены знаком ⚠.</strong> У Apple33 просмотров больше, чем подписчиков, — признак закупки трафика или массовых пересылок. У Apple_BAS лента растянута на два месяца, и старые посты успели набрать втрое больше свежих: июльские — 3 900, от 18 августа — 1 070. Как ориентир оба канала брать нельзя.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Реакции</p>
+      <h2>По вовлечённости вы первые в нише</h2>
+      <p class="sec-note">Просмотр в Telegram засчитывается при прокрутке — он говорит о показе, а не об интересе. Интерес показывает <span class="term" tabindex="0" data-tip="Реакции, делённые на просмотры. Просмотр в Telegram засчитывается при прокрутке, то есть меряет показ. Доля реакций меряет интерес: сколько людей из увидевших дали отклик.">доля реакций</span>: сколько людей из увидевших нажали эмодзи. По ней вы держите первое место третий замер подряд.</p>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Канал</th>
+            <th>Медиана просмотров</th>
+            <th>Доля отклика</th>
+            <th>Верх канала по отклику</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>MIRAPHONE</strong></td>
+            <td class="num">385</td>
+            <td class="num"><span class="pill live">2,54 %</span></td>
+            <td>итоги голосования ×3,98 — одобрение</td>
+          </tr>
+          <tr>
+            <td>Big Geek</td>
+            <td class="num">31 750</td>
+            <td class="num">1,45 %</td>
+            <td>слив дизайна S27 ×1,85 — возмущение</td>
+          </tr>
+          <tr>
+            <td>ТЮН.РФ</td>
+            <td class="num">1 505</td>
+            <td class="num">0,70 %</td>
+            <td>интерфейс iPhone 18 ×4,14 — любопытство</td>
+          </tr>
+          <tr>
+            <td>Apple33</td>
+            <td class="num">2 200</td>
+            <td class="num">0,15 %</td>
+            <td>канал не публикует с 11 июня</td>
+          </tr>
+          <tr>
+            <td>Apple_BAS</td>
+            <td class="num">2 890</td>
+            <td class="num"><span class="pill flat">реакции выключены</span></td>
+            <td>измерить отклик нечем</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="findings">
+      <div class="finding">
+        <span class="num">×3,98</span>
+        <h3>Выброс подтвердился повторным замером</h3>
+        <p>Пост с итогами голосования: <strong>48 реакций на 475 просмотров</strong>. Ни у одного конкурента в Telegram нет темы с таким отрывом от собственной медианы.</p>
+      </div>
+      <div class="finding">
+        <span class="num">2 сут</span>
+        <h3>Столько живёт отклик</h3>
+        <p>С 22 августа пост добрал <strong>91 просмотр и ноль реакций</strong>. Эмодзи ставят те, кто увидел пост сразу; дальше идут только показы.</p>
+      </div>
+      <div class="finding">
+        <span class="num">7,1 %</span>
+        <h3>Вторая по силе тема — новость о будущем</h3>
+        <p>«9 сентября презентация Apple, что ожидаем» — отклик втрое выше обычного за первые сутки. Витрины с ценами в том же окне дают 1,5–2 %.</p>
+      </div>
+    </div>
+
+    <div class="caveat">
+      <p><strong>Оговорка к цифрам.</strong> Реакций на пост у вас немного — от трёх до девятнадцати, поэтому доля скачет. Но превосходство над конкурентами держится третий срез подряд и не на одной удачной публикации.</p>
+      <p><strong>Готовый рецепт, который вы уже применили.</strong> Утром — опрос «выбери одно». Вечером — «вы выбрали iPhone 17 Pro, вот он в наличии, вот цены». Люди вернулись за результатом собственного голосования, и витрина сработала как ответ, а не как монолог. Тот же список цен без этой связки даёт 1,5 % — впятеро меньше.</p>
+      <p><strong>Что это меняет в выводах.</strong> Проблема канала не в том, что вас плохо читают, — читают лучше всех в нише. Проблема в том, что читать нечего кроме витрины. Двухходовка «сначала спросить, потом ответить» — единственное, что уже доказало обратное.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Конкуренты · чем платят за отклик</p>
+      <h2>Big Geek растёт на возмущении, ТЮН — на просьбе ответить</h2>
+      <p class="sec-note">Доля отклика сама по себе ничего не говорит: важно, из каких эмодзи она собрана. Два конкурента подняли её за эти дни — и сделали это противоположными способами.</p>
+    </div>
+
+    <div class="two-up">
+      <div class="chart">
+        <h3>Big Geek <span class="pill flat">верх канала = негатив</span></h3>
+        <p>Три верхних поста по отклику за четыре дня — все про слухи и сливы, и все собрали раздражение:</p>
+        <ul class="plainlist">
+          <li><strong>«Рассекречен дизайн Samsung Galaxy S27 Ultra»</strong> — 779 реакций на 29 100 просмотров. Состав: 🗿 363, 👎 172, 😐 66, 🤮 46, 💩 36, 🤡 23. <strong>706 из 779 — отрицательные или издевательские.</strong></li>
+          <li><strong>«Ещё один инсайдер слил изображения S27 Ultra»</strong> — 💩 261, 🤡 84, 👎 34 при 21 одобрительном ❤.</li>
+          <li><strong>«Bloomberg: тестировщики в восторге от iPhone Ultra»</strong> — 🤡 169 против 👍 50.</li>
+        </ul>
+        <p>Сухие новости у них же — Sennheiser, Ozon, дата выхода XBOX — дают 0,42–0,58 %, то есть дно. Отклик у Big Geek поднимает только то, с чем аудитория спорит.</p>
+      </div>
+      <div class="chart">
+        <h3>ТЮН.РФ <span class="pill live">верх канала = просьба</span></h3>
+        <p>Их лучший пост за месяц — <strong>2,9 % отклика, ×4,14 к медиане канала</strong>. Механика в самом тексте:</p>
+        <ul class="plainlist">
+          <li>«Apple показали будущий интерфейс iPhone 18. Как вам? <br>«❤️» — очень красивый!<br>«👀» — а что изменилось?»</li>
+          <li>Результат: 👀 31, ❤ 15, 🔥 4 — люди голосуют реакцией, потому что их прямо об этом попросили и дали расшифровку каждого варианта.</li>
+          <li>Второй такой же пост — «Новый дизайн iPhone 18, «❤️» — класс / «👀» — почему это так плохо выглядит» — 1,97 %, ×2,81.</li>
+        </ul>
+        <p>Оба их выброса — новость о ещё не вышедшем устройстве плюс просьба ответить. Прямой оффер в том же канале («оформить рассрочку») даёт 0,5–0,7 %.</p>
+      </div>
+    </div>
+
+    <div class="caveat">
+      <p><strong>Что из этого ваше.</strong> У Big Geek полмиллиона подписчиков и запас прочности на скандал — вам он не нужен и не по размеру: магазин, которому плюют в комментарии, теряет доверие, а не набирает охват. А приём ТЮН стоит ноль и уже подтверждён вашим собственным выбросом: ваш лучший пост — тоже ответ на заданный вопрос.</p>
+      <p><strong>Соединение двух наблюдений даёт готовую схему.</strong> Новость о будущем устройстве (у вас это «9 сентября» — 7,1 % за сутки) плюс явная просьба ответить реакцией с расшифровкой эмодзи. По отдельности каждый приём уже сработал: у вас и у ТЮН. Вместе их в нише пока не делает никто.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Сравнение площадок</p>
+      <h2>Одна тема, две площадки, разный результат</h2>
+      <p class="sec-note">Три канала ниши ведут и YouTube, и Telegram одновременно — это позволяет сравнить напрямую, что срабатывает где.</p>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Тема</th>
+            <th>YouTube</th>
+            <th>Telegram</th>
+            <th>Кто показал</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Поломка и ремонт</td>
+            <td class="num"><span class="pill live">×19.5</span></td>
+            <td class="num">нет постов</td>
+            <td>MIRAPHONE</td>
+          </tr>
+          <tr>
+            <td>Микро-факт про технику</td>
+            <td class="num"><span class="pill live">×9.6</span></td>
+            <td class="num">канала нет</td>
+            <td>Pedant.ru</td>
+          </tr>
+          <tr>
+            <td>Обзор устройства</td>
+            <td class="num"><span class="pill live">×9.0</span></td>
+            <td class="num">×1.0</td>
+            <td>Big Geek</td>
+          </tr>
+          <tr>
+            <td>Сценка из магазина</td>
+            <td class="num"><span class="pill live">×7.5</span></td>
+            <td class="num">нет постов</td>
+            <td>ТЮН.РФ</td>
+          </tr>
+          <tr>
+            <td>Новость о будущем устройстве</td>
+            <td class="num">×1.1</td>
+            <td class="num"><span class="pill live">верх канала</span></td>
+            <td>ТЮН.РФ</td>
+          </tr>
+          <tr>
+            <td>Оффер, скидка, трейд-ин</td>
+            <td class="num">×2.2</td>
+            <td class="num"><span class="pill flat">дно канала</span></td>
+            <td>ТЮН.РФ</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="verdicts">
+      <div class="verdict">
+        <h3>YouTube показывает вас незнакомцу</h3>
+        <ul>
+          <li>Алгоритм несёт ролик людям, которые о вас не слышали. Срабатывает то, что цепляет за три секунды: <strong>чужая беда, смешная сценка, неожиданный факт</strong>.</li>
+          <li>Даже оффер здесь работает — для нового зрителя скидка это новость. Отсюда выбросы в разы.</li>
+        </ul>
+      </div>
+      <div class="verdict no">
+        <h3>Telegram показывает вас подписчику</h3>
+        <ul>
+          <li>Он уже знает про ваш ассортимент и трейд-ин, поэтому <strong>повторный оффер уходит на дно канала</strong>: у ТЮН.РФ такой пост собрал 993 при медиане 1 465.</li>
+          <li>Поднимается только новое знание — что покажет Apple в сентябре. Но и оно даёт прибавку около 15 %, а не кратный отрыв.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="caveat">
+      <p><strong>Тему нельзя копировать между площадками — её нужно переупаковывать.</strong> Ролик «iPhone 18 Pro Max в голубом цвете» на YouTube у ТЮН.РФ дал ровно медиану, а тот же сюжет в их Telegram стал верхом канала.</p>
+      <p><strong>Пустая территория.</strong> Ваш единственный доказанный выброс — ремонт — в Telegram не представлен ни одним постом. При этом Pedant.ru, у которого ремонт составляет весь бизнес, Telegram-канал вообще не ведёт: там только бот для записи.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Повестка недели</p>
+      <h2>О чём говорят прямо сейчас</h2>
+      <p class="sec-note">Впервые в срезе не только ваши каналы. <strong>2 034 публикации из десяти крупных каналов за 10–24 августа</strong> — юмор, новости, кино, техника, происшествия. Темы ищутся не запросом «телефоны», а наоборот: смотрим всё подряд и ловим то, что вырвалось. Иначе видно только то, о чём догадались спросить, а самое обсуждаемое проходит мимо.</p>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Тема</th>
+            <th>Публикаций</th>
+            <th>Каналов</th>
+            <th>Куда движется</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Техника и телефоны</strong></td>
+            <td class="num">77</td>
+            <td class="num">9</td>
+            <td>Держится ровно всю неделю — фон, а не всплеск</td>
+          </tr>
+          <tr>
+            <td>Маркетплейсы</td>
+            <td class="num">65</td>
+            <td class="num">8</td>
+            <td><span class="pill">растёт ×3,2</span></td>
+          </tr>
+          <tr>
+            <td>Канье Уэст</td>
+            <td class="num">59</td>
+            <td class="num">7</td>
+            <td><span class="pill flat">затухает ×0,6</span> пик прошёл 17.08</td>
+          </tr>
+          <tr>
+            <td>Топливо и бензин</td>
+            <td class="num">58</td>
+            <td class="num">9</td>
+            <td>Ровный фон, держится всю неделю</td>
+          </tr>
+          <tr>
+            <td>Кино: Паук, Колобок, Одиссея</td>
+            <td class="num">26</td>
+            <td class="num">7</td>
+            <td><span class="pill flat">затухает</span> пик был до 10.08</td>
+          </tr>
+          <tr>
+            <td>Team Spirit на The International</td>
+            <td class="num">14</td>
+            <td class="num">6</td>
+            <td><span class="pill live">взлёт ×37</span> с нуля за три дня</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="caveat">
+      <p><strong>Зачем колонка «каналов».</strong> Просмотры у разных каналов несопоставимы, а вот число независимых каналов, написавших об одном и том же за сутки, — честная мера спроса. Тема в семи каналах из десяти уже вышла за пределы своей аудитории; тема в одном — это чей-то пресс-релиз.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Фильтр</p>
+      <h2>Половину горячего мы не берём — и это норма</h2>
+      <p class="sec-note">Из шести тем недели под съёмку прошли три. Отбор идёт до того, как придумывается угол: сначала тема проходит фильтр, и только потом обсуждается, что мы о ней скажем.</p>
+    </div>
+
+    <div class="verdicts">
+      <div class="verdict no">
+        <h3>Не берём никогда</h3>
+        <ul>
+          <li><strong>Политику и войну</strong> — выборы, власть, санкции, удары, погибшие.</li>
+          <li><strong>Катастрофы и преступления против людей</strong>, ДТП с жертвами.</li>
+          <li><strong>Смерти конкретных людей</strong> — даже когда это герой известного мема.</li>
+          <li><strong>Межнациональное и религиозное</strong> — всё, где нельзя не занять сторону.</li>
+        </ul>
+        <p>Причина не только этическая. В таких темах любая сторона стоит вам части покупателей, а просмотры на чужой беде не превращаются в продажи.</p>
+      </div>
+      <div class="verdict">
+        <h3>Что берём</h3>
+        <ul>
+          <li><strong>Деньги покупателя</strong> — цены, подорожание, как не переплатить.</li>
+          <li><strong>Поломки и ремонт</strong> — ваша подтверждённая территория с ×19.</li>
+          <li><strong>Безопасность сделки</strong> — мошенники, проверка, б/у.</li>
+          <li><strong>Микро-факты и ликбез</strong>, кино и спорт без скандала, курьёзы без пострадавших.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="caveat">
+      <p><strong>Главная ловушка: тема чистая, а повод грязный.</strong> Проверять надо не саму тему, а откуда взялся инфоповод. «Маркетплейс не привезёт, а магазин рядом привезёт» — безупречный потребительский угол, но вырос он из ударов по складам Ozon и пожара на складе Wildberries. Продавать телефоны на этом нельзя, и такая тема снимается несмотря на то, что она вторая по обсуждаемости за неделю.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Отсев недели</p>
+      <h2>Что отбросили и почему</h2>
+      <p class="sec-note">Показываем не только отобранное. Отброшенное объясняет логику отбора лучше, чем принятое.</p>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Тема</th>
+            <th>Насколько горячая</th>
+            <th>Причина отказа</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Канье Уэст в России</strong></td>
+            <td class="num">59 публикаций, 7 каналов</td>
+            <td>Сам сюжет развлекательный — ажиотаж, билеты по 160 тысяч, мошеннические сайты. Но повестка вокруг него политическая, угла без стороны там не построить. Плюс тема уже падает: 43 публикации до 19 августа против 16 после.</td>
+          </tr>
+          <tr>
+            <td><strong>Маркетплейсы</strong></td>
+            <td class="num">65 публикаций, 8 каналов</td>
+            <td>Повод — атаки БПЛА по складам и пожары. Потребительский угол существует, но происхождение темы его закрывает.</td>
+          </tr>
+          <tr>
+            <td>Смерть героя мема «Плохо, плохо, не важно»</td>
+            <td class="num">309 000 просмотров</td>
+            <td>Формально интернет-фольклор, по сути — погиб человек.</td>
+          </tr>
+          <tr>
+            <td>Экранка «Человека-паука» в кинотеатрах</td>
+            <td class="num">26 публикаций, 7 каналов</td>
+            <td><span class="pill flat">под вопросом</span> Обсуждать пиратство легальному продавцу техники не по чину. Годится только через угол о качестве съёмки.</td>
+          </tr>
+          <tr>
+            <td>Топливный кризис</td>
+            <td class="num">58 публикаций, 9 каналов</td>
+            <td>Чистая тема, но угла к телефонам нет. Любая попытка её пристегнуть будет натягиванием.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="caveat">
+      <p><strong>Почему нельзя требовать «пять идей каждый день».</strong> Если от подбора тем требовать фиксированное число, он начнёт протаскивать именно то, что в таблице выше — формально подходящее, по сути неприемлемое. Право сказать «на этой неделе чисто ничего» заложено в правила с самого начала. Три темы из шести — рабочий режим, а не сбой.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Прошли фильтр</p>
+      <h2>Три темы, которые можно снимать</h2>
+    </div>
+    <div class="findings">
+      <div class="finding">
+        <span class="num">136</span>
+        <h3>Технологический сбор — электроника подорожает</h3>
+        <p>136 млрд рублей сбора, о котором пишут как о неизбежном росте цен на всю электронику. <strong>Ваша тема напрямую</strong>: честный повод поторопиться и естественный аргумент за трейд-ин сейчас, а не потом. Говорим только о том, что это значит для цены, без «кто виноват».</p>
+      </div>
+      <div class="finding">
+        <span class="num">186К</span>
+        <h3>Обновление превращает iPhone в кирпич</h3>
+        <p>Телефон перестаёт реагировать на код разблокировки после обновления. Ровно тот жанр, который дал вам <strong>×19 на YouTube</strong>: беда пользователя, которую вы умеете чинить. Самая безопасная тема недели — ни политики, ни пострадавших.</p>
+      </div>
+      <div class="finding">
+        <span class="num">×37</span>
+        <h3>Team Spirit выиграли The International</h3>
+        <p>Взлёт с нуля за три дня, победа, положительная эмоция. Для магазина заходить через производительность в играх — натянуто, но как лёгкий повод для поста годится. <strong>Берём с оговоркой:</strong> тема живая, угол слабее первых двух.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Стратегия канала</p>
+      <h2>Постоянные темы: что брать и что пропустить</h2>
+      <p class="sec-note">В отличие от повестки выше, эти темы не зависят от новостей и не сгорают за неделю — на них строится основа графика съёмок.</p>
+    </div>
+    <div class="verdicts">
+      <div class="verdict">
+        <h3>Брать</h3>
+        <ul>
+          <li><strong>Ремонт и «сломалось».</strong> Ваш единственный подтверждённый выброс и ровно то, что вы умеете: экран, батарея, Face ID, вода.</li>
+          <li><strong>Микро-факты про технику.</strong> Формат Pedant, ×9.6, снимается за полминуты, не требует товара в кадре и не читается как реклама.</li>
+          <li><strong>Б/У-экспертиза.</strong> Уникально ваша тема — никто из конкурентов не торгует б/у так открыто. Плюс инфоповод «смартфоны выходят из серой зоны».</li>
+          <li><strong>Волна iPhone 18 до 8 сентября.</strong> Что будет с ценой б/у после анонса и сколько потеряет нынешний аппарат в трейд-ине.</li>
+        </ul>
+      </div>
+      <div class="verdict no">
+        <h3>Пропустить</h3>
+        <ul>
+          <li><strong>Обзоры складных Samsung в лоб.</strong> Топ у BIG GEEK, но у них канал на порядок больше и позиция обзорщика. Ваш угол другой: сколько Fold 8 будет стоить через полгода на вторичке.</li>
+          <li><strong>Huawei Pura X View.</strong> Самый горячий инфоповод недели, около десяти публикаций за сутки, — но модели нет в вашем ассортименте. Чужой хайп.</li>
+          <li><strong>Витрину с ценником.</strong> На обоих каналах она даёт ровно медиану и ни разу не дала больше.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Съёмочный план</p>
+      <h2>Пять роликов на ближайший цикл</h2>
+      <p class="sec-note">Каждый выведен из цифр выше: либо это ваш подтверждённый выброс, либо формат, который отработал у конкурента, либо окно инфоповода. Здесь — <strong>направление и обоснование</strong>: почему именно эта тема и что она должна принести бизнесу.</p>
+    </div>
+
+    <div class="reels">
+
+      <article class="reel">
+        <div class="reel-head">
+          <span class="reel-n">01</span>
+          <div>
+            <h3>Уронил телефон. Первые пять минут</h3>
+            <p class="reel-sub">Хронометраж 35–40 с · сервисная зона · мастер в кадре</p>
+          </div>
+          <span class="pill live">основано на ×19</span>
+        </div>
+
+        <div class="reel-body">
+          <div class="col">
+            <p class="col-h">Маркетингу</p>
+            <p>Единственная тема, которая на вашем канале уже дала выброс: ролик про сломанный Face ID собрал 21 881 против медианы 1 144. Мы не угадываем — мы повторяем сработавшее.</p>
+            <p>Ловит человека в момент паники, когда решение принимается за час. Ведёт в диагностику — самую маржинальную услугу и вход в ремонтный чек.</p>
+            <p>Побочный эффект: показывает, что у сети есть свой сервис. Половина аудитории об этом не знает и несёт технику в подвальную мастерскую у дома.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="reel">
+        <div class="reel-head">
+          <span class="reel-n">02</span>
+          <div>
+            <h3>Что означает первая буква в номере модели</h3>
+            <p class="reel-sub">Хронометраж 20–25 с · только руки и экран · без спикера</p>
+          </div>
+          <span class="pill live">формат ×9.6</span>
+        </div>
+
+        <div class="reel-body">
+          <div class="col">
+            <p class="col-h">Маркетингу</p>
+            <p>Формат, который у Pedant.ru дал ×9.6 на пустом месте: микро-факт, без товара в кадре и без продажи. Такие ролики не выглядят рекламой, поэтому их досматривают и пересылают.</p>
+            <p>При этом факт — прямо про ваш бизнес: буква показывает, новый аппарат, восстановленный или подменный по гарантии. Вы учите аудиторию проверять — и становитесь тем, кому верят в вопросах б/у.</p>
+            <p>Самый дешёвый ролик из пяти: снимается за десять минут, не требует ни спикера, ни локации.</p>
+            <p class="req warn">Перед съёмкой сверить расшифровку букв на актуальной модели: формат кода у Apple менялся.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="reel">
+        <div class="reel-head">
+          <span class="reel-n">03</span>
+          <div>
+            <h3>Проверка б/у iPhone за 30 секунд</h3>
+            <p class="reel-sub">Хронометраж 40–45 с · торговый зал · продавец в кадре</p>
+          </div>
+          <span class="pill live">ваша тема</span>
+        </div>
+
+        <div class="reel-body">
+          <div class="col">
+            <p class="col-h">Маркетингу</p>
+            <p>Никто из конкурентов не торгует б/у так открыто — эту территорию можно занять целиком. Ролик бьёт в главный страх покупателя: «мне подсунут восстановленный за цену нового».</p>
+            <p>Логика обратная привычной: вы не уговариваете купить, вы выдаёте инструмент проверки. Человек, который проверил сам, покупает спокойнее и торгуется меньше.</p>
+            <p>Ложится на инфоповод недели — «смартфоны выходят из серой зоны». Тема звучит в отраслевых новостях, и вы отвечаете на неё делом.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="reel">
+        <div class="reel-head">
+          <span class="reel-n">04</span>
+          <div>
+            <h3>Сколько твой iPhone потеряет 9 сентября</h3>
+            <p class="reel-sub">Хронометраж 30–35 с · стойка трейд-ина · снять до 5 сентября</p>
+          </div>
+          <span class="pill live">окно 19 дней</span>
+        </div>
+
+        <div class="reel-body">
+          <div class="col">
+            <p class="col-h">Маркетингу</p>
+            <p>Единственный ролик с жёстким дедлайном: презентация Apple 8–9 сентября, после неё тема мертва. Зато до неё она продаёт сама — дефицит времени встроен в сюжет.</p>
+            <p>Ведёт прямо в трейд-ин, то есть в сделку сегодня, а не в отложенный интерес. И одновременно наполняет вашу б/у-витрину стоком перед высоким сезоном — вы зарабатываете дважды на одном ролике.</p>
+            <p>Тема ваша по праву: у сети есть и трейд-ин, и вторичка, и рассрочка. Обзорщикам этот сюжет снимать не о чем.</p>
+            <p class="req warn">Цифры падения цены брать из своей статистики по прошлым анонсам. Придуманные проценты в этом ролике опаснее всего: их проверят в комментариях.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="reel">
+        <div class="reel-head">
+          <span class="reel-n">05</span>
+          <div>
+            <h3>Авито против трейд-ина: где деньги</h3>
+            <p class="reel-sub">Хронометраж 30–35 с · два кадра параллельно · продавец за кадром</p>
+          </div>
+          <span class="pill live">тема выше медианы</span>
+        </div>
+
+        <div class="reel-body">
+          <div class="col">
+            <p class="col-h">Маркетингу</p>
+            <p>Ваш ролик на эту тему уже отработал выше медианы — 1 220 против 1 119. Сигнал слабый, но положительный, и тема прямо ведёт к услуге.</p>
+            <p>Работает на двух мотивах сразу: деньги и безопасность сделки. Встреча с незнакомцем ради телефона — тот дискомфорт, который люди готовы оплатить разницей в цене.</p>
+            <p>Честный ход: признать, что на Авито выручишь больше. Разговор идёт не про цену, а про время, риск и подмену купюр — так возражение снимается заранее.</p>
+          </div>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="caveat">
+      <p><strong>Порядок съёмки.</strong> Ролик 04 первым — у него дедлайн 8 сентября. Остальные четыре не привязаны к дате и снимаются в любом порядке; 01 и 03 можно снять за один выезд в точку, 02 не требует локации вообще.</p>
+      <p><strong>Сценарий пишет человек — и это принципиально.</strong> Здесь нет ни реплик, ни таймкодов, ни раскадровки. Аналитика отвечает на вопрос «о чём говорить и почему именно сейчас» — что именно сказать, решает тот, кто знает бизнес, покупателей и то, как в этой сети действительно разговаривают. Сценарий, собранный по схеме, всегда читается как собранный по схеме.</p>
+      <p>Это же и защита от главной ошибки. Тема, взятая из цифр, но пересказанная общими словами, звучит как пересказ конкурента. Ценность появляется там, где к найденной теме добавлен ваш угол — цена, б/у, трейд-ин, свой сервис. Найти тему может система; сказать по ней что-то, чего не скажет Big Geek, может только человек изнутри бизнеса.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Как это собирается</p>
+      <h2>Источники и периодичность</h2>
+      <p class="sec-note">Всё берётся из открытых данных: доступы к вашим аккаунтам не нужны, платные сервисы аналитики тоже.</p>
+    </div>
+
+    <div class="method">
+      <div class="src">
+        <span class="name">YouTube RSS</span>
+        <span class="desc">Публичная лента канала отдаёт последние 15 роликов вместе с числом просмотров. Так снимаются и ваш канал, и конкуренты.</span>
+      </div>
+      <div class="src">
+        <span class="name">t.me/s/</span>
+        <span class="desc">Веб-версия открытого Telegram-канала показывает тексты постов и просмотры. Работает для любого публичного канала.</span>
+      </div>
+      <div class="src">
+        <span class="name">Google News RSS</span>
+        <span class="desc">Поток отраслевых новостей за сутки. Частота упоминаний темы показывает, что сейчас горячо: за этот срез — Huawei Pura X View, Honor Turbo, Galaxy S26 FE и презентация Apple 8–9 сентября.</span>
+      </div>
+      <div class="src">
+        <span class="name">Периодичность</span>
+        <span class="desc">Срез раз в две недели: медиана каждого канала, выбросы относительно неё и обновлённая повестка.</span>
+      </div>
+    </div>
+
+    <div class="caveat">
+      <p><strong>Что метод не покажет.</strong> Лента отдаёт только последние 15 записей — при частом постинге между срезами что-то останется за кадром.</p>
+      <p>Просмотры свежих публикаций ещё растут, поэтому <strong>материалы младше 48 часов в расчёт медианы не идут</strong> — иначе они занизят её и притворятся провалами.</p>
+      <p>Instagram таким способом не читается: там нужен платный сборщик. По сайту у Мирафона Instagram и не заявлен — только VK и YouTube.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Наблюдение</p>
+      <h2>Каналы под наблюдением</h2>
+      <p class="sec-note">Выбросы здесь считаются по любому из двух измерений — просмотрам или отклику, поэтому у @miraphone стоит единица: по просмотрам канал по-прежнему ровный, а по реакциям выброс есть. Колонка «последняя публикация» появилась в этом срезе: два канала из девяти перестали выходить, и без даты это не видно ни по медиане, ни по выбросам.</p>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Канал</th>
+            <th>Площадка</th>
+            <th>Медиана</th>
+            <th>Выбросы</th>
+            <th>Профиль</th>
+            <th>Последняя публикация</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>MIRAPHONE</td>
+            <td>YouTube</td>
+            <td class="num">1 144</td>
+            <td class="num">1</td>
+            <td><span class="pill live">ремонт ×19, выдохся</span></td>
+            <td class="num">21.08</td>
+          </tr>
+          <tr>
+            <td>@miraphone</td>
+            <td>Telegram</td>
+            <td class="num">385</td>
+            <td class="num">1</td>
+            <td><span class="pill live">итоги голосования ×4</span></td>
+            <td class="num">24.08</td>
+          </tr>
+          <tr>
+            <td>BIG GEEK</td>
+            <td>YouTube</td>
+            <td class="num">15 420</td>
+            <td class="num">6</td>
+            <td><span class="pill live">складные Samsung</span></td>
+            <td class="num">21.08</td>
+          </tr>
+          <tr>
+            <td>Big Geek</td>
+            <td>Telegram</td>
+            <td class="num">31 750</td>
+            <td class="num">0</td>
+            <td><span class="pill flat">новости + возмущение</span></td>
+            <td class="num">24.08</td>
+          </tr>
+          <tr>
+            <td>Pedant.ru</td>
+            <td>YouTube</td>
+            <td class="num">3 050</td>
+            <td class="num">3</td>
+            <td><span class="pill live">микро-факты, 15 за 5 дней</span></td>
+            <td class="num">24.08</td>
+          </tr>
+          <tr>
+            <td>ТЮН.РФ</td>
+            <td>Telegram</td>
+            <td class="num">1 505</td>
+            <td class="num">2</td>
+            <td><span class="pill live">голосование реакцией</span></td>
+            <td class="num">19.08</td>
+          </tr>
+          <tr>
+            <td>ТЮН.РФ</td>
+            <td>YouTube</td>
+            <td class="num">2 840</td>
+            <td class="num">4</td>
+            <td><span class="pill flat">заброшен</span></td>
+            <td class="num">09.06</td>
+          </tr>
+          <tr>
+            <td>Apple33</td>
+            <td>Telegram</td>
+            <td class="num">2 200</td>
+            <td class="num">0</td>
+            <td><span class="pill flat">заброшен</span></td>
+            <td class="num">11.06</td>
+          </tr>
+          <tr>
+            <td>Apple_BAS</td>
+            <td>Telegram</td>
+            <td class="num">2 890</td>
+            <td class="num">—</td>
+            <td><span class="pill flat">реакции выключены</span></td>
+            <td class="num">18.08</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="caveat">
+      <p><strong>Ниша пустеет, а не уплотняется.</strong> Apple33 не публикует с 11 июня, ТЮН.РФ забросил YouTube с 9 июня, у Apple_BAS выключены реакции и лента просела с 3 970 просмотров в июле до 1 390 в августе. Из девяти каналов регулярно выходят пятеро. Место, о котором мы говорили в прошлом срезе, за эти дни стало ещё свободнее.</p>
+      <p><strong>Медианы разных каналов между собой не сравниваем.</strong> Открытые ленты отдают последние 15 записей, а значит у Pedant это пять дней, а у ТЮН.РФ на YouTube — три месяца. Медиана честно работает внутри одного канала: она показывает, что для него обычно.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Наши публикации</p>
+      <h2>Что выложили и как разошлось</h2>
+      <p class="sec-note">Таблица заполняется по мере выхода роликов: каждый получает дату, тему и отношение к медиане канала на момент замера.</p>
+    </div>
+    <p class="empty-note">Публикаций пока нет — первый ролик появится здесь после съёмки.</p>
+  </section>
+
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Справочник</p>
+      <h2>Топ-посты ниши: что собрало больше всего</h2>
+      <p class="sec-note">Всё, что удалось снять из открытых лент по девяти каналам. Сравнивать каналы между собой по абсолютным числам нельзя — они разного размера, поэтому главная колонка везде «× медианы»: во сколько раз пост обогнал обычную публикацию своего же канала — то есть его <span class="term" tabindex="0" data-tip="Значение ровно посередине ряда: половина публикаций набрала больше, половина меньше. Показывает обычный результат канала. В отличие от среднего, не искажается одним вирусным постом.">медиану</span>. Числа в этой таблице зафиксированы на срез 02 (22 августа) — она копится как архив; актуальные медианы всегда в таблице каналов выше.</p>
+    </div>
+
+    <h3>YouTube</h3>
+    <div class="table-scroll">
+      <table class="ref">
+        <thead>
+          <tr>
+            <th>Канал</th>
+            <th>Ролик</th>
+            <th>Просмотры</th>
+            <th>Медиана</th>
+            <th>×</th>
+            <th>Что сработало</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="top">
+            <td>MIRAPHONE</td>
+            <td class="post">Сломался Face ID, пропала связь после падения</td>
+            <td class="num">21 821</td>
+            <td class="num">1 119</td>
+            <td class="num">19,5</td>
+            <td class="why">Чужая беда в момент паники</td>
+          </tr>
+          <tr>
+            <td>Pedant.ru</td>
+            <td class="post">Что означают цвета USB?</td>
+            <td class="num">20 107</td>
+            <td class="num">2 089</td>
+            <td class="num">9,6</td>
+            <td class="why">Микро-факт, товара в кадре нет</td>
+          </tr>
+          <tr>
+            <td>Big Geek</td>
+            <td class="post">Прожил неделю с Galaxy Fold 8 и ЭТО ТОП!</td>
+            <td class="num">109 372</td>
+            <td class="num">12 210</td>
+            <td class="num">9,0</td>
+            <td class="why">Личный опыт со складным флагманом</td>
+          </tr>
+          <tr>
+            <td>ТЮН.РФ</td>
+            <td class="post">У всех бывает желание поскандалить</td>
+            <td class="num">21 198</td>
+            <td class="num">2 836</td>
+            <td class="num">7,5</td>
+            <td class="why">Сценка из магазина, юмор</td>
+          </tr>
+          <tr>
+            <td>Pedant.ru</td>
+            <td class="post">Как выглядела первая раскладушка</td>
+            <td class="num">10 325</td>
+            <td class="num">2 089</td>
+            <td class="num">4,9</td>
+            <td class="why">Ностальгия, история техники</td>
+          </tr>
+          <tr>
+            <td>Big Geek</td>
+            <td class="post">Fold 8 Ultra — не минорное обновление</td>
+            <td class="num">46 762</td>
+            <td class="num">12 210</td>
+            <td class="num">3,8</td>
+            <td class="why">Складные Samsung — их тема</td>
+          </tr>
+          <tr>
+            <td>ТЮН.РФ</td>
+            <td class="post">Каждый менеджер мечтает о таком покупателе</td>
+            <td class="num">7 976</td>
+            <td class="num">2 836</td>
+            <td class="num">2,8</td>
+            <td class="why">Снова сценка, снова юмор</td>
+          </tr>
+          <tr>
+            <td>Pedant.ru</td>
+            <td class="post">Зачем Google купила Android</td>
+            <td class="num">6 158</td>
+            <td class="num">2 089</td>
+            <td class="num">2,9</td>
+            <td class="why">Ликбез без привязки к товару</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="median-note">Колонки: <span class="term" tabindex="0" data-tip="Значение ровно посередине ряда: половина публикаций канала набрала больше, половина меньше. Показывает обычный результат канала; одна вирусная публикация её не искажает, в отличие от среднего.">медиана</span> — обычный результат этого канала · <span class="term" tabindex="0" data-tip="Во сколько раз публикация обогнала медиану своего канала. От двух и выше считается выбросом: тема действительно зацепила.">×</span> — во сколько раз пост её обогнал · <span class="term" tabindex="0" data-tip="Реакции, делённые на просмотры. Просмотр засчитывается при прокрутке ленты, то есть меряет показ; доля реакций меряет интерес.">доля</span> — реакции к просмотрам.</p>
+    <p class="median-note">Доступно по чужим каналам: заголовок, дата, просмотры. Лайки, комментарии и длительность — через официальный API (бесплатно, нужен ключ). Удержание и CTR превью — только владельцу канала.</p>
+
+    <h3>Telegram</h3>
+    <div class="table-scroll">
+      <table class="ref">
+        <thead>
+          <tr>
+            <th>Канал</th>
+            <th>Пост</th>
+            <th>Просм.</th>
+            <th>Реакций</th>
+            <th>Доля</th>
+            <th>×</th>
+            <th>Состав реакций</th>
+            <th>Формат</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="top">
+            <td>MIRAPHONE</td>
+            <td class="post">Итоги голосования: вы выбрали 17 Pro — вот он в наличии</td>
+            <td class="num">384</td>
+            <td class="num">48</td>
+            <td class="num">12,5 %</td>
+            <td class="num">3,8</td>
+            <td class="emoji">👍28 ❤️12 🔥6 😁1 🎉1</td>
+            <td>фото</td>
+          </tr>
+          <tr>
+            <td>MIRAPHONE</td>
+            <td class="post">AirPods будущего — с камерами</td>
+            <td class="num">353</td>
+            <td class="num">19</td>
+            <td class="num">5,4 %</td>
+            <td class="num">1,6</td>
+            <td class="emoji">❤️15 👍2 🔥1 😁1</td>
+            <td>видео 0:13</td>
+          </tr>
+          <tr>
+            <td>ТЮН.РФ</td>
+            <td class="post">Apple показали будущий интерфейс iPhone 18</td>
+            <td class="num">1 710</td>
+            <td class="num">47</td>
+            <td class="num">2,8 %</td>
+            <td class="num">3,4</td>
+            <td class="emoji">👀29 ❤15 🔥3</td>
+            <td>фото</td>
+          </tr>
+          <tr>
+            <td>ТЮН.РФ</td>
+            <td class="post">Новый дизайн iPhone 18!</td>
+            <td class="num">2 040</td>
+            <td class="num">41</td>
+            <td class="num">2,0 %</td>
+            <td class="num">2,5</td>
+            <td class="emoji">👀22 ❤9 ⚡4 👍4 🎉2</td>
+            <td>фото</td>
+          </tr>
+          <tr>
+            <td>Big Geek</td>
+            <td class="post">Кратоса в сериале сыграет Дэйв Батиста</td>
+            <td class="num">26 000</td>
+            <td class="num">459</td>
+            <td class="num">1,8 %</td>
+            <td class="num">2,9</td>
+            <td class="emoji">❤‍🔥270 🔥81 💩39 😐19 👎15</td>
+            <td>фото</td>
+          </tr>
+          <tr>
+            <td>Big Geek</td>
+            <td class="post">Это для учёбы! Честно! Не врём!</td>
+            <td class="num">18 600</td>
+            <td class="num">329</td>
+            <td class="num">1,8 %</td>
+            <td class="num">2,9</td>
+            <td class="emoji">😁220 👍43 ❤27 🤡21</td>
+            <td>видео 0:43</td>
+          </tr>
+          <tr>
+            <td>Apple33</td>
+            <td class="post">Как формируется минимальная цена</td>
+            <td class="num">1 830</td>
+            <td class="num">16</td>
+            <td class="num">0,9 %</td>
+            <td class="num">5,8</td>
+            <td class="emoji">👎11 ❤3 😍2 — негатив</td>
+            <td>фото</td>
+          </tr>
+          <tr>
+            <td>ТЮН.РФ</td>
+            <td class="post">Трейд-ин стал ещё выгоднее</td>
+            <td class="num">1 090</td>
+            <td class="num">13</td>
+            <td class="num">1,2 %</td>
+            <td class="num">1,5</td>
+            <td class="emoji">❤5 👍4 🔥4</td>
+            <td>текст</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="median-note">Колонки: <span class="term" tabindex="0" data-tip="Значение ровно посередине ряда: половина публикаций канала набрала больше, половина меньше. Показывает обычный результат канала; одна вирусная публикация её не искажает, в отличие от среднего.">медиана</span> — обычный результат этого канала · <span class="term" tabindex="0" data-tip="Во сколько раз публикация обогнала медиану своего канала. От двух и выше считается выбросом: тема действительно зацепила.">×</span> — во сколько раз пост её обогнал · <span class="term" tabindex="0" data-tip="Реакции, делённые на просмотры. Просмотр засчитывается при прокрутке ленты, то есть меряет показ; доля реакций меряет интерес.">доля</span> — реакции к просмотрам.</p>
+    <p class="median-note">Доступно по чужим каналам: полный текст поста, время, просмотры, реакции с разбивкой, число подписчиков, картинки по прямым ссылкам. Недоступно: пересылки, комментарии, источники охвата.</p>
+
+    <div class="caveat">
+      <p><strong>Как читать состав реакций.</strong> 👀 — любопытство, работает на анонсах будущих устройств. 😁 и 🤡 — юмор. ❤‍🔥 вместе с 💩 и 👎 — спор: пост раскалывает аудиторию, и это удерживает лучше единодушного одобрения. Только ❤ 👍 🔥 — вежливость, самый слабый сигнал.</p>
+      <p><strong>Про Apple33 в последней строке.</strong> Формально это сильнейший отрыв в таблице, фактически — единственный публичный провал: 11 дизлайков из 16 реакций на посте о ценообразовании. Отрицательный выброс тоже информация: тема цены задевает.</p>
+      <p><strong>Возраст поста решает.</strong> Верхняя строка Telegram-таблицы 16 августа выглядела дном канала: 193 просмотра и 8 реакций. Через два дня — 384 и 48. Поэтому при расчёте медианы посты моложе двух суток не учитываются.</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>Радар Мирафона · срез 04 от 24.08.2026</p>
+    <p>Все цифры — фактические просмотры из открытых лент на дату среза.</p>
+  </footer>
+
+</div>
+
+</body>
+</html>

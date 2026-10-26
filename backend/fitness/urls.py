@@ -54,4 +54,6 @@ urlpatterns = [
     path("cron/refresh-exercises", views.cron_refresh_exercises),
     # reels-конвейер (n8n сервер-сервер): склейка таймлайна в MP4. X-Cron-Secret.
     path("reels/assemble", views.reels_assemble),
+    # канал Рыжа (n8n сервер-сервер): разведка постов-выбросов у доноров. X-Cron-Secret.
+    path("content/scout", views.content_scout),
 ]

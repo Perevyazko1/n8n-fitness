@@ -1,0 +1,1604 @@
+{
+ "name": "Content Reels Bot v2 (stage 3a: approve/edit/reject)",
+ "nodes": [
+  {
+   "id": "Content_Trigger",
+   "name": "Content Trigger",
+   "type": "n8n-nodes-base.telegramTrigger",
+   "typeVersion": 1.2,
+   "position": [
+    -260,
+    360
+   ],
+   "parameters": {
+    "updates": [
+     "message",
+     "callback_query"
+    ],
+    "additionalFields": {}
+   },
+   "credentials": {
+    "telegramApi": {
+     "id": "pHZXJrCzy1YaZyjX",
+     "name": "Content Bot"
+    }
+   }
+  },
+  {
+   "id": "Prep",
+   "name": "Prep",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    -60,
+    360
+   ],
+   "parameters": {
+    "jsCode": "// Владелец-гейт + вытащить chat_id (для загрузки сессии) и сырой апдейт.\nconst OWNER = 648226895;\nconst cq = $json.callback_query;\nif (cq) {\n  if (cq.from?.id !== OWNER) return [];\n  return [{ json: { chat_id: cq.from.id, is_cb: true, cb_data: cq.data || '', cq_id: cq.id } }];\n}\nconst m = $json.message || {};\nif (m.from?.id !== OWNER) return [];\nreturn [{ json: { chat_id: m.from.id, is_cb: false, cb_data: '', msg: m } }];\n"
+   }
+  },
+  {
+   "id": "Load_Session",
+   "name": "Load Session",
+   "type": "n8n-nodes-base.postgres",
+   "typeVersion": 2.6,
+   "position": [
+    140,
+    360
+   ],
+   "parameters": {
+    "operation": "executeQuery",
+    "query": "SELECT chat_id, step, fmt, mem_kind, draft FROM reels_session WHERE chat_id = $1;",
+    "options": {
+     "queryReplacement": "={{ [$json.chat_id] }}"
+    }
+   },
+   "credentials": {
+    "postgres": {
+     "id": "1Vpr6VdwzI4rfpHh",
+     "name": "PG"
+    }
+   },
+   "alwaysOutputData": true
+  },
+  {
+   "id": "Route",
+   "name": "Route",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    340,
+    360
+   ],
+   "parameters": {
+    "jsCode": "// Роутер с учётом шага сессии. upd — сырой апдейт (Prep), s — строка сессии (может быть пустой).\nconst upd = $('Prep').first().json;\nconst s = $json || {};\nconst step = s.step || 'idle';\nif (upd.is_cb) {\n  const d = upd.cb_data || '';\n  if (d.startsWith('fmt:'))  return [{ json: { kind: 'pick_format',  chat_id: upd.chat_id, fmt: d.slice(4),      cq_id: upd.cq_id } }];\n  if (d.startsWith('mem:'))  return [{ json: { kind: 'pick_memtype', chat_id: upd.chat_id, mem_kind: d.slice(4), cq_id: upd.cq_id } }];\n  if (d.startsWith('ok:'))   return [{ json: { kind: 'approve',  chat_id: upd.chat_id, script_id: Number(d.slice(3)), cq_id: upd.cq_id } }];\n  if (d.startsWith('edit:')) return [{ json: { kind: 'edit_req', chat_id: upd.chat_id, script_id: Number(d.slice(5)), cq_id: upd.cq_id } }];\n  if (d.startsWith('no:'))   return [{ json: { kind: 'reject',   chat_id: upd.chat_id, script_id: Number(d.slice(3)), cq_id: upd.cq_id } }];\n  return [];\n}\nconst m = upd.msg || {};\nif (step === 'collect') {\n  let mem_file = null, mem_is_img = false, voice_file = null;\n  if (m.voice) voice_file = m.voice.file_id;\n  else if (m.video) mem_file = m.video.file_id;\n  else if (m.animation) mem_file = m.animation.file_id;\n  else if (m.document && (m.document.mime_type || '').startsWith('video')) mem_file = m.document.file_id;\n  else if (m.photo) { mem_file = m.photo[m.photo.length - 1].file_id; mem_is_img = true; }\n  return [{ json: { kind: 'collect', chat_id: upd.chat_id, fmt: s.fmt, mem_kind: s.mem_kind,\n                    draft: s.draft || {}, mem_file, mem_is_img, voice_file } }];\n}\nif (step === 'edit') {  // ждём текст-правку к сценарию\n  return [{ json: { kind: 'edit_comment', chat_id: upd.chat_id, comment: (m.text || '').trim(),\n                    script_id: s.draft?.script_id } }];\n}\nreturn [{ json: { kind: 'start', chat_id: upd.chat_id } }];\n"
+   }
+  },
+  {
+   "id": "By_Kind",
+   "name": "By Kind",
+   "type": "n8n-nodes-base.switch",
+   "typeVersion": 3.2,
+   "position": [
+    540,
+    360
+   ],
+   "parameters": {
+    "rules": {
+     "values": [
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "typeValidation": "loose",
+         "version": 2
+        },
+        "conditions": [
+         {
+          "id": "={{ $json.kind }}start",
+          "leftValue": "={{ $json.kind }}",
+          "rightValue": "start",
+          "operator": {
+           "type": "string",
+           "operation": "equals"
+          }
+         }
+        ],
+        "combinator": "and"
+       },
+       "renameOutput": true,
+       "outputKey": "start"
+      },
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "typeValidation": "loose",
+         "version": 2
+        },
+        "conditions": [
+         {
+          "id": "={{ $json.kind }}pick_format",
+          "leftValue": "={{ $json.kind }}",
+          "rightValue": "pick_format",
+          "operator": {
+           "type": "string",
+           "operation": "equals"
+          }
+         }
+        ],
+        "combinator": "and"
+       },
+       "renameOutput": true,
+       "outputKey": "pick_format"
+      },
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "typeValidation": "loose",
+         "version": 2
+        },
+        "conditions": [
+         {
+          "id": "={{ $json.kind }}pick_memtype",
+          "leftValue": "={{ $json.kind }}",
+          "rightValue": "pick_memtype",
+          "operator": {
+           "type": "string",
+           "operation": "equals"
+          }
+         }
+        ],
+        "combinator": "and"
+       },
+       "renameOutput": true,
+       "outputKey": "pick_memtype"
+      },
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "typeValidation": "loose",
+         "version": 2
+        },
+        "conditions": [
+         {
+          "id": "={{ $json.kind }}collect",
+          "leftValue": "={{ $json.kind }}",
+          "rightValue": "collect",
+          "operator": {
+           "type": "string",
+           "operation": "equals"
+          }
+         }
+        ],
+        "combinator": "and"
+       },
+       "renameOutput": true,
+       "outputKey": "collect"
+      },
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "typeValidation": "loose",
+         "version": 2
+        },
+        "conditions": [
+         {
+          "id": "={{ $json.kind }}approve",
+          "leftValue": "={{ $json.kind }}",
+          "rightValue": "approve",
+          "operator": {
+           "type": "string",
+           "operation": "equals"
+          }
+         }
+        ],
+        "combinator": "and"
+       },
+       "renameOutput": true,
+       "outputKey": "approve"
+      },
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "typeValidation": "loose",
+         "version": 2
+        },
+        "conditions": [
+         {
+          "id": "={{ $json.kind }}edit_req",
+          "leftValue": "={{ $json.kind }}",
+          "rightValue": "edit_req",
+          "operator": {
+           "type": "string",
+           "operation": "equals"
+          }
+         }
+        ],
+        "combinator": "and"
+       },
+       "renameOutput": true,
+       "outputKey": "edit_req"
+      },
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "typeValidation": "loose",
+         "version": 2
+        },
+        "conditions": [
+         {
+          "id": "={{ $json.kind }}reject",
+          "leftValue": "={{ $json.kind }}",
+          "rightValue": "reject",
+          "operator": {
+           "type": "string",
+           "operation": "equals"
+          }
+         }
+        ],
+        "combinator": "and"
+       },
+       "renameOutput": true,
+       "outputKey": "reject"
+      },
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "typeValidation": "loose",
+         "version": 2
+        },
+        "conditions": [
+         {
+          "id": "={{ $json.kind }}edit_comment",
+          "leftValue": "={{ $json.kind }}",
+          "rightValue": "edit_comment",
+          "operator": {
+           "type": "string",
+           "operation": "equals"
+          }
+         }
+        ],
+        "combinator": "and"
+       },
+       "renameOutput": true,
+       "outputKey": "edit_comment"
+      }
+     ]
+    },
+    "options": {}
+   }
+  },
+  {
+   "id": "Init_Session",
+   "name": "Init Session",
+   "type": "n8n-nodes-base.postgres",
+   "typeVersion": 2.6,
+   "position": [
+    780,
+    60
+   ],
+   "parameters": {
+    "operation": "executeQuery",
+    "query": "INSERT INTO reels_session (chat_id, step, fmt, mem_kind, draft)\nVALUES ($1, 'format', NULL, NULL, '{}'::jsonb)\nON CONFLICT (chat_id) DO UPDATE SET step='format', fmt=NULL, mem_kind=NULL, draft='{}'::jsonb, updated_at=now()\nRETURNING chat_id;",
+    "options": {
+     "queryReplacement": "={{ [$json.chat_id] }}"
+    }
+   },
+   "credentials": {
+    "postgres": {
+     "id": "1Vpr6VdwzI4rfpHh",
+     "name": "PG"
+    }
+   }
+  },
+  {
+   "id": "Send_Format_Buttons",
+   "name": "Send Format Buttons",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    980,
+    60
+   ],
+   "parameters": {
+    "chatId": "={{ $json.chat_id }}",
+    "text": "Выбери формат ролика (порядок сегментов):",
+    "additionalFields": {
+     "appendAttribution": false,
+     "parse_mode": "HTML"
+    },
+    "replyMarkup": "inlineKeyboard",
+    "inlineKeyboard": {
+     "rows": [
+      {
+       "row": {
+        "buttons": [
+         {
+          "text": "Рыж → мем",
+          "additionalFields": {
+           "callback_data": "fmt:gen,mem"
+          }
+         },
+         {
+          "text": "мем → Рыж",
+          "additionalFields": {
+           "callback_data": "fmt:mem,gen"
+          }
+         }
+        ]
+       }
+      },
+      {
+       "row": {
+        "buttons": [
+         {
+          "text": "Рыж → мем → Рыж",
+          "additionalFields": {
+           "callback_data": "fmt:gen,mem,gen"
+          }
+         },
+         {
+          "text": "мем → Рыж → мем",
+          "additionalFields": {
+           "callback_data": "fmt:mem,gen,mem"
+          }
+         }
+        ]
+       }
+      },
+      {
+       "row": {
+        "buttons": [
+         {
+          "text": "только Рыж",
+          "additionalFields": {
+           "callback_data": "fmt:gen"
+          }
+         },
+         {
+          "text": "только мем",
+          "additionalFields": {
+           "callback_data": "fmt:mem"
+          }
+         }
+        ]
+       }
+      }
+     ]
+    }
+   },
+   "credentials": {
+    "telegramApi": {
+     "id": "pHZXJrCzy1YaZyjX",
+     "name": "Content Bot"
+    }
+   }
+  },
+  {
+   "id": "Save_Format",
+   "name": "Save Format",
+   "type": "n8n-nodes-base.postgres",
+   "typeVersion": 2.6,
+   "position": [
+    780,
+    240
+   ],
+   "parameters": {
+    "operation": "executeQuery",
+    "query": "UPDATE reels_session\nSET fmt = $2, draft = '{}'::jsonb,\n    step = CASE WHEN $2 LIKE '%mem%' THEN 'memtype' ELSE 'collect' END,\n    updated_at = now()\nWHERE chat_id = $1\nRETURNING chat_id, fmt, step;",
+    "options": {
+     "queryReplacement": "={{ [$json.chat_id, $json.fmt] }}"
+    }
+   },
+   "credentials": {
+    "postgres": {
+     "id": "1Vpr6VdwzI4rfpHh",
+     "name": "PG"
+    }
+   }
+  },
+  {
+   "id": "Needs_MemType?",
+   "name": "Needs MemType?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.2,
+   "position": [
+    980,
+    240
+   ],
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "typeValidation": "loose",
+      "version": 2
+     },
+     "conditions": [
+      {
+       "id": "needs-mem",
+       "leftValue": "={{ ($json.fmt || '').includes('mem') }}",
+       "rightValue": "",
+       "operator": {
+        "type": "boolean",
+        "operation": "true",
+        "singleValue": true
+       }
+      }
+     ],
+     "combinator": "and"
+    },
+    "options": {}
+   }
+  },
+  {
+   "id": "Send_MemType_Buttons",
+   "name": "Send MemType Buttons",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    1200,
+    160
+   ],
+   "parameters": {
+    "chatId": "={{ $json.chat_id }}",
+    "text": "Мем — картинка или видео?",
+    "additionalFields": {
+     "appendAttribution": false,
+     "parse_mode": "HTML"
+    },
+    "replyMarkup": "inlineKeyboard",
+    "inlineKeyboard": {
+     "rows": [
+      {
+       "row": {
+        "buttons": [
+         {
+          "text": "🖼 Картинка",
+          "additionalFields": {
+           "callback_data": "mem:image"
+          }
+         },
+         {
+          "text": "🎬 Видео",
+          "additionalFields": {
+           "callback_data": "mem:video"
+          }
+         }
+        ]
+       }
+      }
+     ]
+    }
+   },
+   "credentials": {
+    "telegramApi": {
+     "id": "pHZXJrCzy1YaZyjX",
+     "name": "Content Bot"
+    }
+   }
+  },
+  {
+   "id": "Send_Collect_(Рыж)",
+   "name": "Send Collect (Рыж)",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    1200,
+    320
+   ],
+   "parameters": {
+    "chatId": "={{ $json.chat_id }}",
+    "text": "Формат сохранён. Опиши голосом, что должен сказать/сделать Рыж — соберу ролик.",
+    "additionalFields": {
+     "appendAttribution": false,
+     "parse_mode": "HTML"
+    }
+   },
+   "credentials": {
+    "telegramApi": {
+     "id": "pHZXJrCzy1YaZyjX",
+     "name": "Content Bot"
+    }
+   }
+  },
+  {
+   "id": "Save_MemType",
+   "name": "Save MemType",
+   "type": "n8n-nodes-base.postgres",
+   "typeVersion": 2.6,
+   "position": [
+    780,
+    460
+   ],
+   "parameters": {
+    "operation": "executeQuery",
+    "query": "UPDATE reels_session SET mem_kind = $2, step = 'collect', updated_at = now()\nWHERE chat_id = $1\nRETURNING chat_id;",
+    "options": {
+     "queryReplacement": "={{ [$json.chat_id, $json.mem_kind] }}"
+    }
+   },
+   "credentials": {
+    "postgres": {
+     "id": "1Vpr6VdwzI4rfpHh",
+     "name": "PG"
+    }
+   }
+  },
+  {
+   "id": "Send_Collect_(мем)",
+   "name": "Send Collect (мем)",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    980,
+    460
+   ],
+   "parameters": {
+    "chatId": "={{ $json.chat_id }}",
+    "text": "Ок. Пришли мем (картинку/видео) и опиши голосом, что хочешь.",
+    "additionalFields": {
+     "appendAttribution": false,
+     "parse_mode": "HTML"
+    }
+   },
+   "credentials": {
+    "telegramApi": {
+     "id": "pHZXJrCzy1YaZyjX",
+     "name": "Content Bot"
+    }
+   }
+  },
+  {
+   "id": "Collect_Handler",
+   "name": "Collect Handler",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    780,
+    640
+   ],
+   "parameters": {
+    "jsCode": "// Копим мемы (K = число 'mem' в формате), затем ждём голос. action -> куда дальше.\nconst j = $json;\nconst fmt = (j.fmt || '').split(',').filter(Boolean);\nconst K = fmt.filter(t => t === 'mem').length;\nconst draft = j.draft || {};\ndraft.mems = draft.mems || [];\nif (j.mem_file) {\n  if (draft.mems.length >= K) return [{ json: { action: 'nag', chat_id: j.chat_id, text: 'Мемы уже собраны. Пришли голосовое с описанием.' } }];\n  draft.mems.push(j.mem_file);\n  const left = K - draft.mems.length;\n  const text = left > 0 ? ('Мем сохранён (' + draft.mems.length + '/' + K + '). Пришли ещё ' + left + '.')\n                        : 'Все мемы собраны. Теперь пришли голосовое с описанием.';\n  return [{ json: { action: 'save', chat_id: j.chat_id, draft, text } }];\n}\nif (j.voice_file) {\n  if (draft.mems.length < K) return [{ json: { action: 'nag', chat_id: j.chat_id, text: 'Сначала пришли мем(ы): ' + draft.mems.length + '/' + K + '.' } }];\n  draft.voice_file = j.voice_file;\n  return [{ json: { action: 'transcribe', chat_id: j.chat_id, draft, voice_file: j.voice_file } }];\n}\nreturn [{ json: { action: 'nag', chat_id: j.chat_id, text: 'Пришли мем (видео/картинку) или голосовое с описанием.' } }];\n"
+   }
+  },
+  {
+   "id": "Collect_Switch",
+   "name": "Collect Switch",
+   "type": "n8n-nodes-base.switch",
+   "typeVersion": 3.2,
+   "position": [
+    980,
+    640
+   ],
+   "parameters": {
+    "rules": {
+     "values": [
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "typeValidation": "loose",
+         "version": 2
+        },
+        "conditions": [
+         {
+          "id": "={{ $json.action }}save",
+          "leftValue": "={{ $json.action }}",
+          "rightValue": "save",
+          "operator": {
+           "type": "string",
+           "operation": "equals"
+          }
+         }
+        ],
+        "combinator": "and"
+       },
+       "renameOutput": true,
+       "outputKey": "save"
+      },
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "typeValidation": "loose",
+         "version": 2
+        },
+        "conditions": [
+         {
+          "id": "={{ $json.action }}nag",
+          "leftValue": "={{ $json.action }}",
+          "rightValue": "nag",
+          "operator": {
+           "type": "string",
+           "operation": "equals"
+          }
+         }
+        ],
+        "combinator": "and"
+       },
+       "renameOutput": true,
+       "outputKey": "nag"
+      },
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "typeValidation": "loose",
+         "version": 2
+        },
+        "conditions": [
+         {
+          "id": "={{ $json.action }}transcribe",
+          "leftValue": "={{ $json.action }}",
+          "rightValue": "transcribe",
+          "operator": {
+           "type": "string",
+           "operation": "equals"
+          }
+         }
+        ],
+        "combinator": "and"
+       },
+       "renameOutput": true,
+       "outputKey": "transcribe"
+      }
+     ]
+    },
+    "options": {}
+   }
+  },
+  {
+   "id": "Save_Draft",
+   "name": "Save Draft",
+   "type": "n8n-nodes-base.postgres",
+   "typeVersion": 2.6,
+   "position": [
+    1200,
+    540
+   ],
+   "parameters": {
+    "operation": "executeQuery",
+    "query": "UPDATE reels_session SET draft = $2::jsonb, updated_at = now() WHERE chat_id = $1;",
+    "options": {
+     "queryReplacement": "={{ [$json.chat_id, JSON.stringify($json.draft)] }}"
+    }
+   },
+   "credentials": {
+    "postgres": {
+     "id": "1Vpr6VdwzI4rfpHh",
+     "name": "PG"
+    }
+   }
+  },
+  {
+   "id": "Send_Save_Msg",
+   "name": "Send Save Msg",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    1400,
+    540
+   ],
+   "parameters": {
+    "chatId": "={{ $('Collect Handler').first().json.chat_id }}",
+    "text": "={{ $('Collect Handler').first().json.text }}",
+    "additionalFields": {
+     "appendAttribution": false,
+     "parse_mode": "HTML"
+    }
+   },
+   "credentials": {
+    "telegramApi": {
+     "id": "pHZXJrCzy1YaZyjX",
+     "name": "Content Bot"
+    }
+   }
+  },
+  {
+   "id": "Send_Nag",
+   "name": "Send Nag",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    1200,
+    700
+   ],
+   "parameters": {
+    "chatId": "={{ $json.chat_id }}",
+    "text": "={{ $json.text }}",
+    "additionalFields": {
+     "appendAttribution": false,
+     "parse_mode": "HTML"
+    }
+   },
+   "credentials": {
+    "telegramApi": {
+     "id": "pHZXJrCzy1YaZyjX",
+     "name": "Content Bot"
+    }
+   }
+  },
+  {
+   "id": "Save_Draft_(voice)",
+   "name": "Save Draft (voice)",
+   "type": "n8n-nodes-base.postgres",
+   "typeVersion": 2.6,
+   "position": [
+    1200,
+    860
+   ],
+   "parameters": {
+    "operation": "executeQuery",
+    "query": "UPDATE reels_session SET draft = $2::jsonb, updated_at = now() WHERE chat_id = $1;",
+    "options": {
+     "queryReplacement": "={{ [$json.chat_id, JSON.stringify($json.draft)] }}"
+    }
+   },
+   "credentials": {
+    "postgres": {
+     "id": "1Vpr6VdwzI4rfpHh",
+     "name": "PG"
+    }
+   }
+  },
+  {
+   "id": "Download_Voice",
+   "name": "Download Voice",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    1400,
+    860
+   ],
+   "parameters": {
+    "resource": "file",
+    "fileId": "={{ $('Collect Handler').first().json.voice_file }}",
+    "additionalFields": {}
+   },
+   "credentials": {
+    "telegramApi": {
+     "id": "pHZXJrCzy1YaZyjX",
+     "name": "Content Bot"
+    }
+   }
+  },
+  {
+   "id": "Whisper",
+   "name": "Whisper",
+   "type": "@n8n/n8n-nodes-langchain.openAi",
+   "typeVersion": 2.3,
+   "position": [
+    1600,
+    860
+   ],
+   "parameters": {
+    "resource": "audio",
+    "operation": "transcribe",
+    "options": {
+     "language": "ru"
+    }
+   },
+   "credentials": {
+    "openAiApi": {
+     "id": "SkPovYGQlL1P1Ft5",
+     "name": "OpenAI account"
+    }
+   }
+  },
+  {
+   "id": "Build_Scenario",
+   "name": "Build Scenario",
+   "type": "@n8n/n8n-nodes-langchain.openAi",
+   "typeVersion": 2.3,
+   "position": [
+    1600,
+    860
+   ],
+   "parameters": {
+    "modelId": {
+     "__rl": true,
+     "value": "gpt-5-mini",
+     "mode": "list",
+     "cachedResultName": "gpt-5-mini"
+    },
+    "responses": {
+     "values": [
+      {
+       "role": "system",
+       "content": "Ты сценарист коротких вирусных Reels для фитнес-приложения (маскот — тренер-лис Рыж). Тебе дают: (1) расшифровку голосового описания пользователя; (2) ФОРМАТ — последовательность сегментов через запятую, где gen = клип с Рыжем, mem = чужой мем. Построй timeline СТРОГО в этом порядке и с тем же числом сегментов. Верни СТРОГО JSON без markdown-фенсов: {\"hook\":\"..\",\"caption\":\"..\",\"hashtags\":\"#..\",\"theme\":\"..\",\"timeline\":[..]}. Для gen: {\"type\":\"ai\",\"line\":\"<реплика Рыжа по-русски>\",\"action\":\"<кратко действие, англ.>\",\"desc_ru\":\"<что в кадре, по-русски>\",\"duration\":6}. Для mem: {\"type\":\"mem\"}. Внешность Рыжа НЕ описывай (задана системой)."
+      },
+      {
+       "content": "=Формат: {{ $('Route').first().json.fmt }}\nОписание пользователя: {{ $json.text }}"
+      }
+     ]
+    },
+    "builtInTools": {},
+    "options": {
+     "reasoningEffort": "low"
+    }
+   },
+   "credentials": {
+    "openAiApi": {
+     "id": "SkPovYGQlL1P1Ft5",
+     "name": "OpenAI account"
+    }
+   }
+  },
+  {
+   "id": "Parse_Scenario",
+   "name": "Parse Scenario",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1800,
+    860
+   ],
+   "parameters": {
+    "jsCode": "// Разбор ответа LLM (Responses-формат), подстановка мемов по порядку, RU-превью.\nfunction extractText(j) {\n  if (Array.isArray(j.output)) for (const o of j.output) {\n    const p = Array.isArray(o.content) && o.content.find(c => c.text); if (p?.text) return p.text; }\n  if (Array.isArray(j.content)) { const p = j.content.find(c => c.text); if (p?.text) return p.text; }\n  return j.message?.content ?? j.content ?? j.text ?? '';\n}\nlet s = String(extractText($json)).trim().replace(/^```(json)?/i, '').replace(/```$/, '').trim();\nlet obj; try { obj = JSON.parse(s); } catch (e) { throw new Error('LLM не-JSON: ' + s.slice(0, 300)); }\n\nconst route = $('Route').first().json;\nconst memKind = route.mem_kind || 'video';\nconst mems = ($('Collect Handler').first().json.draft?.mems) || [];\nlet mi = 0;\nconst timeline = (obj.timeline || []).map(seg => {\n  if (seg.type === 'mem') {\n    const fid = mems[mi++];\n    return memKind === 'image' ? { type: 'image', tg_file_id: fid, duration: 3 }\n                               : { type: 'clip',  tg_file_id: fid, keep_audio: true };\n  }\n  return seg; // ai: line/action/desc_ru/duration\n});\nconst esc = t => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst lines = timeline.map((s2, i) => {\n  const n = i + 1;\n  if (s2.type === 'ai')    return n + '. Рыж: «' + (s2.line || '') + '»' + (s2.desc_ru ? ' — ' + s2.desc_ru : '');\n  if (s2.type === 'image') return n + '. мем (картинка)';\n  return n + '. мем (видео)';\n}).join('\\n');\nconst msg = '<b>Хук:</b> ' + esc(obj.hook || '') + '\\n<b>Caption:</b> ' + esc(obj.caption || '') +\n            '\\n\\n<b>Сценарий:</b>\\n' + esc(lines);\nreturn [{ json: {\n  chat_id: $('Collect Handler').first().json.chat_id,\n  hook: obj.hook || '', caption: obj.caption || '', hashtags: obj.hashtags || '', theme: obj.theme || '',\n  timeline, msg,\n}}];\n"
+   }
+  },
+  {
+   "id": "Save_Script",
+   "name": "Save Script",
+   "type": "n8n-nodes-base.postgres",
+   "typeVersion": 2.6,
+   "position": [
+    2000,
+    860
+   ],
+   "parameters": {
+    "operation": "executeQuery",
+    "query": "INSERT INTO reels_scripts (origin, hook, timeline, caption, hashtags, theme, status)\nVALUES ('manual', $1, $2::jsonb, $3, $4, $5, 'scripted')\nRETURNING id;",
+    "options": {
+     "queryReplacement": "={{ [$json.hook, JSON.stringify($json.timeline), $json.caption, $json.hashtags, $json.theme] }}"
+    }
+   },
+   "credentials": {
+    "postgres": {
+     "id": "1Vpr6VdwzI4rfpHh",
+     "name": "PG"
+    }
+   }
+  },
+  {
+   "id": "Send_Approval",
+   "name": "Send Approval",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    2200,
+    860
+   ],
+   "parameters": {
+    "chatId": "={{ $('Parse Scenario').first().json.chat_id }}",
+    "text": "=Сценарий готов #{{ $json.id }}\n\n{{ $('Parse Scenario').first().json.msg }}",
+    "replyMarkup": "inlineKeyboard",
+    "inlineKeyboard": {
+     "rows": [
+      {
+       "row": {
+        "buttons": [
+         {
+          "text": "✅ Одобрить",
+          "additionalFields": {
+           "callback_data": "=ok:{{ $json.id }}"
+          }
+         },
+         {
+          "text": "✏️ Поправить",
+          "additionalFields": {
+           "callback_data": "=edit:{{ $json.id }}"
+          }
+         },
+         {
+          "text": "❌ Отклонить",
+          "additionalFields": {
+           "callback_data": "=no:{{ $json.id }}"
+          }
+         }
+        ]
+       }
+      }
+     ]
+    },
+    "additionalFields": {
+     "parse_mode": "HTML",
+     "appendAttribution": false
+    }
+   },
+   "credentials": {
+    "telegramApi": {
+     "id": "pHZXJrCzy1YaZyjX",
+     "name": "Content Bot"
+    }
+   }
+  },
+  {
+   "id": "Set_Approve_Step",
+   "name": "Set Approve Step",
+   "type": "n8n-nodes-base.postgres",
+   "typeVersion": 2.6,
+   "position": [
+    2400,
+    860
+   ],
+   "parameters": {
+    "operation": "executeQuery",
+    "query": "UPDATE reels_session SET step='approve', draft = draft || jsonb_build_object('script_id', $2::int), updated_at=now()\nWHERE chat_id = $1;",
+    "options": {
+     "queryReplacement": "={{ [ $('Parse Scenario').first().json.chat_id, $('Save Script').first().json.id ] }}"
+    }
+   },
+   "credentials": {
+    "postgres": {
+     "id": "1Vpr6VdwzI4rfpHh",
+     "name": "PG"
+    }
+   }
+  },
+  {
+   "id": "Send_Approve_Stub",
+   "name": "Send Approve Stub",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    780,
+    1120
+   ],
+   "parameters": {
+    "chatId": "={{ $json.chat_id }}",
+    "text": "Одобрено ✅ Дальше — генерация Рыжа (стадия 3b, нужен баланс fal).",
+    "additionalFields": {
+     "appendAttribution": false,
+     "parse_mode": "HTML"
+    }
+   },
+   "credentials": {
+    "telegramApi": {
+     "id": "pHZXJrCzy1YaZyjX",
+     "name": "Content Bot"
+    }
+   }
+  },
+  {
+   "id": "Set_Edit_Step",
+   "name": "Set Edit Step",
+   "type": "n8n-nodes-base.postgres",
+   "typeVersion": 2.6,
+   "position": [
+    780,
+    1280
+   ],
+   "parameters": {
+    "operation": "executeQuery",
+    "query": "UPDATE reels_session SET step='edit', updated_at=now() WHERE chat_id = $1;",
+    "options": {
+     "queryReplacement": "={{ [$json.chat_id] }}"
+    }
+   },
+   "credentials": {
+    "postgres": {
+     "id": "1Vpr6VdwzI4rfpHh",
+     "name": "PG"
+    }
+   }
+  },
+  {
+   "id": "Send_Edit_Prompt",
+   "name": "Send Edit Prompt",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    980,
+    1280
+   ],
+   "parameters": {
+    "chatId": "={{ $('Route').first().json.chat_id }}",
+    "text": "Что поправить в сценарии? Напиши текстом — переделаю.",
+    "additionalFields": {
+     "appendAttribution": false,
+     "parse_mode": "HTML"
+    }
+   },
+   "credentials": {
+    "telegramApi": {
+     "id": "pHZXJrCzy1YaZyjX",
+     "name": "Content Bot"
+    }
+   }
+  },
+  {
+   "id": "Reject_Script",
+   "name": "Reject Script",
+   "type": "n8n-nodes-base.postgres",
+   "typeVersion": 2.6,
+   "position": [
+    780,
+    1440
+   ],
+   "parameters": {
+    "operation": "executeQuery",
+    "query": "UPDATE reels_scripts SET status='rejected' WHERE id = $1;\nUPDATE reels_session SET step='idle', updated_at=now() WHERE chat_id = $2;",
+    "options": {
+     "queryReplacement": "={{ [$json.script_id, $json.chat_id] }}"
+    }
+   },
+   "credentials": {
+    "postgres": {
+     "id": "1Vpr6VdwzI4rfpHh",
+     "name": "PG"
+    }
+   }
+  },
+  {
+   "id": "Send_Rejected",
+   "name": "Send Rejected",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    980,
+    1440
+   ],
+   "parameters": {
+    "chatId": "={{ $('Route').first().json.chat_id }}",
+    "text": "Отклонил ❌",
+    "additionalFields": {
+     "appendAttribution": false,
+     "parse_mode": "HTML"
+    }
+   },
+   "credentials": {
+    "telegramApi": {
+     "id": "pHZXJrCzy1YaZyjX",
+     "name": "Content Bot"
+    }
+   }
+  },
+  {
+   "id": "Load_Script_(edit)",
+   "name": "Load Script (edit)",
+   "type": "n8n-nodes-base.postgres",
+   "typeVersion": 2.6,
+   "position": [
+    780,
+    1600
+   ],
+   "parameters": {
+    "operation": "executeQuery",
+    "query": "SELECT id, timeline, caption, hook, hashtags, theme FROM reels_scripts WHERE id = $1;",
+    "options": {
+     "queryReplacement": "={{ [$json.script_id] }}"
+    }
+   },
+   "credentials": {
+    "postgres": {
+     "id": "1Vpr6VdwzI4rfpHh",
+     "name": "PG"
+    }
+   }
+  },
+  {
+   "id": "Build_Scenario_(edit)",
+   "name": "Build Scenario (edit)",
+   "type": "@n8n/n8n-nodes-langchain.openAi",
+   "typeVersion": 2.3,
+   "position": [
+    980,
+    1600
+   ],
+   "parameters": {
+    "modelId": {
+     "__rl": true,
+     "value": "gpt-5-mini",
+     "mode": "list",
+     "cachedResultName": "gpt-5-mini"
+    },
+    "responses": {
+     "values": [
+      {
+       "role": "system",
+       "content": "Ты редактор сценария Reels. Тебе дают текущий сценарий (JSON) и комментарий-правку от пользователя. Верни ИСПРАВЛЕННЫЙ сценарий СТРОГО в том же JSON-формате {\"hook\":\"..\",\"caption\":\"..\",\"hashtags\":\"#..\",\"theme\":\"..\",\"timeline\":[..]}, сохранив число и порядок сегментов; mem-сегменты оставляй как {\"type\":\"mem\"}, ai-сегменты — {\"type\":\"ai\",\"line\":..,\"action\":..,\"desc_ru\":..,\"duration\":..}. Внеси только правку из комментария, без лишних изменений."
+      },
+      {
+       "content": "=Текущий сценарий (JSON):\n{{ JSON.stringify($json.timeline) }}\n\nПравка пользователя: {{ $('Route').first().json.comment }}"
+      }
+     ]
+    },
+    "builtInTools": {},
+    "options": {
+     "reasoningEffort": "low"
+    }
+   },
+   "credentials": {
+    "openAiApi": {
+     "id": "SkPovYGQlL1P1Ft5",
+     "name": "OpenAI account"
+    }
+   }
+  },
+  {
+   "id": "Parse_Scenario_(edit)",
+   "name": "Parse Scenario (edit)",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1180,
+    1600
+   ],
+   "parameters": {
+    "jsCode": "// Разбор правленого сценария; mem-сегменты берём из СТАРОГО таймлайна (их tg_file_id) по порядку.\nfunction extractText(j) {\n  if (Array.isArray(j.output)) for (const o of j.output) {\n    const p = Array.isArray(o.content) && o.content.find(c => c.text); if (p?.text) return p.text; }\n  if (Array.isArray(j.content)) { const p = j.content.find(c => c.text); if (p?.text) return p.text; }\n  return j.message?.content ?? j.content ?? j.text ?? '';\n}\nlet s = String(extractText($json)).trim().replace(/^```(json)?/i, '').replace(/```$/, '').trim();\nlet obj; try { obj = JSON.parse(s); } catch (e) { throw new Error('LLM не-JSON: ' + s.slice(0, 300)); }\nconst oldTl = $('Load Script (edit)').first().json.timeline || [];\nconst oldMems = oldTl.filter(x => x && x.tg_file_id);\nlet mi = 0;\nconst timeline = (obj.timeline || []).map(seg => (seg.type === 'mem') ? (oldMems[mi++] || seg) : seg);\nconst esc = t => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst lines = timeline.map((s2, i) => {\n  const n = i + 1;\n  if (s2.type === 'ai')    return n + '. Рыж: «' + (s2.line || '') + '»' + (s2.desc_ru ? ' — ' + s2.desc_ru : '');\n  if (s2.type === 'image') return n + '. мем (картинка)';\n  return n + '. мем (видео)';\n}).join('\\n');\nconst msg = '<b>Хук:</b> ' + esc(obj.hook || '') + '\\n<b>Caption:</b> ' + esc(obj.caption || '') +\n            '\\n\\n<b>Сценарий:</b>\\n' + esc(lines);\nreturn [{ json: { chat_id: $('Route').first().json.chat_id, hook: obj.hook || '', caption: obj.caption || '',\n                  hashtags: obj.hashtags || '', theme: obj.theme || '', timeline, msg } }];\n"
+   }
+  },
+  {
+   "id": "Update_Script",
+   "name": "Update Script",
+   "type": "n8n-nodes-base.postgres",
+   "typeVersion": 2.6,
+   "position": [
+    1380,
+    1600
+   ],
+   "parameters": {
+    "operation": "executeQuery",
+    "query": "UPDATE reels_scripts SET timeline=$2::jsonb, caption=$3, hook=$4, hashtags=$5, theme=$6, status='scripted'\nWHERE id = $1\nRETURNING id;",
+    "options": {
+     "queryReplacement": "={{ [ $('Route').first().json.script_id, JSON.stringify($json.timeline), $json.caption, $json.hook, $json.hashtags, $json.theme ] }}"
+    }
+   },
+   "credentials": {
+    "postgres": {
+     "id": "1Vpr6VdwzI4rfpHh",
+     "name": "PG"
+    }
+   }
+  },
+  {
+   "id": "Send_Approval_(edit)",
+   "name": "Send Approval (edit)",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    1580,
+    1600
+   ],
+   "parameters": {
+    "chatId": "={{ $('Parse Scenario (edit)').first().json.chat_id }}",
+    "text": "=Сценарий обновлён #{{ $json.id }}\n\n{{ $('Parse Scenario (edit)').first().json.msg }}",
+    "replyMarkup": "inlineKeyboard",
+    "inlineKeyboard": {
+     "rows": [
+      {
+       "row": {
+        "buttons": [
+         {
+          "text": "✅ Одобрить",
+          "additionalFields": {
+           "callback_data": "=ok:{{ $json.id }}"
+          }
+         },
+         {
+          "text": "✏️ Поправить",
+          "additionalFields": {
+           "callback_data": "=edit:{{ $json.id }}"
+          }
+         },
+         {
+          "text": "❌ Отклонить",
+          "additionalFields": {
+           "callback_data": "=no:{{ $json.id }}"
+          }
+         }
+        ]
+       }
+      }
+     ]
+    },
+    "additionalFields": {
+     "parse_mode": "HTML",
+     "appendAttribution": false
+    }
+   },
+   "credentials": {
+    "telegramApi": {
+     "id": "pHZXJrCzy1YaZyjX",
+     "name": "Content Bot"
+    }
+   }
+  },
+  {
+   "id": "Set_Approve_Step_(edit)",
+   "name": "Set Approve Step (edit)",
+   "type": "n8n-nodes-base.postgres",
+   "typeVersion": 2.6,
+   "position": [
+    1780,
+    1600
+   ],
+   "parameters": {
+    "operation": "executeQuery",
+    "query": "UPDATE reels_session SET step='approve', updated_at=now() WHERE chat_id = $1;",
+    "options": {
+     "queryReplacement": "={{ [ $('Parse Scenario (edit)').first().json.chat_id ] }}"
+    }
+   },
+   "credentials": {
+    "postgres": {
+     "id": "1Vpr6VdwzI4rfpHh",
+     "name": "PG"
+    }
+   }
+  }
+ ],
+ "connections": {
+  "Content Trigger": {
+   "main": [
+    [
+     {
+      "node": "Prep",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Prep": {
+   "main": [
+    [
+     {
+      "node": "Load Session",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Load Session": {
+   "main": [
+    [
+     {
+      "node": "Route",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Route": {
+   "main": [
+    [
+     {
+      "node": "By Kind",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "By Kind": {
+   "main": [
+    [
+     {
+      "node": "Init Session",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Save Format",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Save MemType",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Collect Handler",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Send Approve Stub",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Set Edit Step",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Reject Script",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Load Script (edit)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Init Session": {
+   "main": [
+    [
+     {
+      "node": "Send Format Buttons",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Save Format": {
+   "main": [
+    [
+     {
+      "node": "Needs MemType?",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Needs MemType?": {
+   "main": [
+    [
+     {
+      "node": "Send MemType Buttons",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Send Collect (Рыж)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Save MemType": {
+   "main": [
+    [
+     {
+      "node": "Send Collect (мем)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Collect Handler": {
+   "main": [
+    [
+     {
+      "node": "Collect Switch",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Collect Switch": {
+   "main": [
+    [
+     {
+      "node": "Save Draft",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Send Nag",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Save Draft (voice)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Save Draft": {
+   "main": [
+    [
+     {
+      "node": "Send Save Msg",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Save Draft (voice)": {
+   "main": [
+    [
+     {
+      "node": "Download Voice",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Download Voice": {
+   "main": [
+    [
+     {
+      "node": "Whisper",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Whisper": {
+   "main": [
+    [
+     {
+      "node": "Build Scenario",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Build Scenario": {
+   "main": [
+    [
+     {
+      "node": "Parse Scenario",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Parse Scenario": {
+   "main": [
+    [
+     {
+      "node": "Save Script",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Save Script": {
+   "main": [
+    [
+     {
+      "node": "Send Approval",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Send Approval": {
+   "main": [
+    [
+     {
+      "node": "Set Approve Step",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Set Edit Step": {
+   "main": [
+    [
+     {
+      "node": "Send Edit Prompt",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Reject Script": {
+   "main": [
+    [
+     {
+      "node": "Send Rejected",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Load Script (edit)": {
+   "main": [
+    [
+     {
+      "node": "Build Scenario (edit)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Build Scenario (edit)": {
+   "main": [
+    [
+     {
+      "node": "Parse Scenario (edit)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Parse Scenario (edit)": {
+   "main": [
+    [
+     {
+      "node": "Update Script",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Update Script": {
+   "main": [
+    [
+     {
+      "node": "Send Approval (edit)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Send Approval (edit)": {
+   "main": [
+    [
+     {
+      "node": "Set Approve Step (edit)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "active": false,
+ "settings": {
+  "executionOrder": "v1",
+  "timezone": "Europe/Moscow"
+ },
+ "pinData": {},
+ "tags": []
+}

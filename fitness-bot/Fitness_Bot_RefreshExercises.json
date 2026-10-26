@@ -1,0 +1,69 @@
+{
+  "name": "Fitness_Bot_RefreshExercises",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0 4 1 * *"
+            }
+          ]
+        }
+      },
+      "name": "Cron 1st of month 04:00 MSK",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        260,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://fitness-api:8001/api/cron/refresh-exercises",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({}) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "name": "Refresh Exercises (Django)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        520,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Cron Secret (X-Cron-Secret)"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Cron 1st of month 04:00 MSK": {
+      "main": [
+        [
+          {
+            "node": "Refresh Exercises (Django)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

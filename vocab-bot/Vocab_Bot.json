@@ -1,0 +1,1386 @@
+{
+  "name": "Vocab Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -200,
+        0
+      ],
+      "id": "tg-trigger",
+      "name": "Telegram Trigger",
+      "credentials": {
+        "telegramApi": {
+          "id": "FOFv13xYZF1csitf",
+          "name": "Vocab Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Разбираем апдейт: команда или ответ на вопрос теста.\n// Бот личный — на всё, что пришло не от владельца, не реагируем вообще.\nconst OWNER_CHAT_ID = 648226895;\nconst m = $json.message || {};\nif (m.chat?.id !== OWNER_CHAT_ID) return [];\nconst text = (m.text || '').trim();\nconst cmd = text.startsWith('/') ? text.split(/[\\s@]/)[0].toLowerCase() : '';\nreturn [{ json: {\n  chat_id: m.chat?.id,\n  username: m.from?.username || null,\n  text,\n  cmd,\n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        20,
+        0
+      ],
+      "id": "parse-input",
+      "name": "Parse Input"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "start",
+                    "leftValue": "={{ $json.cmd }}",
+                    "rightValue": "/start",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "start"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "stats",
+                    "leftValue": "={{ $json.cmd }}",
+                    "rightValue": "/stats",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "stats"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "stop",
+                    "leftValue": "={{ $json.cmd }}",
+                    "rightValue": "/stop",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "stop"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "learn",
+                    "leftValue": "={{ $json.cmd }}",
+                    "rightValue": "/learn",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "learn"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "test",
+                    "leftValue": "={{ $json.cmd }}",
+                    "rightValue": "/test",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "test"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "answer"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        240,
+        0
+      ],
+      "id": "route",
+      "name": "Route"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO vocab_user (chat_id, username)\nVALUES ({{ $json.chat_id }}, {{ $json.username ? \"'\" + $json.username + \"'\" : 'NULL' }})\nON CONFLICT (chat_id) DO UPDATE SET active = true\nRETURNING chat_id, daily_new, streak;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        500,
+        -420
+      ],
+      "id": "upsert-user",
+      "name": "Upsert User",
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "=Привет! Я гоняю с тобой 1000 самых частых английских слов.\n\nКаждое утро в 9:00 — {{ $json.daily_new }} новых слов с транскрипцией и мини-историей про Машу в Лондоне.\nВечером в 19:00 — проверка: слова возвращаются по интервалам 1 / 3 / 7 / 16 / 35 дней, а те, что завалил, — на следующий день.\n\nКоманды:\n/learn — новая порция прямо сейчас\n/test — проверка прямо сейчас\n/stats — прогресс\n/stop — отписаться",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        720,
+        -420
+      ],
+      "id": "send-welcome",
+      "name": "Send Welcome",
+      "credentials": {
+        "telegramApi": {
+          "id": "FOFv13xYZF1csitf",
+          "name": "Vocab Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT\n  (SELECT count(*) FROM vocab_progress WHERE chat_id = {{ $json.chat_id }}) AS started,\n  (SELECT count(*) FROM vocab_progress WHERE chat_id = {{ $json.chat_id }} AND learned_at IS NOT NULL) AS learned,\n  (SELECT count(*) FROM vocab_progress WHERE chat_id = {{ $json.chat_id }} AND next_review <= CURRENT_DATE) AS due_now,\n  (SELECT count(*) FROM vocab_progress WHERE chat_id = {{ $json.chat_id }} AND next_review = CURRENT_DATE + 1) AS due_tomorrow,\n  (SELECT count(*) FROM vocab_word) AS total_words,\n  COALESCE((SELECT streak FROM vocab_user WHERE chat_id = {{ $json.chat_id }}), 0) AS streak;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        500,
+        -260
+      ],
+      "id": "read-stats",
+      "name": "Read Stats",
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Parse Input').first().json.chat_id }}",
+        "text": "=<b>Прогресс</b>\n\nВыучено: {{ $json.learned }} из {{ $json.total_words }}\nВ работе: {{ $json.started }}\nЖдут повтора сейчас: {{ $json.due_now }}\nЗавтра: {{ $json.due_tomorrow }}\nСтрик: {{ $json.streak }} дн.",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        720,
+        -260
+      ],
+      "id": "send-stats",
+      "name": "Send Stats",
+      "credentials": {
+        "telegramApi": {
+          "id": "FOFv13xYZF1csitf",
+          "name": "Vocab Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=UPDATE vocab_user SET active = false WHERE chat_id = {{ $json.chat_id }} RETURNING chat_id;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        500,
+        -100
+      ],
+      "id": "deactivate",
+      "name": "Deactivate",
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "=Отписал. Вернуться — /start",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        720,
+        -100
+      ],
+      "id": "send-bye",
+      "name": "Send Bye",
+      "credentials": {
+        "telegramApi": {
+          "id": "FOFv13xYZF1csitf",
+          "name": "Vocab Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=WITH picked AS (\n  SELECT w.id\n    FROM vocab_word w\n   WHERE NOT EXISTS (\n         SELECT 1 FROM vocab_progress p\n          WHERE p.chat_id = {{ $json.chat_id }} AND p.word_id = w.id)\n   ORDER BY w.id\n   LIMIT (SELECT daily_new FROM vocab_user WHERE chat_id = {{ $json.chat_id }})\n), ins AS (\n  INSERT INTO vocab_progress (chat_id, word_id, box, next_review)\n  SELECT {{ $json.chat_id }}, id, 0, CURRENT_DATE + 1 FROM picked\n  ON CONFLICT (chat_id, word_id) DO NOTHING\n  RETURNING word_id\n)\nSELECT {{ $json.chat_id }}::bigint AS chat_id, w.id, w.word, w.ipa, w.translation\n  FROM vocab_word w\n  JOIN ins ON ins.word_id = w.id\n ORDER BY w.id;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        500,
+        60
+      ],
+      "id": "take-new-words",
+      "name": "Take New Words",
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Схлопываем плоский список слов в один item на чат.\nconst rows = $input.all().map(i => i.json).filter(r => r && r.id);\nconst byChat = new Map();\nfor (const r of rows) {\n  if (!byChat.has(r.chat_id)) byChat.set(r.chat_id, []);\n  byChat.get(r.chat_id).push(r);\n}\nconst out = [];\nfor (const [chat_id, words] of byChat) {\n  out.push({ json: {\n    chat_id,\n    words,\n    // для промпта — просто перечисление\n    word_list: words.map(w => `${w.word} — ${w.translation}`).join('\\n'),\n  }});\n}\n// Пусто = у юзера кончились новые слова (все 1000 разобраны) — тихо выходим.\nreturn out;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        60
+      ],
+      "id": "group-batch",
+      "name": "Group Batch"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Ты преподаватель английского и пишешь короткие смешные эпизоды про Машу — русскую девушку, которая живёт в Лондоне. Уровень языка A2-B1, живой разговорный английский."
+            },
+            {
+              "content": "=Слова дня:\n{{ $json.word_list }}\n\nНапиши 4-6 предложений связной истории на английском, где встречаются ВСЕ эти слова. Каждое из этих слов выдели тегом <b>слово</b>. После каждого английского предложения с новой строки дай его перевод на русский в скобках. Без заголовков, вступлений и пояснений — только текст истории."
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "reasoningEffort": "low"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        940,
+        60
+      ],
+      "id": "write-story",
+      "name": "Write Story",
+      "credentials": {
+        "openAiApi": {
+          "id": "SkPovYGQlL1P1Ft5",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Собираем утреннее сообщение: карточки слов + история от ИИ.\nconst esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst batch = $('Group Batch').item.json;\nconst story = $json.message?.content ?? $json.content ?? $json.text ?? $json.output ?? '';\n\nconst cards = batch.words\n  .map(w => `${w.id}. <b>${esc(w.word)}</b> [${esc(w.ipa || '')}] — ${esc(w.translation)}`)\n  .join('\\n');\n\nconst text = `<b>Слова дня</b>\\n\\n${cards}\\n\\n<b>Маша в Лондоне</b>\\n${esc(story).trim()}\\n\\n` +\n             `Вечером спрошу их обратно. Проверить себя раньше — /test`;\n\nreturn [{ json: { chat_id: batch.chat_id, text } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1160,
+        60
+      ],
+      "id": "compose-morning",
+      "name": "Compose Morning"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1380,
+        60
+      ],
+      "id": "send-words",
+      "name": "Send Words",
+      "credentials": {
+        "telegramApi": {
+          "id": "FOFv13xYZF1csitf",
+          "name": "Vocab Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT {{ $json.chat_id }}::bigint AS chat_id, p.word_id, p.box\n  FROM vocab_progress p\n WHERE p.chat_id = {{ $json.chat_id }}\n   AND p.next_review <= CURRENT_DATE\n ORDER BY p.box, p.word_id\n LIMIT 15;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        500,
+        240
+      ],
+      "id": "pick-due",
+      "name": "Pick Due",
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "any-due?-c",
+              "leftValue": "={{ $json.word_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        720,
+        240
+      ],
+      "id": "any-due?",
+      "name": "Any Due?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Из списка «пора повторить» делаем очередь вопросов.\n// box <= 2 — спрашиваем EN→RU (узнавание), дальше RU→EN (вспоминание, сложнее).\nconst rows = $input.all().map(i => i.json).filter(r => r && r.word_id);\nconst byChat = new Map();\nfor (const r of rows) {\n  if (!byChat.has(r.chat_id)) byChat.set(r.chat_id, []);\n  byChat.get(r.chat_id).push(r);\n}\nconst out = [];\nfor (const [chat_id, items] of byChat) {\n  const ids = items.map(i => i.word_id);\n  const first = items[0];\n  out.push({ json: {\n    chat_id,\n    current: first.word_id,\n    mode: first.box <= 2 ? 'en_ru' : 'ru_en',\n    queue: ids.slice(1),\n    total_planned: ids.length,\n  }});\n}\nreturn out;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        940,
+        240
+      ],
+      "id": "build-session",
+      "name": "Build Session"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO vocab_session (chat_id, queue, current, mode, correct, total, wrong_ids, started_at)\nVALUES ({{ $json.chat_id }}, '{{ JSON.stringify($json.queue) }}'::jsonb,\n        {{ $json.current }}, '{{ $json.mode }}', 0, 0, '[]'::jsonb, now())\nON CONFLICT (chat_id) DO UPDATE SET\n    queue = EXCLUDED.queue, current = EXCLUDED.current, mode = EXCLUDED.mode,\n    correct = 0, total = 0, wrong_ids = '[]'::jsonb, started_at = now()\nRETURNING chat_id, current, mode;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1160,
+        240
+      ],
+      "id": "save-session",
+      "name": "Save Session",
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT s.chat_id, s.mode, w.id, w.word, w.ipa, w.translation\n  FROM vocab_session s\n  JOIN vocab_word w ON w.id = s.current\n WHERE s.chat_id = {{ $json.chat_id }};",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1380,
+        240
+      ],
+      "id": "get-question",
+      "name": "Get Question",
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Текст вопроса. Перевод в этом сообщении не показываем — иначе это не тест.\nconst esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst q = $json;\nconst text = q.mode === 'ru_en'\n  ? `<b>Проверка</b>\\n\\nКак по-английски: <b>${esc(q.translation)}</b>?`\n  : `<b>Проверка</b>\\n\\nПереведи: <b>${esc(q.word)}</b> [${esc(q.ipa || '')}]`;\nreturn [{ json: { chat_id: q.chat_id, text } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1600,
+        240
+      ],
+      "id": "format-question",
+      "name": "Format Question"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1820,
+        240
+      ],
+      "id": "send-question",
+      "name": "Send Question",
+      "credentials": {
+        "telegramApi": {
+          "id": "FOFv13xYZF1csitf",
+          "name": "Vocab Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT s.chat_id, s.current, s.mode, s.correct, s.total,\n       w.word, w.ipa, w.translation\n  FROM vocab_session s\n  JOIN vocab_word w ON w.id = s.current\n WHERE s.chat_id = {{ $json.chat_id }};",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        500,
+        460
+      ],
+      "id": "load-session",
+      "name": "Load Session",
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "has-session?-c",
+              "leftValue": "={{ $json.current }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        720,
+        460
+      ],
+      "id": "has-session?",
+      "name": "Has Session?"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Ты проверяешь ответ ученика в словарном тренажёре английского.\n\nВерни СТРОГО валидный JSON без ``` и без пояснений:\n{ \"verdict\": \"ok\" | \"typo\" | \"wrong\", \"comment\": \"...\" }\n\n- ok — смысл передан верно. Засчитывай синонимы, другую форму слова, другой падеж,\n  один из нескольких вариантов перевода, отсутствие частицы to у глагола.\n- typo — смысл верный, но есть опечатка или ошибка в написании.\n- wrong — смысл не тот, ответ пустой или это отписка.\n\ncomment — одна короткая фраза по-русски.\nДля ok — пусто. Для typo — правильное написание. Для wrong — верный перевод и короткий пример употребления."
+            },
+            {
+              "content": "=Направление: {{ $json.mode === 'ru_en' ? 'русский → английский' : 'английский → русский' }}\nСлово: {{ $json.word }}\nЭталонный перевод: {{ $json.translation }}\nОтвет ученика: {{ $('Parse Input').first().json.text }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "reasoningEffort": "minimal"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        940,
+        400
+      ],
+      "id": "judge-answer",
+      "name": "Judge Answer",
+      "credentials": {
+        "openAiApi": {
+          "id": "SkPovYGQlL1P1Ft5",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Разбираем вердикт судьи. typo считаем успехом, но покажем правильное написание.\nconst raw = $json.message?.content ?? $json.content ?? $json.text ?? $json.output ?? '';\nlet v = { verdict: 'wrong', comment: '' };\ntry {\n  v = JSON.parse(String(raw).replace(/```json|```/g, '').trim());\n} catch (e) {\n  // Судья ответил не-JSON — не наказываем ученика за нашу ошибку, считаем верным.\n  v = { verdict: 'ok', comment: '' };\n}\nconst s = $('Load Session').first().json;\nconst ok = v.verdict !== 'wrong';\nreturn [{ json: {\n  chat_id: s.chat_id,\n  word_id: s.current,\n  mode: s.mode,\n  word: s.word,\n  translation: s.translation,\n  verdict: v.verdict,\n  comment: v.comment || '',\n  ok,\n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1160,
+        400
+      ],
+      "id": "apply-verdict",
+      "name": "Apply Verdict"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=UPDATE vocab_progress SET\n    box = CASE WHEN {{ $json.ok }} THEN LEAST(box + 1, 6) ELSE 0 END,\n    next_review = vocab_next_review((CASE WHEN {{ $json.ok }} THEN LEAST(box + 1, 6) ELSE 0 END)::smallint),\n    lapses = lapses + CASE WHEN {{ $json.ok }} THEN 0 ELSE 1 END,\n    last_result = '{{ $json.verdict }}',\n    learned_at = CASE\n        WHEN {{ $json.ok }} AND '{{ $json.mode }}' = 'ru_en' AND box >= 4 THEN COALESCE(learned_at, now())\n        ELSE learned_at END,\n    updated_at = now()\n WHERE chat_id = {{ $json.chat_id }} AND word_id = {{ $json.word_id }}\nRETURNING chat_id, word_id, box, next_review;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1380,
+        400
+      ],
+      "id": "update-progress",
+      "name": "Update Progress",
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=WITH adv AS (\n  UPDATE vocab_session s SET\n      current   = (s.queue ->> 0)::smallint,\n      queue     = COALESCE(s.queue #- '{0}', '[]'::jsonb),\n      correct   = s.correct + CASE WHEN {{ $('Apply Verdict').first().json.ok }} THEN 1 ELSE 0 END,\n      total     = s.total + 1,\n      wrong_ids = CASE WHEN {{ $('Apply Verdict').first().json.ok }} THEN s.wrong_ids\n                       ELSE s.wrong_ids || to_jsonb({{ $('Apply Verdict').first().json.word_id }}::int) END\n   WHERE s.chat_id = {{ $('Apply Verdict').first().json.chat_id }}\n  RETURNING s.chat_id, s.current, s.correct, s.total, s.wrong_ids\n)\nSELECT a.chat_id, a.current, a.correct, a.total, a.wrong_ids,\n       w.word, w.ipa, w.translation,\n       CASE WHEN COALESCE(p.box, 0) <= 2 THEN 'en_ru' ELSE 'ru_en' END AS next_mode,\n       (SELECT string_agg(x.word || ' — ' || x.translation, E'\\n')\n          FROM vocab_word x\n         WHERE x.id = ANY (SELECT jsonb_array_elements_text(a.wrong_ids)::int)) AS wrong_list\n  FROM adv a\n  LEFT JOIN vocab_word w ON w.id = a.current\n  LEFT JOIN vocab_progress p ON p.chat_id = a.chat_id AND p.word_id = a.current;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1600,
+        400
+      ],
+      "id": "advance-session",
+      "name": "Advance Session",
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=UPDATE vocab_session\n   SET mode = '{{ $json.next_mode }}'\n WHERE chat_id = {{ $json.chat_id }};",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1820,
+        400
+      ],
+      "id": "set-mode",
+      "name": "Set Mode",
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Ответ на присланный перевод: вердикт + следующий вопрос либо итог сессии.\nconst esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst v = $('Apply Verdict').first().json;\nconst a = $('Advance Session').first().json;\n\nconst head = v.verdict === 'ok'   ? '✅ Верно'\n           : v.verdict === 'typo' ? '☑️ Верно, но с опечаткой'\n           :                        `❌ Мимо. <b>${esc(v.word)}</b> — ${esc(v.translation)}`;\nlet text = v.comment ? `${head}\\n${esc(v.comment)}` : head;\n\nconst finished = !a.current;\nif (finished) {\n  text += `\\n\\n<b>Готово: ${a.correct} из ${a.total}</b>`;\n  if (a.wrong_list) text += `\\n\\nВернёмся к этим завтра:\\n${esc(a.wrong_list)}`;\n} else {\n  text += a.next_mode === 'ru_en'\n    ? `\\n\\nКак по-английски: <b>${esc(a.translation)}</b>?`\n    : `\\n\\nПереведи: <b>${esc(a.word)}</b> [${esc(a.ipa || '')}]`;\n}\nreturn [{ json: { chat_id: v.chat_id, text, finished } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2040,
+        400
+      ],
+      "id": "compose-reply",
+      "name": "Compose Reply"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2260,
+        400
+      ],
+      "id": "send-reply",
+      "name": "Send Reply",
+      "credentials": {
+        "telegramApi": {
+          "id": "FOFv13xYZF1csitf",
+          "name": "Vocab Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "finished?-c",
+              "leftValue": "={{ $json.finished }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2480,
+        400
+      ],
+      "id": "finished?",
+      "name": "Finished?"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=WITH done AS (\n  DELETE FROM vocab_session WHERE chat_id = {{ $json.chat_id }} RETURNING chat_id\n)\nUPDATE vocab_user u SET\n    streak = CASE WHEN u.last_quiz = CURRENT_DATE THEN u.streak\n                  WHEN u.last_quiz = CURRENT_DATE - 1 THEN u.streak + 1\n                  ELSE 1 END,\n    last_quiz = CURRENT_DATE\n  FROM done\n WHERE u.chat_id = done.chat_id\nRETURNING u.chat_id, u.streak;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2700,
+        400
+      ],
+      "id": "close-session",
+      "name": "Close Session",
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Parse Input').first().json.chat_id }}",
+        "text": "=Активной проверки нет.\n\n/learn — новые слова\n/test — проверка\n/stats — прогресс",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        940,
+        620
+      ],
+      "id": "send-hint",
+      "name": "Send Hint",
+      "credentials": {
+        "telegramApi": {
+          "id": "FOFv13xYZF1csitf",
+          "name": "Vocab Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Parse Input').first().json.chat_id }}",
+        "text": "=На сегодня повторять нечего — всё сдано.\n\n/learn — взять новые слова прямо сейчас",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        940,
+        320
+      ],
+      "id": "send-nothing-due",
+      "name": "Send Nothing Due",
+      "credentials": {
+        "telegramApi": {
+          "id": "FOFv13xYZF1csitf",
+          "name": "Vocab Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        20,
+        -640
+      ],
+      "id": "cron-09:00-msk",
+      "name": "Cron 09:00 MSK"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT chat_id FROM vocab_user WHERE active AND chat_id = 648226895;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        240,
+        -640
+      ],
+      "id": "read-users-(morning)",
+      "name": "Read Users (Morning)",
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 19 * * *"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        20,
+        900
+      ],
+      "id": "cron-19:00-msk",
+      "name": "Cron 19:00 MSK"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT chat_id FROM vocab_user WHERE active AND chat_id = 648226895;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        240,
+        900
+      ],
+      "id": "read-users-(quiz)",
+      "name": "Read Users (Quiz)",
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT {{ $json.chat_id }}::bigint AS chat_id, p.word_id, p.box\n  FROM vocab_progress p\n WHERE p.chat_id = {{ $json.chat_id }}\n   AND p.next_review <= CURRENT_DATE\n ORDER BY p.box, p.word_id\n LIMIT 15;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        500,
+        900
+      ],
+      "id": "pick-due-(cron)",
+      "name": "Pick Due (Cron)",
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Parse Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Input": {
+      "main": [
+        [
+          {
+            "node": "Route",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route": {
+      "main": [
+        [
+          {
+            "node": "Upsert User",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Read Stats",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Deactivate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Take New Words",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Pick Due",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Load Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert User": {
+      "main": [
+        [
+          {
+            "node": "Send Welcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Stats": {
+      "main": [
+        [
+          {
+            "node": "Send Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deactivate": {
+      "main": [
+        [
+          {
+            "node": "Send Bye",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Take New Words": {
+      "main": [
+        [
+          {
+            "node": "Group Batch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Group Batch": {
+      "main": [
+        [
+          {
+            "node": "Write Story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Story": {
+      "main": [
+        [
+          {
+            "node": "Compose Morning",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose Morning": {
+      "main": [
+        [
+          {
+            "node": "Send Words",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick Due": {
+      "main": [
+        [
+          {
+            "node": "Any Due?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Any Due?": {
+      "main": [
+        [
+          {
+            "node": "Build Session",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Nothing Due",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Session": {
+      "main": [
+        [
+          {
+            "node": "Save Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Session": {
+      "main": [
+        [
+          {
+            "node": "Get Question",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Question": {
+      "main": [
+        [
+          {
+            "node": "Format Question",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Question": {
+      "main": [
+        [
+          {
+            "node": "Send Question",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Session": {
+      "main": [
+        [
+          {
+            "node": "Has Session?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Session?": {
+      "main": [
+        [
+          {
+            "node": "Judge Answer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Hint",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Judge Answer": {
+      "main": [
+        [
+          {
+            "node": "Apply Verdict",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Verdict": {
+      "main": [
+        [
+          {
+            "node": "Update Progress",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Progress": {
+      "main": [
+        [
+          {
+            "node": "Advance Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Advance Session": {
+      "main": [
+        [
+          {
+            "node": "Set Mode",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Mode": {
+      "main": [
+        [
+          {
+            "node": "Compose Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose Reply": {
+      "main": [
+        [
+          {
+            "node": "Send Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Reply": {
+      "main": [
+        [
+          {
+            "node": "Finished?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Finished?": {
+      "main": [
+        [
+          {
+            "node": "Close Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cron 09:00 MSK": {
+      "main": [
+        [
+          {
+            "node": "Read Users (Morning)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Users (Morning)": {
+      "main": [
+        [
+          {
+            "node": "Take New Words",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cron 19:00 MSK": {
+      "main": [
+        [
+          {
+            "node": "Read Users (Quiz)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Users (Quiz)": {
+      "main": [
+        [
+          {
+            "node": "Pick Due (Cron)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick Due (Cron)": {
+      "main": [
+        [
+          {
+            "node": "Build Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Moscow"
+  },
+  "pinData": {},
+  "tags": []
+}
