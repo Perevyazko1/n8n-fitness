@@ -35,7 +35,7 @@
       ],
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "// Единая точка входа бота канала Рыжа. Кто редактор — решает следующая нода\n// (таблица ryzh_editors), здесь только разбор апдейта.\n// Три случая: нажата кнопка черновика; текст-правка (reply на черновик или просто текст);\n// всё остальное — подсказка.\nconst j = $input.first().json;\n\nconst cq = j.callback_query;\nif (cq) {\n  const [act, id] = (cq.data || '').split(':');\n  if (!['pok','pno','pnx','ppv','pim'].includes(act)) return [];\n  return [{ json: {\n    kind: act === 'pok' ? 'approve' : act === 'pno' ? 'reject' : act === 'pim' ? 'redraw' : 'nav',\n    dir: act === 'pnx' ? 'next' : act === 'ppv' ? 'prev' : null,\n    post_id: Number(id),\n    chat_id: cq.from.id,\n    by: cq.from.first_name || cq.from.username || String(cq.from.id),\n    callback_query_id: cq.id,\n    message_id: cq.message?.message_id ?? null,\n  }}];\n}\n\nconst m = j.message || {};\nif (!m.from || m.chat?.type !== 'private') return [];  // только личка\n\nconst text = (m.text || '').trim();\nif (!text || text.startsWith('/')) {\n  return [{ json: { kind: 'help', chat_id: m.from.id } }];\n}\n\n// Правка. Если это ответ на сообщение с черновиком — привязываемся к нему точно,\n// иначе правим последний висящий черновик.\nreturn [{ json: {\n  kind: 'edit',\n  chat_id: m.from.id,\n  edit_note: text,\n  reply_to: m.reply_to_message?.message_id ?? null,\n}}];\n"
+        "jsCode": "// Единая точка входа бота канала Рыжа. Кто редактор — решает следующая нода\n// (таблица ryzh_editors), здесь только разбор апдейта.\n// Случаи: кнопка черновика или меню тем; команда меню; текст-правка (reply на черновик или\n// просто текст); всё остальное — подсказка.\nconst j = $input.first().json;\n\nconst cq = j.callback_query;\nif (cq) {\n  const [act, id, extra] = (cq.data || '').split(':');\n  const base = {\n    chat_id: cq.from.id,\n    by: cq.from.first_name || cq.from.username || String(cq.from.id),\n    callback_query_id: cq.id,\n    message_id: cq.message?.message_id ?? null,\n  };\n  const POST_KINDS = { pok: 'approve', pno: 'reject', pim: 'redraw', pmt: 'other',\n                       // старые кнопки на черновиках, разосланных до меню тем\n                       pnx: 'other', ppv: 'other' };\n  if (POST_KINDS[act]) return [{ json: { ...base, kind: POST_KINDS[act], post_id: Number(id) } }];\n  if (act === 'pmn') return [{ json: { ...base, kind: 'page', page: Number(id) } }];\n  if (act === 'ptp') return [{ json: { ...base, kind: 'pick', topic_id: Number(id) } }];\n  if (act === 'ptd') return [{ json: { ...base, kind: 'drop', topic_id: Number(id), page: Number(extra) } }];\n  if (act === 'pnop') return [{ json: { ...base, kind: 'nop' } }];\n  return [];\n}\n\nconst m = j.message || {};\nif (!m.from || m.chat?.type !== 'private') return [];  // только личка\n\nconst text = (m.text || '').trim();\nif (/^\\/(topics|темы)(@\\w+)?$/i.test(text)) {\n  return [{ json: { kind: 'menu', chat_id: m.from.id } }];\n}\nif (!text || text.startsWith('/')) {\n  return [{ json: { kind: 'help', chat_id: m.from.id } }];\n}\n\n// Правка. Если это ответ на сообщение с черновиком — привязываемся к нему точно,\n// иначе правим последний висящий черновик.\nreturn [{ json: {\n  kind: 'edit',\n  chat_id: m.from.id,\n  edit_note: text,\n  reply_to: m.reply_to_message?.message_id ?? null,\n}}];\n"
       }
     },
     {
@@ -129,18 +129,18 @@
                 },
                 "conditions": [
                   {
-                    "id": "k5",
+                    "id": "k4",
                     "operator": {
                       "type": "string",
                       "operation": "equals"
                     },
                     "leftValue": "={{ $('Route').item.json.kind }}",
-                    "rightValue": "nav"
+                    "rightValue": "menu"
                   }
                 ],
                 "combinator": "and"
               },
-              "outputKey": "nav"
+              "outputKey": "menu"
             },
             {
               "conditions": {
@@ -187,6 +187,121 @@
                 "combinator": "and"
               },
               "outputKey": "redraw"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "k7",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Route').item.json.kind }}",
+                    "rightValue": "page"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "page"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "k8",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Route').item.json.kind }}",
+                    "rightValue": "pick"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "pick"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "k9",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Route').item.json.kind }}",
+                    "rightValue": "drop"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "drop"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "k10",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Route').item.json.kind }}",
+                    "rightValue": "other"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "other"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "k11",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Route').item.json.kind }}",
+                    "rightValue": "nop"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "nop"
             }
           ]
         },
@@ -463,10 +578,10 @@
           "values": [
             {
               "role": "system",
-              "content": "Ты правишь готовый пост Telegram-канала «Тренер Рыж». Голос Рыжа — лис-питомец: на «ты», тепло, с юмором, жалуется и просит, но не стыдит; рекомендации, а не экспертиза. Тебе дают текущий текст и замечание владельца. Внеси ТОЛЬКО то, что просят, остальное сохрани как есть. Правила неизменны: хук не про приложение и не про КБЖУ; бот — только в развязке; цифры не выдумывать и заглушек не ставить; объём до 800 знаков (подпись к картинке); разметка Telegram HTML (<b>, <i>), без markdown; в конце реплика Рыжа с 🦊. Верни ТОЛЬКО исправленный текст поста, без пояснений."
+              "content": "Ты правишь готовый пост Telegram-канала «Тренер Рыж». Голос Рыжа — лис-питомец: на «ты», тепло, с юмором, жалуется и просит, но не стыдит; рекомендации, а не экспертиза. Тебе дают текущий текст и замечание владельца. Внеси ТОЛЬКО то, что просят, остальное сохрани как есть. Правила неизменны: хук не про приложение и не про КБЖУ; бот — только в развязке; цифры не выдумывать и заглушек не ставить; объём до 800 знаков (подпись к картинке); разметка Telegram HTML (<b>, <i>), без markdown; в конце реплика Рыжа с 🦊; теги и ссылку не добавляй — их добавят автоматически. Верни ТОЛЬКО исправленный текст поста, без пояснений."
             },
             {
-              "content": "=Текущий текст поста:\n{{ $json.body }}\n\nЗамечание владельца:\n{{ $('Route').item.json.edit_note }}"
+              "content": "=Текущий текст поста:\n{{ $json.body.replace(/\\n*(?:#[^\\n]*\\n)?📸 <a href=\"https:\\/\\/www\\.instagram\\.com[^\\n]*\\s*$/, '') }}\n\nЗамечание владельца:\n{{ $('Route').item.json.edit_note }}"
             }
           ]
         },
@@ -493,7 +608,7 @@
       ],
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "function extractText(j) {\n  if (Array.isArray(j.output)) {\n    for (const o of j.output) {\n      const part = Array.isArray(o.content) && o.content.find(c => c.text);\n      if (part?.text) return part.text;\n    }\n  }\n  if (Array.isArray(j.content)) {\n    const part = j.content.find(c => c.text);\n    if (part?.text) return part.text;\n  }\n  return j.message?.content ?? j.content ?? j.text ?? '';\n}\nconst raw = String(extractText($input.first().json) || '').trim();\nconst body = raw.replace(/^```(?:html)?\\s*/i, '').replace(/```\\s*$/, '').trim();\nif (!body) throw new Error('LLM вернул пустой текст при переписывании');\nreturn [{ json: { body } }];\n"
+        "jsCode": "// Подвал поста собираем кодом: тег рубрики + теги темы + ссылка на Instagram. Модель даёт только\n// теги темы последней строкой; ссылку ей не доверяем — она её перевирает.\nconst IG_URL = 'https://www.instagram.com/fitness_fox_bot';\nconst RUBRIC_TAGS = { check: '#рыж_проверяет', price: '#почём_белок', recipe: '#рецепт_рыжа', guess: '#на_глаз', swap: '#вместо_этого', tried: '#рыж_пробует', fox: '#лис' };\nconst FOOTER_RE = /\\n*(?:#[^\\n]*\\n)?📸 <a href=\"https:\\/\\/www\\.instagram\\.com[^\\n]*\\s*$/;\nfunction splitTags(text) {\n  const lines = String(text).trim().split('\\n');\n  const last = (lines[lines.length - 1] || '').trim();\n  if (!/^(#[\\p{L}\\p{N}_]+[\\s,]*)+$/u.test(last)) return { text: String(text).trim(), tags: [] };\n  lines.pop();\n  return { text: lines.join('\\n').trim(), tags: last.match(/#[\\p{L}\\p{N}_]+/gu).map(t => t.toLowerCase()) };\n}\nfunction withFooter(text, rubric, tags) {\n  const all = [...new Set([RUBRIC_TAGS[rubric], ...tags].filter(Boolean))].slice(0, 3);\n  return `${text}\\n\\n${all.join(' ')}\\n📸 <a href=\"${IG_URL}\">Рыж в Instagram</a>`;\n}\n\nfunction extractText(j) {\n  if (Array.isArray(j.output)) {\n    for (const o of j.output) {\n      const part = Array.isArray(o.content) && o.content.find(c => c.text);\n      if (part?.text) return part.text;\n    }\n  }\n  if (Array.isArray(j.content)) {\n    const part = j.content.find(c => c.text);\n    if (part?.text) return part.text;\n  }\n  return j.message?.content ?? j.content ?? j.text ?? '';\n}\nconst raw = String(extractText($input.first().json) || '').trim();\nconst clean = raw.replace(/^```(?:html)?\\s*/i, '').replace(/```\\s*$/, '').trim();\nif (!clean) throw new Error('LLM вернул пустой текст при переписывании');\n// Теги темы берём из старого подвала, модель их не видела.\nconst f = $('Find Draft').first().json;\nconst oldTags = (String(f.body).match(FOOTER_RE)?.[0].match(/#[\\p{L}\\p{N}_]+/gu) || []);\nconst { text, tags } = splitTags(clean.replace(FOOTER_RE, ''));\nconst body = withFooter(text, f.rubric, tags.length ? tags : oldTags);\nreturn [{ json: { body } }];\n"
       }
     },
     {
@@ -558,21 +673,9 @@
               "row": {
                 "buttons": [
                   {
-                    "text": "◀️ Тема",
-                    "additionalFields": {
-                      "callback_data": "=ppv:{{ $('Caption (v2)').first().json.post_id }}"
-                    }
-                  },
-                  {
-                    "text": "🎨 Картинка",
+                    "text": "🎨 Перерисовать",
                     "additionalFields": {
                       "callback_data": "=pim:{{ $('Caption (v2)').first().json.post_id }}"
-                    }
-                  },
-                  {
-                    "text": "Тема ▶️",
-                    "additionalFields": {
-                      "callback_data": "=pnx:{{ $('Caption (v2)').first().json.post_id }}"
                     }
                   }
                 ]
@@ -628,134 +731,7 @@
       ],
       "parameters": {
         "chatId": "={{ $('Route').item.json.chat_id }}",
-        "text": "🦊 Я приношу черновик поста каждый день в 10:00 — темы беру из постов, которые выстрелили у других каналов.\n\n• «Опубликовать» — пост уходит в канал\n• «Отклонить» — черновик закрывается\n• «◀️ Тема» / «Тема ▶️» — тот же день, другая тема\n• «🎨 Картинка» — перерисовать картинку\n• Ответь текстом на черновик — перепишу с учётом правки (сколько угодно раз)",
-        "additionalFields": {
-          "appendAttribution": false
-        }
-      },
-      "credentials": {
-        "telegramApi": {
-          "id": "qRQvgdVKex2aERVD",
-          "name": "Ryzh Editor"
-        }
-      }
-    },
-    {
-      "id": "Nav_Find",
-      "name": "Find Sibling Topic",
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.6,
-      "position": [
-        -180,
-        860
-      ],
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "WITH cur AS (SELECT topic_id FROM ryzh_posts WHERE id = $1)\nSELECT t.id\nFROM ryzh_topics t, cur\nWHERE ( $2 = 'next' AND t.id > cur.topic_id\n     OR $2 = 'prev' AND t.id < cur.topic_id )\n  AND ( t.status IN ('queued', 'skipped')\n     OR t.status = 'proposed' AND t.created_at > now() - interval '14 days' )\nORDER BY CASE WHEN $2 = 'next' THEN t.id END ASC,\n         CASE WHEN $2 = 'prev' THEN t.id END DESC\nLIMIT 1;",
-        "options": {
-          "queryReplacement": "={{ [ $('Route').item.json.post_id, $('Route').item.json.dir ] }}"
-        }
-      },
-      "credentials": {
-        "postgres": {
-          "id": "1Vpr6VdwzI4rfpHh",
-          "name": "PG"
-        }
-      }
-    },
-    {
-      "id": "Nav_Found",
-      "name": "Sibling Found?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        40,
-        860
-      ],
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "loose",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "s1",
-              "operator": {
-                "type": "number",
-                "operation": "exists"
-              },
-              "leftValue": "={{ $json.id }}",
-              "rightValue": ""
-            }
-          ],
-          "combinator": "and"
-        },
-        "looseTypeValidation": true,
-        "options": {}
-      }
-    },
-    {
-      "id": "Nav_Release",
-      "name": "Release Old Topic",
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.6,
-      "position": [
-        260,
-        780
-      ],
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "UPDATE ryzh_topics SET status = 'skipped'\nWHERE id = (SELECT topic_id FROM ryzh_posts WHERE id = $1);\nUPDATE ryzh_posts SET status = 'rejected' WHERE id = $1;",
-        "options": {
-          "queryReplacement": "={{ [ $('Route').item.json.post_id ] }}"
-        }
-      },
-      "credentials": {
-        "postgres": {
-          "id": "1Vpr6VdwzI4rfpHh",
-          "name": "PG"
-        }
-      }
-    },
-    {
-      "id": "Nav_Ack",
-      "name": "Answer Callback (nav)",
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1.2,
-      "position": [
-        480,
-        840
-      ],
-      "parameters": {
-        "resource": "callback",
-        "operation": "answerQuery",
-        "queryId": "={{ $('Route').item.json.callback_query_id }}",
-        "additionalFields": {
-          "text": "Беру другую тему…"
-        }
-      },
-      "credentials": {
-        "telegramApi": {
-          "id": "qRQvgdVKex2aERVD",
-          "name": "Ryzh Editor"
-        }
-      }
-    },
-    {
-      "id": "Nav_None",
-      "name": "No More Topics",
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1.2,
-      "position": [
-        260,
-        960
-      ],
-      "parameters": {
-        "chatId": "={{ $('Route').item.json.chat_id }}",
-        "text": "🦊 В эту сторону тем больше нет — очередь кончилась.",
+        "text": "🦊 В 10:00 я приношу меню тем — посты, которые выстрелили у других каналов. Пост выходит в три шага:\n\n1. Выбери тему кнопкой с её номером. 🗑 — выкинуть тему. ◀️ ▶️ — страницы.\n2. Придёт текст. Ответь на него словами — перепишу (сколько угодно раз). «🎨 Нравится, рисуй» — нарисую картинку, «📋 Другая тема» — вернёмся в меню.\n3. Придёт фото с текстом: «✅ Опубликовать» или «🎨 Перерисовать».\n\n/topics — открыть копилку тем в любой момент",
         "additionalFields": {
           "appendAttribution": false
         }
@@ -869,43 +845,7 @@
       ],
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const RUBRICS = { check: 'Рыж проверяет', price: 'Почём белок', recipe: 'Рецепт Рыжа', guess: 'На глаз', swap: 'Вместо этого', tried: 'Рыж пробует', fox: 'Лис' };\nconst esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst plain = s => String(s ?? '').replace(/<[^>]+>/g, '').replace(/&(lt|gt|amp|quot);/g, '_');\nfunction buildCaption(c) {\n  const head = `<b>#${c.post_id}</b> · ${esc(RUBRICS[c.rubric] || c.rubric || '—')} · v${c.version}\\n<i>${esc(c.title)}</i>\\n\\n`;\n  const len = plain(c.body).length;\n  if (plain(head + c.body).length <= 1024) return { caption: head + c.body, fits: true, len };\n  const note = `<b>#${c.post_id}</b> ⚠️ ${len} зн. — длиннее подписи (1024). Ответь «сократи до 800».\\n\\n`;\n  return { caption: note + esc(plain(c.body).slice(0, 850)) + '…', fits: false, len };\n}\n\nconst f = $('Find Draft').first().json;\nconst c = { post_id: $json.id, title: f.title, rubric: f.rubric,\n            body: $('Parse Rewrite').first().json.body, version: $json.version };\nreturn [{ json: { ...c, ...buildCaption(c) } }];"
-      }
-    },
-    {
-      "id": "Nav_Args",
-      "name": "Nav Args",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        700,
-        840
-      ],
-      "parameters": {
-        "mode": "runOnceForAllItems",
-        "jsCode": "// Аргументы для Ryzh Post Draft: какую тему писать и чей черновик убрать после отправки.\nreturn [{ json: { topic_id: $('Find Sibling Topic').first().json.id,\n                  old_post_id: $('Route').first().json.post_id } }];"
-      }
-    },
-    {
-      "id": "Call_Draft_nav",
-      "name": "Call Draft (nav)",
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.2,
-      "position": [
-        920,
-        840
-      ],
-      "parameters": {
-        "source": "database",
-        "workflowId": {
-          "__rl": true,
-          "value": "",
-          "mode": "list",
-          "cachedResultName": "Ryzh Post Draft"
-        },
-        "options": {
-          "waitForSubWorkflow": false
-        }
+        "jsCode": "const RUBRICS = { check: 'Рыж проверяет', price: 'Почём белок', recipe: 'Рецепт Рыжа', guess: 'На глаз', swap: 'Вместо этого', tried: 'Рыж пробует', fox: 'Лис' };\nconst esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst plain = s => String(s ?? '').replace(/<[^>]+>/g, '').replace(/&(lt|gt|amp|quot);/g, '_');\nfunction buildCaption(c) {\n  const head = `<b>#${c.post_id}</b> · ${esc(RUBRICS[c.rubric] || c.rubric || '—')} · v${c.version}\\n<i>${esc(c.title)}</i>\\n\\n`;\n  const len = plain(c.body).length;\n  const full = head + c.body;\n  if (plain(full).length <= 1024) return { caption: full, full, fits: true, len };\n  const note = `<b>#${c.post_id}</b> ⚠️ ${len} зн. — длиннее подписи (1024). Ответь «сократи до 800».\\n\\n`;\n  return { caption: note + esc(plain(c.body).slice(0, 850)) + '…', full: note + full, fits: false, len };\n}\n\nconst f = $('Find Draft').first().json;\nconst c = { post_id: $json.id, title: f.title, rubric: f.rubric,\n            body: $('Parse Rewrite').first().json.body, version: $json.version };\nreturn [{ json: { ...c, ...buildCaption(c) } }];"
       }
     },
     {
@@ -922,7 +862,7 @@
         "operation": "answerQuery",
         "queryId": "={{ $('Route').item.json.callback_query_id }}",
         "additionalFields": {
-          "text": "Перерисовываю…"
+          "text": "Рисую картинку…"
         }
       },
       "credentials": {
@@ -959,7 +899,7 @@
         "source": "database",
         "workflowId": {
           "__rl": true,
-          "value": "",
+          "value": "iPpkLlvYNnjH4XlA",
           "mode": "list",
           "cachedResultName": "Ryzh Post Draft"
         },
@@ -1106,7 +1046,7 @@
       ],
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "// Новая версия — каждому редактору (картинка та же, по file_id).\nconst eds = $input.first().json.editors || [];\nreturn eds.map(chat_id => ({ json: { chat_id } }));"
+        "jsCode": "// Новая версия — каждому редактору: с той же картинкой по file_id или текстом, если её ещё нет.\nconst eds = $input.first().json.editors || [];\nreturn eds.map(chat_id => ({ json: { chat_id } }));"
       }
     },
     {
@@ -1191,6 +1131,900 @@
           "name": "PG"
         }
       }
+    },
+    {
+      "id": "Daily_Menu",
+      "name": "Daily Menu",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -620,
+        1300
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 10 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Menu_Args_all",
+      "name": "Menu Args (all)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        1300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Меню всем редакторам: утром по крону и после «Другая тема», когда черновик исчез у всех.\nreturn [{ json: { page: 0, chat_id: null, message_id: null } }];"
+      }
+    },
+    {
+      "id": "Menu_Args_route",
+      "name": "Menu Args (route)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        1480
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Меню тому, кто спросил. message_id есть у кнопок: тогда правим сообщение на месте.\nconst r = $('Route').first().json;\nreturn [{ json: { page: r.page ?? 0, chat_id: r.chat_id, message_id: r.message_id ?? null } }];"
+      }
+    },
+    {
+      "id": "Menu_Data",
+      "name": "Menu Data",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -180,
+        1380
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH live AS (\n  SELECT id, title, rubric, note, angle, score,\n         row_number() OVER (ORDER BY (status = 'queued') DESC,\n                                     (rubric IN ('price', 'swap')) DESC,\n                                     score DESC NULLS LAST,\n                                     id) AS rn\n  FROM ryzh_topics\n  WHERE status = 'queued'\n     OR (status = 'proposed' AND created_at > now() - interval '14 days')\n), n AS (\n  SELECT count(*)::int AS total FROM live\n), p AS (\n  SELECT greatest(0, least($1::int, ceil(total / 5.0)::int - 1)) AS page FROM n\n)\nSELECT n.total, p.page,\n       (SELECT coalesce(json_agg(l ORDER BY l.rn), '[]'::json) FROM live l\n        WHERE l.rn > p.page * 5 AND l.rn <= (p.page + 1) * 5) AS rows,\n       (SELECT array_agg(chat_id ORDER BY chat_id) FROM ryzh_editors) AS editors,\n       $2::bigint AS chat_id, $3::bigint AS message_id\nFROM n, p;",
+        "options": {
+          "queryReplacement": "={{ [ $json.page, $json.chat_id, $json.message_id ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "id": "Build_Menu",
+      "name": "Build Menu",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        1380
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Страница копилки. Кнопок у Telegram-ноды всегда 5+5+2 (набор фиксирован в параметрах),\n// поэтому пустые места занимает «·» с callback pnop.\nconst RUBRICS = { price: 'Почём белок', swap: 'Вместо этого', recipe: 'Рецепт Рыжа' };\nconst esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst cut = (s, n) => { s = String(s ?? '').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; };\nconst NOP = { t: '·', cb: 'pnop' };\nconst m = $input.first().json;\nconst targets = m.chat_id ? [m.chat_id] : (m.editors || []);\nif (!targets.length) throw new Error('ryzh_editors пуст — некому слать меню');\n\nconst rows = m.rows || [];\nconst pages = Math.ceil(m.total / 5) || 1;\nconst lines = rows.map((r, i) => {\n  const donor = (String(r.note || '').match(/@\\w+/) || ['вручную'])[0];\n  const where = [RUBRICS[r.rubric] || r.rubric, donor, r.score ? `×${r.score}` : ''].filter(Boolean).join(' · ');\n  return `<b>${i + 1}. ${esc(r.title)}</b>\\n${esc(where)}` + (r.angle ? `\\n<i>${esc(cut(r.angle, 110))}</i>` : '');\n});\nconst text = `🦊 <b>Темы</b> · стр. ${m.page + 1}/${pages} · всего ${m.total}\\n\\n${lines.join('\\n\\n')}`;\nconst slot = i => rows[i];\nconst pick = [0, 1, 2, 3, 4].map(i => slot(i) ? { t: String(i + 1), cb: `ptp:${slot(i).id}` } : NOP);\nconst drop = [0, 1, 2, 3, 4].map(i => slot(i) ? { t: `🗑${i + 1}`, cb: `ptd:${slot(i).id}:${m.page}` } : NOP);\nconst nav = [m.page > 0 ? { t: '◀️', cb: `pmn:${m.page - 1}` } : NOP,\n             m.page + 1 < pages ? { t: '▶️', cb: `pmn:${m.page + 1}` } : NOP];\nreturn targets.map(chat_id => ({ json: { chat_id, message_id: m.message_id, total: m.total, text, pick, drop, nav } }));"
+      }
+    },
+    {
+      "id": "Has_Topics",
+      "name": "Has Topics?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        260,
+        1380
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "m1",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.total }}",
+              "rightValue": 0
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      }
+    },
+    {
+      "id": "Edit_In_Place",
+      "name": "Edit In Place?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        1300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "m2",
+              "operator": {
+                "type": "number",
+                "operation": "exists"
+              },
+              "leftValue": "={{ $json.message_id }}",
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      }
+    },
+    {
+      "id": "Edit_Menu",
+      "name": "Edit Menu",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        700,
+        1220
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "editMessageText",
+        "messageType": "message",
+        "chatId": "={{ $json.chat_id }}",
+        "messageId": "={{ $json.message_id }}",
+        "text": "={{ $json.text }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "={{ $json.pick[0].t }}",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.pick[0].cb }}"
+                    }
+                  },
+                  {
+                    "text": "={{ $json.pick[1].t }}",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.pick[1].cb }}"
+                    }
+                  },
+                  {
+                    "text": "={{ $json.pick[2].t }}",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.pick[2].cb }}"
+                    }
+                  },
+                  {
+                    "text": "={{ $json.pick[3].t }}",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.pick[3].cb }}"
+                    }
+                  },
+                  {
+                    "text": "={{ $json.pick[4].t }}",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.pick[4].cb }}"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "={{ $json.drop[0].t }}",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.drop[0].cb }}"
+                    }
+                  },
+                  {
+                    "text": "={{ $json.drop[1].t }}",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.drop[1].cb }}"
+                    }
+                  },
+                  {
+                    "text": "={{ $json.drop[2].t }}",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.drop[2].cb }}"
+                    }
+                  },
+                  {
+                    "text": "={{ $json.drop[3].t }}",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.drop[3].cb }}"
+                    }
+                  },
+                  {
+                    "text": "={{ $json.drop[4].t }}",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.drop[4].cb }}"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "={{ $json.nav[0].t }}",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.nav[0].cb }}"
+                    }
+                  },
+                  {
+                    "text": "={{ $json.nav[1].t }}",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.nav[1].cb }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "disable_web_page_preview": true
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "Send_Menu",
+      "name": "Send Menu",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        700,
+        1380
+      ],
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "={{ $json.pick[0].t }}",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.pick[0].cb }}"
+                    }
+                  },
+                  {
+                    "text": "={{ $json.pick[1].t }}",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.pick[1].cb }}"
+                    }
+                  },
+                  {
+                    "text": "={{ $json.pick[2].t }}",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.pick[2].cb }}"
+                    }
+                  },
+                  {
+                    "text": "={{ $json.pick[3].t }}",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.pick[3].cb }}"
+                    }
+                  },
+                  {
+                    "text": "={{ $json.pick[4].t }}",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.pick[4].cb }}"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "={{ $json.drop[0].t }}",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.drop[0].cb }}"
+                    }
+                  },
+                  {
+                    "text": "={{ $json.drop[1].t }}",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.drop[1].cb }}"
+                    }
+                  },
+                  {
+                    "text": "={{ $json.drop[2].t }}",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.drop[2].cb }}"
+                    }
+                  },
+                  {
+                    "text": "={{ $json.drop[3].t }}",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.drop[3].cb }}"
+                    }
+                  },
+                  {
+                    "text": "={{ $json.drop[4].t }}",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.drop[4].cb }}"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "={{ $json.nav[0].t }}",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.nav[0].cb }}"
+                    }
+                  },
+                  {
+                    "text": "={{ $json.nav[1].t }}",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.nav[1].cb }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false,
+          "disable_web_page_preview": true
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "Save_Menu_Message",
+      "name": "Save Menu Message",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        920,
+        1380
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO ryzh_menu_messages (chat_id, message_id)\nSELECT $1::bigint, $2::bigint WHERE $2::bigint IS NOT NULL\nON CONFLICT DO NOTHING;",
+        "options": {
+          "queryReplacement": "={{ [ $json.result?.chat?.id ?? $json.chat?.id ?? null, $json.result?.message_id ?? $json.message_id ?? null ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      }
+    },
+    {
+      "id": "Send_Empty_Menu",
+      "name": "Send Empty Menu",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        1540
+      ],
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "🦊 В копилке пока нет тем. Разведка приносит новые каждое утро в 07:00: поста сегодня не будет, если ничего не появится.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "Answer_Callback_menu",
+      "name": "Answer Callback (menu)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -180,
+        1560
+      ],
+      "parameters": {
+        "resource": "callback",
+        "operation": "answerQuery",
+        "queryId": "={{ $('Route').first().json.callback_query_id }}",
+        "additionalFields": {
+          "text": "={{ $('Route').first().json.kind === 'drop' ? 'Выкинул' : '' }}"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      }
+    },
+    {
+      "id": "Drop_Topic",
+      "name": "Drop Topic",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -400,
+        1640
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE ryzh_topics SET status = 'skipped'\nWHERE id = $1 AND status IN ('queued', 'proposed')\nRETURNING id;",
+        "options": {
+          "queryReplacement": "={{ [ $('Route').first().json.topic_id ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "Answer_Callback_nop",
+      "name": "Answer Callback (nop)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -180,
+        1740
+      ],
+      "parameters": {
+        "resource": "callback",
+        "operation": "answerQuery",
+        "queryId": "={{ $('Route').first().json.callback_query_id }}",
+        "additionalFields": {
+          "text": ""
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      }
+    },
+    {
+      "id": "Claim_Topic",
+      "name": "Claim Topic",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -400,
+        1860
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- Атомарно: двое нажали одну тему — черновик будет один.\nUPDATE ryzh_topics SET status = 'used'\nWHERE id = $1 AND status IN ('queued', 'proposed')\nRETURNING id;",
+        "options": {
+          "queryReplacement": "={{ [ $('Route').first().json.topic_id ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "Claimed",
+      "name": "Claimed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -180,
+        1860
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "p1",
+              "operator": {
+                "type": "number",
+                "operation": "exists"
+              },
+              "leftValue": "={{ $json.id }}",
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      }
+    },
+    {
+      "id": "Answer_Callback_pick",
+      "name": "Answer Callback (pick)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        40,
+        1800
+      ],
+      "parameters": {
+        "resource": "callback",
+        "operation": "answerQuery",
+        "queryId": "={{ $('Route').first().json.callback_query_id }}",
+        "additionalFields": {
+          "text": "Пишу текст…"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      }
+    },
+    {
+      "id": "Answer_Callback_taken",
+      "name": "Answer Callback (taken)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        40,
+        1960
+      ],
+      "parameters": {
+        "resource": "callback",
+        "operation": "answerQuery",
+        "queryId": "={{ $('Route').first().json.callback_query_id }}",
+        "additionalFields": {
+          "text": "Эту тему уже взяли"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      }
+    },
+    {
+      "id": "Clear_Menus",
+      "name": "Clear Menus",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        260,
+        1800
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM ryzh_menu_messages RETURNING chat_id, message_id;",
+        "options": {}
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "Delete_Menu_Message",
+      "name": "Delete Menu Message",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        1800
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "deleteMessage",
+        "chatId": "={{ $json.chat_id }}",
+        "messageId": "={{ $json.message_id }}"
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "Pick_Args",
+      "name": "Pick Args",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        700,
+        1800
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Сколько бы меню ни удалили, черновик пишем один раз.\nreturn [{ json: { topic_id: $('Route').first().json.topic_id } }];"
+      }
+    },
+    {
+      "id": "Call_Draft_pick",
+      "name": "Call Draft (pick)",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        920,
+        1800
+      ],
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "value": "iPpkLlvYNnjH4XlA",
+          "mode": "list",
+          "cachedResultName": "Ryzh Post Draft"
+        },
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      }
+    },
+    {
+      "id": "Release_Topic",
+      "name": "Release Topic",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -400,
+        2080
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- Тема возвращается в копилку, повторное нажатие на закрытый черновик ничего не меняет.\nWITH p AS (\n  UPDATE ryzh_posts SET status = 'rejected'\n  WHERE id = $1 AND status = 'draft' RETURNING topic_id\n)\nUPDATE ryzh_topics SET status = 'proposed'\nWHERE id = (SELECT topic_id FROM p)\nRETURNING id;",
+        "options": {
+          "queryReplacement": "={{ [ $('Route').first().json.post_id ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "Answer_Callback_other",
+      "name": "Answer Callback (other)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -180,
+        2080
+      ],
+      "parameters": {
+        "resource": "callback",
+        "operation": "answerQuery",
+        "queryId": "={{ $('Route').first().json.callback_query_id }}",
+        "additionalFields": {
+          "text": "Открываю темы…"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      }
+    },
+    {
+      "id": "Clear_Approvals_other",
+      "name": "Clear Approvals (other)",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        40,
+        2080
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM ryzh_approvals WHERE post_id = $1 RETURNING chat_id, message_id;",
+        "options": {
+          "queryReplacement": "={{ [ $('Route').first().json.post_id ] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "Delete_Approval_other",
+      "name": "Delete Approval (other)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        260,
+        2080
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "deleteMessage",
+        "chatId": "={{ $json.chat_id }}",
+        "messageId": "={{ $json.message_id }}"
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "Has_Picture_v2",
+      "name": "Has Picture (v2)?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1250,
+        540
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "v1",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Find Draft').first().json.image_file_id }}",
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      }
+    },
+    {
+      "id": "Send_Text_Approval_v2",
+      "name": "Send Text Approval (v2)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1400,
+        620
+      ],
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $('Caption (v2)').first().json.full }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "🎨 Нравится, рисуй",
+                    "additionalFields": {
+                      "callback_data": "=pim:{{ $('Caption (v2)').first().json.post_id }}"
+                    }
+                  },
+                  {
+                    "text": "📋 Другая тема",
+                    "additionalFields": {
+                      "callback_data": "=pmt:{{ $('Caption (v2)').first().json.post_id }}"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "❌ Отклонить",
+                    "additionalFields": {
+                      "callback_data": "=pno:{{ $('Caption (v2)').first().json.post_id }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      },
+      "onError": "continueRegularOutput"
     }
   ],
   "connections": {
@@ -1241,7 +2075,7 @@
         ],
         [
           {
-            "node": "Find Sibling Topic",
+            "node": "Menu Args (route)",
             "type": "main",
             "index": 0
           }
@@ -1256,6 +2090,41 @@
         [
           {
             "node": "Answer Callback (redraw)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Answer Callback (menu)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Claim Topic",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Drop Topic",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Release Topic",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Answer Callback (nop)",
             "type": "main",
             "index": 0
           }
@@ -1401,57 +2270,6 @@
         ]
       ]
     },
-    "Find Sibling Topic": {
-      "main": [
-        [
-          {
-            "node": "Sibling Found?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Sibling Found?": {
-      "main": [
-        [
-          {
-            "node": "Release Old Topic",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "No More Topics",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Release Old Topic": {
-      "main": [
-        [
-          {
-            "node": "Answer Callback (nav)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Answer Callback (nav)": {
-      "main": [
-        [
-          {
-            "node": "Nav Args",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Has Image?": {
       "main": [
         [
@@ -1497,17 +2315,6 @@
         [
           {
             "node": "Editors (v2)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Nav Args": {
-      "main": [
-        [
-          {
-            "node": "Call Draft (nav)",
             "type": "main",
             "index": 0
           }
@@ -1596,7 +2403,7 @@
       "main": [
         [
           {
-            "node": "Send Approval (v2)",
+            "node": "Has Picture (v2)?",
             "type": "main",
             "index": 0
           }
@@ -1635,6 +2442,276 @@
           }
         ]
       ]
+    },
+    "Has Picture (v2)?": {
+      "main": [
+        [
+          {
+            "node": "Send Approval (v2)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Text Approval (v2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Text Approval (v2)": {
+      "main": [
+        [
+          {
+            "node": "Save Approval (v2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Menu": {
+      "main": [
+        [
+          {
+            "node": "Menu Args (all)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Menu Args (all)": {
+      "main": [
+        [
+          {
+            "node": "Menu Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Menu Args (route)": {
+      "main": [
+        [
+          {
+            "node": "Menu Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Menu Data": {
+      "main": [
+        [
+          {
+            "node": "Build Menu",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Menu": {
+      "main": [
+        [
+          {
+            "node": "Has Topics?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Topics?": {
+      "main": [
+        [
+          {
+            "node": "Edit In Place?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Empty Menu",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit In Place?": {
+      "main": [
+        [
+          {
+            "node": "Edit Menu",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Menu",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Menu": {
+      "main": [
+        [
+          {
+            "node": "Save Menu Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer Callback (menu)": {
+      "main": [
+        [
+          {
+            "node": "Menu Args (route)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Drop Topic": {
+      "main": [
+        [
+          {
+            "node": "Answer Callback (menu)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claim Topic": {
+      "main": [
+        [
+          {
+            "node": "Claimed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claimed?": {
+      "main": [
+        [
+          {
+            "node": "Answer Callback (pick)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Answer Callback (taken)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer Callback (pick)": {
+      "main": [
+        [
+          {
+            "node": "Clear Menus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear Menus": {
+      "main": [
+        [
+          {
+            "node": "Delete Menu Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Menu Message": {
+      "main": [
+        [
+          {
+            "node": "Pick Args",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick Args": {
+      "main": [
+        [
+          {
+            "node": "Call Draft (pick)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Release Topic": {
+      "main": [
+        [
+          {
+            "node": "Answer Callback (other)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer Callback (other)": {
+      "main": [
+        [
+          {
+            "node": "Clear Approvals (other)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear Approvals (other)": {
+      "main": [
+        [
+          {
+            "node": "Delete Approval (other)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Approval (other)": {
+      "main": [
+        [
+          {
+            "node": "Menu Args (all)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
@@ -1644,5 +2721,5 @@
   },
   "pinData": {},
   "tags": [],
-  "versionId": "ryzh-control-holding-02"
+  "versionId": "ryzh-control-holding-04"
 }

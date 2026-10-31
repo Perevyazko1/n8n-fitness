@@ -207,6 +207,13 @@ CREATE TABLE IF NOT EXISTS content_links (
     created_at   timestamptz NOT NULL DEFAULT now()
 );
 
+-- Сообщения с меню тем у редакторов: взяли тему — меню убираем у всех.
+CREATE TABLE IF NOT EXISTS ryzh_menu_messages (
+    chat_id    bigint NOT NULL,
+    message_id bigint NOT NULL,
+    PRIMARY KEY (chat_id, message_id)
+);
+
 -- Редакторы канала: кому бот шлёт черновики и чьи кнопки/правки принимает.
 -- Новый редактор = строка здесь (и он должен хоть раз нажать /start у @ryzh_editor_bot,
 -- иначе Telegram не даст боту написать ему первым).

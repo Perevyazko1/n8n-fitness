@@ -49,3 +49,17 @@ WHERE status = 'draft' AND created_at < '2026-10-01';
 -- SELECT username, is_own, signal FROM content_sources ORDER BY is_own DESC, username;
 -- SELECT status, count(*) FROM ryzh_posts GROUP BY 1;
 -- SELECT * FROM ryzh_editors;
+
+-- Направление с 31.10.2026: деньги и замены + рецепты с крючком. Разовая чистка.
+-- Рецепты breakfastblissdaily остаются резервом копилки, новых с этих каналов не будет.
+UPDATE ryzh_topics SET status = 'skipped'
+WHERE status IN ('queued', 'proposed') AND rubric NOT IN ('price', 'swap', 'recipe')
+  AND created_at < '2026-11-01';
+
+UPDATE content_sources SET active = false WHERE NOT signal AND NOT is_own;
+
+-- Посты про деньги за последние дни — на повторный разбор по новым правилам
+-- (дубли темы отсекает Insert Topics по source_url).
+UPDATE content_source_posts SET offered_at = NULL
+WHERE posted_at > '2026-10-20'
+  AND text ~* '[0-9] ?(₽|руб)|замен|вместо|дешевл|бюджетн|экономи';

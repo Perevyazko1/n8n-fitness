@@ -2,81 +2,6 @@
   "name": "Ryzh Post Draft",
   "nodes": [
     {
-      "id": "Cron",
-      "name": "Daily Trigger",
-      "type": "n8n-nodes-base.scheduleTrigger",
-      "typeVersion": 1.2,
-      "position": [
-        -620,
-        300
-      ],
-      "parameters": {
-        "rule": {
-          "interval": [
-            {
-              "field": "cronExpression",
-              "expression": "0 10 * * *"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "Pick_Topic",
-      "name": "Pick Topic",
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.6,
-      "position": [
-        -420,
-        300
-      ],
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "SELECT id, title, rubric, note, facts, angle, source_url, NULL::bigint AS old_post_id\nFROM ryzh_topics\nWHERE status = 'queued'\n   OR (status = 'proposed' AND created_at > now() - interval '14 days')\nORDER BY (status = 'queued') DESC,\n         (rubric = (ARRAY['check','price','recipe','guess','recipe','swap','tried'])\n                   [extract(isodow FROM now() AT TIME ZONE 'Europe/Moscow')::int]) DESC,\n         score DESC NULLS LAST,\n         id\nLIMIT 1;",
-        "options": {}
-      },
-      "credentials": {
-        "postgres": {
-          "id": "1Vpr6VdwzI4rfpHh",
-          "name": "PG"
-        }
-      }
-    },
-    {
-      "id": "Has_Topic",
-      "name": "Has Topic?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        -220,
-        300
-      ],
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "loose",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "c1",
-              "operator": {
-                "type": "number",
-                "operation": "exists"
-              },
-              "leftValue": "={{ $json.id }}",
-              "rightValue": ""
-            }
-          ],
-          "combinator": "and"
-        },
-        "looseTypeValidation": true,
-        "options": {}
-      }
-    },
-    {
       "id": "Write_Draft",
       "name": "Write Draft",
       "type": "@n8n/n8n-nodes-langchain.openAi",
@@ -96,10 +21,10 @@
           "values": [
             {
               "role": "system",
-              "content": "Ты пишешь посты для Telegram-канала «Тренер Рыж». Автор — Рыж, рыжий лис-питомец из фитнес-приложения: что ест и как двигается хозяин, то и с телом лиса.\n\nГОЛОС РЫЖА (как в роликах):\n— питомец, а не надзиратель: жалуется и просит, но НЕ стыдит и не ругает; сочувствие вместо вины («Это нормально — Рыж тоже не отказывался», «Он не ругается. Он просит»);\n— на «ты», коротко, тепло, с юмором; живые бытовые сценки («01:07. Ты: только посмотрю»);\n— рекомендации, а не экспертиза: «я попробовал», «мне зашло», «можно так», «если хочется — вот вариант». Никаких «учёные доказали», «врачи рекомендуют», диагнозов, лечения, добавок;\n— не обещаем килограммы и сроки; не пишем «сфоткай еду», «AI», «нейросеть», «следит за тобой», «бесплатно навсегда».\n\nЖЁСТКИЕ ПРАВИЛА:\n1) Первая строка — хук про конкретный продукт, блюдо или ситуацию из жизни. Никогда не начинай с приложения, бота, калорий или КБЖУ.\n2) Бот @fitness_fox_bot — только в развязке, одной строкой, и только если к месту; в большинстве постов его нет.\n3) Цифры (цены, граммы, калории, проценты) — ТОЛЬКО из блока «Фактура». Нет фактуры — строй пост так, чтобы цифры были не нужны. Заглушки в квадратных скобках запрещены.\n4) Объём 500–800 знаков: это подпись к картинке, у Telegram лимит 1024. Короткие абзацы, без воды.\n5) Разметка — Telegram HTML: только <b> и <i>. Никакого markdown, <p>, <br>, списков через «*».\n6) Последняя строка — реплика Рыжа, начинается с 🦊.\n7) Пост-донор — только источник идеи и фактов: не пересказывай его подряд, не копируй фразы, не упоминай чужой канал.\n\nРУБРИКИ:\ncheck — «Рыж проверяет»: продукт под подозрением, на что смотреть на полке и в составе;\nprice — «Почём белок»: цена еды, пересчёт на порцию или на 100 г белка;\nrecipe — «Рецепт Рыжа»: простой рецепт с крючком (дёшево / за 10 минут / вместо …): ингредиенты строками с «—», 3–5 коротких шагов;\nguess — «На глаз»: что сытнее или калорийнее — загадка в начале, разгадка в конце;\nswap — «Вместо этого»: чем заменить привычное, чтобы было не хуже;\ntried — «Рыж пробует»: популярный совет или тренд — честно, как это в жизни, без научных вердиктов;\nfox — «Лис»: короткая смешная сценка из жизни Рыжа.\n\nВерни ТОЛЬКО текст поста, без заголовков и пояснений."
+              "content": "Ты пишешь посты для Telegram-канала «Тренер Рыж». Автор — Рыж, рыжий лис-питомец из фитнес-приложения: что ест и как двигается хозяин, то и с телом лиса.\n\nГОЛОС РЫЖА (как в роликах):\n— питомец, а не надзиратель: может пожаловаться или попросить, но НЕ стыдит и не ругает; сочувствие вместо вины;\n— на «ты», коротко, тепло, с юмором; живые бытовые сценки;\n— рекомендации, а не экспертиза: «я попробовал», «мне зашло», «можно так», «если хочется — вот вариант». Никаких «учёные доказали», «врачи рекомендуют», диагнозов, лечения, добавок;\n— не обещаем килограммы и сроки; не пишем «сфоткай еду», «AI», «нейросеть», «следит за тобой», «бесплатно навсегда».\n— ЖИВО: пиши как пишут в Telegram, а не как в кулинарной книге — восклицания, вопросы к читателю, разговорные словечки, лёгкая самоирония Рыжа. Эмодзи — обязательно, 5–9 на пост: в хуке, в начале блоков (🛒 ингредиенты, 👨‍🍳 шаги, 📊 КБЖУ, 💡 совет) и пара по смыслу в тексте (🔥😋🙈🤔). Не ставь эмодзи в каждую строку списка и не ставь больше двух подряд.\n\nЖЁСТКИЕ ПРАВИЛА:\n1) СТРУКТУРА ЛЮБОГО ПОСТА — пост, а не карточка:\n   а) хук — первая строка про конкретный продукт, блюдо или ситуацию из жизни. Никогда не начинай с приложения, бота, калорий или КБЖУ;\n   б) вступление — 2–3 живых предложения от Рыжа: бытовая сценка, зачем это нужно и когда пригодится («вечер, сил ноль, а хочется сладкого — вот выход»). Без вступления сразу к списку переходить НЕЛЬЗЯ;\n   в) суть — рецепт, разбор или сравнение;\n   г) совет или лайфхак одной-двумя фразами (как сделать дешевле, быстрее, чем заменить);\n   д) реплика Рыжа (правило 6).\n2) Бот @fitness_fox_bot — только в развязке, одной строкой, и только если к месту; в большинстве постов его нет.\n3) Цифры (цены, граммы, калории, проценты) и сами факты — ТОЛЬКО из блока «Фактура»: мы ничего не придумываем от себя, а пересказываем чужой сильный пост своим голосом. Цены — только те, что есть в «Фактуре»: своих оценок цены нет даже с «≈». Не дописывай общих советов от себя. Заглушки в квадратных скобках запрещены. Единственное исключение — КБЖУ рецепта (правило 8).\n8) В рубрике recipe ОБЯЗАТЕЛЬНА строка КБЖУ сразу после шагов, отдельной строкой в формате: «<b>КБЖУ на порцию:</b> ≈ 320 ккал · Б 28 · Ж 14 · У 18» (или «на 100 г», если порции не очевидны; если рецепт на несколько порций — напиши, на сколько). Есть КБЖУ в «Фактуре» — бери оттуда. Нет — посчитай сам по ингредиентам и граммовкам из своего же списка по типичной калорийности продуктов, округли (ккал до 10, БЖУ до целых) и обязательно поставь «≈». КБЖУ никогда не выноси в хук и вступление.\n4) Объём 600–800 знаков без тегов: это подпись к картинке, у Telegram лимит 1024, а ещё нужно место под теги и ссылку. Ради вступления сокращай суть (меньше пунктов, короче шаги), а не наоборот. Короткие абзацы, без воды.\n5) Разметка — Telegram HTML: только <b> и <i>. Никакого markdown, <p>, <br>, списков через «*».\n6) Последняя строка текста (перед тегами) — реплика самого Рыжа ПРО ЭТОТ пост, начинается с 🦊: от первого лица («я», не «он»), одна фраза, с юмором — что он думает про это блюдо или совет, как бы он сам это съел или сделал. Пример формы (НЕ копировать): «🦊 Я бы съел две порции и сделал вид, что это была одна». Никаких готовых лозунгов и фраз про то, что Рыж «не ругается» или «просит».\n7) Пост-донор — только источник идеи и фактов: не пересказывай его подряд, не копируй фразы, не упоминай чужой канал.\n\n9) Если в задании «Призыв к реакции: да» — перед репликой Рыжа добавь ОДНУ короткую строку-призыв с двумя реакциями по теме поста, например «Сделаешь — ставь 🔥, не рискнёшь — 🙈» или «Знал? 👍 / Впервые слышу 😱». Реакции только из набора 🔥 🙈 👍 😱 👀 ❤️ 🤔. Если «нет» — никаких призывов ставить реакции, лайкать или подписываться.\n10) Самой последней строкой, после реплики Рыжа, — 1–2 хэштега по главному продукту или теме поста: по-русски, строчными, слова через «_», без эмодзи (например «#гречка #ужин_за_10_минут»). Тег рубрики и ссылки не ставь — их добавят автоматически.\n\nРУБРИКИ:\nprice — «Почём белок»: цены еды из «Фактуры» — сравнение, чек, стоимость порции; крючок — конкретная сумма;\nswap — «Вместо этого»: чем заменить привычное, что на что менять и в чём выгода — по «Фактуре»;\nrecipe — «Рецепт Рыжа»: НЕ голый рецепт. Сначала вступление — почему этот рецепт стоит сделать (дёшево / за 10 минут / вместо чего-то привычного, только если это есть в «Угле» или «Фактуре») и в какой момент жизни он спасает; потом ингредиенты строками с «—» с граммовкой (до 5 строк, специи и соль — одной строкой), 3 шага по одной короткой фразе без пояснений в скобках, строка КБЖУ (правило 8); в конце — один совет.\n\nВерни ТОЛЬКО текст поста, без заголовков и пояснений."
             },
             {
-              "content": "=Рубрика: {{ $json.rubric || 'check' }}\nТема: {{ $json.title }}\nУгол: {{ $json.angle || '—' }}\nКонтекст (не переносить дословно): {{ $json.note || '—' }}\n\nФактура:\n{{ $json.facts || '(нет — пиши так, чтобы цифры были не нужны)' }}"
+              "content": "=Рубрика: {{ $json.rubric || 'check' }}\nТема: {{ $json.title }}\nУгол: {{ $json.angle || '—' }}\nКонтекст (не переносить дословно): {{ $json.note || '—' }}\n\nФактура:\n{{ $json.facts || '(нет — пиши так, чтобы цифры были не нужны)' }}\n\nПризыв к реакции: {{ $json.cta ? 'да' : 'нет' }}"
             }
           ]
         },
@@ -126,7 +51,7 @@
       ],
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "// openAi v2.3 отдаёт Responses-формат: { output:[{ content:[{ text }] }] }.\n// Запасные пути — под другие версии ноды.\nfunction extractText(j) {\n  if (Array.isArray(j.output)) {\n    for (const o of j.output) {\n      const part = Array.isArray(o.content) && o.content.find(c => c.text);\n      if (part?.text) return part.text;\n    }\n  }\n  if (Array.isArray(j.content)) {\n    const part = j.content.find(c => c.text);\n    if (part?.text) return part.text;\n  }\n  return j.message?.content ?? j.content ?? j.text ?? '';\n}\nconst raw = String(extractText($input.first().json) || '').trim();\n// Срезаем markdown-фенсы, если модель их всё-таки поставила.\nconst body = raw.replace(/^```(?:html)?\\s*/i, '').replace(/```\\s*$/, '').trim();\nif (!body) throw new Error('LLM вернул пустой текст');\nreturn [{ json: { body } }];\n"
+        "jsCode": "// Подвал поста собираем кодом: тег рубрики + теги темы + ссылка на Instagram. Модель даёт только\n// теги темы последней строкой; ссылку ей не доверяем — она её перевирает.\nconst IG_URL = 'https://www.instagram.com/fitness_fox_bot';\nconst RUBRIC_TAGS = { check: '#рыж_проверяет', price: '#почём_белок', recipe: '#рецепт_рыжа', guess: '#на_глаз', swap: '#вместо_этого', tried: '#рыж_пробует', fox: '#лис' };\nconst FOOTER_RE = /\\n*(?:#[^\\n]*\\n)?📸 <a href=\"https:\\/\\/www\\.instagram\\.com[^\\n]*\\s*$/;\nfunction splitTags(text) {\n  const lines = String(text).trim().split('\\n');\n  const last = (lines[lines.length - 1] || '').trim();\n  if (!/^(#[\\p{L}\\p{N}_]+[\\s,]*)+$/u.test(last)) return { text: String(text).trim(), tags: [] };\n  lines.pop();\n  return { text: lines.join('\\n').trim(), tags: last.match(/#[\\p{L}\\p{N}_]+/gu).map(t => t.toLowerCase()) };\n}\nfunction withFooter(text, rubric, tags) {\n  const all = [...new Set([RUBRIC_TAGS[rubric], ...tags].filter(Boolean))].slice(0, 3);\n  return `${text}\\n\\n${all.join(' ')}\\n📸 <a href=\"${IG_URL}\">Рыж в Instagram</a>`;\n}\n\n// openAi v2.3 отдаёт Responses-формат: { output:[{ content:[{ text }] }] }.\n// Запасные пути — под другие версии ноды.\nfunction extractText(j) {\n  if (Array.isArray(j.output)) {\n    for (const o of j.output) {\n      const part = Array.isArray(o.content) && o.content.find(c => c.text);\n      if (part?.text) return part.text;\n    }\n  }\n  if (Array.isArray(j.content)) {\n    const part = j.content.find(c => c.text);\n    if (part?.text) return part.text;\n  }\n  return j.message?.content ?? j.content ?? j.text ?? '';\n}\nconst raw = String(extractText($input.first().json) || '').trim();\n// Срезаем markdown-фенсы, если модель их всё-таки поставила.\nconst clean = raw.replace(/^```(?:html)?\\s*/i, '').replace(/```\\s*$/, '').trim();\nif (!clean) throw new Error('LLM вернул пустой текст');\nconst { text, tags } = splitTags(clean.replace(FOOTER_RE, ''));\nconst body = withFooter(text, $('Topic').first().json.rubric, tags);\n// len — как его посчитает Telegram (без разметки); по нему решаем, сокращать ли.\nconst len = body.replace(/<[^>]+>/g, '').length;\nreturn [{ json: { body, text, tags, len } }];\n"
       }
     },
     {
@@ -135,37 +60,14 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1140,
+        1580,
         300
       ],
       "parameters": {
         "operation": "executeQuery",
-        "query": "INSERT INTO ryzh_posts (topic_id, rubric, body, version, status)\nVALUES ($1, $2, $3, 1, 'draft')\nRETURNING id;",
+        "query": "INSERT INTO ryzh_posts (topic_id, rubric, body, version, status)\nVALUES ($1, $2, $3, 1, 'draft')\nRETURNING id, body;",
         "options": {
-          "queryReplacement": "={{ [ $('Topic').item.json.id, $('Topic').item.json.rubric, $json.body ] }}"
-        }
-      },
-      "credentials": {
-        "postgres": {
-          "id": "1Vpr6VdwzI4rfpHh",
-          "name": "PG"
-        }
-      }
-    },
-    {
-      "id": "Mark_Used",
-      "name": "Mark Topic Used",
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.6,
-      "position": [
-        1140,
-        160
-      ],
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "UPDATE ryzh_topics SET status = 'used' WHERE id = $1;",
-        "options": {
-          "queryReplacement": "={{ [ $('Topic').item.json.id ] }}"
+          "queryReplacement": "={{ [ $('Topic').first().json.id, $('Topic').first().json.rubric, $json.body ] }}"
         }
       },
       "credentials": {
@@ -181,7 +83,7 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        2460,
+        2680,
         420
       ],
       "parameters": {
@@ -211,21 +113,9 @@
               "row": {
                 "buttons": [
                   {
-                    "text": "◀️ Тема",
-                    "additionalFields": {
-                      "callback_data": "=ppv:{{ $('Ctx').first().json.post_id }}"
-                    }
-                  },
-                  {
-                    "text": "🎨 Картинка",
+                    "text": "🎨 Перерисовать",
                     "additionalFields": {
                       "callback_data": "=pim:{{ $('Ctx').first().json.post_id }}"
-                    }
-                  },
-                  {
-                    "text": "Тема ▶️",
-                    "additionalFields": {
-                      "callback_data": "=pnx:{{ $('Ctx').first().json.post_id }}"
                     }
                   }
                 ]
@@ -249,29 +139,6 @@
         }
       },
       "onError": "continueRegularOutput"
-    },
-    {
-      "id": "Notify_Empty",
-      "name": "Notify Empty Queue",
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1.2,
-      "position": [
-        700,
-        520
-      ],
-      "parameters": {
-        "chatId": "={{ $json.chat_id }}",
-        "text": "🦊 Очередь тем пуста — сегодняшний пост не готовился. Разведка (Ryzh Scout) ничего свежего не принесла: проверь её последний запуск или добавь темы в ryzh_topics руками.",
-        "additionalFields": {
-          "appendAttribution": false
-        }
-      },
-      "credentials": {
-        "telegramApi": {
-          "id": "qRQvgdVKex2aERVD",
-          "name": "Ryzh Editor"
-        }
-      }
     },
     {
       "id": "Scene",
@@ -323,7 +190,7 @@
       ],
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "// Внешность Рыжа ЗАШИТА тут, LLM даёт только действие — так лис не «плывёт» от поста к посту.\nfunction extractText(j) {\n  if (Array.isArray(j.output)) {\n    for (const o of j.output) {\n      const part = Array.isArray(o.content) && o.content.find(c => c.text);\n      if (part?.text) return part.text;\n    }\n  }\n  return j.message?.content ?? j.content ?? j.text ?? '';\n}\nconst scene = String(extractText($input.first().json) || '').trim().replace(/^[\"']|[\"']$/g, '');\nconst CHAR = \"athletic anthropomorphic fox, bipedal, big expressive eyes, pointy ears, fluffy tail with white tip, cream muzzle and belly, orange fur #E8763A, fit athletic build, slightly soft belly, wearing green headband #3FBF6F\";\nconst STYLE = \"flat vector mascot illustration, thick clean black outlines, soft cel shading, rounded friendly shapes, vibrant, centered, solid dark background #15151a, mobile app sticker, expressive, no text, no letters, square 1:1\";\nconst prompt = `${CHAR}, ${scene || 'standing confidently, paws on hips'}. ${STYLE}`;\nreturn [{ json: { prompt, scene } }];"
+        "jsCode": "// Рыжа рисуем ОТ ЭТАЛОНА (спрайт fox_m2_b0 из Mini App, подаётся картинкой в Generate Ryzh):\n// по одному текстовому описанию модель каждый раз рисует «какого-то лиса». LLM даёт только сцену.\nfunction extractText(j) {\n  if (Array.isArray(j.output)) {\n    for (const o of j.output) {\n      const part = Array.isArray(o.content) && o.content.find(c => c.text);\n      if (part?.text) return part.text;\n    }\n  }\n  return j.message?.content ?? j.content ?? j.text ?? '';\n}\nconst scene = String(extractText($input.first().json) || '').trim().replace(/^[\"']|[\"']$/g, '');\nconst prompt = [\n  'The reference image shows Ryzh, our mascot. Draw the SAME character: identical head, face and eyes,',\n  'the same muscular athletic build with broad shoulders, defined chest and six-pack abs,',\n  'orange headband, orange wristbands, black sports shorts with an orange side stripe,',\n  'orange fur #E8763A with cream muzzle, chest and belly, fluffy tail with white tip, the same thick black outlines.',\n  `New scene: ${scene || 'standing confidently, paws on hips, cheerful smile'}.`,\n  'Full body, centered. Flat vector mascot illustration, thick clean black outlines, soft cel shading,',\n  'vibrant, solid flat dark background #0D0C13 with nothing else on it, no floor, mobile app sticker,',\n  'expressive, no text, no letters, square 1:1.',\n].join(' ');\nreturn [{ json: { prompt, scene } }];"
       }
     },
     {
@@ -332,19 +199,30 @@
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 2.3,
       "position": [
-        2020,
+        2240,
         420
       ],
       "parameters": {
         "resource": "image",
-        "operation": "generate",
-        "model": "gpt-image-1",
-        "prompt": "={{ $json.prompt }}",
-        "options": {
-          "size": "1024x1024",
-          "quality": "low",
-          "returnImageUrls": false
-        }
+        "operation": "edit",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-image-2",
+          "mode": "list",
+          "cachedResultName": "gpt-image-2"
+        },
+        "prompt": "={{ $('Build Image Prompt').first().json.prompt }}",
+        "images": {
+          "values": [
+            {
+              "binaryPropertyName": "ref"
+            }
+          ]
+        },
+        "n": 1,
+        "size": "1024x1024",
+        "quality": "medium",
+        "options": {}
       },
       "credentials": {
         "openAiApi": {
@@ -457,7 +335,7 @@
       ],
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "// Тема для черновика: с крона (Pick Topic) или по id из Control (Pick Topic (by id)).\nreturn $input.all();"
+        "jsCode": "// Тема для черновика приходит по id из Control (редактор выбрал её в меню).\n// cta — призыв поставить реакцию: примерно каждый третий день (каждый пост — надоест).\n// Решение по дню, а не случайно: темы, взятые в один день, ведут себя одинаково.\nconst day = Math.floor(Date.now() / 86400000);\nreturn $input.all().map(i => ({ json: { ...i.json, cta: day % 3 === 0 } }));"
       }
     },
     {
@@ -471,7 +349,7 @@
       ],
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const RUBRICS = { check: 'Рыж проверяет', price: 'Почём белок', recipe: 'Рецепт Рыжа', guess: 'На глаз', swap: 'Вместо этого', tried: 'Рыж пробует', fox: 'Лис' };\nconst esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst plain = s => String(s ?? '').replace(/<[^>]+>/g, '').replace(/&(lt|gt|amp|quot);/g, '_');\nfunction buildCaption(c) {\n  const head = `<b>#${c.post_id}</b> · ${esc(RUBRICS[c.rubric] || c.rubric || '—')} · v${c.version}\\n<i>${esc(c.title)}</i>\\n\\n`;\n  const len = plain(c.body).length;\n  if (plain(head + c.body).length <= 1024) return { caption: head + c.body, fits: true, len };\n  const note = `<b>#${c.post_id}</b> ⚠️ ${len} зн. — длиннее подписи (1024). Ответь «сократи до 800».\\n\\n`;\n  return { caption: note + esc(plain(c.body).slice(0, 850)) + '…', fits: false, len };\n}\n\n// Новый черновик приходит после Mark Topic Used, перерисовка — после Load Post (там есть body).\nconst inp = $input.first().json;\nlet c;\nif (inp.body !== undefined) {\n  c = { post_id: inp.id, title: inp.title, rubric: inp.rubric, body: inp.body,\n        version: inp.version, old_post_id: inp.old_post_id };\n} else {\n  const t = $('Topic').first().json;\n  c = { post_id: $('Save Draft').first().json.id, title: t.title, rubric: t.rubric,\n        body: $('Parse Draft').first().json.body, version: 1, old_post_id: t.old_post_id };\n}\nreturn [{ json: { ...c, ...buildCaption(c) } }];"
+        "jsCode": "const RUBRICS = { check: 'Рыж проверяет', price: 'Почём белок', recipe: 'Рецепт Рыжа', guess: 'На глаз', swap: 'Вместо этого', tried: 'Рыж пробует', fox: 'Лис' };\nconst esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst plain = s => String(s ?? '').replace(/<[^>]+>/g, '').replace(/&(lt|gt|amp|quot);/g, '_');\nfunction buildCaption(c) {\n  const head = `<b>#${c.post_id}</b> · ${esc(RUBRICS[c.rubric] || c.rubric || '—')} · v${c.version}\\n<i>${esc(c.title)}</i>\\n\\n`;\n  const len = plain(c.body).length;\n  const full = head + c.body;\n  if (plain(full).length <= 1024) return { caption: full, full, fits: true, len };\n  const note = `<b>#${c.post_id}</b> ⚠️ ${len} зн. — длиннее подписи (1024). Ответь «сократи до 800».\\n\\n`;\n  return { caption: note + esc(plain(c.body).slice(0, 850)) + '…', full: note + full, fits: false, len };\n}\n\n// Новый черновик приходит после Save Draft и идёт редакторам текстом, без затрат на картинку.\n// Вызов с post_id (кнопка 🎨) — после Load Post, там есть body: рисуем картинку.\nconst inp = $input.first().json;\nlet c;\nif (inp.version !== undefined) {\n  c = { post_id: inp.id, title: inp.title, rubric: inp.rubric, body: inp.body,\n        version: inp.version, old_post_id: inp.old_post_id, step: 'image' };\n} else {\n  const t = $('Topic').first().json;\n  c = { post_id: $('Save Draft').first().json.id, title: t.title, rubric: t.rubric,\n        body: $('Save Draft').first().json.body, version: 1, old_post_id: null, step: 'text' };\n}\nreturn [{ json: { ...c, ...buildCaption(c) } }];"
       }
     },
     {
@@ -503,7 +381,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2240,
+        2460,
         420
       ],
       "parameters": {
@@ -517,7 +395,7 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        2680,
+        2900,
         420
       ],
       "parameters": {
@@ -540,7 +418,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2900,
+        3120,
         420
       ],
       "parameters": {
@@ -554,7 +432,7 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        3120,
+        3340,
         420
       ],
       "parameters": {
@@ -577,7 +455,7 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        3340,
+        3560,
         420
       ],
       "parameters": {
@@ -595,68 +473,223 @@
       }
     },
     {
-      "id": "Editors_empty",
-      "name": "Editors (empty)",
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.6,
+      "id": "Fetch_Reference",
+      "name": "Fetch Reference",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
-        480,
-        520
+        2020,
+        600
       ],
       "parameters": {
-        "operation": "executeQuery",
-        "query": "SELECT chat_id FROM ryzh_editors ORDER BY chat_id;",
+        "url": "https://perevyazko1.github.io/n8n-fitness-scan/img/fox_m2_b0.png",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "ref"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "Too_Long",
+      "name": "Too Long?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1140,
+        440
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "tl1",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.len }}",
+              "rightValue": 900
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
         "options": {}
+      }
+    },
+    {
+      "id": "Shorten",
+      "name": "Shorten",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        1360,
+        540
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Ты сокращаешь пост Telegram-канала «Тренер Рыж» — он не влезает в подпись к картинке. Нужно 650–750 знаков.\nСохрани: хук первой строкой, голос и эмодзи, порядок блоков, строку КБЖУ дословно, строку-призыв к реакции (если есть), последнюю строку с 🦊 и все числа.\nРежь так: вступление — до двух коротких предложений; ингредиенты — до 5 строк (специи и соль — одной строкой); шаги — до 3 строк, по одной фразе, без пояснений в скобках; совет — одна фраза. Ничего не добавляй.\nРазметка — Telegram HTML (<b>, <i>). Верни ТОЛЬКО текст поста, без тегов-хэштегов и пояснений."
+            },
+            {
+              "content": "=Пост ({{ $json.len }} знаков вместе с тегами):\n\n{{ $json.text }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "reasoningEffort": "low"
+        }
       },
       "credentials": {
-        "postgres": {
-          "id": "1Vpr6VdwzI4rfpHh",
-          "name": "PG"
+        "openAiApi": {
+          "id": "SkPovYGQlL1P1Ft5",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "id": "Parse_Short",
+      "name": "Parse Short",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1580,
+        540
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Подвал поста собираем кодом: тег рубрики + теги темы + ссылка на Instagram. Модель даёт только\n// теги темы последней строкой; ссылку ей не доверяем — она её перевирает.\nconst IG_URL = 'https://www.instagram.com/fitness_fox_bot';\nconst RUBRIC_TAGS = { check: '#рыж_проверяет', price: '#почём_белок', recipe: '#рецепт_рыжа', guess: '#на_глаз', swap: '#вместо_этого', tried: '#рыж_пробует', fox: '#лис' };\nconst FOOTER_RE = /\\n*(?:#[^\\n]*\\n)?📸 <a href=\"https:\\/\\/www\\.instagram\\.com[^\\n]*\\s*$/;\nfunction splitTags(text) {\n  const lines = String(text).trim().split('\\n');\n  const last = (lines[lines.length - 1] || '').trim();\n  if (!/^(#[\\p{L}\\p{N}_]+[\\s,]*)+$/u.test(last)) return { text: String(text).trim(), tags: [] };\n  lines.pop();\n  return { text: lines.join('\\n').trim(), tags: last.match(/#[\\p{L}\\p{N}_]+/gu).map(t => t.toLowerCase()) };\n}\nfunction withFooter(text, rubric, tags) {\n  const all = [...new Set([RUBRIC_TAGS[rubric], ...tags].filter(Boolean))].slice(0, 3);\n  return `${text}\\n\\n${all.join(' ')}\\n📸 <a href=\"${IG_URL}\">Рыж в Instagram</a>`;\n}\n\nfunction extractText(j) {\n  if (Array.isArray(j.output)) {\n    for (const o of j.output) {\n      const part = Array.isArray(o.content) && o.content.find(c => c.text);\n      if (part?.text) return part.text;\n    }\n  }\n  if (Array.isArray(j.content)) {\n    const part = j.content.find(c => c.text);\n    if (part?.text) return part.text;\n  }\n  return j.message?.content ?? j.content ?? j.text ?? '';\n}\n\n// Сокращённый текст + прежний подвал. Если и так не влезло — пусть редактор допилит правкой.\nconst raw = String(extractText($input.first().json) || '').trim();\nconst clean = raw.replace(/^```(?:html)?\\s*/i, '').replace(/```\\s*$/, '').trim();\nconst src = $('Parse Draft').first().json;\nif (!clean) return [{ json: { body: src.body } }];\nconst { text } = splitTags(clean.replace(FOOTER_RE, ''));\nreturn [{ json: { body: withFooter(text, $('Topic').first().json.rubric, src.tags) } }];\n"
+      }
+    },
+    {
+      "id": "Text_Step",
+      "name": "Text Step?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1580,
+        600
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "t1",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $('Ctx').first().json.step }}",
+              "rightValue": "text"
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      }
+    },
+    {
+      "id": "Fan_Out_Text",
+      "name": "Fan Out Text",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1800,
+        760
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Текст черновика каждому редактору, картинка будет только по кнопке 🎨.\nconst eds = $('Editors').first().json.editors || [];\nif (!eds.length) throw new Error('ryzh_editors пуст — некому слать черновик');\nreturn eds.map(chat_id => ({ json: { chat_id } }));"
+      }
+    },
+    {
+      "id": "Send_Text_Approval",
+      "name": "Send Text Approval",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2020,
+        760
+      ],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "telegramApi": {
+          "id": "qRQvgdVKex2aERVD",
+          "name": "Ryzh Editor"
+        }
+      },
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $('Ctx').first().json.full }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "🎨 Нравится, рисуй",
+                    "additionalFields": {
+                      "callback_data": "=pim:{{ $('Ctx').first().json.post_id }}"
+                    }
+                  },
+                  {
+                    "text": "📋 Другая тема",
+                    "additionalFields": {
+                      "callback_data": "=pmt:{{ $('Ctx').first().json.post_id }}"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "❌ Отклонить",
+                    "additionalFields": {
+                      "callback_data": "=pno:{{ $('Ctx').first().json.post_id }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
         }
       }
     }
   ],
   "connections": {
-    "Daily Trigger": {
-      "main": [
-        [
-          {
-            "node": "Pick Topic",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Pick Topic": {
-      "main": [
-        [
-          {
-            "node": "Has Topic?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Has Topic?": {
-      "main": [
-        [
-          {
-            "node": "Topic",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Editors (empty)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Write Draft": {
       "main": [
         [
@@ -672,7 +705,7 @@
       "main": [
         [
           {
-            "node": "Save Draft",
+            "node": "Too Long?",
             "type": "main",
             "index": 0
           }
@@ -680,17 +713,6 @@
       ]
     },
     "Save Draft": {
-      "main": [
-        [
-          {
-            "node": "Mark Topic Used",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Mark Topic Used": {
       "main": [
         [
           {
@@ -727,7 +749,7 @@
       "main": [
         [
           {
-            "node": "Generate Ryzh",
+            "node": "Fetch Reference",
             "type": "main",
             "index": 0
           }
@@ -818,22 +840,11 @@
         ]
       ]
     },
-    "Editors (empty)": {
-      "main": [
-        [
-          {
-            "node": "Notify Empty Queue",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Editors": {
       "main": [
         [
           {
-            "node": "Image Scene",
+            "node": "Text Step?",
             "type": "main",
             "index": 0
           }
@@ -883,6 +894,97 @@
           }
         ]
       ]
+    },
+    "Fetch Reference": {
+      "main": [
+        [
+          {
+            "node": "Generate Ryzh",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Too Long?": {
+      "main": [
+        [
+          {
+            "node": "Shorten",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Save Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shorten": {
+      "main": [
+        [
+          {
+            "node": "Parse Short",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Short": {
+      "main": [
+        [
+          {
+            "node": "Save Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Step?": {
+      "main": [
+        [
+          {
+            "node": "Fan Out Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Image Scene",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fan Out Text": {
+      "main": [
+        [
+          {
+            "node": "Send Text Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Text Approval": {
+      "main": [
+        [
+          {
+            "node": "Save Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
@@ -892,5 +994,5 @@
   },
   "pinData": {},
   "tags": [],
-  "versionId": "ryzh-draft-holding-02"
+  "versionId": "ryzh-draft-holding-11"
 }

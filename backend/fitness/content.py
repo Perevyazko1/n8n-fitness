@@ -10,6 +10,8 @@
 Выброс — пост возрастом от 2 до 10 суток, который обогнал медиану своего канала
 (посты 2–21 суток) в OUTLIER_X раз по просмотрам ИЛИ по доле реакций. Посты моложе
 двух суток не берём: свежий пост ещё не добрал просмотры и выглядит провалом.
+Посты про деньги и замены — главное направление канала, а у доноров их мало (цены в 2%
+постов), поэтому у них порог ниже и они идут в разбор первыми.
 
 Ответ:
 {"ok": true,
@@ -30,9 +32,11 @@ UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/
 PAGES = 2               # t.me/s отдаёт ~20 постов на страницу; двух хватает на 2–3 недели
 OUTLIER_X = 1.5         # во сколько раз обогнать медиану канала; при ×2 у 19 доноров
                         # выходило ~1.4 выброса в день — после отсева LLM меньше поста
+MONEY_OUTLIER_X = 1.2   # порог для постов про деньги и замены
 MIN_REACTIONS = 10      # доля реакций на 3 реакциях — шум
 MAX_OUTLIERS = 8        # столько тем LLM разбирает за прогон
 NOSIGNAL_PENALTY = 0.5  # штраф к score каналов с подозрением на накрутку
+MONEY_RE = re.compile(r"\d\s?(?:₽|руб)|замен|вместо|дешевл|бюджетн|экономи", re.I)
 
 
 def _get(url):
@@ -109,7 +113,7 @@ def find_outliers(posts, now, signal=True):
         x_views = p["views"] / med_views if med_views else 0
         x_rr = (p["reactions"] / p["views"]) / med_rr if med_rr and p["reactions"] >= MIN_REACTIONS else 0
         score = max(x_views, x_rr)
-        if score >= OUTLIER_X:
+        if score >= (MONEY_OUTLIER_X if MONEY_RE.search(p["text"]) else OUTLIER_X):
             out.append((p, round(score * (1 if signal else NOSIGNAL_PENALTY), 2)))
     return out, med_views
 
@@ -163,7 +167,7 @@ def scout():
             row = cur.fetchone()
             if row and row[0] is None and p["text"]:
                 fresh.append((username, p, score))
-        fresh.sort(key=lambda c: -c[2])
+        fresh.sort(key=lambda c: (not MONEY_RE.search(c[1]["text"]), -c[2]))
         fresh = fresh[:MAX_OUTLIERS]
         for username, p, _ in fresh:
             cur.execute("UPDATE content_source_posts SET offered_at = %s WHERE source = %s AND post_no = %s",

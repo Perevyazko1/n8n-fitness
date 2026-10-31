@@ -1,0 +1,410 @@
+{
+  "name": "Ryzh Image API",
+  "nodes": [
+    {
+      "id": "Webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ryzh-image",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ojT02ozl2lHcM8sw",
+          "name": "Ryzh Image Key"
+        }
+      }
+    },
+    {
+      "id": "Validate",
+      "name": "Validate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Разбор запроса рилсмейкера + дневной лимит (защита от зациклившегося агента).\nconst DAILY_LIMIT = 40;\nconst SPRITES = 'https://perevyazko1.github.io/n8n-fitness-scan/img/';\nconst LOCK = [\n  'The reference image shows Ryzh, our mascot. Draw the SAME character: identical head, face and eyes,',\n  'the same muscular athletic build, orange headband, orange wristbands, black sports shorts with an orange side stripe,',\n  'orange fur #E8763A with cream muzzle, chest and belly, fluffy tail with white tip, the same thick black outlines.',\n].join(' ');\nconst b = $json.body || {};\nconst fail = (code, error) => [{ json: { error, code } }];\n\nconst prompt = String(b.prompt || '').trim();\nif (prompt.length < 5) return fail(400, 'prompt обязателен');\nif (prompt.length > 4000) return fail(400, 'prompt длиннее 4000 знаков');\nconst size = b.size || '1024x1536';\nif (!['1024x1024', '1024x1536', '1536x1024', 'auto'].includes(size)) return fail(400, 'size: 1024x1024 | 1024x1536 | 1536x1024 | auto');\nconst quality = b.quality || 'medium';\nif (!['low', 'medium', 'high', 'auto'].includes(quality)) return fail(400, 'quality: low | medium | high | auto');\nconst background = b.background || '';\nif (background && !['transparent', 'opaque', 'auto'].includes(background)) return fail(400, 'background: transparent | opaque | auto');\n\n// ref: имя спрайта (fox_m2_b0 — по умолчанию), https-ссылка на картинку или 'none'.\nconst ref = b.ref === undefined ? 'fox_m2_b0' : String(b.ref);\nlet ref_url = '', isFox = false;\nif (/^fox_m[0-3]_b[0-3]$/.test(ref)) { ref_url = `${SPRITES}${ref}.png`; isFox = true; }\nelse if (/^https:\\/\\//.test(ref)) ref_url = ref;\nelse if (ref !== 'none') return fail(400, 'ref: fox_m{0-3}_b{0-3} | https://… | none');\n\nconst s = $getWorkflowStaticData('global');\nconst day = new Date().toISOString().slice(0, 10);\nif (s.day !== day) { s.day = day; s.count = 0; }\nif (s.count >= DAILY_LIMIT) return fail(429, `дневной лимит ${DAILY_LIMIT} картинок исчерпан`);\ns.count += 1;\n\n// Эталон Рыжа без замка внешности модель перерисовывает «каким-то лисом» — замок добавляем,\n// если агент сам не попросил raw.\nconst full = isFox && !b.raw ? `${LOCK} ${prompt}` : prompt;\nreturn [{ json: { prompt: full, size, quality, background, ref_url, used: s.count, limit: DAILY_LIMIT } }];"
+      }
+    },
+    {
+      "id": "Valid",
+      "name": "Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "v1",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.error }}",
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      }
+    },
+    {
+      "id": "Respond_Bad_Request",
+      "name": "Respond Bad Request",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        660,
+        500
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: false, error: $json.error }) }}",
+        "options": {
+          "responseCode": "={{ $json.code }}"
+        }
+      }
+    },
+    {
+      "id": "Has_Ref",
+      "name": "Has Ref?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "r1",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.ref_url }}",
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      }
+    },
+    {
+      "id": "Fetch_Ref",
+      "name": "Fetch Ref",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        200
+      ],
+      "parameters": {
+        "url": "={{ $json.ref_url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "ref"
+            }
+          }
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "Edit_From_Ref",
+      "name": "Edit From Ref",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        1100,
+        200
+      ],
+      "parameters": {
+        "resource": "image",
+        "operation": "edit",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-image-2",
+          "mode": "list",
+          "cachedResultName": "gpt-image-2"
+        },
+        "prompt": "={{ $('Validate').first().json.prompt }}",
+        "images": {
+          "values": [
+            {
+              "binaryPropertyName": "ref"
+            }
+          ]
+        },
+        "n": 1,
+        "size": "={{ $('Validate').first().json.size }}",
+        "quality": "={{ $('Validate').first().json.quality }}",
+        "options": {
+          "background": "={{ $('Validate').first().json.background }}"
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "SkPovYGQlL1P1Ft5",
+          "name": "OpenAI account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "Generate",
+      "name": "Generate",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        400
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/images/generations",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify(Object.assign({ model: 'gpt-image-2', prompt: $json.prompt, size: $json.size, quality: $json.quality, n: 1 }, $json.background ? { background: $json.background } : {})) }}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "SkPovYGQlL1P1Ft5",
+          "name": "OpenAI account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "To_Binary",
+      "name": "To Binary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        400
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// /images/generations отдаёт base64 — превращаем в бинарь для ответа вебхука.\nconst b64 = $json.data?.[0]?.b64_json;\nif (!b64) throw new Error('OpenAI не вернул картинку');\nreturn [{ json: {}, binary: { data: { data: b64, mimeType: 'image/png', fileName: 'image.png' } } }];"
+      }
+    },
+    {
+      "id": "Respond_Image",
+      "name": "Respond Image",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1320,
+        300
+      ],
+      "parameters": {
+        "respondWith": "binary",
+        "responseDataSource": "set",
+        "inputFieldName": "data",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "X-Images-Used",
+                "value": "={{ $('Validate').first().json.used }}/{{ $('Validate').first().json.limit }}"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "Respond_Failed",
+      "name": "Respond Failed",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1320,
+        520
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: false, error: $json.error?.message || $json.error || 'генерация не удалась' }) }}",
+        "options": {
+          "responseCode": 502
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate": {
+      "main": [
+        [
+          {
+            "node": "Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid?": {
+      "main": [
+        [
+          {
+            "node": "Has Ref?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Bad Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Ref?": {
+      "main": [
+        [
+          {
+            "node": "Fetch Ref",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Ref": {
+      "main": [
+        [
+          {
+            "node": "Edit From Ref",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit From Ref": {
+      "main": [
+        [
+          {
+            "node": "Respond Image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate": {
+      "main": [
+        [
+          {
+            "node": "To Binary",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "To Binary": {
+      "main": [
+        [
+          {
+            "node": "Respond Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Moscow"
+  },
+  "versionId": "ryzh-image-api-01",
+  "pinData": {},
+  "tags": []
+}
