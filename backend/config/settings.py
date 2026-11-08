@@ -27,6 +27,11 @@ TELEGRAM_BOT_TOKEN = env("TELEGRAM_BOT_TOKEN", "")
 # авторизация по заголовку X-Cron-Secret. Значение — в .env.
 CRON_SECRET = env("CRON_SECRET", "")
 
+# kaspi-pay: Mini App учёта трат живёт в ОТДЕЛЬНОМ боте → свой токен для initData.
+# KASPI_ALLOWED_IDS — Telegram user_id через запятую (траты общие на двоих). Пусто → не пускаем никого.
+KASPI_BOT_TOKEN = env("KASPI_BOT_TOKEN", "")
+KASPI_ALLOWED_IDS = {x.strip() for x in (env("KASPI_ALLOWED_IDS", "") or "").split(",") if x.strip()}
+
 # Источник справочника упражнений (курированный RU-JSON в публичном фронт-репо, отдаётся
 # GitHub Pages). Крон /api/cron/refresh-exercises фетчит его и апсертит ExerciseLibrary.
 EXERCISES_SOURCE_URL = env(

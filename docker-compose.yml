@@ -100,6 +100,9 @@ services:
       - POSTGRES_PORT=5432
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - CRON_SECRET=${CRON_SECRET}
+      # kaspi-pay: токен Kaspi-бота (initData его Mini App) и пускаемые user_id через запятую.
+      - KASPI_BOT_TOKEN=${KASPI_BOT_TOKEN:-}
+      - KASPI_ALLOWED_IDS=${KASPI_ALLOWED_IDS:-}
       # Платежи Platega (заготовка). Пустые → платежи выключены, работа по флагу.
       - PLATEGA_API_BASE=${PLATEGA_API_BASE:-https://app.platega.io}
       - PLATEGA_PROCESS_PATH=${PLATEGA_PROCESS_PATH:-/transaction/process}

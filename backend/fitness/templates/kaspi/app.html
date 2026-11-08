@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Траты Kaspi</title>
+<!-- kaspi-pay Mini App. Данные: POST /api/kaspi/summary {initData, period}. Проект — kaspi-pay/WORKLOG.md -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root {
+    --bg: var(--tg-theme-bg-color, #ffffff);
+    --bg2: var(--tg-theme-secondary-bg-color, #f2f2f7);
+    --text: var(--tg-theme-text-color, #111111);
+    --hint: var(--tg-theme-hint-color, #8e8e93);
+    --accent: var(--tg-theme-button-color, #2481cc);
+    --accent-text: var(--tg-theme-button-text-color, #ffffff);
+    --sep: color-mix(in srgb, var(--hint) 25%, transparent);
+    --good: #2e9e5b;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg2); color: var(--text);
+    font: 15px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 560px; margin: 0 auto; padding: 12px 16px 32px; }
+  .tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px;
+    background: var(--bg); border-radius: 12px; }
+  .tabs button { border: 0; padding: 8px 0; border-radius: 9px; background: none; color: var(--text);
+    font: inherit; font-weight: 600; cursor: pointer; }
+  .tabs button[aria-selected="true"] { background: var(--accent); color: var(--accent-text); }
+  .hero { margin: 12px 0; padding: 18px 16px; background: var(--bg); border-radius: 14px; }
+  .hero .label { color: var(--hint); font-size: 13px; }
+  .hero .total { font-size: 34px; font-weight: 700; letter-spacing: -0.5px; margin: 2px 0; }
+  .hero .sub { color: var(--hint); }
+  .day { margin-top: 14px; }
+  .day-head { display: flex; justify-content: space-between; padding: 0 4px 6px;
+    color: var(--hint); font-size: 13px; text-transform: lowercase; }
+  .card { background: var(--bg); border-radius: 14px; overflow: hidden; }
+  .row { display: flex; justify-content: space-between; gap: 12px; padding: 11px 14px; }
+  .row + .row { border-top: 1px solid var(--sep); }
+  .row .m { min-width: 0; overflow-wrap: anywhere; }
+  .row .r { text-align: right; white-space: nowrap; font-weight: 600; }
+  .row small { display: block; color: var(--hint); font-weight: 400; font-size: 12.5px; }
+  .refund .r { color: var(--good); }
+  .empty, .error { margin-top: 24px; text-align: center; color: var(--hint); padding: 0 12px; }
+  .error { color: #d14343; }
+  footer { margin-top: 18px; text-align: center; color: var(--hint); font-size: 12.5px; }
+</style>
+</head>
+<body>
+<main>
+  <div class="tabs" role="tablist">
+    <button role="tab" data-p="day" aria-selected="true">Сегодня</button>
+    <button role="tab" data-p="week" aria-selected="false">Неделя</button>
+    <button role="tab" data-p="month" aria-selected="false">Месяц</button>
+  </div>
+  <section class="hero">
+    <div class="label" id="range">…</div>
+    <div class="total" id="total">—</div>
+    <div class="sub" id="sub"></div>
+  </section>
+  <div id="list"></div>
+  <footer id="foot"></footer>
+</main>
+<script>
+const tg = window.Telegram && Telegram.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+const $ = (id) => document.getElementById(id);
+const nf = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 });
+const n = (v) => nf.format(Math.round(Math.abs(v)));
+const CUR = { VND: '₫', USD: '$', EUR: '€', RUB: '₽' };
+const MONTHS = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const WD = ['вс','пн','вт','ср','чт','пт','сб'];
+const d = (iso) => { const [y, m, dd] = iso.split('-').map(Number); return new Date(y, m - 1, dd); };
+const dayTitle = (iso) => { const x = d(iso); return `${WD[x.getDay()]}, ${x.getDate()} ${MONTHS[x.getMonth()]}`; };
+const short = (iso) => { const x = d(iso); return `${x.getDate()} ${MONTHS[x.getMonth()]}`; };
+const cache = {};
+
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+
+async function load(period) {
+  if (cache[period]) return cache[period];
+  const initData = tg ? tg.initData : '';
+  if (!initData) throw new Error('Открой страницу из Kaspi-бота в Telegram.');
+  const r = await fetch('/api/kaspi/summary', { method: 'POST', body: JSON.stringify({ initData, period }) });
+  const j = await r.json().catch(() => ({}));
+  if (r.status === 401 || r.status === 403) throw new Error('Нет доступа.');
+  if (!r.ok || !j.ok) throw new Error('Не удалось загрузить: ' + (j.error || r.status));
+  return (cache[period] = j);
+}
+
+function render(s) {
+  $('range').textContent = s.from === s.to ? `Сегодня, ${short(s.to)}` : `${short(s.from)} — ${short(s.to)}`;
+  $('total').textContent = `${s.total_rub < 0 ? '+' : ''}${n(s.total_rub)} ₽`;
+  const words = s.count % 10 === 1 && s.count % 100 !== 11 ? 'трата'
+    : [2, 3, 4].includes(s.count % 10) && ![12, 13, 14].includes(s.count % 100) ? 'траты' : 'трат';
+  $('sub').textContent = `≈ ${n(s.total_kzt)} ₸ · ${s.count} ${words}`
+    + (Math.abs(s.fx_kzt) >= 1 ? ` · курсовая разница ${n(s.fx_kzt)} ₸` : '')
+    + (s.no_rate ? ' · часть без курса ЦБ' : '');
+
+  const list = $('list');
+  list.replaceChildren();
+  if (!s.items.length) {
+    list.append(el('div', 'empty', s.period === 'day'
+      ? 'За сегодня трат пока нет. Траты появляются, когда присылаешь выписку боту.'
+      : 'За этот период трат нет.'));
+  }
+  const byDay = {};
+  for (const it of s.items) (byDay[it.date] = byDay[it.date] || []).push(it);
+  const dayTotals = Object.fromEntries(s.days.map((x) => [x.date, x]));
+  for (const date of Object.keys(byDay)) {
+    const box = el('div', 'day');
+    const head = el('div', 'day-head');
+    head.append(el('span', '', dayTitle(date)), el('span', '', `${n(dayTotals[date]?.rub || 0)} ₽`));
+    const card = el('div', 'card');
+    for (const it of byDay[date]) {
+      const row = el('div', 'row' + (it.refund ? ' refund' : ''));
+      const left = el('div', 'm', it.merchant);
+      if (it.refund) left.append(el('small', '', 'возврат'));
+      const right = el('div', 'r', it.rub != null ? `${it.refund ? '+' : ''}${n(it.rub)} ₽` : `${n(it.kzt)} ₸`);
+      const subParts = [];
+      if (it.orig != null && it.cur) subParts.push(`${n(it.orig)} ${CUR[it.cur] || it.cur}`);
+      if (it.rub != null) subParts.push(`${n(it.kzt)} ₸`);
+      if (s.multi_card && it.card) subParts.push(`*${it.card}`);
+      if (subParts.length) right.append(el('small', '', subParts.join(' · ')));
+      row.append(left, right);
+      card.append(row);
+    }
+    box.append(head, card);
+    list.append(box);
+  }
+
+  const up = s.last_upload ? new Date(s.last_upload) : null;
+  $('foot').textContent = up
+    ? `Последняя выписка загружена ${up.toLocaleString('ru-RU', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}`
+      + (s.last_op_date ? ` · операции по ${short(s.last_op_date)}` : '')
+    : 'Выписок ещё не было — пришли PDF боту.';
+}
+
+async function show(period) {
+  document.querySelectorAll('.tabs button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.p === period)));
+  $('list').replaceChildren(el('div', 'empty', 'Загружаю…'));
+  try { render(await load(period)); }
+  catch (e) { $('list').replaceChildren(el('div', 'error', e.message)); $('total').textContent = '—'; $('sub').textContent = ''; }
+}
+
+document.querySelectorAll('.tabs button').forEach((b) => b.addEventListener('click', () => show(b.dataset.p)));
+show('day');
+</script>
+</body>
+</html>

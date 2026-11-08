@@ -15,9 +15,11 @@ from urllib.request import Request, urlopen
 from django.conf import settings
 from django.db import transaction
 from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render
 from django.utils import timezone
+from django.views.decorators.clickjacking import xframe_options_exempt
 
-from . import calc, content, platega, reels, streak
+from . import calc, content, kaspi, platega, reels, streak
 from .models import (
     BodyParams, ExerciseLibrary, FoodLog, Payment, Product, Profile, Streak, WalkingLog, WaterLog,
     WorkoutBlock, WorkoutCatalog, WorkoutDone, WorkoutLog,
@@ -467,6 +469,21 @@ def content_scout(request):
     Сервер-сервер, дёргает n8n (Ryzh_Scout) по X-Cron-Secret (ветка /api/content/ в
     middleware). Логика и формат ответа — fitness/content.py."""
     return ok(content.scout())
+
+
+# ---------- kaspi-pay (Mini App Kaspi-бота) ----------
+@xframe_options_exempt          # web.telegram.org открывает Mini App во фрейме
+def kaspi_app(request):
+    """Страница Mini App: вкладки Сегодня / Неделя / Месяц. Данные тянет из kaspi/summary."""
+    return render(request, "kaspi/app.html")
+
+
+def kaspi_summary(request):
+    """Итоги трат за период (day|week|month) по таблице kaspi_expenses. Авторизация — middleware."""
+    period = request.payload.get("period", "day")
+    if period not in kaspi.PERIODS:
+        return ok({"ok": False, "error": "bad_period"}, status=400)
+    return ok(kaspi.summary(period))
 
 def exercises(request):
     """Справочник упражнений для приложения/будущего коуча. Опц. фильтр ?section / по группе."""

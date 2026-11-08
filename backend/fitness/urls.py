@@ -56,4 +56,7 @@ urlpatterns = [
     path("reels/assemble", views.reels_assemble),
     # канал Рыжа (n8n сервер-сервер): разведка постов-выбросов у доноров. X-Cron-Secret.
     path("content/scout", views.content_scout),
+    # kaspi-pay: Mini App Kaspi-бота. app — HTML (открыт), summary — initData Kaspi-бота + владелец.
+    path("kaspi/app", views.kaspi_app),
+    path("kaspi/summary", views.kaspi_summary),
 ]

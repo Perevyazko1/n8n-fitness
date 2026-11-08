@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS kaspi_fx_rates (
 -- Суммы со знаком, как в выписке: покупка < 0, возврат и курсовая разница могут быть > 0.
 CREATE TABLE IF NOT EXISTS kaspi_expenses (
     id            bigserial PRIMARY KEY,
+    card          text,                     -- последние 4 цифры карты из выписки (траты двух людей)
     op_date       date NOT NULL,            -- дата из выписки (время Kaspi не даёт)
     kind          text NOT NULL,            -- purchase | fx_diff | transfer | topup | withdrawal | other
     operation     text NOT NULL,            -- как в выписке: Покупка / Перевод / Пополнение ...
@@ -31,8 +32,11 @@ CREATE TABLE IF NOT EXISTS kaspi_expenses (
     rate_day      date,                     -- какой день кэша курса применён
     kzt_rub       numeric(14, 8),
     occ           smallint NOT NULL,        -- порядковый номер одинаковой операции внутри дня
-    dedup_key     text NOT NULL UNIQUE,     -- 'YYYY-MM-DD|amount|kind|merchant_norm|occ'
+    dedup_key     text NOT NULL UNIQUE,     -- 'card|YYYY-MM-DD|amount|kind|merchant_norm|occ'
     created_at    timestamptz NOT NULL DEFAULT now()
 );
 
 CREATE INDEX IF NOT EXISTS kaspi_expenses_op_date_idx ON kaspi_expenses (op_date);
+
+-- 2026-11-08: траты ведут двое → в ключ дедупа добавлена карта. Для таблиц, созданных до этого.
+ALTER TABLE kaspi_expenses ADD COLUMN IF NOT EXISTS card text;

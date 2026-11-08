@@ -14,7 +14,8 @@ from django.http import JsonResponse
 from .auth import AuthError, ensure_user, verify_init_data
 from .models import TgUser
 
-OPEN_PATHS = {"/api/health"}
+# /api/kaspi/app — HTML-страница Mini App kaspi-pay (данных в ней нет, они идут через summary).
+OPEN_PATHS = {"/api/health", "/api/kaspi/app"}
 
 
 class ApiMiddleware:
@@ -82,6 +83,19 @@ class ApiMiddleware:
             secret = request.headers.get("X-Platega-Secret", "")
             if not settings.PLATEGA_CALLBACK_SECRET or secret != settings.PLATEGA_CALLBACK_SECRET:
                 return self._cors(JsonResponse({"ok": False, "error": "pay_auth"}, status=403))
+            request.payload = body
+            request.tg_user = None
+            return self._cors(self.get_response(request))
+
+        # kaspi-pay: Mini App другого бота (Kaspi-бот) → initData подписан ЕГО токеном.
+        # Пускаем только KASPI_ALLOWED_IDS (траты общие); TgUser не создаём — это не фитнес-юзеры.
+        if request.path.startswith("/api/kaspi/"):
+            try:
+                tg = verify_init_data(body.get("initData", ""), settings.KASPI_BOT_TOKEN)
+            except AuthError as e:
+                return self._cors(JsonResponse({"ok": False, "error": "auth: " + str(e)}, status=401))
+            if str(tg["id"]) not in settings.KASPI_ALLOWED_IDS:
+                return self._cors(JsonResponse({"ok": False, "error": "forbidden"}, status=403))
             request.payload = body
             request.tg_user = None
             return self._cors(self.get_response(request))

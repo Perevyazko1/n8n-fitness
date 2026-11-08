@@ -30,7 +30,7 @@
           "assignments": [
             {
               "id": "c1",
-              "name": "chat_id",
+              "name": "allowed_ids",
               "value": "648226895",
               "type": "string"
             }
@@ -59,13 +59,14 @@
           },
           "conditions": [
             {
-              "id": "Ow",
+              "id": "Al",
               "operator": {
-                "type": "string",
-                "operation": "equals"
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
               },
-              "leftValue": "={{ String($json.message?.from?.id) }}",
-              "rightValue": "={{ $json.chat_id }}"
+              "leftValue": "={{ $json.allowed_ids.split(',').map(s => s.trim()).includes(String($json.message?.from?.id)) }}",
+              "rightValue": ""
             }
           ],
           "combinator": "and"
@@ -73,8 +74,8 @@
         "looseTypeValidation": true,
         "options": {}
       },
-      "id": "ks-owner",
-      "name": "Owner?",
+      "id": "ks-allowed",
+      "name": "Allowed?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
@@ -161,7 +162,7 @@
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "// Разбор текста выписки Kaspi Gold (нода Extract From File → $json.text).\n// Не зависим от переносов строк: склеиваем всё в одну строку и режем по «ДД.ММ.ГГ ± сумма ₸ Операция».\n// Сверка: сумма разобранных покупок должна совпасть со строкой «Покупки» из сводки выписки.\nconst raw = String($json.text || '');\nconst fail = (reason) => [{ json: { ok: false, reason, ops: [] } }];\nif (!/Kaspi/i.test(raw) || !/ВЫПИСКА/i.test(raw)) return fail('это не похоже на выписку Kaspi Gold');\n\nconst t = raw.replace(/[   ]/g, ' ').replace(/[^\\S ]+/g, ' ').replace(/ {2,}/g, ' ');\nconst money = (s) => Number(String(s).replace(/ /g, '').replace(',', '.'));\nconst AMT = '([+-]) ?(\\\\d{1,3}(?: \\\\d{3})*,\\\\d{2}) ?(?:₸|Т|T)';\nconst OPS = 'Покупка|Перевод|Пополнение|Снятие|Платеж|Платёж|Погашение|Разное';\nconst KIND = { 'Покупка': 'purchase', 'Перевод': 'transfer', 'Пополнение': 'topup', 'Снятие': 'withdrawal' };\n\nconst period = /за период с (\\d{2})\\.(\\d{2})\\.(\\d{2}) по (\\d{2})\\.(\\d{2})\\.(\\d{2})/.exec(t);\nconst summary = new RegExp('Покупки ' + AMT).exec(t);   // «Покупки - 27 856,76 ₸»\nconst iso = (d, m, y) => `20${y}-${m}-${d}`;\n\n// Начала строк операций; хвост строки — до начала следующей или до служебного текста.\nconst head = new RegExp(`(\\\\d{2})\\\\.(\\\\d{2})\\\\.(\\\\d{2}) ${AMT} (${OPS})(?= )`, 'g');\nconst STOP = /(?: ?- )?(?:Сумма заблокирована|Раздел «Краткое|АО «Kaspi Bank»|Приложение к Справке).*$/;\nconst marks = [...t.matchAll(head)];\nconst norm = (s) => s.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '')\n  .replace(/[^a-z0-9а-яё]+/g, ' ').trim();\n\nconst ops = [];\nmarks.forEach((m, i) => {\n  const end = i + 1 < marks.length ? marks[i + 1].index : t.length;\n  let tail = t.slice(m.index + m[0].length, end).replace(STOP, '');\n  const orig = /\\(([+-]) ?(\\d{1,3}(?: \\d{3})*,\\d{2}) ([A-Z]{3})\\)/.exec(tail);\n  const fx = /Курсовая разница/.test(tail);\n  const merchant = tail.replace(orig ? orig[0] : '', ' ').replace(/Курсовая разница/, ' ')\n    .replace(/[^\\p{L}\\p{N}\\p{P}\\p{S} ]/gu, ' ').replace(/ {2,}/g, ' ').trim() || 'без названия';\n  const amount = (m[4] === '-' ? -1 : 1) * money(m[5]);\n  const kind = fx ? 'fx_diff' : (KIND[m[6]] || 'other');\n  ops.push({\n    op_date: iso(m[1], m[2], m[3]), kind, operation: m[6], merchant: merchant.slice(0, 200),\n    merchant_norm: norm(merchant) || 'unknown', amount_kzt: amount,\n    orig_amount: orig ? (orig[1] === '-' ? -1 : 1) * money(orig[2]) : null,\n    orig_currency: orig ? orig[3] : null,\n  });\n});\nif (!ops.length) return fail('в выписке не нашлось ни одной операции');\n\n// Одинаковые операции в один день (2× такси по 890 ₸) — разные траты: нумеруем по порядку.\nconst cnt = {};\nfor (const o of ops) {\n  const base = `${o.op_date}|${o.amount_kzt.toFixed(2)}|${o.kind}|${o.merchant_norm}`;\n  o.occ = cnt[base] = (cnt[base] || 0) + 1;\n  o.dedup_key = `${base}|${o.occ}`;\n}\n\nconst parsedBuy = ops.filter((o) => o.kind === 'purchase' || o.kind === 'fx_diff')\n  .reduce((s, o) => s + o.amount_kzt, 0);\nconst stated = summary ? (summary[1] === '-' ? -1 : 1) * money(summary[2]) : null;\nconst mismatch = stated !== null && Math.abs(stated - parsedBuy) > 0.01;\nreturn [{ json: {\n  ok: true, ops, count: ops.length,\n  period: period ? `${period[1]}.${period[2]}–${period[4]}.${period[5]}` : null,\n  check: { stated, parsed: Math.round(parsedBuy * 100) / 100, mismatch },\n  sql_json: JSON.stringify(ops).replace(/'/g, \"''\"),\n} }];\n"
+        "jsCode": "// Разбор текста выписки Kaspi Gold (нода Extract From File → $json.text).\n// Не зависим от переносов строк: склеиваем всё в одну строку и режем по «ДД.ММ.ГГ ± сумма ₸ Операция».\n// Сверка: сумма разобранных покупок должна совпасть со строкой «Покупки» из сводки выписки.\nconst raw = String($json.text || '');\nconst fail = (reason) => [{ json: { ok: false, reason, ops: [] } }];\nif (!/Kaspi/i.test(raw) || !/ВЫПИСКА/i.test(raw)) return fail('это не похоже на выписку Kaspi Gold');\n\nconst t = raw.replace(/[   ]/g, ' ').replace(/[^\\S ]+/g, ' ').replace(/ {2,}/g, ' ');\nconst money = (s) => Number(String(s).replace(/ /g, '').replace(',', '.'));\nconst AMT = '([+-]) ?(\\\\d{1,3}(?: \\\\d{3})*,\\\\d{2}) ?(?:₸|Т|T)';\nconst OPS = 'Покупка|Перевод|Пополнение|Снятие|Платеж|Платёж|Погашение|Разное';\nconst KIND = { 'Покупка': 'purchase', 'Перевод': 'transfer', 'Пополнение': 'topup', 'Снятие': 'withdrawal' };\n\nconst period = /за период с (\\d{2})\\.(\\d{2})\\.(\\d{2}) по (\\d{2})\\.(\\d{2})\\.(\\d{2})/.exec(t);\nconst summary = new RegExp('Покупки ' + AMT).exec(t);   // «Покупки - 27 856,76 ₸»\n// Карта: у двух пользователей разные карты → одинаковые траты не должны склеиваться дедупом.\nconst cardM = /Номер карты: ?\\*?(\\d{4})/.exec(t);\nconst card = cardM ? cardM[1] : '';\nconst iso = (d, m, y) => `20${y}-${m}-${d}`;\n\n// Начала строк операций; хвост строки — до начала следующей или до служебного текста.\nconst head = new RegExp(`(\\\\d{2})\\\\.(\\\\d{2})\\\\.(\\\\d{2}) ${AMT} (${OPS})(?= )`, 'g');\nconst STOP = /(?: ?- )?(?:Сумма заблокирована|Раздел «Краткое|АО «Kaspi Bank»|Приложение к Справке).*$/;\nconst marks = [...t.matchAll(head)];\nconst norm = (s) => s.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '')\n  .replace(/[^a-z0-9а-яё]+/g, ' ').trim();\n\nconst ops = [];\nmarks.forEach((m, i) => {\n  const end = i + 1 < marks.length ? marks[i + 1].index : t.length;\n  let tail = t.slice(m.index + m[0].length, end).replace(STOP, '');\n  const orig = /\\(([+-]) ?(\\d{1,3}(?: \\d{3})*,\\d{2}) ([A-Z]{3})\\)/.exec(tail);\n  const fx = /Курсовая разница/.test(tail);\n  const merchant = tail.replace(orig ? orig[0] : '', ' ').replace(/Курсовая разница/, ' ')\n    .replace(/[^\\p{L}\\p{N}\\p{P}\\p{S} ]/gu, ' ').replace(/ {2,}/g, ' ').trim() || 'без названия';\n  const amount = (m[4] === '-' ? -1 : 1) * money(m[5]);\n  const kind = fx ? 'fx_diff' : (KIND[m[6]] || 'other');\n  ops.push({\n    card, op_date: iso(m[1], m[2], m[3]), kind, operation: m[6], merchant: merchant.slice(0, 200),\n    merchant_norm: norm(merchant) || 'unknown', amount_kzt: amount,\n    orig_amount: orig ? (orig[1] === '-' ? -1 : 1) * money(orig[2]) : null,\n    orig_currency: orig ? orig[3] : null,\n  });\n});\nif (!ops.length) return fail('в выписке не нашлось ни одной операции');\n\n// Одинаковые операции в один день (2× такси по 890 ₸) — разные траты: нумеруем по порядку.\nconst cnt = {};\nfor (const o of ops) {\n  const base = `${o.card}|${o.op_date}|${o.amount_kzt.toFixed(2)}|${o.kind}|${o.merchant_norm}`;\n  o.occ = cnt[base] = (cnt[base] || 0) + 1;\n  o.dedup_key = `${base}|${o.occ}`;\n}\n\nconst parsedBuy = ops.filter((o) => o.kind === 'purchase' || o.kind === 'fx_diff')\n  .reduce((s, o) => s + o.amount_kzt, 0);\nconst stated = summary ? (summary[1] === '-' ? -1 : 1) * money(summary[2]) : null;\nconst mismatch = stated !== null && Math.abs(stated - parsedBuy) > 0.01;\nreturn [{ json: {\n  ok: true, ops, count: ops.length, card,\n  period: period ? `${period[1]}.${period[2]}–${period[4]}.${period[5]}` : null,\n  check: { stated, parsed: Math.round(parsedBuy * 100) / 100, mismatch },\n  sql_json: JSON.stringify(ops).replace(/'/g, \"''\"),\n} }];\n"
       },
       "id": "ks-parse",
       "name": "Parse",
@@ -314,7 +315,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "=WITH input AS (\n  SELECT * FROM jsonb_to_recordset('{{ $('Parse').first().json.sql_json }}'::jsonb) AS x(\n    op_date date, kind text, operation text, merchant text, merchant_norm text,\n    amount_kzt numeric, orig_amount numeric, orig_currency text, occ smallint, dedup_key text)\n), rate AS (\n  -- самый свежий курс: сегодняшний, а если ЦБ не ответил — последний известный\n  SELECT * FROM kaspi_fx_rates ORDER BY day DESC LIMIT 1\n)\nINSERT INTO kaspi_expenses (op_date, kind, operation, merchant, merchant_norm, amount_kzt,\n       orig_amount, orig_currency, amount_rub, rate_day, kzt_rub, occ, dedup_key)\nSELECT i.op_date, i.kind, i.operation, i.merchant, i.merchant_norm, i.amount_kzt,\n       i.orig_amount, i.orig_currency, round(i.amount_kzt * r.kzt_rub, 2), r.day, r.kzt_rub,\n       i.occ, i.dedup_key\n  FROM input i\n  LEFT JOIN rate r ON true\nON CONFLICT (dedup_key) DO NOTHING\nRETURNING id, op_date, kind, merchant, amount_kzt, orig_amount, orig_currency, amount_rub;",
+        "query": "=WITH input AS (\n  SELECT * FROM jsonb_to_recordset('{{ $('Parse').first().json.sql_json }}'::jsonb) AS x(\n    card text, op_date date, kind text, operation text, merchant text, merchant_norm text,\n    amount_kzt numeric, orig_amount numeric, orig_currency text, occ smallint, dedup_key text)\n), rate AS (\n  -- самый свежий курс: сегодняшний, а если ЦБ не ответил — последний известный\n  SELECT * FROM kaspi_fx_rates ORDER BY day DESC LIMIT 1\n)\nINSERT INTO kaspi_expenses (card, op_date, kind, operation, merchant, merchant_norm, amount_kzt,\n       orig_amount, orig_currency, amount_rub, rate_day, kzt_rub, occ, dedup_key)\nSELECT NULLIF(i.card, ''), i.op_date, i.kind, i.operation, i.merchant, i.merchant_norm, i.amount_kzt,\n       i.orig_amount, i.orig_currency, round(i.amount_kzt * r.kzt_rub, 2), r.day, r.kzt_rub,\n       i.occ, i.dedup_key\n  FROM input i\n  LEFT JOIN rate r ON true\nON CONFLICT (dedup_key) DO NOTHING\nRETURNING id, card, op_date, kind, merchant, amount_kzt, orig_amount, orig_currency, amount_rub;",
         "options": {}
       },
       "id": "ks-insert-ops",
@@ -349,7 +350,7 @@
     },
     {
       "parameters": {
-        "chatId": "={{ $('Config').first().json.chat_id }}",
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
         "text": "={{ $json.text }}",
         "additionalFields": {
           "appendAttribution": false
@@ -376,7 +377,7 @@
     },
     {
       "parameters": {
-        "chatId": "={{ $('Config').first().json.chat_id }}",
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
         "text": "=Не смогла разобрать выписку: {{ $json.reason }}",
         "additionalFields": {
           "appendAttribution": false
@@ -403,7 +404,7 @@
     },
     {
       "parameters": {
-        "chatId": "={{ $('Config').first().json.chat_id }}",
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
         "text": "=Пришли PDF-выписку Kaspi Gold:\nKaspi → Kaspi Gold → Выписка → выбери период → Поделиться → этот бот.\nМожно присылать пересекающиеся периоды — уже записанное не задвоится.",
         "additionalFields": {
           "appendAttribution": false
@@ -445,14 +446,14 @@
       "main": [
         [
           {
-            "node": "Owner?",
+            "node": "Allowed?",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Owner?": {
+    "Allowed?": {
       "main": [
         [
           {
