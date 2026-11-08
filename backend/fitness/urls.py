@@ -59,4 +59,6 @@ urlpatterns = [
     # kaspi-pay: Mini App Kaspi-бота. app — HTML (открыт), summary — initData Kaspi-бота + владелец.
     path("kaspi/app", views.kaspi_app),
     path("kaspi/summary", views.kaspi_summary),
+    path("kaspi/budget-set", views.kaspi_budget_set),
+    path("kaspi/expense-update", views.kaspi_expense_update),
 ]

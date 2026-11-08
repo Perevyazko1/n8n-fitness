@@ -479,11 +479,35 @@ def kaspi_app(request):
 
 
 def kaspi_summary(request):
-    """Итоги трат за период (day|week|month) по таблице kaspi_expenses. Авторизация — middleware."""
-    period = request.payload.get("period", "day")
-    if period not in kaspi.PERIODS:
-        return ok({"ok": False, "error": "bad_period"}, status=400)
-    return ok(kaspi.summary(period))
+    """Траты за период + фильтры (card, category) + состояние лимита. Авторизация — middleware."""
+    p = request.payload
+    try:
+        return ok(kaspi.summary(p.get("period", "day"), start=p.get("from"), end=p.get("to"),
+                                card=p.get("card") or None, category=p.get("category") or None))
+    except kaspi.KaspiError as e:
+        return ok({"ok": False, "error": str(e)}, status=400)
+
+
+def kaspi_budget_set(request):
+    """Новый лимит на период: {start, end, limit_rub}. Общий на всех пользователей бота."""
+    p = request.payload
+    try:
+        bid = kaspi.budget_set(p.get("start"), p.get("end"), p.get("limit_rub"),
+                               user_id=(request.kaspi_user or {}).get("id"))
+    except kaspi.KaspiError as e:
+        return ok({"ok": False, "error": str(e)}, status=400)
+    return ok({"ok": True, "id": bid, "budget": kaspi.budget_status()})
+
+
+def kaspi_expense_update(request):
+    """Правка траты: {id, category?, excluded?, apply_to_merchant?}."""
+    p = request.payload
+    kw = {k: p[k] for k in ("category", "excluded") if k in p}
+    try:
+        res = kaspi.expense_update(int(p.get("id") or 0), apply_to_merchant=bool(p.get("apply_to_merchant")), **kw)
+    except (kaspi.KaspiError, ValueError) as e:
+        return ok({"ok": False, "error": str(e)}, status=400)
+    return ok({"ok": True, **res})
 
 def exercises(request):
     """Справочник упражнений для приложения/будущего коуча. Опц. фильтр ?section / по группе."""

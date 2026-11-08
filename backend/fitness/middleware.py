@@ -98,6 +98,7 @@ class ApiMiddleware:
                 return self._cors(JsonResponse({"ok": False, "error": "forbidden"}, status=403))
             request.payload = body
             request.tg_user = None
+            request.kaspi_user = tg
             return self._cors(self.get_response(request))
 
         try:

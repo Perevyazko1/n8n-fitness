@@ -40,3 +40,39 @@ CREATE INDEX IF NOT EXISTS kaspi_expenses_op_date_idx ON kaspi_expenses (op_date
 
 -- 2026-11-08: траты ведут двое → в ключ дедупа добавлена карта. Для таблиц, созданных до этого.
 ALTER TABLE kaspi_expenses ADD COLUMN IF NOT EXISTS card text;
+
+-- ===== 2026-11-08: Mini App v2 — категории, лимит на период, «вне лимита», подписи карт =====
+
+-- Категория и «вне лимита» по продавцу. Заполняет n8n (правила + gpt-5-mini для незнакомых,
+-- source = rule|llm), ручная правка из Mini App ставит source = manual. Автоматика manual не трогает.
+-- Категории: shops | cafe | transport | fun | housing | subs | health | other.
+CREATE TABLE IF NOT EXISTS kaspi_merchant_rules (
+    merchant_norm  text PRIMARY KEY,
+    category       text NOT NULL DEFAULT 'other',
+    exclude_budget boolean NOT NULL DEFAULT false,
+    source         text NOT NULL DEFAULT 'rule',
+    updated_at     timestamptz NOT NULL DEFAULT now()
+);
+
+-- Ручная правка ОДНОЙ траты. NULL — брать из правила продавца.
+ALTER TABLE kaspi_expenses ADD COLUMN IF NOT EXISTS category text;
+ALTER TABLE kaspi_expenses ADD COLUMN IF NOT EXISTS exclude_budget boolean;
+
+-- Лимит на период (общий на всех). Действующий — последний по start_date среди начавшихся;
+-- если его end_date уже прошла — Mini App показывает «период закончился».
+CREATE TABLE IF NOT EXISTS kaspi_budgets (
+    id         bigserial PRIMARY KEY,
+    start_date date NOT NULL,
+    end_date   date NOT NULL,
+    limit_rub  numeric(14, 2) NOT NULL CHECK (limit_rub > 0),
+    created_by bigint,                      -- Telegram user_id
+    created_at timestamptz NOT NULL DEFAULT now(),
+    CHECK (end_date >= start_date)
+);
+
+-- Подписи карт. n8n добавляет карту при первой выписке именем того, кто её прислал.
+CREATE TABLE IF NOT EXISTS kaspi_cards (
+    card       text PRIMARY KEY,
+    label      text NOT NULL,
+    created_at timestamptz NOT NULL DEFAULT now()
+);

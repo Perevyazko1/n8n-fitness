@@ -31,7 +31,13 @@
             {
               "id": "c1",
               "name": "allowed_ids",
-              "value": "648226895",
+              "value": "648226895,893232025",
+              "type": "string"
+            },
+            {
+              "id": "c2",
+              "name": "owners",
+              "value": "648226895:Андрей,893232025:Яна",
               "type": "string"
             }
           ]
@@ -162,7 +168,7 @@
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "// Разбор текста выписки Kaspi Gold (нода Extract From File → $json.text).\n// Не зависим от переносов строк: склеиваем всё в одну строку и режем по «ДД.ММ.ГГ ± сумма ₸ Операция».\n// Сверка: сумма разобранных покупок должна совпасть со строкой «Покупки» из сводки выписки.\nconst raw = String($json.text || '');\nconst fail = (reason) => [{ json: { ok: false, reason, ops: [] } }];\nif (!/Kaspi/i.test(raw) || !/ВЫПИСКА/i.test(raw)) return fail('это не похоже на выписку Kaspi Gold');\n\nconst t = raw.replace(/[   ]/g, ' ').replace(/[^\\S ]+/g, ' ').replace(/ {2,}/g, ' ');\nconst money = (s) => Number(String(s).replace(/ /g, '').replace(',', '.'));\nconst AMT = '([+-]) ?(\\\\d{1,3}(?: \\\\d{3})*,\\\\d{2}) ?(?:₸|Т|T)';\nconst OPS = 'Покупка|Перевод|Пополнение|Снятие|Платеж|Платёж|Погашение|Разное';\nconst KIND = { 'Покупка': 'purchase', 'Перевод': 'transfer', 'Пополнение': 'topup', 'Снятие': 'withdrawal' };\n\nconst period = /за период с (\\d{2})\\.(\\d{2})\\.(\\d{2}) по (\\d{2})\\.(\\d{2})\\.(\\d{2})/.exec(t);\nconst summary = new RegExp('Покупки ' + AMT).exec(t);   // «Покупки - 27 856,76 ₸»\n// Карта: у двух пользователей разные карты → одинаковые траты не должны склеиваться дедупом.\nconst cardM = /Номер карты: ?\\*?(\\d{4})/.exec(t);\nconst card = cardM ? cardM[1] : '';\nconst iso = (d, m, y) => `20${y}-${m}-${d}`;\n\n// Начала строк операций; хвост строки — до начала следующей или до служебного текста.\nconst head = new RegExp(`(\\\\d{2})\\\\.(\\\\d{2})\\\\.(\\\\d{2}) ${AMT} (${OPS})(?= )`, 'g');\nconst STOP = /(?: ?- )?(?:Сумма заблокирована|Раздел «Краткое|АО «Kaspi Bank»|Приложение к Справке).*$/;\nconst marks = [...t.matchAll(head)];\nconst norm = (s) => s.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '')\n  .replace(/[^a-z0-9а-яё]+/g, ' ').trim();\n\nconst ops = [];\nmarks.forEach((m, i) => {\n  const end = i + 1 < marks.length ? marks[i + 1].index : t.length;\n  let tail = t.slice(m.index + m[0].length, end).replace(STOP, '');\n  const orig = /\\(([+-]) ?(\\d{1,3}(?: \\d{3})*,\\d{2}) ([A-Z]{3})\\)/.exec(tail);\n  const fx = /Курсовая разница/.test(tail);\n  const merchant = tail.replace(orig ? orig[0] : '', ' ').replace(/Курсовая разница/, ' ')\n    .replace(/[^\\p{L}\\p{N}\\p{P}\\p{S} ]/gu, ' ').replace(/ {2,}/g, ' ').trim() || 'без названия';\n  const amount = (m[4] === '-' ? -1 : 1) * money(m[5]);\n  const kind = fx ? 'fx_diff' : (KIND[m[6]] || 'other');\n  ops.push({\n    card, op_date: iso(m[1], m[2], m[3]), kind, operation: m[6], merchant: merchant.slice(0, 200),\n    merchant_norm: norm(merchant) || 'unknown', amount_kzt: amount,\n    orig_amount: orig ? (orig[1] === '-' ? -1 : 1) * money(orig[2]) : null,\n    orig_currency: orig ? orig[3] : null,\n  });\n});\nif (!ops.length) return fail('в выписке не нашлось ни одной операции');\n\n// Одинаковые операции в один день (2× такси по 890 ₸) — разные траты: нумеруем по порядку.\nconst cnt = {};\nfor (const o of ops) {\n  const base = `${o.card}|${o.op_date}|${o.amount_kzt.toFixed(2)}|${o.kind}|${o.merchant_norm}`;\n  o.occ = cnt[base] = (cnt[base] || 0) + 1;\n  o.dedup_key = `${base}|${o.occ}`;\n}\n\nconst parsedBuy = ops.filter((o) => o.kind === 'purchase' || o.kind === 'fx_diff')\n  .reduce((s, o) => s + o.amount_kzt, 0);\nconst stated = summary ? (summary[1] === '-' ? -1 : 1) * money(summary[2]) : null;\nconst mismatch = stated !== null && Math.abs(stated - parsedBuy) > 0.01;\nreturn [{ json: {\n  ok: true, ops, count: ops.length, card,\n  period: period ? `${period[1]}.${period[2]}–${period[4]}.${period[5]}` : null,\n  check: { stated, parsed: Math.round(parsedBuy * 100) / 100, mismatch },\n  sql_json: JSON.stringify(ops).replace(/'/g, \"''\"),\n} }];\n"
+        "jsCode": "// Разбор текста выписки Kaspi Gold (нода Extract From File → $json.text).\n// Не зависим от переносов строк: склеиваем всё в одну строку и режем по «ДД.ММ.ГГ ± сумма ₸ Операция».\n// Сверка: сумма разобранных покупок должна совпасть со строкой «Покупки» из сводки выписки.\nconst raw = String($json.text || '');\nconst fail = (reason) => [{ json: { ok: false, reason, ops: [] } }];\nif (!/Kaspi/i.test(raw) || !/ВЫПИСКА/i.test(raw)) return fail('это не похоже на выписку Kaspi Gold');\n\nconst t = raw.replace(/[   ]/g, ' ').replace(/[^\\S ]+/g, ' ').replace(/ {2,}/g, ' ');\nconst money = (s) => Number(String(s).replace(/ /g, '').replace(',', '.'));\nconst AMT = '([+-]) ?(\\\\d{1,3}(?: \\\\d{3})*,\\\\d{2}) ?(?:₸|Т|T)';\nconst OPS = 'Покупка|Перевод|Пополнение|Снятие|Платеж|Платёж|Погашение|Разное';\nconst KIND = { 'Покупка': 'purchase', 'Перевод': 'transfer', 'Пополнение': 'topup', 'Снятие': 'withdrawal' };\n\nconst period = /за период с (\\d{2})\\.(\\d{2})\\.(\\d{2}) по (\\d{2})\\.(\\d{2})\\.(\\d{2})/.exec(t);\nconst summary = new RegExp('Покупки ' + AMT).exec(t);   // «Покупки - 27 856,76 ₸»\n// Карта: у двух пользователей разные карты → одинаковые траты не должны склеиваться дедупом.\nconst cardM = /Номер карты: ?\\*?(\\d{4})/.exec(t);\nconst card = cardM ? cardM[1] : '';\n// Подпись карты: имя того, кто прислал выписку (owners в ноде Config: 'id:Имя,id:Имя').\nconst owners = Object.fromEntries(String($('Config').first().json.owners || '').split(',')\n  .map((s) => s.split(':').map((x) => x.trim())).filter((p) => p.length === 2));\nconst fromId = String($('Telegram Trigger').first().json.message?.from?.id || '');\nconst cardLabel = owners[fromId] || 'Карта';\nconst iso = (d, m, y) => `20${y}-${m}-${d}`;\n\n// Начала строк операций; хвост строки — до начала следующей или до служебного текста.\nconst head = new RegExp(`(\\\\d{2})\\\\.(\\\\d{2})\\\\.(\\\\d{2}) ${AMT} (${OPS})(?= )`, 'g');\nconst STOP = /(?: ?- )?(?:Сумма заблокирована|Раздел «Краткое|АО «Kaspi Bank»|Приложение к Справке).*$/;\nconst marks = [...t.matchAll(head)];\nconst norm = (s) => s.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '')\n  .replace(/[^a-z0-9а-яё]+/g, ' ').trim();\n\nconst ops = [];\nmarks.forEach((m, i) => {\n  const end = i + 1 < marks.length ? marks[i + 1].index : t.length;\n  let tail = t.slice(m.index + m[0].length, end).replace(STOP, '');\n  const orig = /\\(([+-]) ?(\\d{1,3}(?: \\d{3})*,\\d{2}) ([A-Z]{3})\\)/.exec(tail);\n  const fx = /Курсовая разница/.test(tail);\n  const merchant = tail.replace(orig ? orig[0] : '', ' ').replace(/Курсовая разница/, ' ')\n    .replace(/[^\\p{L}\\p{N}\\p{P}\\p{S} ]/gu, ' ').replace(/ {2,}/g, ' ').trim() || 'без названия';\n  const amount = (m[4] === '-' ? -1 : 1) * money(m[5]);\n  const kind = fx ? 'fx_diff' : (KIND[m[6]] || 'other');\n  ops.push({\n    card, op_date: iso(m[1], m[2], m[3]), kind, operation: m[6], merchant: merchant.slice(0, 200),\n    merchant_norm: norm(merchant) || 'unknown', amount_kzt: amount,\n    orig_amount: orig ? (orig[1] === '-' ? -1 : 1) * money(orig[2]) : null,\n    orig_currency: orig ? orig[3] : null,\n  });\n});\nif (!ops.length) return fail('в выписке не нашлось ни одной операции');\n\n// Одинаковые операции в один день (2× такси по 890 ₸) — разные траты: нумеруем по порядку.\nconst cnt = {};\nfor (const o of ops) {\n  const base = `${o.card}|${o.op_date}|${o.amount_kzt.toFixed(2)}|${o.kind}|${o.merchant_norm}`;\n  o.occ = cnt[base] = (cnt[base] || 0) + 1;\n  o.dedup_key = `${base}|${o.occ}`;\n}\n\nconst parsedBuy = ops.filter((o) => o.kind === 'purchase' || o.kind === 'fx_diff')\n  .reduce((s, o) => s + o.amount_kzt, 0);\nconst stated = summary ? (summary[1] === '-' ? -1 : 1) * money(summary[2]) : null;\nconst mismatch = stated !== null && Math.abs(stated - parsedBuy) > 0.01;\nreturn [{ json: {\n  ok: true, ops, count: ops.length, card, card_label: cardLabel,\n  sql_card: card.replace(/'/g, \"''\"), sql_card_label: cardLabel.replace(/'/g, \"''\"),\n  period: period ? `${period[1]}.${period[2]}–${period[4]}.${period[5]}` : null,\n  check: { stated, parsed: Math.round(parsedBuy * 100) / 100, mismatch },\n  sql_json: JSON.stringify(ops).replace(/'/g, \"''\"),\n} }];\n"
       },
       "id": "ks-parse",
       "name": "Parse",
@@ -315,7 +321,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "=WITH input AS (\n  SELECT * FROM jsonb_to_recordset('{{ $('Parse').first().json.sql_json }}'::jsonb) AS x(\n    card text, op_date date, kind text, operation text, merchant text, merchant_norm text,\n    amount_kzt numeric, orig_amount numeric, orig_currency text, occ smallint, dedup_key text)\n), rate AS (\n  -- самый свежий курс: сегодняшний, а если ЦБ не ответил — последний известный\n  SELECT * FROM kaspi_fx_rates ORDER BY day DESC LIMIT 1\n)\nINSERT INTO kaspi_expenses (card, op_date, kind, operation, merchant, merchant_norm, amount_kzt,\n       orig_amount, orig_currency, amount_rub, rate_day, kzt_rub, occ, dedup_key)\nSELECT NULLIF(i.card, ''), i.op_date, i.kind, i.operation, i.merchant, i.merchant_norm, i.amount_kzt,\n       i.orig_amount, i.orig_currency, round(i.amount_kzt * r.kzt_rub, 2), r.day, r.kzt_rub,\n       i.occ, i.dedup_key\n  FROM input i\n  LEFT JOIN rate r ON true\nON CONFLICT (dedup_key) DO NOTHING\nRETURNING id, card, op_date, kind, merchant, amount_kzt, orig_amount, orig_currency, amount_rub;",
+        "query": "=WITH input AS (\n  SELECT * FROM jsonb_to_recordset('{{ $('Parse').first().json.sql_json }}'::jsonb) AS x(\n    card text, op_date date, kind text, operation text, merchant text, merchant_norm text,\n    amount_kzt numeric, orig_amount numeric, orig_currency text, occ smallint, dedup_key text)\n), card AS (\n  -- подпись карты при первой выписке: имя того, кто прислал (дальше правится только руками в БД)\n  INSERT INTO kaspi_cards (card, label)\n  SELECT '{{ $('Parse').first().json.sql_card }}', '{{ $('Parse').first().json.sql_card_label }}'\n   WHERE '{{ $('Parse').first().json.sql_card }}' <> ''\n  ON CONFLICT (card) DO NOTHING\n), rate AS (\n  -- самый свежий курс: сегодняшний, а если ЦБ не ответил — последний известный\n  SELECT * FROM kaspi_fx_rates ORDER BY day DESC LIMIT 1\n)\nINSERT INTO kaspi_expenses (card, op_date, kind, operation, merchant, merchant_norm, amount_kzt,\n       orig_amount, orig_currency, amount_rub, rate_day, kzt_rub, occ, dedup_key)\nSELECT NULLIF(i.card, ''), i.op_date, i.kind, i.operation, i.merchant, i.merchant_norm, i.amount_kzt,\n       i.orig_amount, i.orig_currency, round(i.amount_kzt * r.kzt_rub, 2), r.day, r.kzt_rub,\n       i.occ, i.dedup_key\n  FROM input i\n  LEFT JOIN rate r ON true\nON CONFLICT (dedup_key) DO NOTHING\nRETURNING id, card, op_date, kind, merchant, amount_kzt, orig_amount, orig_currency, amount_rub;",
         "options": {}
       },
       "id": "ks-insert-ops",
@@ -374,6 +380,148 @@
       "retryOnFail": true,
       "maxTries": 3,
       "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT e.merchant_norm, min(e.merchant) AS merchant\n  FROM kaspi_expenses e\n  LEFT JOIN kaspi_merchant_rules r ON r.merchant_norm = e.merchant_norm\n WHERE r.merchant_norm IS NULL AND e.kind IN ('purchase', 'fx_diff')\n GROUP BY e.merchant_norm\n LIMIT 150;",
+        "options": {}
+      },
+      "id": "ks-uncategorized",
+      "name": "Uncategorized",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3300,
+        100
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Категории для продавцов без правила: сначала словарь, остальных — одним запросом к gpt-5-mini.\n// Вход — строки «Uncategorized» (merchant_norm, merchant). Ручные правила (source=manual) сюда не попадают.\nconst rows = $input.all().map((i) => i.json).filter((r) => r.merchant_norm);\nconst RULES = [           // порядок важен: первое совпадение побеждает\n  ['fun', /cinema|cgv|karaoke|vinwonders|steam|ticket|museum|bowling|\\bgame/],\n  ['subs', /apple com|google|netflix|spotify|youtube|hostvds|openai|chatgpt|icloud|yandex plus|telegram/],\n  ['transport', /\\bgrab\\b|yandex go|gojek|\\bbe group|xanh sm|uber|taxi|indrive|\\bbolt\\b|vietjet|airasia|aviata/],\n  ['health', /pharma|apteka|nha thuoc|long chau|clinic|hospital|dental|\\bthuoc\\b/],\n  ['housing', /nha tro|apartment|arenda|\\brent\\b|evn|viettel|vnpt|\\bfpt\\b|homestay|hotel|booking/],\n  ['cafe', /coffee|cafe|caphe|ca phe|highlands|starbucks|katinat|phuc long|banh mi|\\bpho\\b|kfc|lotteria|jollibee|mcdonald|burger|pizza|restaurant|nha hang|\\bbbq|sushi|\\bbar\\b|\\bquan\\b/],\n  ['shops', /winmart|co ?op|lotte mart|big c|circle k|familymart|7 eleven|ministop|bach hoa|\\bmart\\b|market|magazin|shop|wildberries|ozon/],\n];\nconst known = [], unknown = [];\nfor (const r of rows) {\n  const hit = RULES.find(([, re]) => re.test(r.merchant_norm));\n  if (hit) known.push({ merchant_norm: r.merchant_norm, category: hit[0], source: 'rule' });\n  else unknown.push(r);\n}\nlet request = null;\nif (unknown.length) {\n  request = {\n    model: 'gpt-5-mini',\n    reasoning_effort: 'low',\n    response_format: { type: 'json_schema', json_schema: { name: 'cats', strict: true, schema: {\n      type: 'object', additionalProperties: false, required: ['items'],\n      properties: { items: { type: 'array', items: { type: 'object', additionalProperties: false,\n        required: ['merchant_norm', 'category'],\n        properties: { merchant_norm: { type: 'string' },\n          category: { type: 'string', enum: ['shops', 'cafe', 'transport', 'fun', 'housing', 'subs', 'health', 'other'] } } } } },\n    } } },\n    messages: [\n      { role: 'system', content: 'Ты раскладываешь продавцов из банковской выписки (Вьетнам и Казахстан) по категориям трат: shops — магазины и продукты, маркетплейсы; cafe — кафе, рестораны, доставка еды; transport — такси, транспорт, билеты; fun — развлечения, кино, экскурсии, игры; housing — жильё, аренда, коммуналка, связь, отели; subs — подписки и онлайн-сервисы; health — аптеки, врачи; other — непонятно. Вьетнамские слова: quán/nhà hàng — едальня, tạp hóa — магазинчик, nhà trọ — жильё. Если по названию не понять — other. Верни каждого продавца ровно с тем merchant_norm, что дан.' },\n      { role: 'user', content: unknown.map((r) => `${r.merchant_norm}\\t${r.merchant}`).join('\\n') },\n    ],\n  };\n}\nreturn [{ json: { known, unknown_count: unknown.length, request } }];\n"
+      },
+      "id": "ks-classify-prep",
+      "name": "Classify Prep",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3520,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "Ne",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ !!$json.request }}",
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "ks-need-llm",
+      "name": "Need LLM?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3740,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.request) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "ks-classify-llm",
+      "name": "Classify LLM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3960,
+        0
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "SkPovYGQlL1P1Ft5",
+          "name": "OpenAI account"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Сливает словарные категории и ответ LLM. Ошибка LLM — не беда: незнакомые останутся без правила\n// и попадут в следующий прогон (в Mini App до этого — «Прочее»).\nconst prep = $('Classify Prep').first().json;\nconst out = [...prep.known];\nconst allowed = new Set(['shops', 'cafe', 'transport', 'fun', 'housing', 'subs', 'health', 'other']);\nif ($json.choices) {\n  try {\n    const items = JSON.parse($json.choices[0].message.content).items || [];\n    for (const it of items) if (it.merchant_norm && allowed.has(it.category))\n      out.push({ merchant_norm: it.merchant_norm, category: it.category, source: 'llm' });\n  } catch (e) {}\n}\nreturn [{ json: { count: out.length, sql_json: JSON.stringify(out).replace(/'/g, \"''\") } }];\n"
+      },
+      "id": "ks-classify-merge",
+      "name": "Classify Merge",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4180,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO kaspi_merchant_rules (merchant_norm, category, source)\nSELECT merchant_norm, category, source\n  FROM jsonb_to_recordset('{{ $json.sql_json }}'::jsonb) AS x(merchant_norm text, category text, source text)\nON CONFLICT (merchant_norm) DO NOTHING\nRETURNING merchant_norm;",
+        "options": {}
+      },
+      "id": "ks-save-rules",
+      "name": "Save Rules",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        4400,
+        100
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      },
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -601,6 +749,79 @@
         [
           {
             "node": "Send Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Reply": {
+      "main": [
+        [
+          {
+            "node": "Uncategorized",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Uncategorized": {
+      "main": [
+        [
+          {
+            "node": "Classify Prep",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Prep": {
+      "main": [
+        [
+          {
+            "node": "Need LLM?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Need LLM?": {
+      "main": [
+        [
+          {
+            "node": "Classify LLM",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Classify Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify LLM": {
+      "main": [
+        [
+          {
+            "node": "Classify Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Merge": {
+      "main": [
+        [
+          {
+            "node": "Save Rules",
             "type": "main",
             "index": 0
           }

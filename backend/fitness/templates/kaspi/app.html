@@ -4,151 +4,448 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Траты Kaspi</title>
-<!-- kaspi-pay Mini App. Данные: POST /api/kaspi/summary {initData, period}. Проект — kaspi-pay/WORKLOG.md -->
+<!-- kaspi-pay Mini App (вариант C). API: /api/kaspi/summary | budget-set | expense-update. Проект — kaspi-pay/WORKLOG.md -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
   :root {
     --bg: var(--tg-theme-bg-color, #ffffff);
-    --bg2: var(--tg-theme-secondary-bg-color, #f2f2f7);
-    --text: var(--tg-theme-text-color, #111111);
-    --hint: var(--tg-theme-hint-color, #8e8e93);
-    --accent: var(--tg-theme-button-color, #2481cc);
+    --bg2: var(--tg-theme-secondary-bg-color, #eff1f5);
+    --text: var(--tg-theme-text-color, #111827);
+    --hint: var(--tg-theme-hint-color, #5f6672);
+    --accent: var(--tg-theme-button-color, #1f6fd1);
     --accent-text: var(--tg-theme-button-text-color, #ffffff);
-    --sep: color-mix(in srgb, var(--hint) 25%, transparent);
-    --good: #2e9e5b;
+    --link: var(--tg-theme-link-color, var(--accent));
+    --soft: color-mix(in srgb, var(--hint) 12%, var(--bg));
+    --sep: color-mix(in srgb, var(--hint) 22%, transparent);
+    --bar: color-mix(in srgb, var(--accent) 28%, var(--bg));
+    --warn: #b45309;
+    --good: #15803d;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; background: var(--bg2); color: var(--text);
-    font: 15px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-  main { max-width: 560px; margin: 0 auto; padding: 12px 16px 32px; }
-  .tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px;
-    background: var(--bg); border-radius: 12px; }
-  .tabs button { border: 0; padding: 8px 0; border-radius: 9px; background: none; color: var(--text);
-    font: inherit; font-weight: 600; cursor: pointer; }
+    font: 15px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif; }
+  button, input { font: inherit; color: inherit; }
+  main { max-width: 560px; margin: 0 auto; padding: 12px 16px 40px; display: flex; flex-direction: column; gap: 12px; }
+  .chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+  .chip { border: 0; border-radius: 999px; padding: 8px 12px; background: var(--bg); font-size: 13.5px;
+    font-weight: 600; white-space: nowrap; cursor: pointer; }
+  .chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-text); }
+  .card { background: var(--bg); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .row-between { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .hint { color: var(--hint); font-size: 13px; }
+  .big { font-size: 34px; font-weight: 700; letter-spacing: -0.5px; }
+  .link { border: 0; background: none; padding: 6px 0; color: var(--link); font-size: 13.5px; font-weight: 600; cursor: pointer; }
+  .btn { border: 0; height: 50px; border-radius: 14px; background: var(--accent); color: var(--accent-text);
+    font-weight: 600; cursor: pointer; width: 100%; }
+  .btn:disabled { opacity: .5; }
+  .bars { display: grid; gap: 4px; align-items: end; height: 60px; }
+  .bars div { display: flex; flex-direction: column; align-items: center; gap: 4px; justify-content: flex-end; height: 100%; }
+  .bars i { display: block; width: 100%; border-radius: 4px; background: var(--bar); min-height: 3px; }
+  .bars i.today { background: var(--accent); }
+  .bars span { font-size: 11px; color: var(--hint); }
+  .progress { height: 8px; border-radius: 999px; background: var(--soft); overflow: hidden; }
+  .progress i { display: block; height: 100%; border-radius: 999px; background: var(--accent); }
+  .tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; background: var(--bg); border-radius: 12px; padding: 4px; }
+  .tabs button { border: 0; background: none; border-radius: 9px; padding: 8px 0; font-size: 13px; font-weight: 600; cursor: pointer; }
   .tabs button[aria-selected="true"] { background: var(--accent); color: var(--accent-text); }
-  .hero { margin: 12px 0; padding: 18px 16px; background: var(--bg); border-radius: 14px; }
-  .hero .label { color: var(--hint); font-size: 13px; }
-  .hero .total { font-size: 34px; font-weight: 700; letter-spacing: -0.5px; margin: 2px 0; }
-  .hero .sub { color: var(--hint); }
-  .day { margin-top: 14px; }
-  .day-head { display: flex; justify-content: space-between; padding: 0 4px 6px;
-    color: var(--hint); font-size: 13px; text-transform: lowercase; }
-  .card { background: var(--bg); border-radius: 14px; overflow: hidden; }
-  .row { display: flex; justify-content: space-between; gap: 12px; padding: 11px 14px; }
-  .row + .row { border-top: 1px solid var(--sep); }
-  .row .m { min-width: 0; overflow-wrap: anywhere; }
-  .row .r { text-align: right; white-space: nowrap; font-weight: 600; }
-  .row small { display: block; color: var(--hint); font-weight: 400; font-size: 12.5px; }
-  .refund .r { color: var(--good); }
-  .empty, .error { margin-top: 24px; text-align: center; color: var(--hint); padding: 0 12px; }
+  .cat { border: 0; background: none; padding: 0; text-align: left; display: flex; flex-direction: column; gap: 4px; cursor: pointer; }
+  .cat .line { display: flex; justify-content: space-between; font-size: 14px; }
+  .cat .track { height: 6px; border-radius: 999px; background: var(--soft); }
+  .cat .track i { display: block; height: 6px; border-radius: 999px; }
+  .cat.dim { opacity: .45; }
+  .cat.out .line { color: var(--hint); }
+  .day-head { display: flex; justify-content: space-between; padding: 4px 4px 0; color: var(--hint); font-size: 13px; }
+  .list { background: var(--bg); border-radius: 16px; overflow: hidden; }
+  .item { display: flex; gap: 12px; align-items: center; padding: 11px 14px; width: 100%; border: 0; background: none;
+    text-align: left; cursor: pointer; }
+  .item + .item { border-top: 1px solid var(--sep); }
+  .item .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .item .m { flex: 1; min-width: 0; }
+  .item .m b { display: block; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .item small { display: block; color: var(--hint); font-size: 12.5px; }
+  .item .r { text-align: right; white-space: nowrap; font-weight: 600; }
+  .item.out { opacity: .55; }
+  .item.refund .r { color: var(--good); }
+  .empty, .error { text-align: center; color: var(--hint); padding: 18px 8px; }
   .error { color: #d14343; }
-  footer { margin-top: 18px; text-align: center; color: var(--hint); font-size: 12.5px; }
+  .fresh { text-align: center; color: var(--hint); font-size: 12.5px; }
+  /* шторки */
+  .scrim { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: none; align-items: flex-end; justify-content: center; z-index: 10; }
+  .scrim.open { display: flex; }
+  .sheet { background: var(--bg); width: 100%; max-width: 560px; border-radius: 22px 22px 0 0; padding: 10px 16px 28px;
+    display: flex; flex-direction: column; gap: 14px; max-height: 92vh; overflow-y: auto; }
+  .grab { align-self: center; width: 40px; height: 5px; border-radius: 999px; background: var(--sep); }
+  .sheet h2 { margin: 0; font-size: 20px; }
+  .x { border: 0; background: none; width: 44px; height: 44px; color: var(--hint); cursor: pointer; font-size: 22px; line-height: 1; }
+  .field { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--hint); }
+  .field input { border: 1px solid var(--sep); border-radius: 12px; padding: 12px; font-size: 15px; background: var(--bg); color: var(--text); width: 100%; }
+  .field input.money { font-size: 26px; font-weight: 700; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .wrap { display: flex; gap: 6px; flex-wrap: wrap; }
+  .soft-chip { border: 0; border-radius: 999px; padding: 8px 12px; background: var(--soft); font-size: 13.5px; font-weight: 600; cursor: pointer; }
+  .soft-chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-text); }
+  .toggle { display: flex; justify-content: space-between; align-items: center; gap: 12px; background: var(--soft);
+    border-radius: 14px; padding: 12px 14px; }
+  .toggle.plain { background: none; padding: 0 4px; }
+  .toggle input { width: 24px; height: 24px; accent-color: var(--accent); flex: none; }
+  .toggle span small { display: block; color: var(--hint); font-size: 13px; }
 </style>
 </head>
 <body>
 <main>
-  <div class="tabs" role="tablist">
-    <button role="tab" data-p="day" aria-selected="true">Сегодня</button>
-    <button role="tab" data-p="week" aria-selected="false">Неделя</button>
-    <button role="tab" data-p="month" aria-selected="false">Месяц</button>
+  <div class="chips" id="cards" role="group" aria-label="Карта"></div>
+
+  <section class="card" id="budget"></section>
+
+  <div class="tabs" role="tablist" id="tabs">
+    <button role="tab" data-p="day">Сегодня</button>
+    <button role="tab" data-p="yesterday">Вчера</button>
+    <button role="tab" data-p="week">Неделя</button>
+    <button role="tab" data-p="month">Месяц</button>
+    <button role="tab" data-p="custom">Период</button>
   </div>
-  <section class="hero">
-    <div class="label" id="range">…</div>
-    <div class="total" id="total">—</div>
-    <div class="sub" id="sub"></div>
-  </section>
+
+  <section class="card" id="cats"></section>
   <div id="list"></div>
-  <footer id="foot"></footer>
+  <div class="fresh" id="fresh"></div>
 </main>
+
+<!-- шторка: лимит -->
+<div class="scrim" id="limitSheet">
+  <form class="sheet" id="limitForm">
+    <div class="grab"></div>
+    <div class="row-between"><h2>Лимит на период</h2><button type="button" class="x" data-close aria-label="Закрыть">×</button></div>
+    <div class="wrap" id="presets">
+      <button type="button" class="soft-chip" data-preset="fri">Пт — Чт</button>
+      <button type="button" class="soft-chip" data-preset="mon">Пн — Вс</button>
+      <button type="button" class="soft-chip" data-preset="month">Месяц</button>
+    </div>
+    <div class="grid2">
+      <label class="field">С<input type="date" name="start" required></label>
+      <label class="field">По (включительно)<input type="date" name="end" required></label>
+    </div>
+    <label class="field">Можно потратить, ₽<input class="money" type="number" name="limit" min="1" step="1" inputmode="numeric" required></label>
+    <div class="hint" id="limitHint"></div>
+    <div class="hint">Лимит общий: считаются траты всех карт, кроме отмеченных «вне лимита».</div>
+    <button class="btn" type="submit">Сохранить лимит</button>
+  </form>
+</div>
+
+<!-- шторка: свой период для списка -->
+<div class="scrim" id="periodSheet">
+  <form class="sheet" id="periodForm">
+    <div class="grab"></div>
+    <div class="row-between"><h2>Свой период</h2><button type="button" class="x" data-close aria-label="Закрыть">×</button></div>
+    <div class="grid2">
+      <label class="field">С<input type="date" name="from" required></label>
+      <label class="field">По<input type="date" name="to" required></label>
+    </div>
+    <button class="btn" type="submit">Показать</button>
+  </form>
+</div>
+
+<!-- шторка: трата -->
+<div class="scrim" id="expSheet">
+  <form class="sheet" id="expForm">
+    <div class="grab"></div>
+    <div class="row-between">
+      <div><h2 id="expTitle"></h2><div class="hint" id="expMeta"></div></div>
+      <button type="button" class="x" data-close aria-label="Закрыть">×</button>
+    </div>
+    <div><div class="big" id="expRub" style="font-size:28px"></div><div class="hint" id="expSub"></div></div>
+    <div class="field">Категория<div class="wrap" id="expCats"></div></div>
+    <label class="toggle"><span>Не учитывать в лимите<small>Трата останется в списке, но не съест лимит</small></span>
+      <input type="checkbox" id="expOut"></label>
+    <label class="toggle plain"><span id="expAllLabel"></span><input type="checkbox" id="expAll"></label>
+    <button class="btn" type="submit">Готово</button>
+  </form>
+</div>
+
 <script>
 const tg = window.Telegram && Telegram.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 const $ = (id) => document.getElementById(id);
 const nf = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 });
-const n = (v) => nf.format(Math.round(Math.abs(v)));
+const n = (v) => nf.format(Math.round(Math.abs(Number(v) || 0)));
 const CUR = { VND: '₫', USD: '$', EUR: '€', RUB: '₽' };
-const MONTHS = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const COLORS = { shops: '#1f6fd1', cafe: '#d9480f', transport: '#0f766e', fun: '#7c3aed', housing: '#6b7280',
+  subs: '#0e7490', health: '#be185d', other: '#a16207' };
+const MON = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
 const WD = ['вс','пн','вт','ср','чт','пт','сб'];
-const d = (iso) => { const [y, m, dd] = iso.split('-').map(Number); return new Date(y, m - 1, dd); };
-const dayTitle = (iso) => { const x = d(iso); return `${WD[x.getDay()]}, ${x.getDate()} ${MONTHS[x.getMonth()]}`; };
-const short = (iso) => { const x = d(iso); return `${x.getDate()} ${MONTHS[x.getMonth()]}`; };
-const cache = {};
-
-function el(tag, cls, text) {
+const pd = (iso) => { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d); };
+const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const addDays = (d, k) => { const x = new Date(d); x.setDate(x.getDate() + k); return x; };
+const short = (s) => { const d = pd(s); return `${d.getDate()} ${MON[d.getMonth()]}`; };
+const wdShort = (s) => { const d = pd(s); return `${WD[d.getDay()]} ${d.getDate()}`; };
+const dayTitle = (s, today) => {
+  const d = pd(s), label = `${WD[d.getDay()]}, ${d.getDate()} ${MON[d.getMonth()]}`;
+  if (s === today) return 'сегодня, ' + label;
+  if (s === iso(addDays(pd(today), -1))) return 'вчера, ' + label;
+  return label;
+};
+const plural = (k, a, b, c) => (k % 10 === 1 && k % 100 !== 11) ? a : ([2,3,4].includes(k % 10) && ![12,13,14].includes(k % 100)) ? b : c;
+function el(tag, attrs, ...kids) {
   const e = document.createElement(tag);
-  if (cls) e.className = cls;
-  if (text != null) e.textContent = text;
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v; else if (k === 'style') e.style.cssText = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v); else e.setAttribute(k, v === true ? '' : v);
+  }
+  for (const c of kids.flat()) if (c != null && c !== false) e.append(c instanceof Node ? c : String(c));
   return e;
 }
 
-async function load(period) {
-  if (cache[period]) return cache[period];
+const state = { period: 'day', from: null, to: null, card: null, category: null };
+let data = null;
+
+async function api(path, body) {
   const initData = tg ? tg.initData : '';
   if (!initData) throw new Error('Открой страницу из Kaspi-бота в Telegram.');
-  const r = await fetch('/api/kaspi/summary', { method: 'POST', body: JSON.stringify({ initData, period }) });
+  const r = await fetch('/api/kaspi/' + path, { method: 'POST', body: JSON.stringify({ initData, ...body }) });
   const j = await r.json().catch(() => ({}));
   if (r.status === 401 || r.status === 403) throw new Error('Нет доступа.');
-  if (!r.ok || !j.ok) throw new Error('Не удалось загрузить: ' + (j.error || r.status));
-  return (cache[period] = j);
+  if (!r.ok || !j.ok) throw new Error('Ошибка: ' + (j.error || r.status));
+  return j;
 }
 
-function render(s) {
-  $('range').textContent = s.from === s.to ? `Сегодня, ${short(s.to)}` : `${short(s.from)} — ${short(s.to)}`;
-  $('total').textContent = `${s.total_rub < 0 ? '+' : ''}${n(s.total_rub)} ₽`;
-  const words = s.count % 10 === 1 && s.count % 100 !== 11 ? 'трата'
-    : [2, 3, 4].includes(s.count % 10) && ![12, 13, 14].includes(s.count % 100) ? 'траты' : 'трат';
-  $('sub').textContent = `≈ ${n(s.total_kzt)} ₸ · ${s.count} ${words}`
-    + (Math.abs(s.fx_kzt) >= 1 ? ` · курсовая разница ${n(s.fx_kzt)} ₸` : '')
-    + (s.no_rate ? ' · часть без курса ЦБ' : '');
-
-  const list = $('list');
-  list.replaceChildren();
-  if (!s.items.length) {
-    list.append(el('div', 'empty', s.period === 'day'
-      ? 'За сегодня трат пока нет. Траты появляются, когда присылаешь выписку боту.'
-      : 'За этот период трат нет.'));
+async function reload() {
+  try {
+    const body = { period: state.period, card: state.card, category: state.category };
+    if (state.period === 'custom') Object.assign(body, { from: state.from, to: state.to });
+    data = await api('summary', body);
+    render();
+  } catch (e) {
+    $('list').replaceChildren(el('div', { class: 'error' }, e.message));
   }
-  const byDay = {};
-  for (const it of s.items) (byDay[it.date] = byDay[it.date] || []).push(it);
-  const dayTotals = Object.fromEntries(s.days.map((x) => [x.date, x]));
-  for (const date of Object.keys(byDay)) {
-    const box = el('div', 'day');
-    const head = el('div', 'day-head');
-    head.append(el('span', '', dayTitle(date)), el('span', '', `${n(dayTotals[date]?.rub || 0)} ₽`));
-    const card = el('div', 'card');
-    for (const it of byDay[date]) {
-      const row = el('div', 'row' + (it.refund ? ' refund' : ''));
-      const left = el('div', 'm', it.merchant);
-      if (it.refund) left.append(el('small', '', 'возврат'));
-      const right = el('div', 'r', it.rub != null ? `${it.refund ? '+' : ''}${n(it.rub)} ₽` : `${n(it.kzt)} ₸`);
-      const subParts = [];
-      if (it.orig != null && it.cur) subParts.push(`${n(it.orig)} ${CUR[it.cur] || it.cur}`);
-      if (it.rub != null) subParts.push(`${n(it.kzt)} ₸`);
-      if (s.multi_card && it.card) subParts.push(`*${it.card}`);
-      if (subParts.length) right.append(el('small', '', subParts.join(' · ')));
-      row.append(left, right);
-      card.append(row);
-    }
-    box.append(head, card);
-    list.append(box);
-  }
+}
 
+function render() {
+  const s = data, b = s.budget;
+  // карты
+  const cards = [{ card: null, label: s.cards.length > 1 ? 'Обе карты' : 'Все карты' }, ...s.cards];
+  $('cards').replaceChildren(...cards.map((c) => el('button', {
+    class: 'chip', 'aria-pressed': String(state.card === c.card),
+    onclick: () => { state.card = c.card; reload(); } }, c.label)));
+  renderBudget(b);
+  // вкладки
+  document.querySelectorAll('#tabs button').forEach((x) => x.setAttribute('aria-selected', String(x.dataset.p === state.period)));
+  renderCats(s);
+  renderList(s);
   const up = s.last_upload ? new Date(s.last_upload) : null;
-  $('foot').textContent = up
-    ? `Последняя выписка загружена ${up.toLocaleString('ru-RU', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}`
-      + (s.last_op_date ? ` · операции по ${short(s.last_op_date)}` : '')
+  $('fresh').textContent = up
+    ? `Данные по выписке на ${short(s.last_op_date)} · загружена ${up.toLocaleString('ru-RU', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}`
     : 'Выписок ещё не было — пришли PDF боту.';
 }
 
-async function show(period) {
-  document.querySelectorAll('.tabs button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.p === period)));
-  $('list').replaceChildren(el('div', 'empty', 'Загружаю…'));
-  try { render(await load(period)); }
-  catch (e) { $('list').replaceChildren(el('div', 'error', e.message)); $('total').textContent = '—'; $('sub').textContent = ''; }
+function renderBudget(b) {
+  const box = $('budget'), a = b.active, today = b.today;
+  const todayLine = el('div', { style: 'text-align:right' }, el('div', { class: 'hint' }, 'сегодня'),
+    el('div', { style: 'font-size:20px;font-weight:700' }, (b.today_spent_rub < 0 ? '+' : '') + n(b.today_spent_rub) + ' ₽'));
+  if (!a) {
+    box.replaceChildren(
+      el('div', { class: 'row-between' },
+        el('div', {}, el('div', { class: 'hint' }, 'Лимит на период'), el('div', { class: 'big', style: 'font-size:24px' }, 'не задан')),
+        todayLine),
+      el('button', { class: 'btn', onclick: () => openLimit() }, 'Задать лимит'));
+    return;
+  }
+  const range = `${wdShort(a.start)} — ${wdShort(a.end)} ${MON[pd(a.end).getMonth()]}`;
+  if (a.ended) {
+    const over = a.left_rub < 0;
+    const nd = b.next_default;
+    box.replaceChildren(
+      el('div', { class: 'hint' }, `Период ${range} закончился`),
+      el('div', {}, el('div', { class: 'big', style: `font-size:28px;color:${over ? 'var(--warn)' : 'var(--good)'}` },
+        over ? `Перерасход ${n(a.left_rub)} ₽` : `Уложились, осталось ${n(a.left_rub)} ₽`),
+        el('div', { class: 'hint' }, `Потрачено ${n(a.spent_rub)} из ${n(a.limit_rub)} ₽`)),
+      el('div', { class: 'row-between' }, el('span', { class: 'hint' }, 'Сегодня потрачено'),
+        el('b', {}, (b.today_spent_rub < 0 ? '+' : '') + n(b.today_spent_rub) + ' ₽')),
+      el('button', { class: 'btn', onclick: () => openLimit(nd) }, `Выставить новый: ${short(nd.start)} — ${short(nd.end)}`));
+    return;
+  }
+  const max = Math.max(1, ...a.days.map((d) => d.rub));
+  const bars = el('div', { class: 'bars', style: `grid-template-columns:repeat(${a.days.length},1fr)` },
+    ...a.days.map((d) => el('div', {},
+      el('i', { class: d.date === today ? 'today' : '', style: `height:${d.date > today ? 3 : Math.max(3, Math.round(Math.max(0, d.rub) / max * 44))}px` }),
+      el('span', {}, a.days.length <= 10 ? WD[pd(d.date).getDay()] : pd(d.date).getDate()))));
+  const pct = Math.min(100, Math.max(0, a.spent_rub / a.limit_rub * 100));
+  const over = a.left_rub < 0;
+  box.replaceChildren(
+    el('div', { class: 'row-between' }, el('span', { class: 'hint' }, `Лимит · ${range}`),
+      el('button', { class: 'link', onclick: () => openLimit({ start: a.start, end: a.end, limit_rub: a.limit_rub }) }, 'Изменить')),
+    el('div', { class: 'row-between', style: 'align-items:flex-end' },
+      el('div', {},
+        el('div', { class: 'big', style: over ? 'color:var(--warn)' : '' }, over ? `−${n(a.left_rub)} ₽` : `${n(a.left_rub)} ₽`),
+        el('div', { class: 'hint' }, over ? `перерасход · лимит ${n(a.limit_rub)} ₽`
+          : `осталось из ${n(a.limit_rub)} · ~${n(a.per_day_rub)} ₽ в день · ${a.days_left} ${plural(a.days_left, 'день', 'дня', 'дней')}`)),
+      todayLine),
+    el('div', { class: 'progress' }, el('i', { style: `width:${pct}%;${over ? 'background:var(--warn)' : ''}` })),
+    bars);
 }
 
-document.querySelectorAll('.tabs button').forEach((b) => b.addEventListener('click', () => show(b.dataset.p)));
-show('day');
+function renderCats(s) {
+  const box = $('cats');
+  const cats = s.categories;
+  if (!cats.length) { box.style.display = 'none'; return; }
+  box.style.display = '';
+  const max = Math.max(1, ...cats.map((c) => c.rub));
+  const rows = [];
+  for (const c of cats) {
+    const dim = state.category && state.category !== c.key;
+    if (c.rub > 0 || c.rub < 0) rows.push(el('button', { class: 'cat' + (dim ? ' dim' : ''), onclick: () => toggleCat(c.key) },
+      el('span', { class: 'line' }, el('span', {}, c.label), el('b', {}, n(c.rub) + ' ₽')),
+      el('span', { class: 'track' }, el('i', { style: `width:${Math.max(2, c.rub / max * 100)}%;background:${COLORS[c.key]}` }))));
+  }
+  const out = cats.filter((c) => c.excluded_rub);
+  if (out.length) rows.push(el('div', { class: 'cat out' }, el('span', { class: 'line' },
+    el('span', {}, 'Вне лимита: ' + out.map((c) => c.label.toLowerCase()).join(', ')),
+    el('b', {}, n(out.reduce((t, c) => t + c.excluded_rub, 0)) + ' ₽'))));
+  box.replaceChildren(
+    el('div', { class: 'row-between' }, el('b', {}, 'По категориям'),
+      state.category ? el('button', { class: 'link', onclick: () => toggleCat(state.category) }, 'Сбросить') : el('span', { class: 'hint' }, 'тап = фильтр')),
+    ...rows);
+}
+
+function toggleCat(key) { state.category = state.category === key ? null : key; reload(); }
+
+function renderList(s) {
+  const box = $('list');
+  const today = s.budget.today;
+  if (!s.items.length) {
+    box.replaceChildren(el('div', { class: 'empty' }, state.period === 'day'
+      ? 'За сегодня трат пока нет. Траты появляются, когда присылаешь выписку боту.'
+      : 'Трат за этот период нет.'));
+    return;
+  }
+  const dayTot = Object.fromEntries(s.days.map((d) => [d.date, d]));
+  const byDay = {};
+  for (const it of s.items) (byDay[it.date] = byDay[it.date] || []).push(it);
+  const head = el('div', { class: 'row-between', style: 'padding:0 4px' },
+    el('span', { class: 'hint' }, s.from === s.to ? short(s.from) : `${short(s.from)} — ${short(s.to)}`),
+    el('b', {}, `${n(s.total_rub)} ₽ · ${s.count} ${plural(s.count, 'трата', 'траты', 'трат')}`));
+  const multi = s.cards.length > 1;
+  const cardLabel = Object.fromEntries(s.cards.map((c) => [c.card, c.label]));
+  const groups = Object.keys(byDay).map((date) => {
+    const t = dayTot[date] || { rub: 0, excluded_rub: 0 };
+    return [
+      el('div', { class: 'day-head' }, el('span', {}, dayTitle(date, today)),
+        el('span', {}, `${n(t.rub)} ₽` + (t.excluded_rub ? ` · вне лимита ${n(t.excluded_rub)} ₽` : ''))),
+      el('div', { class: 'list' }, ...byDay[date].map((it) => {
+        const sub = [];
+        if (it.orig != null && it.cur) sub.push(`${n(it.orig)} ${CUR[it.cur] || it.cur}`);
+        if (it.rub != null) sub.push(`${n(it.kzt)} ₸`);
+        if (multi && it.card) sub.push(cardLabel[it.card] || '*' + it.card);
+        const catLabel = s.category_labels[it.category] + (it.excluded ? ' · вне лимита' : '') + (it.refund ? ' · возврат' : '');
+        return el('button', { class: 'item' + (it.excluded ? ' out' : '') + (it.refund ? ' refund' : ''), onclick: () => openExpense(it) },
+          el('span', { class: 'dot', style: `background:${COLORS[it.category]}` }),
+          el('span', { class: 'm' }, el('b', {}, it.merchant), el('small', {}, catLabel)),
+          el('span', { class: 'r' }, it.rub != null ? `${it.refund ? '+' : ''}${n(it.rub)} ₽` : `${n(it.kzt)} ₸`,
+            sub.length ? el('small', {}, sub.join(' · ')) : null));
+      })),
+    ];
+  });
+  box.replaceChildren(el('div', { style: 'display:flex;flex-direction:column;gap:8px' }, head, ...groups.flat()));
+}
+
+// ---- шторки ----
+const open = (id) => $(id).classList.add('open');
+const close = (id) => $(id).classList.remove('open');
+document.querySelectorAll('.scrim').forEach((sc) => {
+  sc.addEventListener('click', (e) => { if (e.target === sc || e.target.hasAttribute('data-close')) sc.classList.remove('open'); });
+});
+
+function openLimit(pref) {
+  const f = $('limitForm'), nd = (data && data.budget.next_default) || {};
+  const p = pref || nd;
+  f.start.value = p.start || ''; f.end.value = p.end || '';
+  f.limit.value = p.limit_rub ? Math.round(p.limit_rub) : (nd.limit_rub ? Math.round(nd.limit_rub) : '');
+  markPreset(); limitHint(); open('limitSheet');
+}
+function limitHint() {
+  const f = $('limitForm');
+  if (!f.start.value || !f.end.value || f.end.value < f.start.value) { $('limitHint').textContent = ''; return; }
+  const days = Math.round((pd(f.end.value) - pd(f.start.value)) / 864e5) + 1;
+  const lim = Number(f.limit.value) || 0;
+  $('limitHint').textContent = `${days} ${plural(days, 'день', 'дня', 'дней')}` + (lim ? ` · ≈ ${n(lim / days)} ₽ в день` : '');
+}
+function presetRange(kind) {
+  const t = pd(data.budget.today);
+  if (kind === 'fri') { const nd = data.budget.next_default; return [nd.start, nd.end]; }
+  if (kind === 'mon') { const s = addDays(t, -((t.getDay() + 6) % 7)); return [iso(s), iso(addDays(s, 6))]; }
+  const s = new Date(t.getFullYear(), t.getMonth(), 1), e = new Date(t.getFullYear(), t.getMonth() + 1, 0);
+  return [iso(s), iso(e)];
+}
+function markPreset() {
+  const f = $('limitForm');
+  document.querySelectorAll('#presets [data-preset]').forEach((b) => {
+    const [s, e] = presetRange(b.dataset.preset);
+    b.setAttribute('aria-pressed', String(f.start.value === s && f.end.value === e));
+  });
+}
+document.querySelectorAll('#presets [data-preset]').forEach((b) => b.addEventListener('click', () => {
+  const f = $('limitForm'); [f.start.value, f.end.value] = presetRange(b.dataset.preset); markPreset(); limitHint();
+}));
+['start', 'end', 'limit'].forEach((k) => $('limitForm')[k].addEventListener('input', () => { markPreset(); limitHint(); }));
+$('limitForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = e.target, btn = f.querySelector('.btn');
+  btn.disabled = true;
+  try {
+    await api('budget-set', { start: f.start.value, end: f.end.value, limit_rub: Number(f.limit.value) });
+    close('limitSheet'); tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('success');
+    await reload();
+  } catch (err) { $('limitHint').textContent = err.message; }
+  btn.disabled = false;
+});
+
+$('periodForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const f = e.target;
+  if (f.to.value < f.from.value) return;
+  Object.assign(state, { period: 'custom', from: f.from.value, to: f.to.value });
+  close('periodSheet'); reload();
+});
+document.querySelectorAll('#tabs button').forEach((b) => b.addEventListener('click', () => {
+  if (b.dataset.p === 'custom') {
+    const f = $('periodForm'), t = data ? data.budget.today : iso(new Date());
+    f.from.value = state.from || iso(addDays(pd(t), -6)); f.to.value = state.to || t;
+    open('periodSheet'); return;
+  }
+  state.period = b.dataset.p; reload();
+}));
+
+let editing = null;
+function openExpense(it) {
+  editing = { it, category: it.category };
+  $('expTitle').textContent = it.merchant;
+  const cardLabel = (data.cards.find((c) => c.card === it.card) || {}).label;
+  $('expMeta').textContent = dayTitle(it.date, data.budget.today) + (cardLabel ? ' · ' + cardLabel : '');
+  $('expRub').textContent = it.rub != null ? `${it.refund ? '+' : ''}${n(it.rub)} ₽` : `${n(it.kzt)} ₸`;
+  $('expSub').textContent = [it.orig != null && it.cur ? `${n(it.orig)} ${CUR[it.cur] || it.cur}` : null, `${n(it.kzt)} ₸`].filter(Boolean).join(' · ');
+  $('expOut').checked = it.excluded;
+  $('expAll').checked = false;
+  $('expAllLabel').replaceChildren(`Так же для всех трат ${it.merchant}`,
+    el('small', {}, `Прошлые и будущие · сейчас ${it.merchant_count} ${plural(it.merchant_count, 'трата', 'траты', 'трат')}`));
+  drawExpCats(); open('expSheet');
+}
+function drawExpCats() {
+  $('expCats').replaceChildren(...Object.entries(data.category_labels).map(([k, v]) => el('button', {
+    type: 'button', class: 'soft-chip', 'aria-pressed': String(editing.category === k),
+    onclick: () => { editing.category = k; drawExpCats(); } }, v)));
+}
+$('expForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const it = editing.it, body = { id: it.id, apply_to_merchant: $('expAll').checked };
+  if (editing.category !== it.category || body.apply_to_merchant) body.category = editing.category;
+  if ($('expOut').checked !== it.excluded || body.apply_to_merchant) body.excluded = $('expOut').checked;
+  if (!('category' in body) && !('excluded' in body)) { close('expSheet'); return; }
+  const btn = e.target.querySelector('.btn'); btn.disabled = true;
+  try { await api('expense-update', body); close('expSheet'); await reload(); }
+  catch (err) { $('expSub').textContent = err.message; }
+  btn.disabled = false;
+});
+
+reload();
 </script>
 </body>
 </html>
