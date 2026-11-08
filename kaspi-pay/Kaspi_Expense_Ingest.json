@@ -1,0 +1,497 @@
+{
+  "name": "Kaspi_Expense_Ingest",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "kaspi-expense",
+        "authentication": "headerAuth",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "kx-webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "a3c5e7f9-1b2d-4e6f-8a0b-c2d4e6f8a1b3",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "IDIC0lbFVsScUBX9di",
+          "name": "Kaspi X-Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c1",
+              "name": "chat_id",
+              "value": "648226895",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "kx-config",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Тело формы из «Команд» iOS: text = OCR скриншота, ts = «Текущая дата» в формате iOS\n// (локализованная строка вида «8 нояб. 2026 г., 14:32» — не парсим, отдаём LLM как подсказку).\nconst b = $json.body || {};\nconst text = String(b.text || '').trim().slice(0, 6000);\nconst tsRaw = String(b.ts || '').trim();\n// Опорное «сейчас» по Вьетнаму: 'YYYY-MM-DDTHH:MM' (sv-SE даёт ISO-подобный формат).\nconst nowLocal = new Intl.DateTimeFormat('sv-SE', {\n  timeZone: 'Asia/Ho_Chi_Minh', year: 'numeric', month: '2-digit', day: '2-digit',\n  hour: '2-digit', minute: '2-digit', hour12: false,\n}).format(new Date()).replace(' ', 'T');\n\nconst SYSTEM = \"Ты разбираешь OCR-текст со скриншота приложения Kaspi.kz (Казахстан). Пользователь во Вьетнаме платит по QR: продавец получает донги (VND, ₫), со счёта списываются тенге (KZT, ₸).\\nНа скриншоте либо один чек (обычно есть слово «Оплачено»), либо экран истории с несколькими операциями под заголовками дат («Сегодня», «Вчера», «5 ноября»). Верни все операции, которые видны.\\n\\nПравила:\\n- amount_kzt — сколько тенге реально списано со счёта. Если отдельно показаны сумма и комиссия и есть итог — бери итог. Число без знака и пробелов. Суммы в ₸ нет — null.\\n- amount_vnd — сумма в донгах, если видна (₫, VND, đ). Во вьетнамском формате точка разделяет тысячи: «150.000 ₫» = 150000. Не видна — null.\\n- merchant — название продавца как на экране, без слов «Оплата», «Покупка», «QR».\\n- datetime — локальное время операции: YYYY-MM-DDTHH:MM, если время видно; YYYY-MM-DD, если видна только дата; null, если даты нет совсем. «Сегодня», «Вчера» и дату без года считай от момента скриншота.\\n- time_known — true, только если время операции явно есть на экране.\\n- type: purchase — оплата/покупка; refund — возврат покупки; transfer — перевод человеку; topup — пополнение, входящий перевод, кэшбэк; other — прочее.\\n- Ничего не выдумывай. Если текст не похож на Kaspi или операций нет — ok=false и короткая причина в error по-русски.\\n- OCR бывает кривым: «Т», «T» или «Ŧ» вместо ₸, лишние пробелы внутри чисел, разорванные строки.\";\nconst SCHEMA = {\"type\": \"object\", \"additionalProperties\": false, \"required\": [\"ok\", \"error\", \"operations\"], \"properties\": {\"ok\": {\"type\": \"boolean\"}, \"error\": {\"type\": [\"string\", \"null\"]}, \"operations\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"additionalProperties\": false, \"required\": [\"amount_kzt\", \"amount_vnd\", \"merchant\", \"datetime\", \"time_known\", \"type\"], \"properties\": {\"amount_kzt\": {\"type\": [\"number\", \"null\"]}, \"amount_vnd\": {\"type\": [\"number\", \"null\"]}, \"merchant\": {\"type\": \"string\"}, \"datetime\": {\"type\": [\"string\", \"null\"]}, \"time_known\": {\"type\": \"boolean\"}, \"type\": {\"type\": \"string\", \"enum\": [\"purchase\", \"refund\", \"transfer\", \"topup\", \"other\"]}}}}}};\nconst request = {\n  model: 'gpt-5-mini',\n  reasoning_effort: 'low',\n  response_format: { type: 'json_schema', json_schema: { name: 'kaspi_ops', strict: true, schema: SCHEMA } },\n  messages: [\n    { role: 'system', content: SYSTEM },\n    { role: 'user', content: `Момент скриншота по телефону (формат iOS): ${tsRaw || 'не передан'}\\nСейчас во Вьетнаме: ${nowLocal}\\n\\nТекст скриншота:\\n${text || '(пусто)'}` },\n  ],\n};\nreturn [{ json: { text, ts_raw: tsRaw, now_local: nowLocal, request } }];\n"
+      },
+      "id": "kx-prep",
+      "name": "Prep",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.request) }}",
+        "options": {
+          "timeout": 90000
+        }
+      },
+      "id": "kx-parse-llm",
+      "name": "Parse LLM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        300
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "SkPovYGQlL1P1Ft5",
+          "name": "OpenAI account"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Разбор ответа LLM + валидация: сумма > 0, дата не из будущего, только покупки/возвраты.\n// Готовит ключ дедупа: минута + сумма (₸, иначе ₫) + нормализованный продавец.\nconst prep = $('Prep').first().json;\nconst fail = (reason) => [{ json: { ok: false, reason, ops: [] } }];\n\nlet parsed = null;\ntry { parsed = JSON.parse($json.choices?.[0]?.message?.content || ''); } catch (e) {}\nif (!parsed) return fail($json.error?.message || 'LLM не вернул JSON');\nif (!parsed.ok) return fail(parsed.error || 'операции не найдены');\n\nconst pseudo = (local) => Date.parse(local + ':00Z');   // сравниваем локальные времена как UTC\nconst nowP = pseudo(prep.now_local);\nconst today = prep.now_local.slice(0, 10);\nconst norm = (s) => String(s || '').toLowerCase().normalize('NFKD')\n  .replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd')\n  .replace(/[^a-z0-9а-яё]+/g, ' ').trim();\nconst num = (v) => (v === null || v === undefined || v === '') ? null : Number(v);\n\nconst ops = [], dropped = [];\nfor (const o of parsed.operations || []) {\n  if (!['purchase', 'refund'].includes(o.type)) { dropped.push(o.type); continue; }\n  const kzt = num(o.amount_kzt), vnd = num(o.amount_vnd);\n  const kztOk = Number.isFinite(kzt) && kzt > 0;\n  const vndOk = Number.isFinite(vnd) && vnd > 0;\n  if (!kztOk && !vndOk) { dropped.push('сумма'); continue; }\n\n  const m = /^(\\d{4}-\\d{2}-\\d{2})(?:T(\\d{2}:\\d{2}))?/.exec(String(o.datetime || ''));\n  const date = m ? m[1] : today;\n  const timeKnown = !!(m && m[2] && o.time_known !== false);\n  const local = `${date}T${timeKnown ? m[2] : '00:00'}`;\n  const p = pseudo(local);\n  if (!Number.isFinite(p)) { dropped.push('дата'); continue; }\n  if (p > nowP + 10 * 60e3) { dropped.push('будущее'); continue; }\n  if (p < nowP - 400 * 864e5) { dropped.push('старое'); continue; }\n\n  const merchant = String(o.merchant || '').trim().slice(0, 200) || 'без названия';\n  const merchantNorm = norm(merchant) || 'unknown';\n  const amountKey = kztOk ? 'kzt' + kzt.toFixed(2) : 'vnd' + Math.round(vnd);\n  ops.push({\n    op_local: local, op_date: date, time_known: timeKnown,\n    merchant, merchant_norm: merchantNorm, type: o.type,\n    amount_kzt: kztOk ? Math.round(kzt * 100) / 100 : null,\n    amount_vnd: vndOk ? Math.round(vnd) : null,\n    amount_key: amountKey,\n    dedup_key: `${local}|${amountKey}|${merchantNorm}`,\n  });\n}\nif (!ops.length) return fail(dropped.length ? `нет покупок (пропущено: ${dropped.join(', ')})` : 'операции не найдены');\n\nconst seen = new Set();\nconst uniq = ops.filter((o) => !seen.has(o.dedup_key) && seen.add(o.dedup_key));\nconst q = (s) => String(s).replace(/'/g, \"''\");          // экранирование для SQL-литерала\nreturn [{ json: { ok: true, ops: uniq, dropped: dropped.length, sql_json: q(JSON.stringify(uniq)), sql_raw: q(prep.text) } }];\n"
+      },
+      "id": "kx-validate",
+      "name": "Validate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "v1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "kx-valid",
+      "name": "Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT day FROM kaspi_fx_rates WHERE day = (now() AT TIME ZONE 'Europe/Moscow')::date;",
+        "options": {}
+      },
+      "id": "kx-get-rate",
+      "name": "Get Rate",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1320,
+        200
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "r1",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.day }}",
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "kx-has-rate",
+      "name": "Has Rate?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1540,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://www.cbr-xml-daily.ru/daily_json.js",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "kx-fetch-cbr",
+      "name": "Fetch CBR",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        320
+      ],
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO kaspi_fx_rates (day, cbr_date, kzt_rub, vnd_rub)\nVALUES ((now() AT TIME ZONE 'Europe/Moscow')::date,\n        '{{ String($json.Date).slice(0, 10) }}',\n        {{ $json.Valute.KZT.Value / $json.Valute.KZT.Nominal }},\n        {{ $json.Valute.VND ? $json.Valute.VND.Value / $json.Valute.VND.Nominal : 'NULL' }})\nON CONFLICT (day) DO UPDATE SET cbr_date = EXCLUDED.cbr_date, kzt_rub = EXCLUDED.kzt_rub,\n       vnd_rub = EXCLUDED.vnd_rub, fetched_at = now()\nRETURNING day;",
+        "options": {}
+      },
+      "id": "kx-save-rate",
+      "name": "Save Rate",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1980,
+        320
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=WITH input AS (\n  SELECT * FROM jsonb_to_recordset('{{ $('Validate').first().json.sql_json }}'::jsonb) AS x(\n    op_local timestamp, op_date date, time_known boolean, merchant text, merchant_norm text,\n    type text, amount_kzt numeric, amount_vnd numeric, amount_key text, dedup_key text)\n), rate AS (\n  -- самый свежий курс: сегодняшний, а если ЦБ не ответил — последний известный\n  SELECT * FROM kaspi_fx_rates ORDER BY day DESC LIMIT 1\n)\nINSERT INTO kaspi_expenses (op_at, op_date, time_known, merchant, merchant_norm, type,\n       amount_kzt, amount_vnd, amount_rub, rub_source, rate_day, kzt_rub, vnd_rub,\n       amount_key, dedup_key, raw_text)\nSELECT i.op_local AT TIME ZONE 'Asia/Ho_Chi_Minh', i.op_date, i.time_known, i.merchant, i.merchant_norm, i.type,\n       i.amount_kzt, i.amount_vnd,\n       round(COALESCE(i.amount_kzt * r.kzt_rub, i.amount_vnd * r.vnd_rub), 2),\n       CASE WHEN i.amount_kzt IS NOT NULL AND r.kzt_rub IS NOT NULL THEN 'kzt'\n            WHEN i.amount_vnd IS NOT NULL AND r.vnd_rub IS NOT NULL THEN 'vnd' END,\n       r.day, r.kzt_rub, r.vnd_rub, i.amount_key, i.dedup_key,\n       '{{ $('Validate').first().json.sql_raw }}'\n  FROM input i\n  LEFT JOIN rate r ON true\n -- экран истории без времени: та же дата + сумма + продавец уже есть → дубль\n WHERE NOT EXISTS (\n       SELECT 1 FROM kaspi_expenses e\n        WHERE e.op_date = i.op_date AND e.amount_key = i.amount_key\n          AND e.merchant_norm = i.merchant_norm\n          AND (NOT e.time_known OR NOT i.time_known))\nON CONFLICT (dedup_key) DO NOTHING\nRETURNING id, op_date, time_known, merchant, type, amount_kzt, amount_vnd, amount_rub, kzt_rub, vnd_rub;",
+        "options": {}
+      },
+      "id": "kx-insert-ops",
+      "name": "Insert Ops",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2200,
+        200
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "1Vpr6VdwzI4rfpHh",
+          "name": "PG"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// «Записала: 150 000 ₫ (≈ 2 900 ₸ ≈ 520 ₽), кафе». Только новые строки (дубли INSERT пропустил).\nconst rows = $input.all().map((i) => i.json).filter((r) => r.id);\nconst v = $('Validate').first().json;\nconst sp = (n) => Math.round(Number(n)).toString().replace(/\\B(?=(\\d{3})+(?!\\d))/g, ' ');\nconst line = (r) => {\n  const vnd = r.amount_vnd != null ? Number(r.amount_vnd) : null;\n  let kzt = r.amount_kzt != null ? Number(r.amount_kzt) : null;\n  if (kzt == null && vnd != null && r.kzt_rub && r.vnd_rub) kzt = vnd * Number(r.vnd_rub) / Number(r.kzt_rub);\n  const head = vnd != null ? `${sp(vnd)} ₫` : `${sp(kzt)} ₸`;\n  const tail = [];\n  if (vnd != null && kzt != null) tail.push(`≈ ${sp(kzt)} ₸`);\n  if (r.amount_rub != null) tail.push(`≈ ${sp(r.amount_rub)} ₽`);\n  return `${r.type === 'refund' ? 'возврат ' : ''}${head}${tail.length ? ` (${tail.join(' ')})` : ''}, ${r.merchant}`;\n};\nlet text;\nif (!rows.length) {\n  text = `Новых трат нет — всё с этого скриншота уже записано (${v.ops.length}).`;\n} else if (rows.length === 1) {\n  text = `Записала: ${line(rows[0])}`;\n} else {\n  const total = rows.reduce((s, r) => s + (r.amount_rub != null ? (r.type === 'refund' ? -1 : 1) * Number(r.amount_rub) : 0), 0);\n  const dup = v.ops.length - rows.length;\n  text = `Записала ${rows.length}:\\n` + rows.map((r) => '• ' + line(r)).join('\\n')\n    + `\\nИтого ≈ ${sp(total)} ₽` + (dup > 0 ? `\\n(уже было: ${dup})` : '');\n}\nreturn [{ json: { text } }];\n"
+      },
+      "id": "kx-compose-reply",
+      "name": "Compose Reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2420,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Config').first().json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "kx-send-reply",
+      "name": "Send Reply",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2640,
+        200
+      ],
+      "webhookId": "kx-send-reply-hook",
+      "credentials": {
+        "telegramApi": {
+          "id": "SaBX5QH2O5ySg31H",
+          "name": "Kaspi Bot"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Config').first().json.chat_id }}",
+        "text": "=Не смогла разобрать скриншот\n({{ $json.reason }})",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "kx-send-error",
+      "name": "Send Error",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1320,
+        440
+      ],
+      "webhookId": "kx-send-error-hook",
+      "credentials": {
+        "telegramApi": {
+          "id": "SaBX5QH2O5ySg31H",
+          "name": "Kaspi Bot"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Prep",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep": {
+      "main": [
+        [
+          {
+            "node": "Parse LLM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse LLM": {
+      "main": [
+        [
+          {
+            "node": "Validate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate": {
+      "main": [
+        [
+          {
+            "node": "Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid?": {
+      "main": [
+        [
+          {
+            "node": "Get Rate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Rate": {
+      "main": [
+        [
+          {
+            "node": "Has Rate?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Rate?": {
+      "main": [
+        [
+          {
+            "node": "Insert Ops",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetch CBR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch CBR": {
+      "main": [
+        [
+          {
+            "node": "Save Rate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Rate": {
+      "main": [
+        [
+          {
+            "node": "Insert Ops",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Ops": {
+      "main": [
+        [
+          {
+            "node": "Compose Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose Reply": {
+      "main": [
+        [
+          {
+            "node": "Send Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Ho_Chi_Minh"
+  },
+  "pinData": {},
+  "tags": []
+}
