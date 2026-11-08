@@ -483,7 +483,8 @@ function openExpense(it) {
   $('expSub').textContent = [it.orig != null && it.cur ? `${n(it.orig)} ${CUR[it.cur] || it.cur}` : null, `${n(it.kzt)} ₸`].filter(Boolean).join(' · ');
   $('expOut').checked = it.excluded;
   $('expAll').checked = false;
-  $('expAllLabel').replaceChildren(`Так же для всех трат ${it.merchant}`,
+  const group = it.merchant.includes('*') ? it.merchant.split('*')[0].trim() + '*…' : it.merchant;
+  $('expAllLabel').replaceChildren(`Так же для всех трат ${group}`,
     el('small', {}, `Прошлые и будущие · сейчас ${it.merchant_count} ${plural(it.merchant_count, 'трата', 'траты', 'трат')}`));
   drawExpCats(); open('expSheet');
 }
@@ -494,9 +495,12 @@ function drawExpCats() {
 }
 $('expForm').addEventListener('submit', async (e) => {
   e.preventDefault();
+  // отправляем только то, что поменяли: с галкой непоменянная категория не должна застыть
+  // в правиле продавца (иначе «Прочее» навсегда перекроет автоматику)
   const it = editing.it, body = { id: it.id, apply_to_merchant: $('expAll').checked };
-  if (editing.category !== it.category || body.apply_to_merchant) body.category = editing.category;
-  if ($('expOut').checked !== it.excluded || body.apply_to_merchant) body.excluded = $('expOut').checked;
+  if (editing.category !== it.category) body.category = editing.category;
+  if ($('expOut').checked !== it.excluded) body.excluded = $('expOut').checked;
+  if (body.apply_to_merchant && !('category' in body) && !('excluded' in body)) body.excluded = it.excluded;
   if (!('category' in body) && !('excluded' in body)) { close('expSheet'); return; }
   const btn = e.target.querySelector('.btn'); btn.disabled = true;
   try { await api('expense-update', body); close('expSheet'); await reload(); }

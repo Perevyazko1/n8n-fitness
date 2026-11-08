@@ -384,7 +384,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "=SELECT e.merchant_norm, min(e.merchant) AS merchant\n  FROM kaspi_expenses e\n  LEFT JOIN kaspi_merchant_rules r ON r.merchant_norm = e.merchant_norm\n WHERE r.merchant_norm IS NULL AND e.kind IN ('purchase', 'fx_diff')\n GROUP BY e.merchant_norm\n LIMIT 150;",
+        "query": "=-- продавцы (ключ до «*») без правила или с правилом без категории (только «вне лимита»)\nSELECT kaspi_merchant_key(e.merchant, e.merchant_norm) AS merchant_norm, min(e.merchant) AS merchant\n  FROM kaspi_expenses e\n  LEFT JOIN kaspi_merchant_rules r ON r.merchant_norm = kaspi_merchant_key(e.merchant, e.merchant_norm)\n WHERE (r.merchant_norm IS NULL OR r.category IS NULL) AND e.kind IN ('purchase', 'fx_diff')\n GROUP BY 1\n LIMIT 150;",
         "options": {}
       },
       "id": "ks-uncategorized",
@@ -503,7 +503,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "=INSERT INTO kaspi_merchant_rules (merchant_norm, category, source)\nSELECT merchant_norm, category, source\n  FROM jsonb_to_recordset('{{ $json.sql_json }}'::jsonb) AS x(merchant_norm text, category text, source text)\nON CONFLICT (merchant_norm) DO NOTHING\nRETURNING merchant_norm;",
+        "query": "=INSERT INTO kaspi_merchant_rules (merchant_norm, category, source)\nSELECT merchant_norm, category, source\n  FROM jsonb_to_recordset('{{ $json.sql_json }}'::jsonb) AS x(merchant_norm text, category text, source text)\n-- ручную категорию не трогаем; правило без категории (только «вне лимита») дозаполняем\nON CONFLICT (merchant_norm) DO UPDATE SET category = EXCLUDED.category, updated_at = now()\n WHERE kaspi_merchant_rules.category IS NULL\nRETURNING merchant_norm;",
         "options": {}
       },
       "id": "ks-save-rules",

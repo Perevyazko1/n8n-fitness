@@ -7,6 +7,7 @@ kaspi-pay/sql/schema.sql. Здесь только сырой SQL, migrate их �
 - В траты идут kind IN ('purchase', 'fx_diff'). В таблице суммы со знаком (покупка < 0),
   наружу «трата» положительная, возврат — отрицательный.
 - Категория и «вне лимита»: ручная правка траты → правило продавца → 'other' / false.
+  Продавец для правил — kaspi_merchant_key(): часть названия до «*» (все «Grab* A-…» — один Grab).
 - Лимит общий на всех: считает траты всех карт и категорий, кроме «вне лимита».
 - «Сегодня» — по Вьетнаму (Asia/Ho_Chi_Minh).
 """
@@ -38,7 +39,7 @@ _RESOLVED = """
 """
 _FROM = """
   FROM kaspi_expenses e
-  LEFT JOIN kaspi_merchant_rules r ON r.merchant_norm = e.merchant_norm
+  LEFT JOIN kaspi_merchant_rules r ON r.merchant_norm = kaspi_merchant_key(e.merchant, e.merchant_norm)
 """
 
 
@@ -168,8 +169,7 @@ def summary(period, start=None, end=None, card=None, category=None):
     with connection.cursor() as cur:
         cur.execute(f"""SELECT e.id, e.card, e.op_date, e.kind, e.merchant, e.merchant_norm,
                                e.amount_kzt, e.amount_rub, e.orig_amount, e.orig_currency,
-                               (SELECT count(*) FROM kaspi_expenses x
-                                 WHERE x.merchant_norm = e.merchant_norm AND x.kind = 'purchase') AS m_count,
+                               kaspi_merchant_key(e.merchant, e.merchant_norm) AS mkey,
                                {_RESOLVED}
                           {_FROM}
                          WHERE {' AND '.join(where)}
@@ -177,12 +177,15 @@ def summary(period, start=None, end=None, card=None, category=None):
         rows = cur.fetchall()
         cur.execute("SELECT max(op_date), max(created_at) FROM kaspi_expenses")
         last_op, last_upload = cur.fetchone()
+        cur.execute("""SELECT kaspi_merchant_key(merchant, merchant_norm), count(*) FROM kaspi_expenses
+                        WHERE kind = 'purchase' GROUP BY 1""")
+        m_counts = dict(cur.fetchall())
 
     cats = {k: {"key": k, "label": v, "rub": 0.0, "excluded_rub": 0.0} for k, v in CATEGORIES.items()}
     items, days = [], {}
     total_kzt = total_rub = excl_rub = fx_kzt = 0.0
     no_rate = False
-    for (eid, card_, op_date, kind, merchant, mnorm, kzt, rub, orig, cur_code, m_count, cat, excluded) in rows:
+    for (eid, card_, op_date, kind, merchant, mnorm, kzt, rub, orig, cur_code, mkey, cat, excluded) in rows:
         cat = cat if cat in CATEGORIES else "other"
         s_kzt, s_rub = _spend(kzt), _spend(rub)
         no_rate |= s_rub is None
@@ -206,7 +209,7 @@ def summary(period, start=None, end=None, card=None, category=None):
             "kzt": round(s_kzt, 2), "rub": round(s_rub, 2) if s_rub is not None else None,
             "orig": abs(_f(orig)) if orig is not None else None, "cur": cur_code,
             "refund": s_kzt < 0, "card": card_, "category": cat, "excluded": bool(excluded),
-            "merchant_count": m_count,
+            "merchant_key": mkey, "merchant_count": m_counts.get(mkey, 1),
         })
 
     return {
@@ -251,8 +254,9 @@ _UNSET = object()
 
 @transaction.atomic
 def expense_update(expense_id, category=_UNSET, excluded=_UNSET, apply_to_merchant=False):
-    """Правка траты. apply_to_merchant: записать в правило продавца (source=manual) и снять ручные
-    правки с его трат, чтобы правило действовало на все прошлые и будущие."""
+    """Правка траты. apply_to_merchant: записать в правило продавца (ключ kaspi_merchant_key, source=manual)
+    только переданные поля и снять ручные правки этих полей с его трат — правило действует на все прошлые
+    и будущие. Непереданная категория в новом правиле остаётся NULL — её проставит автоматика."""
     if category is not _UNSET and category not in CATEGORIES:
         raise KaspiError("bad_category")
     if excluded is not _UNSET and not isinstance(excluded, bool):
@@ -260,14 +264,14 @@ def expense_update(expense_id, category=_UNSET, excluded=_UNSET, apply_to_mercha
     if category is _UNSET and excluded is _UNSET:
         raise KaspiError("nothing_to_update")
     with connection.cursor() as cur:
-        cur.execute("SELECT merchant_norm FROM kaspi_expenses WHERE id = %s", [expense_id])
+        cur.execute("SELECT kaspi_merchant_key(merchant, merchant_norm) FROM kaspi_expenses WHERE id = %s", [expense_id])
         row = cur.fetchone()
         if not row:
             raise KaspiError("not_found")
-        mnorm = row[0]
+        mnorm = row[0]                         # ключ продавца
         if apply_to_merchant:
             cur.execute("SELECT category, exclude_budget FROM kaspi_merchant_rules WHERE merchant_norm = %s", [mnorm])
-            rule = cur.fetchone() or ("other", False)
+            rule = cur.fetchone() or (None, False)
             new_cat = rule[0] if category is _UNSET else category
             new_exc = rule[1] if excluded is _UNSET else excluded
             cur.execute("""INSERT INTO kaspi_merchant_rules (merchant_norm, category, exclude_budget, source, updated_at)
@@ -280,7 +284,8 @@ def expense_update(expense_id, category=_UNSET, excluded=_UNSET, apply_to_mercha
                 sets.append("category = NULL")
             if excluded is not _UNSET:
                 sets.append("exclude_budget = NULL")
-            cur.execute(f"UPDATE kaspi_expenses SET {', '.join(sets)} WHERE merchant_norm = %s", [mnorm])
+            cur.execute(f"UPDATE kaspi_expenses SET {', '.join(sets)} WHERE kaspi_merchant_key(merchant, merchant_norm) = %s",
+                        [mnorm])
             return {"merchant_norm": mnorm, "scope": "merchant", "affected": cur.rowcount}
         sets, params = [], []
         if category is not _UNSET:

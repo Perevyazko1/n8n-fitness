@@ -76,3 +76,27 @@ CREATE TABLE IF NOT EXISTS kaspi_cards (
     label      text NOT NULL,
     created_at timestamptz NOT NULL DEFAULT now()
 );
+
+-- ===== 2026-11-08: продавец = часть названия до «*» (Grab* A-A2W37… и Grab* A-A28S… — один Grab) =====
+-- Ключ правила. merchant_norm в kaspi_expenses не трогаем: на нём держится дедуп выписок.
+CREATE OR REPLACE FUNCTION kaspi_merchant_key(merchant text, mnorm text) RETURNS text
+LANGUAGE sql IMMUTABLE AS $$
+  SELECT CASE WHEN position('*' in merchant) > 1
+    THEN COALESCE(NULLIF(trim(regexp_replace(lower(split_part(merchant, '*', 1)), '[^a-z0-9а-яё]+', ' ', 'g')), ''), mnorm)
+    ELSE mnorm END
+$$;
+
+-- category NULL = «категорию не решали»: правило только про «вне лимита», категорию ставит автоматика.
+ALTER TABLE kaspi_merchant_rules ALTER COLUMN category DROP NOT NULL;
+ALTER TABLE kaspi_merchant_rules ALTER COLUMN category DROP DEFAULT;
+
+-- Перенос правил, заведённых на отдельные «Grab* A-…», на общий ключ. Ручные важнее, среди них —
+-- с настоящей категорией (не 'other'), потом самое свежее. Повторный запуск ничего не меняет.
+INSERT INTO kaspi_merchant_rules (merchant_norm, category, exclude_budget, source, updated_at)
+SELECT DISTINCT ON (x.k) x.k, r.category, r.exclude_budget, r.source, r.updated_at
+  FROM kaspi_merchant_rules r
+  JOIN LATERAL (SELECT kaspi_merchant_key(e.merchant, e.merchant_norm) AS k
+                  FROM kaspi_expenses e WHERE e.merchant_norm = r.merchant_norm LIMIT 1) x ON true
+ WHERE x.k <> r.merchant_norm
+ ORDER BY x.k, (r.source = 'manual') DESC, (r.category IS NOT NULL AND r.category <> 'other') DESC, r.updated_at DESC
+ON CONFLICT (merchant_norm) DO NOTHING;
