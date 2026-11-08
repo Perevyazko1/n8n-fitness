@@ -112,7 +112,7 @@
 
 <!-- шторка: лимит -->
 <div class="scrim" id="limitSheet">
-  <form class="sheet" id="limitForm">
+  <form class="sheet" id="limitForm" novalidate>
     <div class="grab"></div>
     <div class="row-between"><h2>Лимит на период</h2><button type="button" class="x" data-close aria-label="Закрыть">×</button></div>
     <div class="wrap" id="presets">
@@ -250,6 +250,18 @@ function renderBudget(b) {
     return;
   }
   const range = `${wdShort(a.start)} — ${wdShort(a.end)} ${MON[pd(a.end).getMonth()]}`;
+  if (a.upcoming) {
+    box.replaceChildren(
+      el('div', { class: 'row-between' }, el('span', { class: 'hint' }, `Лимит · ${range}`),
+        el('button', { class: 'link', onclick: () => openLimit({ start: a.start, end: a.end, limit_rub: a.limit_rub }) }, 'Изменить')),
+      el('div', { class: 'row-between', style: 'align-items:flex-end' },
+        el('div', {}, el('div', { class: 'big', style: 'font-size:26px' }, `${n(a.limit_rub)} ₽`),
+          el('div', { class: 'hint' }, `начнётся ${short(a.start)} · ~${n(a.limit_rub / a.days.length)} ₽ в день`)),
+        todayLine),
+      el('button', { class: 'btn', onclick: () => openLimit(b.next_default) },
+        `Лимит на текущий период: ${short(b.next_default.start)} — ${short(b.next_default.end)}`));
+    return;
+  }
   if (a.ended) {
     const over = a.left_rub < 0;
     const nd = b.next_default;
@@ -388,14 +400,19 @@ document.querySelectorAll('#presets [data-preset]').forEach((b) => b.addEventLis
 ['start', 'end', 'limit'].forEach((k) => $('limitForm')[k].addEventListener('input', () => { markPreset(); limitHint(); }));
 $('limitForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const f = e.target, btn = f.querySelector('.btn');
-  btn.disabled = true;
+  const f = e.target, btn = f.querySelector('.btn'), hint = $('limitHint');
+  // встроенная проверка формы в webview Telegram молчит — проверяем сами и пишем, что не так
+  const lim = Number(String(f.limit.value).replace(/\s/g, ''));
+  if (!f.start.value || !f.end.value) { hint.textContent = 'Укажи даты начала и конца.'; return; }
+  if (f.end.value < f.start.value) { hint.textContent = 'Конец периода раньше начала.'; return; }
+  if (!(lim > 0)) { hint.textContent = 'Укажи сумму лимита больше нуля.'; return; }
+  btn.disabled = true; btn.textContent = 'Сохраняю…';
   try {
-    await api('budget-set', { start: f.start.value, end: f.end.value, limit_rub: Number(f.limit.value) });
+    await api('budget-set', { start: f.start.value, end: f.end.value, limit_rub: lim });
     close('limitSheet'); tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('success');
     await reload();
-  } catch (err) { $('limitHint').textContent = err.message; }
-  btn.disabled = false;
+  } catch (err) { hint.textContent = err.message; }
+  btn.disabled = false; btn.textContent = 'Сохранить лимит';
 });
 
 $('periodForm').addEventListener('submit', (e) => {

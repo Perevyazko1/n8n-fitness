@@ -77,9 +77,9 @@ def period_range(period, today=None, start=None, end=None):
 
 
 def default_budget_range(today=None):
-    """Пт–Чт: ближайшая пятница (сегодня, если пятница) и 6 дней после неё."""
+    """Текущий период Пт–Чт: последняя пятница (сегодня, если пятница) и 6 дней после неё."""
     today = today or today_vn()
-    start = today + timedelta(days=(FRIDAY - today.weekday()) % 7)
+    start = today - timedelta(days=(today.weekday() - FRIDAY) % 7)
     return start, start + timedelta(days=6)
 
 
@@ -103,9 +103,18 @@ def _cards():
 def budget_status(today=None):
     today = today or today_vn()
     with connection.cursor() as cur:
+        # действующий: последний начавшийся; если он уже закончился, а следующий поставлен заранее —
+        # показываем следующий как «ещё не начался»
         cur.execute("""SELECT id, start_date, end_date, limit_rub FROM kaspi_budgets
                         WHERE start_date <= %s ORDER BY start_date DESC, id DESC LIMIT 1""", [today])
         row = cur.fetchone()
+        upcoming = False
+        if not row or row[2] < today:
+            cur.execute("""SELECT id, start_date, end_date, limit_rub FROM kaspi_budgets
+                            WHERE start_date > %s ORDER BY start_date, id DESC LIMIT 1""", [today])
+            nxt = cur.fetchone()
+            if nxt:
+                row, upcoming = nxt, True
         cur.execute(f"""SELECT COALESCE(sum(e.amount_rub), 0) {_FROM}
                          WHERE e.kind = ANY(%s) AND e.op_date = %s
                            AND NOT COALESCE(e.exclude_budget, r.exclude_budget, false)""", [SPEND_KINDS, today])
@@ -123,13 +132,13 @@ def budget_status(today=None):
             by_day = {d: _spend(s) or 0.0 for d, s in cur.fetchall()}
             spent = sum(by_day.values())
             ended = today > end
-            days_left = 0 if ended else (end - today).days + 1
+            days_left = 0 if ended else (end - max(today, start)).days + 1
             left = float(limit) - spent
             out["active"] = {
                 "id": bid, "start": start.isoformat(), "end": end.isoformat(),
                 "limit_rub": float(limit), "spent_rub": round(spent, 2), "left_rub": round(left, 2),
                 "days_left": days_left, "per_day_rub": round(left / days_left, 2) if days_left and left > 0 else 0,
-                "ended": ended,
+                "ended": ended, "upcoming": upcoming,
                 "days": [{"date": (start + timedelta(days=i)).isoformat(),
                           "rub": round(by_day.get(start + timedelta(days=i), 0.0), 2)}
                          for i in range((end - start).days + 1)],
