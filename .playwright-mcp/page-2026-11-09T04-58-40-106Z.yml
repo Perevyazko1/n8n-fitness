@@ -1,0 +1,2093 @@
+- generic [ref=f28e3]:
+  - link "Перейти к основному содержанию" [ref=f28e5] [cursor=pointer]:
+    - /url: "#main"
+  - generic [ref=f28e7]:
+    - banner [ref=f28e22]:
+      - generic [ref=f28e23]:
+        - navigation [ref=f28e24]:
+          - link "Booking.com" [ref=f28e28] [cursor=pointer]:
+            - /url: https://www.booking.com/index.ru.html
+          - generic [ref=f28e31]:
+            - button "Цены в Российский рубль RUB" [ref=f28e33] [cursor=pointer]:
+              - generic [ref=f28e34]: RUB
+            - 'button "Язык: Русский" [ref=f28e36] [cursor=pointer]'
+            - link "Поддержка клиентов" [ref=f28e41] [cursor=pointer]:
+              - /url: https://secure.booking.com/help.ru.html?source=header&src=profile_contact_cs
+            - link "Зарегистрировать свой объект" [ref=f28e46] [cursor=pointer]:
+              - /url: https://join.booking.com/?utm_source=topbar
+            - link "Регистрация аккаунта" [ref=f28e48] [cursor=pointer]:
+              - /url: https://account.booking.com/auth/oauth2?client_id=vO1Kblk7xX9tUn2cpZLS&redirect_uri=https%3A%2F%2Fsecure.booking.com%2Flogin.html%3Fop%3Doauth_return&response_type=code&lang=ru&aid=304142&bkng_action=capla_fpr&prompt=signin&state=Us0BZ5MOtLNXfUTl_fUtfFoo5fxHK9A8ItxRH-AAXxzTGrGQlSB6alBz1PuCrLR6xB1uejU_T98iypPQcVohS8W80HMBJMgxHsyV6-irHoJGhewtkF0TSS2dUPG3S85YtZR5n62F3w4M9r94hTJo4BiKfCPxl4an3RMR7S73iUndJcWEQolSKUj3BdQlLq_Labkry8oggHQyTJfMEJe1bgk44fE85f54S7-gkirtCmsZwrVXQ4eWX58q-DZ5Sl6yY_BmyzUGxwi8RpuE1cUdhg%3D%3D*eyJpZCI6InRyYXZlbGxlcl9oZWFkZXIifQ%3D%3D
+              - generic [ref=f28e49]: Зарегистрироваться
+            - link "Войти в аккаунт" [ref=f28e51] [cursor=pointer]:
+              - /url: https://account.booking.com/auth/oauth2?client_id=vO1Kblk7xX9tUn2cpZLS&redirect_uri=https%3A%2F%2Fsecure.booking.com%2Flogin.html%3Fop%3Doauth_return&response_type=code&lang=ru&aid=304142&bkng_action=capla_fpr&prompt=signin&state=Us0BZ5MOtLNXfUTl_fUtfFoo5fxHK9A8ItxRH-AAXxzTGrGQlSB6alBz1PuCrLR6xB1uejU_T98iypPQcVohS8W80HMBJMgxHsyV6-irHoJGhewtkF0TSS2dUPG3S85YtZR5n62F3w4M9r94hTJo4BiKfCPxl4an3RMR7S73iUndJcWEQolSKUj3BdQlLq_Labkry8oggHQyTJfMEJe1bgk44fE85f54S7-gkirtCmsZwrVXQ4eWX58q-DZ5Sl6yY_BmyzUGxwi8RpuE1cUdhg%3D%3D*eyJpZCI6InRyYXZlbGxlcl9oZWFkZXIifQ%3D%3D
+        - navigation "Что вы ищете?" [ref=f28e53]:
+          - menubar [ref=f28e55]:
+            - menuitem "Жилье" [ref=f28e56] [cursor=pointer]
+            - menuitem "Авиабилеты" [ref=f28e62] [cursor=pointer]
+            - menuitem "Аренда автомобилей" [ref=f28e68] [cursor=pointer]
+            - menuitem "Досуг" [ref=f28e74] [cursor=pointer]
+            - menuitem "Трансфер от/до аэропорта" [ref=f28e80] [cursor=pointer]
+    - main [ref=f28e89]:
+      - generic [ref=f28e101]:
+        - generic [ref=f28e108]:
+          - heading "Найдите отели в Дананге" [level=1] [ref=f28e109]
+          - paragraph [ref=f28e110]: Выберите даты, чтобы увидеть актуальные цены и предложения на отели в Дананге
+          - region "Найти варианты размещения" [ref=f28e112]:
+            - generic [ref=f28e113]:
+              - generic [ref=f28e117]:
+                - generic [ref=f28e122]:
+                  - generic [ref=f28e123]: Куда поедете?
+                  - combobox "Куда поедете?" [ref=f28e127]: Дананг
+                - button [ref=f28e129] [cursor=pointer]:
+                  - img "Очистить" [ref=f28e130]
+              - generic [ref=f28e134]:
+                - button "Выбрать даты Дата заезда — Дата отъезда" [expanded] [ref=f28e135] [cursor=pointer]:
+                  - generic [ref=f28e140]:
+                    - generic [ref=f28e141]: Выбрать даты
+                    - generic [ref=f28e142]: Дата заезда — Дата отъезда
+                - generic [ref=f28e144]:
+                  - tablist [ref=f28e146]:
+                    - tab "Календарь" [selected] [ref=f28e147] [cursor=pointer]
+                    - tab "У меня гибкие планы" [ref=f28e150] [cursor=pointer]
+                  - tabpanel "Календарь" [ref=f28e153]:
+                    - generic [ref=f28e154]:
+                      - generic [ref=f28e155]:
+                        - button "Следующий месяц" [ref=f28e156] [cursor=pointer]
+                        - generic [ref=f28e161]:
+                          - generic [ref=f28e162]:
+                            - heading "ноябрь 2026 г." [level=3] [ref=f28e163]
+                            - grid "ноябрь 2026 г." [ref=f28e164]:
+                              - rowgroup [aria-hidden] [ref=f28e165]:
+                                - row [ref=f28e166]:
+                                  - columnheader [ref=f28e167]:
+                                    - generic [ref=f28e168]: пн
+                                  - columnheader [ref=f28e169]:
+                                    - generic [ref=f28e170]: вт
+                                  - columnheader [ref=f28e171]:
+                                    - generic [ref=f28e172]: ср
+                                  - columnheader [ref=f28e173]:
+                                    - generic [ref=f28e174]: чт
+                                  - columnheader [ref=f28e175]:
+                                    - generic [ref=f28e176]: пт
+                                  - columnheader [ref=f28e177]:
+                                    - generic [ref=f28e178]: сб
+                                  - columnheader [ref=f28e179]:
+                                    - generic [ref=f28e180]: вс
+                              - rowgroup [ref=f28e181]:
+                                - row [ref=f28e182]:
+                                  - gridcell [aria-hidden] [ref=f28e183]
+                                  - gridcell [aria-hidden] [ref=f28e184]
+                                  - gridcell [aria-hidden] [ref=f28e185]
+                                  - gridcell [aria-hidden] [ref=f28e186]
+                                  - gridcell [aria-hidden] [ref=f28e187]
+                                  - gridcell [aria-hidden] [ref=f28e188]
+                                  - gridcell "воскресенье, 1 ноября 2026 г." [disabled] [ref=f28e189]:
+                                    - checkbox "воскресенье, 1 ноября 2026 г." [disabled] [ref=f28e190]:
+                                      - generic [ref=f28e191]: "1"
+                                - row [ref=f28e192]:
+                                  - gridcell "понедельник, 2 ноября 2026 г." [disabled] [ref=f28e193]:
+                                    - checkbox "понедельник, 2 ноября 2026 г." [disabled] [ref=f28e194]:
+                                      - generic [ref=f28e195]: "2"
+                                  - gridcell "вторник, 3 ноября 2026 г." [disabled] [ref=f28e196]:
+                                    - checkbox "вторник, 3 ноября 2026 г." [disabled] [ref=f28e197]:
+                                      - generic [ref=f28e198]: "3"
+                                  - gridcell "среда, 4 ноября 2026 г." [disabled] [ref=f28e199]:
+                                    - checkbox "среда, 4 ноября 2026 г." [disabled] [ref=f28e200]:
+                                      - generic [ref=f28e201]: "4"
+                                  - gridcell "четверг, 5 ноября 2026 г." [disabled] [ref=f28e202]:
+                                    - checkbox "четверг, 5 ноября 2026 г." [disabled] [ref=f28e203]:
+                                      - generic [ref=f28e204]: "5"
+                                  - gridcell "пятница, 6 ноября 2026 г." [disabled] [ref=f28e205]:
+                                    - checkbox "пятница, 6 ноября 2026 г." [disabled] [ref=f28e206]:
+                                      - generic [ref=f28e207]: "6"
+                                  - gridcell "суббота, 7 ноября 2026 г." [disabled] [ref=f28e208]:
+                                    - checkbox "суббота, 7 ноября 2026 г." [disabled] [ref=f28e209]:
+                                      - generic [ref=f28e210]: "7"
+                                  - gridcell "воскресенье, 8 ноября 2026 г." [ref=f28e211]:
+                                    - checkbox "воскресенье, 8 ноября 2026 г." [ref=f28e212] [cursor=pointer]:
+                                      - generic [ref=f28e213]: "8"
+                                - row [ref=f28e214]:
+                                  - gridcell "понедельник, 9 ноября 2026 г." [ref=f28e215]:
+                                    - checkbox "понедельник, 9 ноября 2026 г." [ref=f28e216] [cursor=pointer]:
+                                      - generic [ref=f28e217]: "9"
+                                  - gridcell "вторник, 10 ноября 2026 г." [ref=f28e218]:
+                                    - checkbox "вторник, 10 ноября 2026 г." [ref=f28e219] [cursor=pointer]:
+                                      - generic [ref=f28e220]: "10"
+                                  - gridcell "среда, 11 ноября 2026 г." [ref=f28e221]:
+                                    - checkbox "среда, 11 ноября 2026 г." [ref=f28e222] [cursor=pointer]:
+                                      - generic [ref=f28e223]: "11"
+                                  - gridcell "четверг, 12 ноября 2026 г." [ref=f28e224]:
+                                    - checkbox "четверг, 12 ноября 2026 г." [ref=f28e225] [cursor=pointer]:
+                                      - generic [ref=f28e226]: "12"
+                                  - gridcell "пятница, 13 ноября 2026 г." [ref=f28e227]:
+                                    - checkbox "пятница, 13 ноября 2026 г." [ref=f28e228] [cursor=pointer]:
+                                      - generic [ref=f28e229]: "13"
+                                  - gridcell "суббота, 14 ноября 2026 г." [ref=f28e230]:
+                                    - checkbox "суббота, 14 ноября 2026 г." [ref=f28e231] [cursor=pointer]:
+                                      - generic [ref=f28e232]: "14"
+                                  - gridcell "воскресенье, 15 ноября 2026 г." [ref=f28e233]:
+                                    - checkbox "воскресенье, 15 ноября 2026 г." [ref=f28e234] [cursor=pointer]:
+                                      - generic [ref=f28e235]: "15"
+                                - row [ref=f28e236]:
+                                  - gridcell "понедельник, 16 ноября 2026 г." [ref=f28e237]:
+                                    - checkbox "понедельник, 16 ноября 2026 г." [ref=f28e238] [cursor=pointer]:
+                                      - generic [ref=f28e239]: "16"
+                                  - gridcell "вторник, 17 ноября 2026 г." [ref=f28e240]:
+                                    - checkbox "вторник, 17 ноября 2026 г." [ref=f28e241] [cursor=pointer]:
+                                      - generic [ref=f28e242]: "17"
+                                  - gridcell "среда, 18 ноября 2026 г." [ref=f28e243]:
+                                    - checkbox "среда, 18 ноября 2026 г." [ref=f28e244] [cursor=pointer]:
+                                      - generic [ref=f28e245]: "18"
+                                  - gridcell "четверг, 19 ноября 2026 г." [ref=f28e246]:
+                                    - checkbox "четверг, 19 ноября 2026 г." [ref=f28e247] [cursor=pointer]:
+                                      - generic [ref=f28e248]: "19"
+                                  - gridcell "пятница, 20 ноября 2026 г." [ref=f28e249]:
+                                    - checkbox "пятница, 20 ноября 2026 г." [ref=f28e250] [cursor=pointer]:
+                                      - generic [ref=f28e251]: "20"
+                                  - gridcell "суббота, 21 ноября 2026 г." [ref=f28e252]:
+                                    - checkbox "суббота, 21 ноября 2026 г." [ref=f28e253] [cursor=pointer]:
+                                      - generic [ref=f28e254]: "21"
+                                  - gridcell "воскресенье, 22 ноября 2026 г." [ref=f28e255]:
+                                    - checkbox "воскресенье, 22 ноября 2026 г." [ref=f28e256] [cursor=pointer]:
+                                      - generic [ref=f28e257]: "22"
+                                - row [ref=f28e258]:
+                                  - gridcell "понедельник, 23 ноября 2026 г." [ref=f28e259]:
+                                    - checkbox "понедельник, 23 ноября 2026 г." [ref=f28e260] [cursor=pointer]:
+                                      - generic [ref=f28e261]: "23"
+                                  - gridcell "вторник, 24 ноября 2026 г." [ref=f28e262]:
+                                    - checkbox "вторник, 24 ноября 2026 г." [ref=f28e263] [cursor=pointer]:
+                                      - generic [ref=f28e264]: "24"
+                                  - gridcell "среда, 25 ноября 2026 г." [ref=f28e265]:
+                                    - checkbox "среда, 25 ноября 2026 г." [ref=f28e266] [cursor=pointer]:
+                                      - generic [ref=f28e267]: "25"
+                                  - gridcell "четверг, 26 ноября 2026 г." [ref=f28e268]:
+                                    - checkbox "четверг, 26 ноября 2026 г." [ref=f28e269] [cursor=pointer]:
+                                      - generic [ref=f28e270]: "26"
+                                  - gridcell "пятница, 27 ноября 2026 г." [ref=f28e271]:
+                                    - checkbox "пятница, 27 ноября 2026 г." [ref=f28e272] [cursor=pointer]:
+                                      - generic [ref=f28e273]: "27"
+                                  - gridcell "суббота, 28 ноября 2026 г." [ref=f28e274]:
+                                    - checkbox "суббота, 28 ноября 2026 г." [ref=f28e275] [cursor=pointer]:
+                                      - generic [ref=f28e276]: "28"
+                                  - gridcell "воскресенье, 29 ноября 2026 г." [ref=f28e277]:
+                                    - checkbox "воскресенье, 29 ноября 2026 г." [ref=f28e278] [cursor=pointer]:
+                                      - generic [ref=f28e279]: "29"
+                                - row [ref=f28e280]:
+                                  - gridcell "понедельник, 30 ноября 2026 г." [ref=f28e281]:
+                                    - checkbox "понедельник, 30 ноября 2026 г." [ref=f28e282] [cursor=pointer]:
+                                      - generic [ref=f28e283]: "30"
+                                  - gridcell [aria-hidden] [ref=f28e284]
+                                  - gridcell [aria-hidden] [ref=f28e285]
+                                  - gridcell [aria-hidden] [ref=f28e286]
+                                  - gridcell [aria-hidden] [ref=f28e287]
+                                  - gridcell [aria-hidden] [ref=f28e288]
+                                  - gridcell [aria-hidden] [ref=f28e289]
+                          - generic [ref=f28e290]:
+                            - heading "декабрь 2026 г." [level=3] [ref=f28e291]
+                            - grid "декабрь 2026 г." [ref=f28e292]:
+                              - rowgroup [aria-hidden] [ref=f28e293]:
+                                - row [ref=f28e294]:
+                                  - columnheader [ref=f28e295]:
+                                    - generic [ref=f28e296]: пн
+                                  - columnheader [ref=f28e297]:
+                                    - generic [ref=f28e298]: вт
+                                  - columnheader [ref=f28e299]:
+                                    - generic [ref=f28e300]: ср
+                                  - columnheader [ref=f28e301]:
+                                    - generic [ref=f28e302]: чт
+                                  - columnheader [ref=f28e303]:
+                                    - generic [ref=f28e304]: пт
+                                  - columnheader [ref=f28e305]:
+                                    - generic [ref=f28e306]: сб
+                                  - columnheader [ref=f28e307]:
+                                    - generic [ref=f28e308]: вс
+                              - rowgroup [ref=f28e309]:
+                                - row [ref=f28e310]:
+                                  - gridcell [aria-hidden] [ref=f28e311]
+                                  - gridcell "вторник, 1 декабря 2026 г." [ref=f28e312]:
+                                    - checkbox "вторник, 1 декабря 2026 г." [ref=f28e313] [cursor=pointer]:
+                                      - generic [ref=f28e314]: "1"
+                                  - gridcell "среда, 2 декабря 2026 г." [ref=f28e315]:
+                                    - checkbox "среда, 2 декабря 2026 г." [ref=f28e316] [cursor=pointer]:
+                                      - generic [ref=f28e317]: "2"
+                                  - gridcell "четверг, 3 декабря 2026 г." [ref=f28e318]:
+                                    - checkbox "четверг, 3 декабря 2026 г." [ref=f28e319] [cursor=pointer]:
+                                      - generic [ref=f28e320]: "3"
+                                  - gridcell "пятница, 4 декабря 2026 г." [ref=f28e321]:
+                                    - checkbox "пятница, 4 декабря 2026 г." [ref=f28e322] [cursor=pointer]:
+                                      - generic [ref=f28e323]: "4"
+                                  - gridcell "суббота, 5 декабря 2026 г." [ref=f28e324]:
+                                    - checkbox "суббота, 5 декабря 2026 г." [ref=f28e325] [cursor=pointer]:
+                                      - generic [ref=f28e326]: "5"
+                                  - gridcell "воскресенье, 6 декабря 2026 г." [ref=f28e327]:
+                                    - checkbox "воскресенье, 6 декабря 2026 г." [ref=f28e328] [cursor=pointer]:
+                                      - generic [ref=f28e329]: "6"
+                                - row [ref=f28e330]:
+                                  - gridcell "понедельник, 7 декабря 2026 г." [ref=f28e331]:
+                                    - checkbox "понедельник, 7 декабря 2026 г." [ref=f28e332] [cursor=pointer]:
+                                      - generic [ref=f28e333]: "7"
+                                  - gridcell "вторник, 8 декабря 2026 г." [ref=f28e334]:
+                                    - checkbox "вторник, 8 декабря 2026 г." [ref=f28e335] [cursor=pointer]:
+                                      - generic [ref=f28e336]: "8"
+                                  - gridcell "среда, 9 декабря 2026 г." [ref=f28e337]:
+                                    - checkbox "среда, 9 декабря 2026 г." [ref=f28e338] [cursor=pointer]:
+                                      - generic [ref=f28e339]: "9"
+                                  - gridcell "четверг, 10 декабря 2026 г." [ref=f28e340]:
+                                    - checkbox "четверг, 10 декабря 2026 г." [ref=f28e341] [cursor=pointer]:
+                                      - generic [ref=f28e342]: "10"
+                                  - gridcell "пятница, 11 декабря 2026 г." [ref=f28e343]:
+                                    - checkbox "пятница, 11 декабря 2026 г." [ref=f28e344] [cursor=pointer]:
+                                      - generic [ref=f28e345]: "11"
+                                  - gridcell "суббота, 12 декабря 2026 г." [ref=f28e346]:
+                                    - checkbox "суббота, 12 декабря 2026 г." [ref=f28e347] [cursor=pointer]:
+                                      - generic [ref=f28e348]: "12"
+                                  - gridcell "воскресенье, 13 декабря 2026 г." [ref=f28e349]:
+                                    - checkbox "воскресенье, 13 декабря 2026 г." [ref=f28e350] [cursor=pointer]:
+                                      - generic [ref=f28e351]: "13"
+                                - row [ref=f28e352]:
+                                  - gridcell "понедельник, 14 декабря 2026 г." [ref=f28e353]:
+                                    - checkbox "понедельник, 14 декабря 2026 г." [ref=f28e354] [cursor=pointer]:
+                                      - generic [ref=f28e355]: "14"
+                                  - gridcell "вторник, 15 декабря 2026 г." [ref=f28e356]:
+                                    - checkbox "вторник, 15 декабря 2026 г." [ref=f28e357] [cursor=pointer]:
+                                      - generic [ref=f28e358]: "15"
+                                  - gridcell "среда, 16 декабря 2026 г." [ref=f28e359]:
+                                    - checkbox "среда, 16 декабря 2026 г." [ref=f28e360] [cursor=pointer]:
+                                      - generic [ref=f28e361]: "16"
+                                  - gridcell "четверг, 17 декабря 2026 г." [ref=f28e362]:
+                                    - checkbox "четверг, 17 декабря 2026 г." [ref=f28e363] [cursor=pointer]:
+                                      - generic [ref=f28e364]: "17"
+                                  - gridcell "пятница, 18 декабря 2026 г." [ref=f28e365]:
+                                    - checkbox "пятница, 18 декабря 2026 г." [ref=f28e366] [cursor=pointer]:
+                                      - generic [ref=f28e367]: "18"
+                                  - gridcell "суббота, 19 декабря 2026 г." [ref=f28e368]:
+                                    - checkbox "суббота, 19 декабря 2026 г." [ref=f28e369] [cursor=pointer]:
+                                      - generic [ref=f28e370]: "19"
+                                  - gridcell "воскресенье, 20 декабря 2026 г." [ref=f28e371]:
+                                    - checkbox "воскресенье, 20 декабря 2026 г." [ref=f28e372] [cursor=pointer]:
+                                      - generic [ref=f28e373]: "20"
+                                - row [ref=f28e374]:
+                                  - gridcell "понедельник, 21 декабря 2026 г." [ref=f28e375]:
+                                    - checkbox "понедельник, 21 декабря 2026 г." [ref=f28e376] [cursor=pointer]:
+                                      - generic [ref=f28e377]: "21"
+                                  - gridcell "вторник, 22 декабря 2026 г." [ref=f28e378]:
+                                    - checkbox "вторник, 22 декабря 2026 г." [ref=f28e379] [cursor=pointer]:
+                                      - generic [ref=f28e380]: "22"
+                                  - gridcell "среда, 23 декабря 2026 г." [ref=f28e381]:
+                                    - checkbox "среда, 23 декабря 2026 г." [ref=f28e382] [cursor=pointer]:
+                                      - generic [ref=f28e383]: "23"
+                                  - gridcell "четверг, 24 декабря 2026 г." [ref=f28e384]:
+                                    - checkbox "четверг, 24 декабря 2026 г." [ref=f28e385] [cursor=pointer]:
+                                      - generic [ref=f28e386]: "24"
+                                  - gridcell "пятница, 25 декабря 2026 г." [ref=f28e387]:
+                                    - checkbox "пятница, 25 декабря 2026 г." [ref=f28e388] [cursor=pointer]:
+                                      - generic [ref=f28e389]: "25"
+                                  - gridcell "суббота, 26 декабря 2026 г." [ref=f28e390]:
+                                    - checkbox "суббота, 26 декабря 2026 г." [ref=f28e391] [cursor=pointer]:
+                                      - generic [ref=f28e392]: "26"
+                                  - gridcell "воскресенье, 27 декабря 2026 г." [ref=f28e393]:
+                                    - checkbox "воскресенье, 27 декабря 2026 г." [ref=f28e394] [cursor=pointer]:
+                                      - generic [ref=f28e395]: "27"
+                                - row [ref=f28e396]:
+                                  - gridcell "понедельник, 28 декабря 2026 г." [ref=f28e397]:
+                                    - checkbox "понедельник, 28 декабря 2026 г." [ref=f28e398] [cursor=pointer]:
+                                      - generic [ref=f28e399]: "28"
+                                  - gridcell "вторник, 29 декабря 2026 г." [ref=f28e400]:
+                                    - checkbox "вторник, 29 декабря 2026 г." [ref=f28e401] [cursor=pointer]:
+                                      - generic [ref=f28e402]: "29"
+                                  - gridcell "среда, 30 декабря 2026 г." [ref=f28e403]:
+                                    - checkbox "среда, 30 декабря 2026 г." [ref=f28e404] [cursor=pointer]:
+                                      - generic [ref=f28e405]: "30"
+                                  - gridcell "четверг, 31 декабря 2026 г." [ref=f28e406]:
+                                    - checkbox "четверг, 31 декабря 2026 г." [ref=f28e407] [cursor=pointer]:
+                                      - generic [ref=f28e408]: "31"
+                                  - gridcell [aria-hidden] [ref=f28e409]
+                                  - gridcell [aria-hidden] [ref=f28e410]
+                                  - gridcell [aria-hidden] [ref=f28e411]
+                      - radiogroup "Варианты с гибкой датой" [ref=f28e414]:
+                        - region [ref=f28e417]:
+                          - group [ref=f28e418]:
+                            - generic [ref=f28e419]:
+                              - radio "Точные даты" [checked] [ref=f28e420]
+                              - generic [ref=f28e421] [cursor=pointer]: Точные даты
+                          - group [ref=f28e423]:
+                            - generic "Включить даты за 1 день до и после выбранных" [ref=f28e424]:
+                              - radio "Включить даты за 1 день до и после выбранных" [ref=f28e425]
+                              - generic [ref=f28e426] [cursor=pointer]: 1 день
+                          - group [ref=f28e432]:
+                            - generic "Включить даты за 2 дня до и после выбранных" [ref=f28e433]:
+                              - radio "Включить даты за 2 дня до и после выбранных" [ref=f28e434]
+                              - generic [ref=f28e435] [cursor=pointer]: 2 дня
+                          - group [ref=f28e441]:
+                            - generic "Включить даты за 3 дня до и после выбранных" [ref=f28e442]:
+                              - radio "Включить даты за 3 дня до и после выбранных" [ref=f28e443]
+                              - generic [ref=f28e444] [cursor=pointer]: 3 дня
+                          - group [ref=f28e450]:
+                            - generic "Включить даты за 7 дней до и после выбранных" [ref=f28e451]:
+                              - radio "Включить даты за 7 дней до и после выбранных" [ref=f28e452]
+                              - generic [ref=f28e453] [cursor=pointer]: 7 дней
+              - generic [ref=f28e464] [cursor=pointer]:
+                - generic [ref=f28e465]: Выберите количество номеров и гостей
+                - 'button "Число путешественников и номеров. Сейчас выбрано: 2 взрослых · 1 ребенок · 1 номер" [ref=f28e467]':
+                  - generic [ref=f28e468]: 2 взрослых · 1 ребенок · 1 номер
+              - button "Найти" [ref=f28e474] [cursor=pointer]
+        - generic [ref=f28e476]:
+          - navigation "Breadcrumbs" [ref=f28e480]:
+            - list [ref=f28e481]:
+              - listitem [ref=f28e482]:
+                - link "Главная" [ref=f28e483] [cursor=pointer]:
+                  - /url: https://www.booking.com/index.ru.html
+              - listitem [ref=f28e488]:
+                - link "Отели" [ref=f28e489] [cursor=pointer]:
+                  - /url: https://www.booking.com/hotel/index.ru.html
+              - listitem [ref=f28e494]:
+                - link "Вьетнам" [ref=f28e495] [cursor=pointer]:
+                  - /url: https://www.booking.com/country/vn.ru.html
+              - listitem [ref=f28e500]:
+                - link "Дананг" [ref=f28e501] [cursor=pointer]:
+                  - /url: https://www.booking.com/region/vn/da-nang.ru.html
+              - listitem [ref=f28e506]:
+                - generic [ref=f28e507]: Дананг
+          - generic [ref=f28e510]:
+            - heading "Дананг — 2153 отеля и другие виды жилья" [level=2] [ref=f28e514]
+            - generic [ref=f28e516]:
+              - generic [ref=f28e517]:
+                - link "Показать отели на карте" [ref=f28e519] [cursor=pointer]:
+                  - /url: https://www.booking.com/searchresults.ru.html
+                - generic [ref=f28e525]:
+                  - heading "Все фильтры" [level=3] [ref=f28e526]
+                  - separator [aria-hidden] [ref=f28e527]
+                  - group "Оценка объекта Включает звезды и другие оценки." [ref=f28e528]:
+                    - generic [ref=f28e530]:
+                      - text: Оценка объекта
+                      - generic [ref=f28e531]: Включает звезды и другие оценки.
+                    - generic [ref=f28e532]:
+                      - link "5 звезд" [ref=f28e533] [cursor=pointer]:
+                        - /url: https://www.booking.com/searchresults.ru.html
+                      - link "4 звезды" [ref=f28e535] [cursor=pointer]:
+                        - /url: https://www.booking.com/searchresults.ru.html
+                      - link "3 звезды" [ref=f28e537] [cursor=pointer]:
+                        - /url: https://www.booking.com/searchresults.ru.html
+                      - link "2 звезды" [ref=f28e539] [cursor=pointer]:
+                        - /url: https://www.booking.com/searchresults.ru.html
+                      - link "1 звезда" [ref=f28e541] [cursor=pointer]:
+                        - /url: https://www.booking.com/searchresults.ru.html
+                  - group "Оценка по отзывам" [ref=f28e543]:
+                    - generic [ref=f28e546]:
+                      - 'link "Превосходно: 9+" [ref=f28e547] [cursor=pointer]':
+                        - /url: https://www.booking.com/searchresults.ru.html
+                      - 'link "Очень хорошо: 8+" [ref=f28e549] [cursor=pointer]':
+                        - /url: https://www.booking.com/searchresults.ru.html
+                      - 'link "Хорошо: 7+" [ref=f28e551] [cursor=pointer]':
+                        - /url: https://www.booking.com/searchresults.ru.html
+                      - 'link "Достаточно хорошо: 6+" [ref=f28e553] [cursor=pointer]':
+                        - /url: https://www.booking.com/searchresults.ru.html
+              - generic [ref=f28e555]:
+                - generic [ref=f28e556]:
+                  - button "Наши рекомендации" [ref=f28e557] [cursor=pointer]
+                  - button "Самая низкая цена в начале" [ref=f28e558] [cursor=pointer]
+                  - button "Количество звезд и цена" [ref=f28e559] [cursor=pointer]
+                  - button "Оценка + кол-во отзывов" [ref=f28e560] [cursor=pointer]
+                - generic [ref=f28e561]:
+                  - generic [ref=f28e563]:
+                    - link [aria-hidden] [ref=f28e564] [cursor=pointer]:
+                      - /url: https://www.booking.com/searchresults.ru.html
+                    - generic [ref=f28e568]:
+                      - generic [ref=f28e569]:
+                        - generic [ref=f28e570]:
+                          - link [ref=f28e571] [cursor=pointer]:
+                            - /url: https://www.booking.com/hotel/vn/saha-casa-boutique-da-nang.ru.html
+                            - generic [ref=f28e572]:
+                              - heading [level=3] [ref=f28e573]:
+                                - generic [ref=f28e574]:
+                                  - text: Saha Casa Boutique Hotel Da Nang
+                                  - generic [ref=f28e575]:
+                                    - img "5 звезд из пяти" [ref=f28e576]
+                                    - img "Этот объект размещения участвует в нашей Привилегированной программе для партнеров. Его сотрудники предоставляют гостям достойный сервис и хорошее соотношение цены и качества. Они также платят нам более высокую комиссию за бронирования." [ref=f28e585]
+                              - generic [ref=f28e588]: Отель в Дананге
+                          - generic [ref=f28e593]:
+                            - paragraph [ref=f28e594]: Saha Casa Boutique Hotel Da Nang — это отель в городе Дананг, в 600 м от такой достопримечательности, как Пляж Микхе.
+                            - button "Развернуть" [ref=f28e595] [cursor=pointer]
+                        - generic [ref=f28e596]:
+                          - generic [ref=f28e598]:
+                            - generic [ref=f28e599]: Оценка гостей по десятибалльной шкале 9,5
+                            - generic [aria-hidden] [ref=f28e600]: 9,5
+                            - generic [ref=f28e601]: Великолепно - Мнения гостей, которые тут жили, 1 158 отзывов
+                            - generic [aria-hidden] [ref=f28e602]:
+                              - generic [ref=f28e603]: Великолепно
+                              - generic [ref=f28e604]: 1 158 отзывов
+                          - generic [ref=f28e606]:
+                            - generic [ref=f28e607]: Цена от
+                            - generic [ref=f28e608]: 8 176 руб.
+                            - generic [ref=f28e609]: 1 ночь, 2 взрослых
+                      - link "Проверить наличие мест" [ref=f28e611] [cursor=pointer]:
+                        - /url: https://www.booking.com/searchresults.ru.html
+                  - generic [ref=f28e614]:
+                    - link [aria-hidden] [ref=f28e615] [cursor=pointer]:
+                      - /url: https://www.booking.com/searchresults.ru.html
+                    - generic [ref=f28e619]:
+                      - generic [ref=f28e620]:
+                        - generic [ref=f28e621]:
+                          - link [ref=f28e622] [cursor=pointer]:
+                            - /url: https://www.booking.com/hotel/vn/m-danang.ru.html
+                            - generic [ref=f28e623]:
+                              - heading [level=3] [ref=f28e624]:
+                                - generic [ref=f28e625]:
+                                  - text: M Hotel Danang
+                                  - generic [ref=f28e626]:
+                                    - img "5 звезд из пяти" [ref=f28e627]
+                                    - img "Этот объект размещения участвует в нашей Привилегированной программе для партнеров. Его сотрудники предоставляют гостям достойный сервис и хорошее соотношение цены и качества. Они также платят нам более высокую комиссию за бронирования." [ref=f28e636]
+                              - generic [ref=f28e639]: Отель в Дананге
+                          - paragraph [ref=f28e645]: M Hotel Danang — это отель в городе Дананг, в 40 м от такой достопримечательности, как Пляж Микхе. Среди удобств — открытый бассейн, фитнес-центр, сад и бесплатная частная парковка.
+                        - generic [ref=f28e646]:
+                          - generic [ref=f28e648]:
+                            - generic [ref=f28e649]: Оценка гостей по десятибалльной шкале 9,4
+                            - generic [aria-hidden] [ref=f28e650]: 9,4
+                            - generic [ref=f28e651]: Превосходно - Мнения гостей, которые тут жили, 3 364 отзыва
+                            - generic [aria-hidden] [ref=f28e652]:
+                              - generic [ref=f28e653]: Превосходно
+                              - generic [ref=f28e654]: 3 364 отзыва
+                          - generic [ref=f28e656]:
+                            - generic [ref=f28e657]: Цена от
+                            - generic [ref=f28e658]: 9 337 руб.
+                            - generic [ref=f28e659]: 1 ночь, 2 взрослых
+                      - link "Проверить наличие мест" [ref=f28e661] [cursor=pointer]:
+                        - /url: https://www.booking.com/searchresults.ru.html
+                  - generic [ref=f28e664]:
+                    - link [aria-hidden] [ref=f28e665] [cursor=pointer]:
+                      - /url: https://www.booking.com/searchresults.ru.html
+                    - generic [ref=f28e669]:
+                      - generic [ref=f28e670]:
+                        - generic [ref=f28e671]:
+                          - link [ref=f28e672] [cursor=pointer]:
+                            - /url: https://www.booking.com/hotel/vn/hadana-boutique.ru.html
+                            - generic [ref=f28e673]:
+                              - heading [level=3] [ref=f28e674]:
+                                - generic [ref=f28e675]:
+                                  - text: Hadana Boutique Hotel Danang
+                                  - generic [ref=f28e676]:
+                                    - img "4 звезды из пяти" [ref=f28e677]
+                                    - img "Этот объект размещения участвует в нашей Привилегированной программе для партнеров. Его сотрудники предоставляют гостям достойный сервис и хорошее соотношение цены и качества. Они также платят нам более высокую комиссию за бронирования." [ref=f28e685]
+                              - generic [ref=f28e688]: Отель в Дананге
+                          - paragraph [ref=f28e694]: Hadana Boutique Hotel Danang — это отель, расположенный в городе Дананг. К услугам гостей открытый бассейн, сад, общий лаундж и ресторан. Из окон отеля с 4 звездами открывается вид на город.
+                        - generic [ref=f28e695]:
+                          - generic [ref=f28e697]:
+                            - generic [ref=f28e698]: Оценка гостей по десятибалльной шкале 9,1
+                            - generic [aria-hidden] [ref=f28e699]: 9,1
+                            - generic [ref=f28e700]: Превосходно - Мнения гостей, которые тут жили, 1 074 отзыва
+                            - generic [aria-hidden] [ref=f28e701]:
+                              - generic [ref=f28e702]: Превосходно
+                              - generic [ref=f28e703]: 1 074 отзыва
+                          - generic [ref=f28e705]:
+                            - generic [ref=f28e706]: Цена от
+                            - generic [ref=f28e707]: 2 475 руб.
+                            - generic [ref=f28e708]: 1 ночь, 2 взрослых
+                      - link "Проверить наличие мест" [ref=f28e710] [cursor=pointer]:
+                        - /url: https://www.booking.com/searchresults.ru.html
+                  - generic [ref=f28e713]:
+                    - link [aria-hidden] [ref=f28e714] [cursor=pointer]:
+                      - /url: https://www.booking.com/searchresults.ru.html
+                    - generic [ref=f28e718]:
+                      - generic [ref=f28e719]:
+                        - generic [ref=f28e720]:
+                          - link [ref=f28e721] [cursor=pointer]:
+                            - /url: https://www.booking.com/hotel/vn/seahorse-signature-danang-by-haviland.ru.html
+                            - generic [ref=f28e722]:
+                              - heading [level=3] [ref=f28e723]:
+                                - generic [ref=f28e724]:
+                                  - text: Seahorse Signature Da Nang Hotel By Sujet of Haviland
+                                  - img "Этот объект размещения участвует в нашей Привилегированной программе для партнеров. Его сотрудники предоставляют гостям достойный сервис и хорошее соотношение цены и качества. Они также платят нам более высокую комиссию за бронирования." [ref=f28e729]
+                              - generic [ref=f28e732]: Отель в районе Da Nang City-Centre, Дананг
+                          - paragraph [ref=f28e738]: Seahorse Signature Da Nang Hotel By Sujet of Haviland — это отель, расположенный в центре города Дананг. К услугам гостей открытый бассейн, сад и терраса.
+                        - generic [ref=f28e739]:
+                          - generic [ref=f28e741]:
+                            - generic [ref=f28e742]: Оценка гостей по десятибалльной шкале 9,1
+                            - generic [aria-hidden] [ref=f28e743]: 9,1
+                            - generic [ref=f28e744]: Превосходно - Мнения гостей, которые тут жили, 1 539 отзывов
+                            - generic [aria-hidden] [ref=f28e745]:
+                              - generic [ref=f28e746]: Превосходно
+                              - generic [ref=f28e747]: 1 539 отзывов
+                          - generic [ref=f28e749]:
+                            - generic [ref=f28e750]: Цена от
+                            - generic [ref=f28e751]: 3 091 руб.
+                            - generic [ref=f28e752]: 1 ночь, 2 взрослых
+                      - link "Проверить наличие мест" [ref=f28e754] [cursor=pointer]:
+                        - /url: https://www.booking.com/searchresults.ru.html
+                  - generic [ref=f28e757]:
+                    - link [aria-hidden] [ref=f28e758] [cursor=pointer]:
+                      - /url: https://www.booking.com/searchresults.ru.html
+                    - generic [ref=f28e762]:
+                      - generic [ref=f28e763]:
+                        - generic [ref=f28e764]:
+                          - link [ref=f28e765] [cursor=pointer]:
+                            - /url: https://www.booking.com/hotel/vn/ruby-star-ngu-hanh-son.ru.html
+                            - generic [ref=f28e766]:
+                              - heading [level=3] [ref=f28e767]:
+                                - generic [ref=f28e768]:
+                                  - text: Ruby Star Da Nang - Central My Khe Beach
+                                  - generic [ref=f28e769]:
+                                    - img "4 звезды из пяти" [ref=f28e770]
+                                    - img "Этот объект размещения участвует в нашей Привилегированной программе для партнеров. Его сотрудники предоставляют гостям достойный сервис и хорошее соотношение цены и качества. Они также платят нам более высокую комиссию за бронирования." [ref=f28e778]
+                              - generic [ref=f28e781]: Отель в Дананге
+                          - paragraph [ref=f28e787]: Ruby Star Da Nang - Central My Khe Beach — это отель в городе Дананг, в 200 м от такой достопримечательности, как Пляж Микхе.
+                        - generic [ref=f28e788]:
+                          - generic [ref=f28e790]:
+                            - generic [ref=f28e791]: Оценка гостей по десятибалльной шкале 9,1
+                            - generic [aria-hidden] [ref=f28e792]: 9,1
+                            - generic [ref=f28e793]: Превосходно - Мнения гостей, которые тут жили, 1 573 отзыва
+                            - generic [aria-hidden] [ref=f28e794]:
+                              - generic [ref=f28e795]: Превосходно
+                              - generic [ref=f28e796]: 1 573 отзыва
+                          - generic [ref=f28e798]:
+                            - generic [ref=f28e799]: Цена от
+                            - generic [ref=f28e800]: 3 626 руб.
+                            - generic [ref=f28e801]: 1 ночь, 2 взрослых
+                      - link "Проверить наличие мест" [ref=f28e803] [cursor=pointer]:
+                        - /url: https://www.booking.com/searchresults.ru.html
+                  - generic [ref=f28e806]:
+                    - link [aria-hidden] [ref=f28e807] [cursor=pointer]:
+                      - /url: https://www.booking.com/searchresults.ru.html
+                    - generic [ref=f28e811]:
+                      - generic [ref=f28e812]:
+                        - generic [ref=f28e813]:
+                          - link [ref=f28e814] [cursor=pointer]:
+                            - /url: https://www.booking.com/hotel/vn/golden-lotus-grand-ngu-hanh-son.ru.html
+                            - generic [ref=f28e815]:
+                              - heading [level=3] [ref=f28e816]:
+                                - generic [ref=f28e817]:
+                                  - text: Golden Lotus Grand Da Nang - Panoramic Rooftop Bar & Daily Afternoon Tea
+                                  - generic [ref=f28e818]:
+                                    - img "4 звезды из пяти" [ref=f28e819]
+                                    - img "Этот объект размещения участвует в нашей Привилегированной программе для партнеров. Его сотрудники предоставляют гостям достойный сервис и хорошее соотношение цены и качества. Они также платят нам более высокую комиссию за бронирования." [ref=f28e827]
+                              - generic [ref=f28e830]: Отель в Дананге
+                          - paragraph [ref=f28e836]: Golden Lotus Grand Da Nang - Panoramic Rooftop Bar & Daily Afternoon Tea — это отель, расположенный в городе Дананг. К услугам гостей бесплатные велосипеды, открытый бассейн, терраса и ресторан.
+                        - generic [ref=f28e837]:
+                          - generic [ref=f28e839]:
+                            - generic [ref=f28e840]: Оценка гостей по десятибалльной шкале 9,0
+                            - generic [aria-hidden] [ref=f28e841]: 9,0
+                            - generic [ref=f28e842]: Превосходно - Мнения гостей, которые тут жили, 2 224 отзыва
+                            - generic [aria-hidden] [ref=f28e843]:
+                              - generic [ref=f28e844]: Превосходно
+                              - generic [ref=f28e845]: 2 224 отзыва
+                          - generic [ref=f28e847]:
+                            - generic [ref=f28e848]: Цена от
+                            - generic [ref=f28e849]: 4 468 руб.
+                            - generic [ref=f28e850]: 1 ночь, 2 взрослых
+                      - link "Проверить наличие мест" [ref=f28e852] [cursor=pointer]:
+                        - /url: https://www.booking.com/searchresults.ru.html
+                  - generic [ref=f28e855]:
+                    - link [aria-hidden] [ref=f28e856] [cursor=pointer]:
+                      - /url: https://www.booking.com/searchresults.ru.html
+                    - generic [ref=f28e860]:
+                      - generic [ref=f28e861]:
+                        - generic [ref=f28e862]:
+                          - link [ref=f28e863] [cursor=pointer]:
+                            - /url: https://www.booking.com/hotel/vn/cozy-da-nang-boutique.ru.html
+                            - generic [ref=f28e864]:
+                              - heading [level=3] [ref=f28e865]:
+                                - generic [ref=f28e866]:
+                                  - text: Cozy Danang Boutique Hotel
+                                  - generic [ref=f28e867]:
+                                    - img "4 звезды из пяти" [ref=f28e868]
+                                    - img "Этот объект размещения участвует в нашей Привилегированной программе для партнеров. Его сотрудники предоставляют гостям достойный сервис и хорошее соотношение цены и качества. Они также платят нам более высокую комиссию за бронирования." [ref=f28e876]
+                              - generic [ref=f28e879]: Отель в районе Da Nang City-Centre, Дананг
+                          - generic [ref=f28e884]:
+                            - paragraph [ref=f28e885]: Cozy Danang Boutique Hotel — это отель, расположенный в городе Дананг. К услугам гостей открытый бассейн, общий лаундж, терраса и ресторан. К услугам гостей отеля с 4 звездами — бар.
+                            - button "Развернуть" [ref=f28e886] [cursor=pointer]
+                        - generic [ref=f28e887]:
+                          - generic [ref=f28e889]:
+                            - generic [ref=f28e890]: Оценка гостей по десятибалльной шкале 9,2
+                            - generic [aria-hidden] [ref=f28e891]: 9,2
+                            - generic [ref=f28e892]: Превосходно - Мнения гостей, которые тут жили, 1 188 отзывов
+                            - generic [aria-hidden] [ref=f28e893]:
+                              - generic [ref=f28e894]: Превосходно
+                              - generic [ref=f28e895]: 1 188 отзывов
+                          - generic [ref=f28e897]:
+                            - generic [ref=f28e898]: Цена от
+                            - generic [ref=f28e899]: 3 771 руб.
+                            - generic [ref=f28e900]: 1 ночь, 2 взрослых
+                      - link "Проверить наличие мест" [ref=f28e902] [cursor=pointer]:
+                        - /url: https://www.booking.com/searchresults.ru.html
+                  - generic [ref=f28e905]:
+                    - link [aria-hidden] [ref=f28e906] [cursor=pointer]:
+                      - /url: https://www.booking.com/searchresults.ru.html
+                    - generic [ref=f28e910]:
+                      - generic [ref=f28e911]:
+                        - generic [ref=f28e912]:
+                          - link [ref=f28e913] [cursor=pointer]:
+                            - /url: https://www.booking.com/hotel/vn/del-luna.ru.html
+                            - generic [ref=f28e914]:
+                              - heading [level=3] [ref=f28e915]:
+                                - generic [ref=f28e916]:
+                                  - text: Hotel Del Luna Boutique
+                                  - generic [ref=f28e917]:
+                                    - img "4 звезды из пяти" [ref=f28e918]
+                                    - img "Этот объект размещения участвует в нашей Привилегированной программе для партнеров. Его сотрудники предоставляют гостям достойный сервис и хорошее соотношение цены и качества. Они также платят нам более высокую комиссию за бронирования." [ref=f28e926]
+                              - generic [ref=f28e929]: Отель в Дананге
+                          - generic [ref=f28e934]:
+                            - paragraph [ref=f28e935]: Hotel Del Luna Boutique — это отель в городе Дананг, в 500 м от такой достопримечательности, как Пляж Микхе. Среди удобств — открытый бассейн, терраса, ресторан и бесплатная частная парковка.
+                            - button "Развернуть" [ref=f28e936] [cursor=pointer]
+                        - generic [ref=f28e937]:
+                          - generic [ref=f28e939]:
+                            - generic [ref=f28e940]: Оценка гостей по десятибалльной шкале 9,0
+                            - generic [aria-hidden] [ref=f28e941]: 9,0
+                            - generic [ref=f28e942]: Превосходно - Мнения гостей, которые тут жили, 1 034 отзыва
+                            - generic [aria-hidden] [ref=f28e943]:
+                              - generic [ref=f28e944]: Превосходно
+                              - generic [ref=f28e945]: 1 034 отзыва
+                          - generic [ref=f28e947]:
+                            - generic [ref=f28e948]: Цена от
+                            - generic [ref=f28e949]: 2 835 руб.
+                            - generic [ref=f28e950]: 1 ночь, 2 взрослых
+                      - link "Проверить наличие мест" [ref=f28e952] [cursor=pointer]:
+                        - /url: https://www.booking.com/searchresults.ru.html
+                  - generic [ref=f28e955]:
+                    - link [aria-hidden] [ref=f28e956] [cursor=pointer]:
+                      - /url: https://www.booking.com/searchresults.ru.html
+                    - generic [ref=f28e960]:
+                      - generic [ref=f28e961]:
+                        - generic [ref=f28e962]:
+                          - link [ref=f28e963] [cursor=pointer]:
+                            - /url: https://www.booking.com/hotel/vn/seahorse-amp-office-by-havi.ru.html
+                            - generic [ref=f28e964]:
+                              - heading [level=3] [ref=f28e965]:
+                                - generic [ref=f28e966]:
+                                  - text: Seahorse Natalie Da Nang Hotel By Sujet of Haviland
+                                  - img "Этот объект размещения участвует в нашей Привилегированной программе для партнеров. Его сотрудники предоставляют гостям достойный сервис и хорошее соотношение цены и качества. Они также платят нам более высокую комиссию за бронирования." [ref=f28e971]
+                              - generic [ref=f28e974]: Отель в районе Han River, Дананг
+                          - paragraph [ref=f28e980]: Seahorse Natalie Da Nang Hotel By Sujet of Haviland — это отель, расположенный в районе Da Nang City-Centre города Дананг.
+                        - generic [ref=f28e981]:
+                          - generic [ref=f28e983]:
+                            - generic [ref=f28e984]: Оценка гостей по десятибалльной шкале 9,0
+                            - generic [aria-hidden] [ref=f28e985]: 9,0
+                            - generic [ref=f28e986]: Превосходно - Мнения гостей, которые тут жили, 1 700 отзывов
+                            - generic [aria-hidden] [ref=f28e987]:
+                              - generic [ref=f28e988]: Превосходно
+                              - generic [ref=f28e989]: 1 700 отзывов
+                          - generic [ref=f28e991]:
+                            - generic [ref=f28e992]: Цена от
+                            - generic [ref=f28e993]: 3 594 руб.
+                            - generic [ref=f28e994]: 1 ночь, 2 взрослых
+                      - link "Проверить наличие мест" [ref=f28e996] [cursor=pointer]:
+                        - /url: https://www.booking.com/searchresults.ru.html
+                  - generic [ref=f28e999]:
+                    - link [aria-hidden] [ref=f28e1000] [cursor=pointer]:
+                      - /url: https://www.booking.com/searchresults.ru.html
+                    - generic [ref=f28e1004]:
+                      - generic [ref=f28e1005]:
+                        - generic [ref=f28e1006]:
+                          - link [ref=f28e1007] [cursor=pointer]:
+                            - /url: https://www.booking.com/hotel/vn/daisy-boutique-ngu-hanh-son1.ru.html
+                            - generic [ref=f28e1008]:
+                              - heading [level=3] [ref=f28e1009]:
+                                - generic [ref=f28e1010]:
+                                  - text: Daisy Boutique Hotel
+                                  - generic [ref=f28e1011]:
+                                    - img "4 звезды из пяти" [ref=f28e1012]
+                                    - img "Этот объект размещения участвует в нашей Привилегированной программе для партнеров. Его сотрудники предоставляют гостям достойный сервис и хорошее соотношение цены и качества. Они также платят нам более высокую комиссию за бронирования." [ref=f28e1020]
+                              - generic [ref=f28e1023]: Отель в Дананге
+                          - paragraph [ref=f28e1029]: Daisy Boutique Hotel — это отель, расположенный в городе Дананг. К услугам гостей открытый бассейн, сад, терраса и ресторан. В распоряжении гостей отеля с 4 звездами — бизнес-центр и услуги консьержа....
+                        - generic [ref=f28e1030]:
+                          - generic [ref=f28e1032]:
+                            - generic [ref=f28e1033]: Оценка гостей по десятибалльной шкале 9,3
+                            - generic [aria-hidden] [ref=f28e1034]: 9,3
+                            - generic [ref=f28e1035]: Превосходно - Мнения гостей, которые тут жили, 2 164 отзыва
+                            - generic [aria-hidden] [ref=f28e1036]:
+                              - generic [ref=f28e1037]: Превосходно
+                              - generic [ref=f28e1038]: 2 164 отзыва
+                          - generic [ref=f28e1040]:
+                            - generic [ref=f28e1041]: Цена от
+                            - generic [ref=f28e1042]: 3 417 руб.
+                            - generic [ref=f28e1043]: 1 ночь, 2 взрослых
+                      - link "Проверить наличие мест" [ref=f28e1045] [cursor=pointer]:
+                        - /url: https://www.booking.com/searchresults.ru.html
+                  - link "Посмотреть 2153 отеля в Дананге" [ref=f28e1047] [cursor=pointer]:
+                    - /url: https://www.booking.com/searchresults.ru.html
+          - generic [ref=f28e1051]:
+            - generic [ref=f28e1052]:
+              - heading "Отели в Дананге, предлагающие трансфер от/до аэропорта" [level=2] [ref=f28e1055]
+              - link "Посмотреть все, Отели в Дананге, предлагающие трансфер от/до аэропорта" [ref=f28e1056] [cursor=pointer]:
+                - /url: https://www.booking.com/searchresults.ru.html?nflt=hotelfacility%3D17&dest_type=city&dest_id=-3712125
+                - generic [ref=f28e1057]: Посмотреть все
+            - generic [ref=f28e1059]:
+              - region "Список из 10 вариантов жилья" [ref=f28e1060]:
+                - group [ref=f28e1061]:
+                  - generic [ref=f28e1067] [cursor=pointer]:
+                    - generic [ref=f28e1068]:
+                      - img "4 звезды из пяти" [ref=f28e1069]
+                      - link "Sala Danang Beach Hotel Отель в Дананге" [ref=f28e1074]:
+                        - /url: https://www.booking.com/hotel/vn/sala-danang-beach.ru.html
+                        - generic [ref=f28e1075]:
+                          - heading "Sala Danang Beach Hotel" [level=3] [ref=f28e1076]
+                          - generic [ref=f28e1077]: Отель в Дананге
+                    - generic [ref=f28e1078]: Трансфер от/до аэропорта (бесплатный)
+                    - generic [ref=f28e1085]:
+                      - generic [ref=f28e1086]: Оценка гостей по десятибалльной шкале 9,4
+                      - generic [aria-hidden] [ref=f28e1087]: 9,4
+                      - generic [ref=f28e1088]: Превосходно - Мнения гостей, которые тут жили, 2 543 отзыва
+                      - generic [aria-hidden] [ref=f28e1089]:
+                        - generic [ref=f28e1090]: Превосходно
+                        - generic [ref=f28e1091]: · 2 543 отзыва
+                - group [ref=f28e1092]:
+                  - generic [ref=f28e1098] [cursor=pointer]:
+                    - generic [ref=f28e1099]:
+                      - img "3 звезды из пяти" [ref=f28e1100]
+                      - link "MiAn Hotel Danang - Infinity Pool Отель в Дананге" [ref=f28e1104]:
+                        - /url: https://www.booking.com/hotel/vn/mian-danang.ru.html
+                        - generic [ref=f28e1105]:
+                          - heading "MiAn Hotel Danang - Infinity Pool" [level=3] [ref=f28e1106]
+                          - generic [ref=f28e1107]: Отель в Дананге
+                    - generic [ref=f28e1108]: Трансфер от/до аэропорта (оплачивается отдельно)
+                    - generic [ref=f28e1114]:
+                      - generic [ref=f28e1115]:
+                        - generic [ref=f28e1116]: Оценка гостей по десятибалльной шкале 9,1
+                        - generic [aria-hidden] [ref=f28e1117]: 9,1
+                        - generic [ref=f28e1118]: Превосходно - Мнения гостей, которые тут жили, 618 отзывов
+                        - generic [aria-hidden] [ref=f28e1119]:
+                          - generic [ref=f28e1120]: Превосходно
+                          - generic [ref=f28e1121]: · 618 отзывов
+                      - generic [ref=f28e1122]: От 4 888 руб. за ночь
+                - group [ref=f28e1123]:
+                  - generic [ref=f28e1129] [cursor=pointer]:
+                    - generic [ref=f28e1130]:
+                      - img "4 звезды из пяти" [ref=f28e1131]
+                      - link "Hadana Boutique Hotel Danang Отель в Дананге" [ref=f28e1136]:
+                        - /url: https://www.booking.com/hotel/vn/hadana-boutique.ru.html
+                        - generic [ref=f28e1137]:
+                          - heading "Hadana Boutique Hotel Danang" [level=3] [ref=f28e1138]
+                          - generic [ref=f28e1139]: Отель в Дананге
+                    - generic [ref=f28e1140]: Трансфер от/до аэропорта (оплачивается отдельно)
+                    - generic [ref=f28e1146]:
+                      - generic [ref=f28e1147]:
+                        - generic [ref=f28e1148]: Оценка гостей по десятибалльной шкале 9,1
+                        - generic [aria-hidden] [ref=f28e1149]: 9,1
+                        - generic [ref=f28e1150]: Превосходно - Мнения гостей, которые тут жили, 1 074 отзыва
+                        - generic [aria-hidden] [ref=f28e1151]:
+                          - generic [ref=f28e1152]: Превосходно
+                          - generic [ref=f28e1153]: · 1 074 отзыва
+                      - generic [ref=f28e1154]: От 8 124 руб. за ночь
+                - group [ref=f28e1155]:
+                  - generic [ref=f28e1161] [cursor=pointer]:
+                    - generic [ref=f28e1162]:
+                      - img "4 звезды из пяти" [ref=f28e1163]
+                      - link "Caro Premium Danang Hotel Отель в Дананге" [ref=f28e1168]:
+                        - /url: https://www.booking.com/hotel/vn/caro-premium-danang.ru.html
+                        - generic [ref=f28e1169]:
+                          - heading "Caro Premium Danang Hotel" [level=3] [ref=f28e1170]
+                          - generic [ref=f28e1171]: Отель в Дананге
+                    - generic [ref=f28e1172]: Трансфер от/до аэропорта (оплачивается отдельно)
+                    - generic [ref=f28e1178]:
+                      - generic [ref=f28e1179]:
+                        - generic [ref=f28e1180]: Оценка гостей по десятибалльной шкале 9,5
+                        - generic [aria-hidden] [ref=f28e1181]: 9,5
+                        - generic [ref=f28e1182]: Великолепно - Мнения гостей, которые тут жили, 601 отзыв
+                        - generic [aria-hidden] [ref=f28e1183]:
+                          - generic [ref=f28e1184]: Великолепно
+                          - generic [ref=f28e1185]: · 601 отзыв
+                      - generic [ref=f28e1186]: От 8 336 руб. за ночь
+                - group [ref=f28e1187]:
+                  - generic [ref=f28e1193] [cursor=pointer]:
+                    - link "Minh Boutique Отель в Дананге" [ref=f28e1195]:
+                      - /url: https://www.booking.com/hotel/vn/minh-boutique.ru.html
+                      - generic [ref=f28e1196]:
+                        - heading "Minh Boutique" [level=3] [ref=f28e1197]
+                        - generic [ref=f28e1198]: Отель в Дананге
+                    - generic [ref=f28e1199]: Трансфер от/до аэропорта (оплачивается отдельно)
+                    - generic [ref=f28e1205]:
+                      - generic [ref=f28e1206]:
+                        - generic [ref=f28e1207]: Оценка гостей по десятибалльной шкале 9,6
+                        - generic [aria-hidden] [ref=f28e1208]: 9,6
+                        - generic [ref=f28e1209]: Великолепно - Мнения гостей, которые тут жили, 3 013 отзывов
+                        - generic [aria-hidden] [ref=f28e1210]:
+                          - generic [ref=f28e1211]: Великолепно
+                          - generic [ref=f28e1212]: · 3 013 отзывов
+                      - generic [ref=f28e1213]: От 5 887 руб. за ночь
+                - group [ref=f28e1214]:
+                  - generic [ref=f28e1220] [cursor=pointer]:
+                    - generic [ref=f28e1221]:
+                      - img "4 звезды из пяти" [ref=f28e1222]
+                      - link "My Khe Hotel Отель в Дананге" [ref=f28e1227]:
+                        - /url: https://www.booking.com/hotel/vn/my-khe-amp-apartment.ru.html
+                        - generic [ref=f28e1228]:
+                          - heading "My Khe Hotel" [level=3] [ref=f28e1229]
+                          - generic [ref=f28e1230]: Отель в Дананге
+                    - generic [ref=f28e1231]: Трансфер от/до аэропорта (оплачивается отдельно)
+                    - generic [ref=f28e1238]:
+                      - generic [ref=f28e1239]: Оценка гостей по десятибалльной шкале 9,4
+                      - generic [aria-hidden] [ref=f28e1240]: 9,4
+                      - generic [ref=f28e1241]: Превосходно - Мнения гостей, которые тут жили, 109 отзывов
+                      - generic [aria-hidden] [ref=f28e1242]:
+                        - generic [ref=f28e1243]: Превосходно
+                        - generic [ref=f28e1244]: · 109 отзывов
+                - group [ref=f28e1245]:
+                  - generic [ref=f28e1251] [cursor=pointer]:
+                    - generic [ref=f28e1252]:
+                      - img "5 звезд из пяти" [ref=f28e1253]
+                      - link "Signature by M Village Danang Heritage, a brand of Modern Village Lifestyle Отель в Дананге" [ref=f28e1259]:
+                        - /url: https://www.booking.com/hotel/vn/signature-by-m-village-da-nang-heritage.ru.html
+                        - generic [ref=f28e1260]:
+                          - heading "Signature by M Village Danang Heritage, a brand of Modern Village Lifestyle" [level=3] [ref=f28e1261]
+                          - generic [ref=f28e1262]: Отель в Дананге
+                    - generic [ref=f28e1263]: Трансфер от/до аэропорта (оплачивается отдельно)
+                    - generic [ref=f28e1269]:
+                      - generic [ref=f28e1270]:
+                        - generic [ref=f28e1271]: Оценка гостей по десятибалльной шкале 9,1
+                        - generic [aria-hidden] [ref=f28e1272]: 9,1
+                        - generic [ref=f28e1273]: Превосходно - Мнения гостей, которые тут жили, 163 отзыва
+                        - generic [aria-hidden] [ref=f28e1274]:
+                          - generic [ref=f28e1275]: Превосходно
+                          - generic [ref=f28e1276]: · 163 отзыва
+                      - generic [ref=f28e1277]: От 9 253 руб. за ночь
+                - group [ref=f28e1278]:
+                  - generic [ref=f28e1284] [cursor=pointer]:
+                    - link "Seahorse Natalie Da Nang Hotel By Sujet of Haviland Отель в Дананге" [ref=f28e1286]:
+                      - /url: https://www.booking.com/hotel/vn/seahorse-amp-office-by-havi.ru.html
+                      - generic [ref=f28e1287]:
+                        - heading "Seahorse Natalie Da Nang Hotel By Sujet of Haviland" [level=3] [ref=f28e1288]
+                        - generic [ref=f28e1289]: Отель в Дананге
+                    - generic [ref=f28e1290]: Трансфер от/до аэропорта (оплачивается отдельно)
+                    - generic [ref=f28e1297]:
+                      - generic [ref=f28e1298]: Оценка гостей по десятибалльной шкале 9,0
+                      - generic [aria-hidden] [ref=f28e1299]: 9,0
+                      - generic [ref=f28e1300]: Превосходно - Мнения гостей, которые тут жили, 1 700 отзывов
+                      - generic [aria-hidden] [ref=f28e1301]:
+                        - generic [ref=f28e1302]: Превосходно
+                        - generic [ref=f28e1303]: · 1 700 отзывов
+                - group [ref=f28e1304]:
+                  - generic [ref=f28e1310] [cursor=pointer]:
+                    - generic [ref=f28e1311]:
+                      - img "4 звезды из пяти" [ref=f28e1312]
+                      - link "Sofiana My Khe Hotel & Spa - Rooftop Pool Bar- Free 01 Draught Beer and 20-minute Spa per Room Отель в Дананге" [ref=f28e1317]:
+                        - /url: https://www.booking.com/hotel/vn/sofiana-my-khe-amp-spa.ru.html
+                        - generic [ref=f28e1318]:
+                          - heading "Sofiana My Khe Hotel & Spa - Rooftop Pool Bar- Free 01 Draught Beer and 20-minute Spa per Room" [level=3] [ref=f28e1319]
+                          - generic [ref=f28e1320]: Отель в Дананге
+                    - generic [ref=f28e1321]: Трансфер от/до аэропорта (оплачивается отдельно)
+                    - generic [ref=f28e1328]:
+                      - generic [ref=f28e1329]: Оценка гостей по десятибалльной шкале 9,5
+                      - generic [aria-hidden] [ref=f28e1330]: 9,5
+                      - generic [ref=f28e1331]: Великолепно - Мнения гостей, которые тут жили, 3 524 отзыва
+                      - generic [aria-hidden] [ref=f28e1332]:
+                        - generic [ref=f28e1333]: Великолепно
+                        - generic [ref=f28e1334]: · 3 524 отзыва
+                - group [ref=f28e1335]:
+                  - generic [ref=f28e1341] [cursor=pointer]:
+                    - generic [ref=f28e1342]:
+                      - img "4 звезды из пяти" [ref=f28e1343]
+                      - link "Cozy Danang Boutique Hotel Отель в Дананге" [ref=f28e1348]:
+                        - /url: https://www.booking.com/hotel/vn/cozy-da-nang-boutique.ru.html
+                        - generic [ref=f28e1349]:
+                          - heading "Cozy Danang Boutique Hotel" [level=3] [ref=f28e1350]
+                          - generic [ref=f28e1351]: Отель в Дананге
+                    - generic [ref=f28e1352]: Трансфер от/до аэропорта (оплачивается отдельно)
+                    - generic [ref=f28e1358]:
+                      - generic [ref=f28e1359]:
+                        - generic [ref=f28e1360]: Оценка гостей по десятибалльной шкале 9,2
+                        - generic [aria-hidden] [ref=f28e1361]: 9,2
+                        - generic [ref=f28e1362]: Превосходно - Мнения гостей, которые тут жили, 1 188 отзывов
+                        - generic [aria-hidden] [ref=f28e1363]:
+                          - generic [ref=f28e1364]: Превосходно
+                          - generic [ref=f28e1365]: · 1 188 отзывов
+                      - generic [ref=f28e1366]: От 7 695 руб. за ночь
+              - button "Следующий вариант, Отели в Дананге, предлагающие трансфер от/до аэропорта" [ref=f28e1367] [cursor=pointer]
+          - generic [ref=f28e1374]:
+            - generic [ref=f28e1375]:
+              - heading "Самые бронируемые отели в Дананге и окрестностях за последний месяц" [level=2] [ref=f28e1378]
+              - link "Посмотреть все, Самые бронируемые отели в Дананге и окрестностях за последний месяц" [ref=f28e1379] [cursor=pointer]:
+                - /url: https://www.booking.com/searchresults.ru.html
+                - generic [ref=f28e1380]: Посмотреть все
+            - generic [ref=f28e1382]:
+              - region "Список из 10 вариантов жилья" [ref=f28e1383]:
+                - group [ref=f28e1384]:
+                  - generic [ref=f28e1389] [cursor=pointer]:
+                    - generic [ref=f28e1390]:
+                      - img "4 звезды из пяти" [ref=f28e1391]
+                      - link "Hotel Soco Отель в районе My Khe Beach, Дананг" [ref=f28e1396]:
+                        - /url: https://www.booking.com/hotel/vn/song-cong-da-nang.ru.html
+                        - generic [ref=f28e1397]:
+                          - heading "Hotel Soco" [level=3] [ref=f28e1398]
+                          - generic [ref=f28e1399]: Отель в районе My Khe Beach, Дананг
+                    - generic [ref=f28e1401]:
+                      - paragraph [ref=f28e1403]:
+                        - generic [ref=f28e1407]: Популярно среди гостей, бронирующих отели в Дананге
+                      - generic [ref=f28e1409]:
+                        - generic [ref=f28e1410]: Оценка гостей по десятибалльной шкале 7,7
+                        - generic [aria-hidden] [ref=f28e1411]: 7,7
+                        - generic [ref=f28e1412]: Хорошо - Мнения гостей, которые тут жили, 3 602 отзыва
+                        - generic [aria-hidden] [ref=f28e1413]:
+                          - generic [ref=f28e1414]: Хорошо
+                          - generic [ref=f28e1415]: · 3 602 отзыва
+                - group [ref=f28e1416]:
+                  - generic [ref=f28e1421] [cursor=pointer]:
+                    - generic [ref=f28e1422]:
+                      - img "3 звезды из пяти" [ref=f28e1423]
+                      - link "Sekong Hotel Da Nang Отель в районе My Khe Beach, Дананг" [ref=f28e1427]:
+                        - /url: https://www.booking.com/hotel/vn/sekong-da-nang.ru.html
+                        - generic [ref=f28e1428]:
+                          - heading "Sekong Hotel Da Nang" [level=3] [ref=f28e1429]
+                          - generic [ref=f28e1430]: Отель в районе My Khe Beach, Дананг
+                    - generic [ref=f28e1432]:
+                      - paragraph [ref=f28e1434]:
+                        - generic [ref=f28e1438]: Популярно среди гостей, бронирующих отели в Дананге
+                      - generic [ref=f28e1440]:
+                        - generic [ref=f28e1441]: Оценка гостей по десятибалльной шкале 8,0
+                        - generic [aria-hidden] [ref=f28e1442]: 8,0
+                        - generic [ref=f28e1443]: Очень хорошо - Мнения гостей, которые тут жили, 3 047 отзывов
+                        - generic [aria-hidden] [ref=f28e1444]:
+                          - generic [ref=f28e1445]: Очень хорошо
+                          - generic [ref=f28e1446]: · 3 047 отзывов
+                - group [ref=f28e1447]:
+                  - generic [ref=f28e1452] [cursor=pointer]:
+                    - generic [ref=f28e1453]:
+                      - img "4 звезды из пяти" [ref=f28e1454]
+                      - link "HAIAN Beach Hotel & Spa Отель в районе My Khe Beach, Дананг" [ref=f28e1459]:
+                        - /url: https://www.booking.com/hotel/vn/hai-an-beach-amp-spa.ru.html
+                        - generic [ref=f28e1460]:
+                          - heading "HAIAN Beach Hotel & Spa" [level=3] [ref=f28e1461]
+                          - generic [ref=f28e1462]: Отель в районе My Khe Beach, Дананг
+                    - generic [ref=f28e1464]:
+                      - paragraph [ref=f28e1466]:
+                        - generic [ref=f28e1470]: Популярно среди гостей, бронирующих отели в Дананге
+                      - generic [ref=f28e1472]:
+                        - generic [ref=f28e1473]: Оценка гостей по десятибалльной шкале 9,1
+                        - generic [aria-hidden] [ref=f28e1474]: 9,1
+                        - generic [ref=f28e1475]: Превосходно - Мнения гостей, которые тут жили, 2 922 отзыва
+                        - generic [aria-hidden] [ref=f28e1476]:
+                          - generic [ref=f28e1477]: Превосходно
+                          - generic [ref=f28e1478]: · 2 922 отзыва
+                - group [ref=f28e1479]:
+                  - generic [ref=f28e1484] [cursor=pointer]:
+                    - generic [ref=f28e1485]:
+                      - img "5 звезд из пяти" [ref=f28e1486]
+                      - link "Awaken Da Nang Hotel Отель в районе My Khe Beach, Дананг" [ref=f28e1492]:
+                        - /url: https://www.booking.com/hotel/vn/awaken-da-nang.ru.html
+                        - generic [ref=f28e1493]:
+                          - heading "Awaken Da Nang Hotel" [level=3] [ref=f28e1494]
+                          - generic [ref=f28e1495]: Отель в районе My Khe Beach, Дананг
+                    - generic [ref=f28e1497]:
+                      - paragraph [ref=f28e1499]:
+                        - generic [ref=f28e1503]: Популярно среди гостей, бронирующих отели в Дананге
+                      - generic [ref=f28e1505]:
+                        - generic [ref=f28e1506]: Оценка гостей по десятибалльной шкале 8,9
+                        - generic [aria-hidden] [ref=f28e1507]: 8,9
+                        - generic [ref=f28e1508]: Потрясающе - Мнения гостей, которые тут жили, 2 522 отзыва
+                        - generic [aria-hidden] [ref=f28e1509]:
+                          - generic [ref=f28e1510]: Потрясающе
+                          - generic [ref=f28e1511]: · 2 522 отзыва
+                - group [ref=f28e1512]:
+                  - generic [ref=f28e1517] [cursor=pointer]:
+                    - generic [ref=f28e1518]:
+                      - img "5 звезд из пяти" [ref=f28e1519]
+                      - link "M Hotel Danang Отель в районе My Khe Beach, Дананг" [ref=f28e1525]:
+                        - /url: https://www.booking.com/hotel/vn/m-danang.ru.html
+                        - generic [ref=f28e1526]:
+                          - heading "M Hotel Danang" [level=3] [ref=f28e1527]
+                          - generic [ref=f28e1528]: Отель в районе My Khe Beach, Дананг
+                    - generic [ref=f28e1530]:
+                      - paragraph [ref=f28e1532]:
+                        - generic [ref=f28e1536]: Популярно среди гостей, бронирующих отели в Дананге
+                      - generic [ref=f28e1538]:
+                        - generic [ref=f28e1539]: Оценка гостей по десятибалльной шкале 9,4
+                        - generic [aria-hidden] [ref=f28e1540]: 9,4
+                        - generic [ref=f28e1541]: Превосходно - Мнения гостей, которые тут жили, 3 364 отзыва
+                        - generic [aria-hidden] [ref=f28e1542]:
+                          - generic [ref=f28e1543]: Превосходно
+                          - generic [ref=f28e1544]: · 3 364 отзыва
+                - group [ref=f28e1545]:
+                  - generic [ref=f28e1550] [cursor=pointer]:
+                    - generic [ref=f28e1551]:
+                      - img "3 звезды из пяти" [ref=f28e1552]
+                      - link "Vista Del Sol Hotel Отель в Дананге" [ref=f28e1556]:
+                        - /url: https://www.booking.com/hotel/vn/golden-danang.ru.html
+                        - generic [ref=f28e1557]:
+                          - heading "Vista Del Sol Hotel" [level=3] [ref=f28e1558]
+                          - generic [ref=f28e1559]: Отель в Дананге
+                    - generic [ref=f28e1561]:
+                      - paragraph [ref=f28e1563]:
+                        - generic [ref=f28e1567]: Популярно среди гостей, бронирующих отели в Дананге
+                      - generic [ref=f28e1569]:
+                        - generic [ref=f28e1570]: Оценка гостей по десятибалльной шкале 8,6
+                        - generic [aria-hidden] [ref=f28e1571]: 8,6
+                        - generic [ref=f28e1572]: Потрясающе - Мнения гостей, которые тут жили, 224 отзыва
+                        - generic [aria-hidden] [ref=f28e1573]:
+                          - generic [ref=f28e1574]: Потрясающе
+                          - generic [ref=f28e1575]: · 224 отзыва
+                - group [ref=f28e1576]:
+                  - generic [ref=f28e1581] [cursor=pointer]:
+                    - generic [ref=f28e1582]:
+                      - img "4 звезды из пяти" [ref=f28e1583]
+                      - link "Flower Hotel Отель в районе My Khe Beach, Дананг" [ref=f28e1588]:
+                        - /url: https://www.booking.com/hotel/vn/flower-da-nang.ru.html
+                        - generic [ref=f28e1589]:
+                          - heading "Flower Hotel" [level=3] [ref=f28e1590]
+                          - generic [ref=f28e1591]: Отель в районе My Khe Beach, Дананг
+                    - generic [ref=f28e1593]:
+                      - paragraph [ref=f28e1595]:
+                        - generic [ref=f28e1599]: Популярно среди гостей, бронирующих отели в Дананге
+                      - generic [ref=f28e1601]:
+                        - generic [ref=f28e1602]: Оценка гостей по десятибалльной шкале 7,5
+                        - generic [aria-hidden] [ref=f28e1603]: 7,5
+                        - generic [ref=f28e1604]: Хорошо - Мнения гостей, которые тут жили, 1 417 отзывов
+                        - generic [aria-hidden] [ref=f28e1605]:
+                          - generic [ref=f28e1606]: Хорошо
+                          - generic [ref=f28e1607]: · 1 417 отзывов
+                - group [ref=f28e1608]:
+                  - generic [ref=f28e1613] [cursor=pointer]:
+                    - generic [ref=f28e1614]:
+                      - img "4 звезды из пяти" [ref=f28e1615]
+                      - link "Mercure Danang French Village Bana Hills Отель в Дананге" [ref=f28e1620]:
+                        - /url: https://www.booking.com/hotel/vn/french-village-ba-na-hills-mountain-resort.ru.html
+                        - generic [ref=f28e1621]:
+                          - heading "Mercure Danang French Village Bana Hills" [level=3] [ref=f28e1622]
+                          - generic [ref=f28e1623]: Отель в Дананге
+                    - generic [ref=f28e1625]:
+                      - paragraph [ref=f28e1627]:
+                        - generic [ref=f28e1631]: Популярно среди гостей, бронирующих отели в Дананге
+                      - generic [ref=f28e1633]:
+                        - generic [ref=f28e1634]: Оценка гостей по десятибалльной шкале 7,9
+                        - generic [aria-hidden] [ref=f28e1635]: 7,9
+                        - generic [ref=f28e1636]: Хорошо - Мнения гостей, которые тут жили, 3 843 отзыва
+                        - generic [aria-hidden] [ref=f28e1637]:
+                          - generic [ref=f28e1638]: Хорошо
+                          - generic [ref=f28e1639]: · 3 843 отзыва
+                - group [ref=f28e1640]:
+                  - generic [ref=f28e1645] [cursor=pointer]:
+                    - generic [ref=f28e1646]:
+                      - img "4 звезды из пяти" [ref=f28e1647]
+                      - link "ViAn Hotel And Spa Danang Отель в районе My Khe Beach, Дананг" [ref=f28e1652]:
+                        - /url: https://www.booking.com/hotel/vn/vian-and-spa-danang-da-nang.ru.html
+                        - generic [ref=f28e1653]:
+                          - heading "ViAn Hotel And Spa Danang" [level=3] [ref=f28e1654]
+                          - generic [ref=f28e1655]: Отель в районе My Khe Beach, Дананг
+                    - generic [ref=f28e1657]:
+                      - paragraph [ref=f28e1659]:
+                        - generic [ref=f28e1663]: Популярно среди гостей, бронирующих отели в Дананге
+                      - generic [ref=f28e1665]:
+                        - generic [ref=f28e1666]: Оценка гостей по десятибалльной шкале 7,3
+                        - generic [aria-hidden] [ref=f28e1667]: 7,3
+                        - generic [ref=f28e1668]: Хорошо - Мнения гостей, которые тут жили, 2 582 отзыва
+                        - generic [aria-hidden] [ref=f28e1669]:
+                          - generic [ref=f28e1670]: Хорошо
+                          - generic [ref=f28e1671]: · 2 582 отзыва
+                - group [ref=f28e1672]:
+                  - generic [ref=f28e1677] [cursor=pointer]:
+                    - generic [ref=f28e1678]:
+                      - img "4 звезды из пяти" [ref=f28e1679]
+                      - link "Sala Danang Beach Hotel Отель в районе My Khe Beach, Дананг" [ref=f28e1684]:
+                        - /url: https://www.booking.com/hotel/vn/sala-danang-beach.ru.html
+                        - generic [ref=f28e1685]:
+                          - heading "Sala Danang Beach Hotel" [level=3] [ref=f28e1686]
+                          - generic [ref=f28e1687]: Отель в районе My Khe Beach, Дананг
+                    - generic [ref=f28e1689]:
+                      - paragraph [ref=f28e1691]:
+                        - generic [ref=f28e1695]: Популярно среди гостей, бронирующих отели в Дананге
+                      - generic [ref=f28e1697]:
+                        - generic [ref=f28e1698]: Оценка гостей по десятибалльной шкале 9,4
+                        - generic [aria-hidden] [ref=f28e1699]: 9,4
+                        - generic [ref=f28e1700]: Превосходно - Мнения гостей, которые тут жили, 2 543 отзыва
+                        - generic [aria-hidden] [ref=f28e1701]:
+                          - generic [ref=f28e1702]: Превосходно
+                          - generic [ref=f28e1703]: · 2 543 отзыва
+              - button "Следующий вариант, Самые бронируемые отели в Дананге и окрестностях за последний месяц" [ref=f28e1704] [cursor=pointer]
+          - generic [ref=f28e1709]:
+            - generic [ref=f28e1712]:
+              - generic [ref=f28e1713]:
+                - heading "Бюджетные отели в Дананге и окрестностях" [level=2] [ref=f28e1716]
+                - link "Посмотреть все, Бюджетные отели в Дананге и окрестностях" [ref=f28e1717] [cursor=pointer]:
+                  - /url: https://www.booking.com/searchresults.ru.html
+                  - generic [ref=f28e1718]: Посмотреть все
+              - generic [ref=f28e1720]:
+                - region "Список из 8 вариантов жилья" [ref=f28e1721]:
+                  - group [ref=f28e1722]:
+                    - generic [ref=f28e1727] [cursor=pointer]:
+                      - generic [ref=f28e1728]:
+                        - link "Hotel Soco Отель в районе My Khe Beach, Дананг" [ref=f28e1729]:
+                          - /url: https://www.booking.com/hotel/vn/song-cong-da-nang.ru.html
+                          - generic [ref=f28e1730]:
+                            - heading "Hotel Soco" [level=3] [ref=f28e1731]
+                            - generic [ref=f28e1732]: Отель в районе My Khe Beach, Дананг
+                        - generic [ref=f28e1734]: Недорогой отель
+                      - generic [ref=f28e1739]:
+                        - generic [ref=f28e1740]: Оценка гостей по десятибалльной шкале 7,7
+                        - generic [aria-hidden] [ref=f28e1741]: 7,7
+                        - generic [ref=f28e1742]: Хорошо - Мнения гостей, которые тут жили, 3 602 отзыва
+                        - generic [aria-hidden] [ref=f28e1743]:
+                          - generic [ref=f28e1744]: Хорошо
+                          - generic [ref=f28e1745]: · 3 602 отзыва
+                  - group [ref=f28e1746]:
+                    - generic [ref=f28e1751] [cursor=pointer]:
+                      - generic [ref=f28e1752]:
+                        - link "Sekong Hotel Da Nang Отель в районе My Khe Beach, Дананг" [ref=f28e1753]:
+                          - /url: https://www.booking.com/hotel/vn/sekong-da-nang.ru.html
+                          - generic [ref=f28e1754]:
+                            - heading "Sekong Hotel Da Nang" [level=3] [ref=f28e1755]
+                            - generic [ref=f28e1756]: Отель в районе My Khe Beach, Дананг
+                        - generic [ref=f28e1758]: Недорогой отель
+                      - generic [ref=f28e1763]:
+                        - generic [ref=f28e1764]: Оценка гостей по десятибалльной шкале 8,0
+                        - generic [aria-hidden] [ref=f28e1765]: 8,0
+                        - generic [ref=f28e1766]: Очень хорошо - Мнения гостей, которые тут жили, 3 047 отзывов
+                        - generic [aria-hidden] [ref=f28e1767]:
+                          - generic [ref=f28e1768]: Очень хорошо
+                          - generic [ref=f28e1769]: · 3 047 отзывов
+                  - group [ref=f28e1770]:
+                    - generic [ref=f28e1775] [cursor=pointer]:
+                      - generic [ref=f28e1776]:
+                        - link "HAIAN Beach Hotel & Spa Отель в районе My Khe Beach, Дананг" [ref=f28e1777]:
+                          - /url: https://www.booking.com/hotel/vn/hai-an-beach-amp-spa.ru.html
+                          - generic [ref=f28e1778]:
+                            - heading "HAIAN Beach Hotel & Spa" [level=3] [ref=f28e1779]
+                            - generic [ref=f28e1780]: Отель в районе My Khe Beach, Дананг
+                        - generic [ref=f28e1782]: Недорогой отель
+                      - generic [ref=f28e1787]:
+                        - generic [ref=f28e1788]: Оценка гостей по десятибалльной шкале 9,1
+                        - generic [aria-hidden] [ref=f28e1789]: 9,1
+                        - generic [ref=f28e1790]: Превосходно - Мнения гостей, которые тут жили, 2 922 отзыва
+                        - generic [aria-hidden] [ref=f28e1791]:
+                          - generic [ref=f28e1792]: Превосходно
+                          - generic [ref=f28e1793]: · 2 922 отзыва
+                  - group [ref=f28e1794]:
+                    - generic [ref=f28e1799] [cursor=pointer]:
+                      - generic [ref=f28e1800]:
+                        - link "Awaken Da Nang Hotel Отель в районе My Khe Beach, Дананг" [ref=f28e1801]:
+                          - /url: https://www.booking.com/hotel/vn/awaken-da-nang.ru.html
+                          - generic [ref=f28e1802]:
+                            - heading "Awaken Da Nang Hotel" [level=3] [ref=f28e1803]
+                            - generic [ref=f28e1804]: Отель в районе My Khe Beach, Дананг
+                        - generic [ref=f28e1806]: Недорогой отель
+                      - generic [ref=f28e1811]:
+                        - generic [ref=f28e1812]: Оценка гостей по десятибалльной шкале 8,9
+                        - generic [aria-hidden] [ref=f28e1813]: 8,9
+                        - generic [ref=f28e1814]: Потрясающе - Мнения гостей, которые тут жили, 2 522 отзыва
+                        - generic [aria-hidden] [ref=f28e1815]:
+                          - generic [ref=f28e1816]: Потрясающе
+                          - generic [ref=f28e1817]: · 2 522 отзыва
+                  - group [ref=f28e1818]:
+                    - generic [ref=f28e1823] [cursor=pointer]:
+                      - generic [ref=f28e1824]:
+                        - link "M Hotel Danang Отель в районе My Khe Beach, Дананг" [ref=f28e1825]:
+                          - /url: https://www.booking.com/hotel/vn/m-danang.ru.html
+                          - generic [ref=f28e1826]:
+                            - heading "M Hotel Danang" [level=3] [ref=f28e1827]
+                            - generic [ref=f28e1828]: Отель в районе My Khe Beach, Дананг
+                        - generic [ref=f28e1830]: Недорогой отель
+                      - generic [ref=f28e1835]:
+                        - generic [ref=f28e1836]: Оценка гостей по десятибалльной шкале 9,4
+                        - generic [aria-hidden] [ref=f28e1837]: 9,4
+                        - generic [ref=f28e1838]: Превосходно - Мнения гостей, которые тут жили, 3 364 отзыва
+                        - generic [aria-hidden] [ref=f28e1839]:
+                          - generic [ref=f28e1840]: Превосходно
+                          - generic [ref=f28e1841]: · 3 364 отзыва
+                  - group [ref=f28e1842]:
+                    - generic [ref=f28e1847] [cursor=pointer]:
+                      - generic [ref=f28e1848]:
+                        - link "Vista Del Sol Hotel Отель в Дананге" [ref=f28e1849]:
+                          - /url: https://www.booking.com/hotel/vn/golden-danang.ru.html
+                          - generic [ref=f28e1850]:
+                            - heading "Vista Del Sol Hotel" [level=3] [ref=f28e1851]
+                            - generic [ref=f28e1852]: Отель в Дананге
+                        - generic [ref=f28e1854]: Недорогой отель
+                      - generic [ref=f28e1858]:
+                        - generic [ref=f28e1859]:
+                          - generic [ref=f28e1860]: Оценка гостей по десятибалльной шкале 8,6
+                          - generic [aria-hidden] [ref=f28e1861]: 8,6
+                          - generic [ref=f28e1862]: Потрясающе - Мнения гостей, которые тут жили, 224 отзыва
+                          - generic [aria-hidden] [ref=f28e1863]:
+                            - generic [ref=f28e1864]: Потрясающе
+                            - generic [ref=f28e1865]: · 224 отзыва
+                        - generic [ref=f28e1866]:
+                          - generic [ref=f28e1867]:
+                            - paragraph
+                            - generic [aria-hidden] [ref=f28e1868]:
+                              - generic [ref=f28e1869]: Отзыв гостя
+                              - blockquote [ref=f28e1870]: “Понравилось всё, отношение персонала, чистота, расположение отеля 🙌🏽”
+                          - button "Развернуть" [ref=f28e1872]
+                  - group [ref=f28e1874]:
+                    - generic [ref=f28e1879] [cursor=pointer]:
+                      - generic [ref=f28e1880]:
+                        - link "Flower Hotel Отель в районе My Khe Beach, Дананг" [ref=f28e1881]:
+                          - /url: https://www.booking.com/hotel/vn/flower-da-nang.ru.html
+                          - generic [ref=f28e1882]:
+                            - heading "Flower Hotel" [level=3] [ref=f28e1883]
+                            - generic [ref=f28e1884]: Отель в районе My Khe Beach, Дананг
+                        - generic [ref=f28e1886]: Недорогой отель
+                      - generic [ref=f28e1891]:
+                        - generic [ref=f28e1892]: Оценка гостей по десятибалльной шкале 7,5
+                        - generic [aria-hidden] [ref=f28e1893]: 7,5
+                        - generic [ref=f28e1894]: Хорошо - Мнения гостей, которые тут жили, 1 417 отзывов
+                        - generic [aria-hidden] [ref=f28e1895]:
+                          - generic [ref=f28e1896]: Хорошо
+                          - generic [ref=f28e1897]: · 1 417 отзывов
+                  - group [ref=f28e1898]:
+                    - generic [ref=f28e1903] [cursor=pointer]:
+                      - generic [ref=f28e1904]:
+                        - link "Mercure Danang French Village Bana Hills Отель в Дананге" [ref=f28e1905]:
+                          - /url: https://www.booking.com/hotel/vn/french-village-ba-na-hills-mountain-resort.ru.html
+                          - generic [ref=f28e1906]:
+                            - heading "Mercure Danang French Village Bana Hills" [level=3] [ref=f28e1907]
+                            - generic [ref=f28e1908]: Отель в Дананге
+                        - generic [ref=f28e1910]: Недорогой отель
+                      - generic [ref=f28e1915]:
+                        - generic [ref=f28e1916]: Оценка гостей по десятибалльной шкале 7,9
+                        - generic [aria-hidden] [ref=f28e1917]: 7,9
+                        - generic [ref=f28e1918]: Хорошо - Мнения гостей, которые тут жили, 3 843 отзыва
+                        - generic [aria-hidden] [ref=f28e1919]:
+                          - generic [ref=f28e1920]: Хорошо
+                          - generic [ref=f28e1921]: · 3 843 отзыва
+                - button "Следующий вариант, Бюджетные отели в Дананге и окрестностях" [ref=f28e1922] [cursor=pointer]
+            - generic [ref=f28e1929]:
+              - generic [ref=f28e1930]:
+                - heading "Лучшие отели с завтраком в Дананге и окрестностях" [level=2] [ref=f28e1933]
+                - link "Посмотреть все, Лучшие отели с завтраком в Дананге и окрестностях" [ref=f28e1934] [cursor=pointer]:
+                  - /url: https://www.booking.com/searchresults.ru.html
+                  - generic [ref=f28e1935]: Посмотреть все
+              - generic [ref=f28e1937]:
+                - region "Список из 8 вариантов жилья" [ref=f28e1938]:
+                  - group [ref=f28e1939]:
+                    - generic [ref=f28e1944] [cursor=pointer]:
+                      - generic [ref=f28e1945]:
+                        - link "ViAn Hotel And Spa Danang Отель в районе My Khe Beach, Дананг" [ref=f28e1946]:
+                          - /url: https://www.booking.com/hotel/vn/vian-and-spa-danang-da-nang.ru.html
+                          - generic [ref=f28e1947]:
+                            - heading "ViAn Hotel And Spa Danang" [level=3] [ref=f28e1948]
+                            - generic [ref=f28e1949]: Отель в районе My Khe Beach, Дананг
+                        - generic [ref=f28e1951]: Предлагается завтрак
+                      - generic [ref=f28e1956]:
+                        - generic [ref=f28e1957]: Оценка гостей по десятибалльной шкале 7,3
+                        - generic [aria-hidden] [ref=f28e1958]: 7,3
+                        - generic [ref=f28e1959]: Хорошо - Мнения гостей, которые тут жили, 2 582 отзыва
+                        - generic [aria-hidden] [ref=f28e1960]:
+                          - generic [ref=f28e1961]: Хорошо
+                          - generic [ref=f28e1962]: · 2 582 отзыва
+                  - group [ref=f28e1963]:
+                    - generic [ref=f28e1968] [cursor=pointer]:
+                      - generic [ref=f28e1969]:
+                        - link "Sala Danang Beach Hotel Отель в районе My Khe Beach, Дананг" [ref=f28e1970]:
+                          - /url: https://www.booking.com/hotel/vn/sala-danang-beach.ru.html
+                          - generic [ref=f28e1971]:
+                            - heading "Sala Danang Beach Hotel" [level=3] [ref=f28e1972]
+                            - generic [ref=f28e1973]: Отель в районе My Khe Beach, Дананг
+                        - generic [ref=f28e1975]: Предлагается завтрак
+                      - generic [ref=f28e1979]:
+                        - generic [ref=f28e1980]:
+                          - generic [ref=f28e1981]: Оценка гостей по десятибалльной шкале 9,4
+                          - generic [aria-hidden] [ref=f28e1982]: 9,4
+                          - generic [ref=f28e1983]: Превосходно - Мнения гостей, которые тут жили, 2 543 отзыва
+                          - generic [aria-hidden] [ref=f28e1984]:
+                            - generic [ref=f28e1985]: Превосходно
+                            - generic [ref=f28e1986]: · 2 543 отзыва
+                        - generic [ref=f28e1987]:
+                          - generic [ref=f28e1988]:
+                            - paragraph
+                            - generic [aria-hidden] [ref=f28e1989]:
+                              - generic [ref=f28e1990]: Отзыв гостя
+                              - blockquote [ref=f28e1991]: “Отличный отель. Номер SALA Suite mit Balkon und Meerblick просто супер. Отдельный зал с завтраками и обедами завоевал наши седца - спокойно, стильно, качественно и вкусно. Сервис на высоте будь то ресторан, уборка или рецепшен - все молодцы. Отдельное спасибо девочкам из Спа Салона - они профессионалы. И если нам когда нибудь захочется вернуться в Да Нанг, то только из за этого отеля.”
+                          - button "Развернуть" [ref=f28e1993]
+                  - group [ref=f28e1995]:
+                    - generic [ref=f28e2000] [cursor=pointer]:
+                      - generic [ref=f28e2001]:
+                        - link "Delicate Hotel Отель в районе My Khe Beach, Дананг" [ref=f28e2002]:
+                          - /url: https://www.booking.com/hotel/vn/hung-anh-danang2.ru.html
+                          - generic [ref=f28e2003]:
+                            - heading "Delicate Hotel" [level=3] [ref=f28e2004]
+                            - generic [ref=f28e2005]: Отель в районе My Khe Beach, Дананг
+                        - generic [ref=f28e2007]: Предлагается завтрак
+                      - generic [ref=f28e2012]:
+                        - generic [ref=f28e2013]: Оценка гостей по десятибалльной шкале 7,9
+                        - generic [aria-hidden] [ref=f28e2014]: 7,9
+                        - generic [ref=f28e2015]: Хорошо - Мнения гостей, которые тут жили, 2 024 отзыва
+                        - generic [aria-hidden] [ref=f28e2016]:
+                          - generic [ref=f28e2017]: Хорошо
+                          - generic [ref=f28e2018]: · 2 024 отзыва
+                  - group [ref=f28e2019]:
+                    - generic [ref=f28e2024] [cursor=pointer]:
+                      - generic [ref=f28e2025]:
+                        - link "TUI BLUE Han River - 10 Minutes from Da Nang Airport & 07 Minutes Walk to Dragon Bridge Отель в районе Han River, Дананг" [ref=f28e2026]:
+                          - /url: https://www.booking.com/hotel/vn/tuibluehanriver.ru.html
+                          - generic [ref=f28e2027]:
+                            - heading "TUI BLUE Han River - 10 Minutes from Da Nang Airport & 07 Minutes Walk to Dragon Bridge" [level=3] [ref=f28e2028]
+                            - generic [ref=f28e2029]: Отель в районе Han River, Дананг
+                        - generic [ref=f28e2031]: Предлагается завтрак
+                      - generic [ref=f28e2035]:
+                        - generic [ref=f28e2036]:
+                          - generic [ref=f28e2037]: Оценка гостей по десятибалльной шкале 9,5
+                          - generic [aria-hidden] [ref=f28e2038]: 9,5
+                          - generic [ref=f28e2039]: Великолепно - Мнения гостей, которые тут жили, 81 отзыв
+                          - generic [aria-hidden] [ref=f28e2040]:
+                            - generic [ref=f28e2041]: Великолепно
+                            - generic [ref=f28e2042]: · 81 отзыв
+                        - generic [ref=f28e2043]:
+                          - generic [ref=f28e2044]:
+                            - paragraph
+                            - generic [aria-hidden] [ref=f28e2045]:
+                              - generic [ref=f28e2046]: Отзыв гостя
+                              - blockquote [ref=f28e2047]: “Отличный сервис.Чистый отель.Отличное расположение.”
+                          - button "Развернуть" [ref=f28e2049]
+                  - group [ref=f28e2051]:
+                    - generic [ref=f28e2056] [cursor=pointer]:
+                      - generic [ref=f28e2057]:
+                        - link "Thành Hoàng Châu Hotel Отель в районе Da Nang City-Centre, Дананг" [ref=f28e2058]:
+                          - /url: https://www.booking.com/hotel/vn/thanh-hoang-chau.ru.html
+                          - generic [ref=f28e2059]:
+                            - heading "Thành Hoàng Châu Hotel" [level=3] [ref=f28e2060]
+                            - generic [ref=f28e2061]: Отель в районе Da Nang City-Centre, Дананг
+                        - generic [ref=f28e2063]: Предлагается завтрак
+                      - generic [ref=f28e2068]:
+                        - generic [ref=f28e2069]: Оценка гостей по десятибалльной шкале 7,9
+                        - generic [aria-hidden] [ref=f28e2070]: 7,9
+                        - generic [ref=f28e2071]: Хорошо - Мнения гостей, которые тут жили, 26 отзывов
+                        - generic [aria-hidden] [ref=f28e2072]:
+                          - generic [ref=f28e2073]: Хорошо
+                          - generic [ref=f28e2074]: · 26 отзывов
+                  - group [ref=f28e2075]:
+                    - generic [ref=f28e2080] [cursor=pointer]:
+                      - generic [ref=f28e2081]:
+                        - link "LAVISH OCEAN INN Đà Nẵng Отель в районе My Khe Beach, Дананг" [ref=f28e2082]:
+                          - /url: https://www.booking.com/hotel/vn/green-house.ru.html
+                          - generic [ref=f28e2083]:
+                            - heading "LAVISH OCEAN INN Đà Nẵng" [level=3] [ref=f28e2084]
+                            - generic [ref=f28e2085]: Отель в районе My Khe Beach, Дананг
+                        - generic [ref=f28e2087]: Предлагается завтрак
+                      - generic [ref=f28e2091]:
+                        - generic [ref=f28e2092]:
+                          - generic [ref=f28e2093]: Оценка гостей по десятибалльной шкале 8,1
+                          - generic [aria-hidden] [ref=f28e2094]: 8,1
+                          - generic [ref=f28e2095]: Очень хорошо - Мнения гостей, которые тут жили, 229 отзывов
+                          - generic [aria-hidden] [ref=f28e2096]:
+                            - generic [ref=f28e2097]: Очень хорошо
+                            - generic [ref=f28e2098]: · 229 отзывов
+                        - generic [ref=f28e2099]:
+                          - generic [ref=f28e2100]:
+                            - paragraph
+                            - generic [aria-hidden] [ref=f28e2101]:
+                              - generic [ref=f28e2102]: Отзыв гостя
+                              - blockquote [ref=f28e2103]: “Гостиница отличная! в соотношении цена-качество вполне приемлемо. Море, кафе рядом. С удовольствием вернусь сюда снова) Рекомендую однозначно!”
+                          - button "Развернуть" [ref=f28e2105]
+                  - group [ref=f28e2107]:
+                    - generic [ref=f28e2112] [cursor=pointer]:
+                      - generic [ref=f28e2113]:
+                        - link "Cordial Grand Hotel Da Nang Beach - Infinity Rooftop Pool Отель в районе My Khe Beach, Дананг" [ref=f28e2114]:
+                          - /url: https://www.booking.com/hotel/vn/cordial-grand.ru.html
+                          - generic [ref=f28e2115]:
+                            - heading "Cordial Grand Hotel Da Nang Beach - Infinity Rooftop Pool" [level=3] [ref=f28e2116]
+                            - generic [ref=f28e2117]: Отель в районе My Khe Beach, Дананг
+                        - generic [ref=f28e2119]: Предлагается завтрак
+                      - generic [ref=f28e2124]:
+                        - generic [ref=f28e2125]: Оценка гостей по десятибалльной шкале 8,1
+                        - generic [aria-hidden] [ref=f28e2126]: 8,1
+                        - generic [ref=f28e2127]: Очень хорошо - Мнения гостей, которые тут жили, 1 313 отзывов
+                        - generic [aria-hidden] [ref=f28e2128]:
+                          - generic [ref=f28e2129]: Очень хорошо
+                          - generic [ref=f28e2130]: · 1 313 отзывов
+                  - group [ref=f28e2131]:
+                    - generic [ref=f28e2136] [cursor=pointer]:
+                      - generic [ref=f28e2137]:
+                        - link "Golden Rose Hotel Отель в районе My Khe Beach, Дананг" [ref=f28e2138]:
+                          - /url: https://www.booking.com/hotel/vn/golden-rose-danang.ru.html
+                          - generic [ref=f28e2139]:
+                            - heading "Golden Rose Hotel" [level=3] [ref=f28e2140]
+                            - generic [ref=f28e2141]: Отель в районе My Khe Beach, Дананг
+                        - generic [ref=f28e2143]: Предлагается завтрак
+                      - generic [ref=f28e2148]:
+                        - generic [ref=f28e2149]: Оценка гостей по десятибалльной шкале 8,0
+                        - generic [aria-hidden] [ref=f28e2150]: 8,0
+                        - generic [ref=f28e2151]: Очень хорошо - Мнения гостей, которые тут жили, 2 816 отзывов
+                        - generic [aria-hidden] [ref=f28e2152]:
+                          - generic [ref=f28e2153]: Очень хорошо
+                          - generic [ref=f28e2154]: · 2 816 отзывов
+                - button "Следующий вариант, Лучшие отели с завтраком в Дананге и окрестностях" [ref=f28e2155] [cursor=pointer]
+            - generic [ref=f28e2162]:
+              - generic [ref=f28e2163]:
+                - heading "Отели в центре города Дананг" [level=2] [ref=f28e2166]
+                - link "Посмотреть все, Отели в центре города Дананг" [ref=f28e2167] [cursor=pointer]:
+                  - /url: https://www.booking.com/searchresults.ru.html
+                  - generic [ref=f28e2168]: Посмотреть все
+              - generic [ref=f28e2170]:
+                - region "Список из 7 вариантов жилья" [ref=f28e2171]:
+                  - group [ref=f28e2172]:
+                    - generic [ref=f28e2177] [cursor=pointer]:
+                      - generic [ref=f28e2178]:
+                        - link "Sanouva Da Nang Hotel - Daily Afternoon Tea Inclusive Отель в районе Da Nang City-Centre, Дананг" [ref=f28e2179]:
+                          - /url: https://www.booking.com/hotel/vn/sanouva-da-nang.ru.html
+                          - generic [ref=f28e2180]:
+                            - heading "Sanouva Da Nang Hotel - Daily Afternoon Tea Inclusive" [level=3] [ref=f28e2181]
+                            - generic [ref=f28e2182]: Отель в районе Da Nang City-Centre, Дананг
+                        - generic [ref=f28e2184]: В центре города
+                      - generic [ref=f28e2188]:
+                        - generic [ref=f28e2189]:
+                          - generic [ref=f28e2190]: Оценка гостей по десятибалльной шкале 8,8
+                          - generic [aria-hidden] [ref=f28e2191]: 8,8
+                          - generic [ref=f28e2192]: Потрясающе - Мнения гостей, которые тут жили, 727 отзывов
+                          - generic [aria-hidden] [ref=f28e2193]:
+                            - generic [ref=f28e2194]: Потрясающе
+                            - generic [ref=f28e2195]: · 727 отзывов
+                        - generic [ref=f28e2196]:
+                          - generic [ref=f28e2197]:
+                            - paragraph
+                            - generic [aria-hidden] [ref=f28e2198]:
+                              - generic [ref=f28e2199]: Отзыв гостя
+                              - blockquote [ref=f28e2200]: “Хорошие большие номера, завтрак разнообразный, тихо, отель отличный!”
+                          - button "Развернуть" [ref=f28e2202]
+                  - group [ref=f28e2204]:
+                    - generic [ref=f28e2209] [cursor=pointer]:
+                      - generic [ref=f28e2210]:
+                        - link "Sujet Center Hotel Da Nang By Haviland Отель в районе Da Nang City-Centre, Дананг" [ref=f28e2211]:
+                          - /url: https://www.booking.com/hotel/vn/sujet-center-by-haviland.ru.html
+                          - generic [ref=f28e2212]:
+                            - heading "Sujet Center Hotel Da Nang By Haviland" [level=3] [ref=f28e2213]
+                            - generic [ref=f28e2214]: Отель в районе Da Nang City-Centre, Дананг
+                        - generic [ref=f28e2216]: В центре города
+                      - generic [ref=f28e2220]:
+                        - generic [ref=f28e2221]:
+                          - generic [ref=f28e2222]: Оценка гостей по десятибалльной шкале 8,6
+                          - generic [aria-hidden] [ref=f28e2223]: 8,6
+                          - generic [ref=f28e2224]: Потрясающе - Мнения гостей, которые тут жили, 159 отзывов
+                          - generic [aria-hidden] [ref=f28e2225]:
+                            - generic [ref=f28e2226]: Потрясающе
+                            - generic [ref=f28e2227]: · 159 отзывов
+                        - generic [ref=f28e2228]:
+                          - generic [ref=f28e2229]:
+                            - paragraph
+                            - generic [aria-hidden] [ref=f28e2230]:
+                              - generic [ref=f28e2231]: Отзыв гостя
+                              - blockquote [ref=f28e2232]: “Удачное расположение отеля. Недалеко от основных достопримечательностей. Номер достаточно просторный , чистый . Есть чайник, кофе, чай. Небольшая кухонная зона с микроволновой. Сам отель оснащен лифтом. Что было очень удобно , поскольку мы жили на 4 этаже. Рядом хорошая кафешка.”
+                          - button "Развернуть" [ref=f28e2234]
+                  - group [ref=f28e2236]:
+                    - generic [ref=f28e2241] [cursor=pointer]:
+                      - generic [ref=f28e2242]:
+                        - link "Center Orient Hotel Отель в районе Da Nang City-Centre, Дананг" [ref=f28e2243]:
+                          - /url: https://www.booking.com/hotel/vn/center-orient.ru.html
+                          - generic [ref=f28e2244]:
+                            - heading "Center Orient Hotel" [level=3] [ref=f28e2245]
+                            - generic [ref=f28e2246]: Отель в районе Da Nang City-Centre, Дананг
+                        - generic [ref=f28e2248]: В центре города
+                      - generic [ref=f28e2253]:
+                        - generic [ref=f28e2254]: Оценка гостей по десятибалльной шкале 8,3
+                        - generic [aria-hidden] [ref=f28e2255]: 8,3
+                        - generic [ref=f28e2256]: Очень хорошо - Мнения гостей, которые тут жили, 6 отзывов
+                        - generic [aria-hidden] [ref=f28e2257]:
+                          - generic [ref=f28e2258]: Очень хорошо
+                          - generic [ref=f28e2259]: · 6 отзывов
+                  - group [ref=f28e2260]:
+                    - generic [ref=f28e2265] [cursor=pointer]:
+                      - generic [ref=f28e2266]:
+                        - link "Elite Luxury Hotel & Apartment by Elite24 Отель в районе Da Nang City-Centre, Дананг" [ref=f28e2267]:
+                          - /url: https://www.booking.com/hotel/vn/elite-luxury.ru.html
+                          - generic [ref=f28e2268]:
+                            - heading "Elite Luxury Hotel & Apartment by Elite24" [level=3] [ref=f28e2269]
+                            - generic [ref=f28e2270]: Отель в районе Da Nang City-Centre, Дананг
+                        - generic [ref=f28e2272]: В центре города
+                      - generic [ref=f28e2277]:
+                        - generic [ref=f28e2278]: Оценка гостей по десятибалльной шкале 8,1
+                        - generic [aria-hidden] [ref=f28e2279]: 8,1
+                        - generic [ref=f28e2280]: Очень хорошо - Мнения гостей, которые тут жили, 110 отзывов
+                        - generic [aria-hidden] [ref=f28e2281]:
+                          - generic [ref=f28e2282]: Очень хорошо
+                          - generic [ref=f28e2283]: · 110 отзывов
+                  - group [ref=f28e2284]:
+                    - generic [ref=f28e2289] [cursor=pointer]:
+                      - generic [ref=f28e2290]:
+                        - link "G8 Luxury Hotel Da Nang Отель в районе Da Nang City-Centre, Дананг" [ref=f28e2291]:
+                          - /url: https://www.booking.com/hotel/vn/gic-land-luxury-and-spa.ru.html
+                          - generic [ref=f28e2292]:
+                            - heading "G8 Luxury Hotel Da Nang" [level=3] [ref=f28e2293]
+                            - generic [ref=f28e2294]: Отель в районе Da Nang City-Centre, Дананг
+                        - generic [ref=f28e2296]: В центре города
+                      - generic [ref=f28e2300]:
+                        - generic [ref=f28e2301]:
+                          - generic [ref=f28e2302]: Оценка гостей по десятибалльной шкале 8,3
+                          - generic [aria-hidden] [ref=f28e2303]: 8,3
+                          - generic [ref=f28e2304]: Очень хорошо - Мнения гостей, которые тут жили, 347 отзывов
+                          - generic [aria-hidden] [ref=f28e2305]:
+                            - generic [ref=f28e2306]: Очень хорошо
+                            - generic [ref=f28e2307]: · 347 отзывов
+                        - generic [ref=f28e2308]:
+                          - generic [ref=f28e2309]:
+                            - paragraph
+                            - generic [aria-hidden] [ref=f28e2310]:
+                              - generic [ref=f28e2311]: Отзыв гостя
+                              - blockquote [ref=f28e2312]: “Неплохой отель с хорошим расположением. Номер небольшой, но уютный.”
+                          - button "Развернуть" [ref=f28e2314]
+                  - group [ref=f28e2316]:
+                    - generic [ref=f28e2321] [cursor=pointer]:
+                      - generic [ref=f28e2322]:
+                        - link "Orange City Center Hotel Da Nang - Near Han Market & Dragon Brigde Отель в районе Da Nang City-Centre, Дананг" [ref=f28e2323]:
+                          - /url: https://www.booking.com/hotel/vn/orange-da-nang.ru.html
+                          - generic [ref=f28e2324]:
+                            - heading "Orange City Center Hotel Da Nang - Near Han Market & Dragon Brigde" [level=3] [ref=f28e2325]
+                            - generic [ref=f28e2326]: Отель в районе Da Nang City-Centre, Дананг
+                        - generic [ref=f28e2328]: В центре города
+                      - generic [ref=f28e2332]:
+                        - generic [ref=f28e2333]:
+                          - generic [ref=f28e2334]: Оценка гостей по десятибалльной шкале 7,8
+                          - generic [aria-hidden] [ref=f28e2335]: 7,8
+                          - generic [ref=f28e2336]: Хорошо - Мнения гостей, которые тут жили, 180 отзывов
+                          - generic [aria-hidden] [ref=f28e2337]:
+                            - generic [ref=f28e2338]: Хорошо
+                            - generic [ref=f28e2339]: · 180 отзывов
+                        - generic [ref=f28e2340]:
+                          - generic [ref=f28e2341]:
+                            - paragraph
+                            - generic [aria-hidden] [ref=f28e2342]:
+                              - generic [ref=f28e2343]: Отзыв гостя
+                              - blockquote [ref=f28e2344]: “Отель находится 10 минут до моста Дракона…Тихая улочка,персонал,хорошая комната.Мне все понравилось”
+                          - button "Развернуть" [ref=f28e2346]
+                  - group [ref=f28e2348]:
+                    - generic [ref=f28e2353] [cursor=pointer]:
+                      - generic [ref=f28e2354]:
+                        - link "Corner Central Danang City Hotel Отель в районе Da Nang City-Centre, Дананг" [ref=f28e2355]:
+                          - /url: https://www.booking.com/hotel/vn/corner-central-danang-city.ru.html
+                          - generic [ref=f28e2356]:
+                            - heading "Corner Central Danang City Hotel" [level=3] [ref=f28e2357]
+                            - generic [ref=f28e2358]: Отель в районе Da Nang City-Centre, Дананг
+                        - generic [ref=f28e2360]: В центре города
+                      - generic [ref=f28e2365]:
+                        - generic [ref=f28e2366]: Оценка гостей по десятибалльной шкале 8,4
+                        - generic [aria-hidden] [ref=f28e2367]: 8,4
+                        - generic [ref=f28e2368]: Очень хорошо - Мнения гостей, которые тут жили, 16 отзывов
+                        - generic [aria-hidden] [ref=f28e2369]:
+                          - generic [ref=f28e2370]: Очень хорошо
+                          - generic [ref=f28e2371]: · 16 отзывов
+                - button "Следующий вариант, Отели в центре города Дананг" [ref=f28e2372] [cursor=pointer]
+          - generic [ref=f28e2379]:
+            - heading "Часто задаваемые вопросы об отелях в Дананге" [level=2] [ref=f28e2383]
+            - generic [ref=f28e2386]:
+              - generic [ref=f28e2388]:
+                - button [ref=f28e2391] [cursor=pointer]:
+                  - heading "Сколько стоит проживание в отеле в Дананге?" [level=3] [ref=f28e2393]
+                - separator [aria-hidden] [ref=f28e2397]
+                - button [ref=f28e2400] [cursor=pointer]:
+                  - heading "Сколько стоит проживание в отеле в Дананге в эти выходные?" [level=3] [ref=f28e2402]
+                - separator [aria-hidden] [ref=f28e2406]
+                - button [ref=f28e2409] [cursor=pointer]:
+                  - heading "Сколько стоит проживание в отеле в Дананге сегодня?" [level=3] [ref=f28e2411]
+                - separator [aria-hidden] [ref=f28e2415]
+                - button [ref=f28e2418] [cursor=pointer]:
+                  - heading "Какие отели в Дананге подходят для семей?" [level=3] [ref=f28e2420]
+                - separator [aria-hidden] [ref=f28e2424]
+                - button [ref=f28e2427] [cursor=pointer]:
+                  - 'heading "Мост Дракона, Дананг: в каких отелях поблизости лучше остановиться?" [level=3] [ref=f28e2429]'
+              - generic [ref=f28e2434]:
+                - button [ref=f28e2437] [cursor=pointer]:
+                  - 'heading "Международный аэропорт Дананг, Дананг: в каких отелях поблизости лучше остановиться?" [level=3] [ref=f28e2439]'
+                - separator [aria-hidden] [ref=f28e2443]
+                - button [ref=f28e2446] [cursor=pointer]:
+                  - heading "В каких отелях в Дананге лучше всего остановиться?" [level=3] [ref=f28e2448]
+                - separator [aria-hidden] [ref=f28e2452]
+                - button [ref=f28e2455] [cursor=pointer]:
+                  - heading "В каких отелях в Дананге подают особенно вкусный завтрак?" [level=3] [ref=f28e2457]
+                - separator [aria-hidden] [ref=f28e2461]
+                - button [ref=f28e2464] [cursor=pointer]:
+                  - heading "Какие отели в Дананге подходят для пар?" [level=3] [ref=f28e2466]
+                - separator [aria-hidden] [ref=f28e2470]
+                - button [ref=f28e2473] [cursor=pointer]:
+                  - heading "Из каких отелей в Дананге открываются красивые виды?" [level=3] [ref=f28e2475]
+          - generic [ref=f28e2485]:
+            - heading "Познакомьтесь с городом Дананг" [level=3] [ref=f28e2486]
+            - list [ref=f28e2487]:
+              - listitem [ref=f28e2488]:
+                - generic [ref=f28e2492]: 4052 варианта досуга
+              - listitem [ref=f28e2494]:
+                - generic [ref=f28e2498]: 35 достопримечательностей
+              - listitem [ref=f28e2500]:
+                - generic [ref=f28e2504]: 9 районов
+            - link "Подробнее об отпуске в Дананге" [ref=f28e2507] [cursor=pointer]:
+              - /url: https://www.booking.com/holidays/city/vn/danang.ru.html
+              - generic [ref=f28e2508]: Подробнее
+          - generic [ref=f28e2511]:
+            - heading "Отзывы о городе Дананг:" [level=2] [ref=f28e2515]
+            - generic [ref=f28e2518]:
+              - region "Список из 6 отзывов гостей" [ref=f28e2519]:
+                - group [ref=f28e2520]:
+                  - generic [ref=f28e2522]:
+                    - generic [ref=f28e2523]:
+                      - generic [ref=f28e2524]:
+                        - generic [ref=f28e2525]: Оценка гостей по десятибалльной шкале 10
+                        - generic [aria-hidden] [ref=f28e2526]: "10"
+                      - heading "Banahils shu paytgacha ko'rgan eng chiroyli joylarimdan biri..." [level=3] [ref=f28e2528]
+                    - generic [ref=f28e2530]:
+                      - generic [ref=f28e2531]: Banahils shu paytgacha ko'rgan eng chiroyli joylarimdan biri, xamasi juda zo'r. O'zbekistonliklarga ovqat masalasi ozroq muamo bolishi mumkin lekin bu muamo emas. Starbucs ga albatta kirish kerak . Toliq aylanbib chiqish uhcun 1 kun yetadi
+                      - button "Развернуть" [ref=f28e2533] [cursor=pointer]
+                    - generic [ref=f28e2536]:
+                      - generic [ref=f28e2538]: A
+                      - generic [ref=f28e2539]:
+                        - generic [ref=f28e2540]:
+                          - generic [ref=f28e2541]: Отзыв гостя Abriev
+                          - text: Abriev
+                        - generic [ref=f28e2542]: Узбекистан
+                - group [ref=f28e2543]:
+                  - generic [ref=f28e2545]:
+                    - generic [ref=f28e2546]:
+                      - generic [ref=f28e2547]:
+                        - generic [ref=f28e2548]: Оценка гостей по десятибалльной шкале 10
+                        - generic [aria-hidden] [ref=f28e2549]: "10"
+                      - heading "Четвёртый раз в Дананге и всё равно недостаточно." [level=3] [ref=f28e2551]
+                    - generic [ref=f28e2553]:
+                      - generic [ref=f28e2554]: Четвёртый раз в Дананге и всё равно недостаточно. Классный современный город ! Бери машину или байк и вокруг куча мест для посещений. До Хюэ 2 часа езды . Совсем не страшно! Одним днём можно смотаться. Пляж в Дананге просто офигенный!
+                      - button "Развернуть" [ref=f28e2556] [cursor=pointer]
+                    - generic [ref=f28e2559]:
+                      - generic [ref=f28e2561]: А
+                      - generic [ref=f28e2563]:
+                        - generic [ref=f28e2564]: Отзыв гостя Аноним
+                        - text: Аноним
+                - group [ref=f28e2565]:
+                  - generic [ref=f28e2567]:
+                    - generic [ref=f28e2568]:
+                      - generic [ref=f28e2569]:
+                        - generic [ref=f28e2570]: Оценка гостей по десятибалльной шкале 8,0
+                        - generic [aria-hidden] [ref=f28e2571]: 8,0
+                      - heading "Спокойный город на берегу моря, который только развивается..." [level=3] [ref=f28e2573]
+                    - generic [ref=f28e2575]:
+                      - generic [ref=f28e2576]: Спокойный город на берегу моря, который только развивается для отдыхающих, я думаю у него есть потенциал. Но цены неприятно удивили, я из Сайгона, но здесь прям существенно выше за самые простые вещи, такие как Бан Ми и соки.
+                      - button "Развернуть" [ref=f28e2578] [cursor=pointer]
+                    - generic [ref=f28e2581]:
+                      - generic [ref=f28e2583]: O
+                      - generic [ref=f28e2584]:
+                        - generic [ref=f28e2585]:
+                          - generic [ref=f28e2586]: Отзыв гостя Olga
+                          - text: Olga
+                        - generic [ref=f28e2587]: Россия
+                - group [ref=f28e2588]:
+                  - generic [ref=f28e2590]:
+                    - generic [ref=f28e2591]:
+                      - generic [ref=f28e2592]:
+                        - generic [ref=f28e2593]: Оценка гостей по десятибалльной шкале 8,0
+                        - generic [aria-hidden] [ref=f28e2594]: 8,0
+                      - heading "https://gloospa.com/ Golden Lotus Oriental Organic Spa супер..." [level=3] [ref=f28e2596]
+                    - generic [ref=f28e2598]:
+                      - generic [ref=f28e2599]: https://gloospa.com/ Golden Lotus Oriental Organic Spa супер место для отдыха. чистота навысшем уровне
+                      - button "Развернуть" [ref=f28e2601] [cursor=pointer]
+                    - generic [ref=f28e2604]:
+                      - generic [ref=f28e2606]: M
+                      - generic [ref=f28e2607]:
+                        - generic [ref=f28e2608]:
+                          - generic [ref=f28e2609]: Отзыв гостя Moony Moon
+                          - text: Moony Moon
+                        - generic [ref=f28e2610]: Казахстан
+                - group [ref=f28e2611]:
+                  - generic [ref=f28e2613]:
+                    - generic [ref=f28e2614]:
+                      - generic [ref=f28e2615]:
+                        - generic [ref=f28e2616]: Оценка гостей по десятибалльной шкале 10
+                        - generic [aria-hidden] [ref=f28e2617]: "10"
+                      - heading "Дананг оставил у нашей семьи самые тёплые и яркие..." [level=3] [ref=f28e2619]
+                    - generic [ref=f28e2621]:
+                      - generic [ref=f28e2622]: Дананг оставил у нашей семьи самые тёплые и яркие впечатления! Ласковое море, просторные пляжи, потрясающая природа и интересные экскурсии — каждый день был наполнен новыми эмоциями и открытиями. Мы прекрасно провели время вместе, много гуляли, любовались красивыми пейзажами и наслаждались атмосферой города. Это путешествие подарило нам множество счастливых моментов, море ярких эмоций и воспоминаний, к которым хочется возвращаться снова и снова! Особенно впечатлили комплекс Бана-Хиллс и знаменитый Золотой мост, который словно поддерживают огромные руки. Незабываемой стала поездка в Небесные ворота Донгзянг со стеклянным мостом Нефритового дракона и великолепными водопадами. Сказочный Хойан очаровал яркими фонариками и семейной прогулкой на лодке. По городу очень удобно передвигались на такси Grab или Xanh SM (Green SM). Обязательно советуем посетить Хойан и Бана-Хиллс! Дананг стал для нас особенным местом — обязательно приедем ещё!
+                      - button "Развернуть" [ref=f28e2624] [cursor=pointer]
+                    - generic [ref=f28e2627]:
+                      - generic [ref=f28e2629]: "Y"
+                      - generic [ref=f28e2631]:
+                        - generic [ref=f28e2632]: Отзыв гостя Yesmoldayeva
+                        - text: Yesmoldayeva
+                - group [ref=f28e2633]:
+                  - generic [ref=f28e2635]:
+                    - generic [ref=f28e2636]:
+                      - generic [ref=f28e2637]:
+                        - generic [ref=f28e2638]: Оценка гостей по десятибалльной шкале 10
+                        - generic [aria-hidden] [ref=f28e2639]: "10"
+                      - heading "Мне понравился длинный ухоженный пляж. множество современных..." [level=3] [ref=f28e2641]
+                    - generic [ref=f28e2643]:
+                      - generic [ref=f28e2644]: Мне понравился длинный ухоженный пляж. множество современных заведений. множество развлечения . множество мест для посещения на доступном расстоянии
+                      - button "Развернуть" [ref=f28e2646] [cursor=pointer]
+                    - generic [ref=f28e2649]:
+                      - generic [ref=f28e2651]: G
+                      - generic [ref=f28e2652]:
+                        - generic [ref=f28e2653]:
+                          - generic [ref=f28e2654]: Отзыв гостя Gulnara
+                          - text: Gulnara
+                        - generic [ref=f28e2655]: Норвегия
+              - button "Следующий вариант" [ref=f28e2656] [cursor=pointer]
+          - generic [ref=f28e2663]:
+            - generic [ref=f28e2664]:
+              - heading "Посмотрите отзывы гостей, проживавших в отелях города Дананг" [level=2] [ref=f28e2667]
+              - link "Посмотреть все, Посмотрите отзывы гостей, проживавших в отелях города Дананг" [ref=f28e2668] [cursor=pointer]:
+                - /url: https://www.booking.com/searchresults.ru.html
+                - generic [ref=f28e2669]: Посмотреть все
+            - region "Список из 3 отзывов гостей" [ref=f28e2673]:
+              - group [ref=f28e2674]:
+                - generic [ref=f28e2675]:
+                  - generic [ref=f28e2676]:
+                    - generic [ref=f28e2677]:
+                      - link [aria-hidden] [ref=f28e2678] [cursor=pointer]:
+                        - /url: https://www.booking.com/hotel/vn/radisson-red-danang.ru.html
+                      - link "Radisson RED Danang Дананг" [ref=f28e2681] [cursor=pointer]:
+                        - /url: https://www.booking.com/hotel/vn/radisson-red-danang.ru.html
+                        - generic [ref=f28e2682]:
+                          - heading "Radisson RED Danang" [level=3] [ref=f28e2683]
+                          - generic [ref=f28e2684]: Дананг
+                    - generic [ref=f28e2685]: От 5 986 руб. за ночь
+                    - generic [ref=f28e2686]:
+                      - generic [ref=f28e2687]: Оценка гостей по десятибалльной шкале 8,9
+                      - generic [aria-hidden] [ref=f28e2688]: 8,9
+                      - generic [ref=f28e2689]: Потрясающе - Мнения гостей, которые тут жили, 841 отзыв
+                      - generic [aria-hidden] [ref=f28e2690]:
+                        - generic [ref=f28e2691]: Потрясающе
+                        - generic [ref=f28e2692]: · 841 отзыв
+                    - generic [ref=f28e2693]:
+                      - generic [ref=f28e2694]: Самый яркий отель на всем побережье Дананга, который видно даже с самолета Удивило, что в отеле есть сауна, хамам и джакузи с горячей водой Прекрасные завтраки и повара, которые приготовит вам вкуснейший Бенедикт Сервис и номер были на высшем уровне
+                      - button "Развернуть" [ref=f28e2696] [cursor=pointer]
+                  - generic [ref=f28e2699]:
+                    - generic [ref=f28e2701]: "N"
+                    - generic [ref=f28e2702]:
+                      - generic [ref=f28e2703]:
+                        - generic [ref=f28e2704]: Отзыв гостя NADEZHDA
+                        - text: NADEZHDA
+                      - generic [ref=f28e2705]: Россия
+              - group [ref=f28e2706]:
+                - generic [ref=f28e2707]:
+                  - generic [ref=f28e2708]:
+                    - generic [ref=f28e2709]:
+                      - link [aria-hidden] [ref=f28e2710] [cursor=pointer]:
+                        - /url: https://www.booking.com/hotel/vn/mt-danang-and-apartments-near-dragon-bridge.ru.html
+                      - link "MT Danang Hotel and Apartments - Near Dragon Bridge Дананг" [ref=f28e2713] [cursor=pointer]:
+                        - /url: https://www.booking.com/hotel/vn/mt-danang-and-apartments-near-dragon-bridge.ru.html
+                        - generic [ref=f28e2714]:
+                          - heading "MT Danang Hotel and Apartments - Near Dragon Bridge" [level=3] [ref=f28e2715]
+                          - generic [ref=f28e2716]: Дананг
+                    - generic [ref=f28e2717]: От 3 848 руб. за ночь
+                    - generic [ref=f28e2718]:
+                      - generic [ref=f28e2719]: Оценка гостей по десятибалльной шкале 9,9
+                      - generic [aria-hidden] [ref=f28e2720]: 9,9
+                      - generic [ref=f28e2721]: Великолепно - Мнения гостей, которые тут жили, 22 отзыва
+                      - generic [aria-hidden] [ref=f28e2722]:
+                        - generic [ref=f28e2723]: Великолепно
+                        - generic [ref=f28e2724]: · 22 отзыва
+                    - generic [ref=f28e2725]:
+                      - generic [ref=f28e2726]: Очень хороший, чистый отель. Очень приветливая девочка на ресепшене сидит , спасибо ей за хорошее отношение ❤️ номер был с красивым видом . Я была с кошкой, нам принесли миску и угощения для кошки. Обязательно приеду сюда еще.
+                      - button "Развернуть" [ref=f28e2728] [cursor=pointer]
+                  - generic [ref=f28e2731]:
+                    - generic [ref=f28e2733]: Т
+                    - generic [ref=f28e2734]:
+                      - generic [ref=f28e2735]:
+                        - generic [ref=f28e2736]: Отзыв гостя Тамила
+                        - text: Тамила
+                      - generic [ref=f28e2737]: Украина
+              - group [ref=f28e2738]:
+                - generic [ref=f28e2739]:
+                  - generic [ref=f28e2740]:
+                    - generic [ref=f28e2741]:
+                      - link [aria-hidden] [ref=f28e2742] [cursor=pointer]:
+                        - /url: https://www.booking.com/hotel/vn/hlinh-riverside-danang.ru.html
+                      - link "Hoang Linh Riverside Hotel Danang Дананг" [ref=f28e2745] [cursor=pointer]:
+                        - /url: https://www.booking.com/hotel/vn/hlinh-riverside-danang.ru.html
+                        - generic [ref=f28e2746]:
+                          - heading "Hoang Linh Riverside Hotel Danang" [level=3] [ref=f28e2747]
+                          - generic [ref=f28e2748]: Дананг
+                    - generic [ref=f28e2749]:
+                      - generic [ref=f28e2750]: Оценка гостей по десятибалльной шкале 8,5
+                      - generic [aria-hidden] [ref=f28e2751]: 8,5
+                      - generic [ref=f28e2752]: Очень хорошо - Мнения гостей, которые тут жили, 371 отзыв
+                      - generic [aria-hidden] [ref=f28e2753]:
+                        - generic [ref=f28e2754]: Очень хорошо
+                        - generic [ref=f28e2755]: · 371 отзыв
+                    - generic [ref=f28e2756]:
+                      - generic [ref=f28e2757]: Отель в самом центре Дананга. Удобное расположение на набережной с видами на реку и мосты. Поблизости много ресторанов и кофеен. Отличный персонал! Помогли организовать экскурсии и купить лучший вьетнамский кофе!
+                      - button "Развернуть" [ref=f28e2759] [cursor=pointer]
+                  - generic [ref=f28e2762]:
+                    - generic [ref=f28e2764]: "Y"
+                    - generic [ref=f28e2765]:
+                      - generic [ref=f28e2766]:
+                        - generic [ref=f28e2767]: Отзыв гостя Yury Fedoseev
+                        - text: Yury Fedoseev
+                      - generic [ref=f28e2768]: Россия
+          - generic [ref=f28e2774]:
+            - heading "Больше маршрутов, больше направлений" [level=2] [ref=f28e2776]
+            - list [ref=f28e2778]:
+              - listitem [ref=f28e2779]:
+                - generic [ref=f28e2787] [cursor=pointer]:
+                  - link [ref=f28e2788]:
+                    - /url: https://www.booking.com/city/vn/hanoi.ru.html
+                    - heading "Отели в Ханое" [level=3] [ref=f28e2789]
+                  - generic [ref=f28e2790]: Посмотрите отели в Ханое и посетите больше мест во Вьетнаме.
+              - listitem [ref=f28e2791]:
+                - generic [ref=f28e2799] [cursor=pointer]:
+                  - link [ref=f28e2800]:
+                    - /url: https://www.booking.com/city/vn/ho-chi-minh-city.ru.html
+                    - heading "Отели в Хошимине" [level=3] [ref=f28e2801]
+                  - generic [ref=f28e2802]: Посмотрите отели в Хошимине и посетите больше мест во Вьетнаме.
+              - listitem [ref=f28e2803]:
+                - generic [ref=f28e2811] [cursor=pointer]:
+                  - link [ref=f28e2812]:
+                    - /url: https://www.booking.com/city/vn/hoi-an.ru.html
+                    - heading "Отели в Хойане" [level=3] [ref=f28e2813]
+                  - generic [ref=f28e2814]: Как насчет вариантов поблизости? Посмотрите отели в Хойане, это недалеко от города Дананг.
+              - listitem [ref=f28e2815]:
+                - generic [ref=f28e2823] [cursor=pointer]:
+                  - link [ref=f28e2824]:
+                    - /url: https://www.booking.com/flights/destination/city/vn/danang.ru.html
+                    - heading "Авиабилеты в город Дананг" [level=3] [ref=f28e2825]
+                  - generic [ref=f28e2826]: Забронируйте перелет по этому популярному маршруту за несколько простых шагов.
+              - listitem [ref=f28e2827]:
+                - generic [ref=f28e2835] [cursor=pointer]:
+                  - link [ref=f28e2836]:
+                    - /url: https://www.booking.com/airport/vn/dad.ru.html
+                    - 'heading "Международный аэропорт Дананг: отели поблизости" [level=3] [ref=f28e2837]'
+                  - generic [ref=f28e2838]: Пересадка, поздний прилет или ранний вылет? Найдите отели рядом с аэропортом.
+              - listitem [ref=f28e2839]:
+                - generic [ref=f28e2847] [cursor=pointer]:
+                  - link [ref=f28e2848]:
+                    - /url: https://www.booking.com/resorts/city/vn/danang.ru.html
+                    - heading "Курортные отели в Дананге" [level=3] [ref=f28e2849]
+                  - generic [ref=f28e2850]: Посмотрите отличные варианты жилья в Дананге, например курортные отели.
+              - listitem [ref=f28e2851]:
+                - generic [ref=f28e2859] [cursor=pointer]:
+                  - link [ref=f28e2860]:
+                    - /url: https://www.booking.com/budget/city/vn/danang.ru.html
+                    - heading "Недорогие отели в Дананге" [level=3] [ref=f28e2861]
+                  - generic [ref=f28e2862]: Посмотрите отличные варианты жилья в Дананге, например недорогие отели.
+              - listitem [ref=f28e2863]:
+                - generic [ref=f28e2871] [cursor=pointer]:
+                  - link [ref=f28e2872]:
+                    - /url: https://www.booking.com/homestay/city/vn/danang.ru.html
+                    - heading "Варианты проживания в семье в Дананге" [level=3] [ref=f28e2873]
+                  - generic [ref=f28e2874]: Посмотрите отличные варианты жилья в Дананге, например варианты проживания в семье.
+              - listitem [ref=f28e2875]:
+                - generic [ref=f28e2883] [cursor=pointer]:
+                  - link [ref=f28e2884]:
+                    - /url: https://www.booking.com/parking/city/vn/danang.ru.html
+                    - heading "Отели с парковкой в Дананге" [level=3] [ref=f28e2885]
+                  - generic [ref=f28e2886]: Посмотрите отличные варианты жилья в Дананге, например отели с парковкой.
+              - listitem [ref=f28e2887]:
+                - generic [ref=f28e2895] [cursor=pointer]:
+                  - link [ref=f28e2896]:
+                    - /url: https://www.booking.com/beach/city/vn/danang.ru.html
+                    - heading "Пляжные отели в Дананге" [level=3] [ref=f28e2897]
+                  - generic [ref=f28e2898]: Посмотрите отличные варианты жилья в Дананге, например пляжные отели.
+              - listitem [ref=f28e2899]:
+                - generic [ref=f28e2907] [cursor=pointer]:
+                  - link [ref=f28e2908]:
+                    - /url: https://www.booking.com/country/vn.ru.html
+                    - heading "Отели во Вьетнаме" [level=3] [ref=f28e2909]
+                  - generic [ref=f28e2910]: Хотите посмотреть больше мест во Вьетнаме? Ищите отели по всей стране!
+              - listitem [ref=f28e2911]:
+                - generic [ref=f28e2919] [cursor=pointer]:
+                  - link [ref=f28e2920]:
+                    - /url: https://www.booking.com/things-to-do/city/vn/danang.ru.html
+                    - heading "Чем заняться в Дананге" [level=3] [ref=f28e2921]
+                  - generic [ref=f28e2922]: Экскурсии, развлечения и другие варианты досуга... Уже знаете, чем займетесь в Дананге?
+              - listitem [ref=f28e2923]:
+                - generic [ref=f28e2931] [cursor=pointer]:
+                  - link [ref=f28e2932]:
+                    - /url: https://www.booking.com/city/vn/hue.ru.html
+                    - heading "Отели в Хюэ" [level=3] [ref=f28e2933]
+                  - generic [ref=f28e2934]: Хотите продлить поездку или просто ищете вдохновение? Посмотрите город Хюэ, он тоже популярен среди наших гостей.
+              - listitem [ref=f28e2935]:
+                - generic [ref=f28e2943] [cursor=pointer]:
+                  - link [ref=f28e2944]:
+                    - /url: https://www.booking.com/city/vn/nha-trang.ru.html
+                    - heading "Отели в Нячанге" [level=3] [ref=f28e2945]
+                  - generic [ref=f28e2946]: Хотите продлить поездку или просто ищете вдохновение? Посмотрите город Нячанг, он тоже популярен среди наших гостей.
+    - contentinfo [ref=f28e2960]:
+      - navigation "Полезные ссылки" [ref=f28e2963]:
+        - list [ref=f28e2964]:
+          - listitem [ref=f28e2965]:
+            - link "Страны" [ref=f28e2966] [cursor=pointer]:
+              - /url: https://www.booking.com/country.ru.html
+            - text: .
+          - listitem [ref=f28e2969]:
+            - link "Регионы" [ref=f28e2970] [cursor=pointer]:
+              - /url: https://www.booking.com/region.ru.html
+            - text: .
+          - listitem [ref=f28e2973]:
+            - link "Города" [ref=f28e2974] [cursor=pointer]:
+              - /url: https://www.booking.com/city.ru.html
+            - text: .
+          - listitem [ref=f28e2977]:
+            - link "Районы" [ref=f28e2978] [cursor=pointer]:
+              - /url: https://www.booking.com/district.ru.html
+            - text: .
+          - listitem [ref=f28e2981]:
+            - link "Аэропорты" [ref=f28e2982] [cursor=pointer]:
+              - /url: https://www.booking.com/airport.ru.html
+            - text: .
+          - listitem [ref=f28e2985]:
+            - link "Отели" [ref=f28e2986] [cursor=pointer]:
+              - /url: https://www.booking.com/hotel/index.ru.html
+            - text: .
+          - listitem [ref=f28e2989]:
+            - link "Ориентиры" [ref=f28e2990] [cursor=pointer]:
+              - /url: https://www.booking.com/landmark.ru.html
+            - text: .
+          - listitem [ref=f28e2993]:
+            - link "Дома для отпуска" [ref=f28e2994] [cursor=pointer]:
+              - /url: https://www.booking.com/booking-home/index.ru.html
+            - text: .
+          - listitem [ref=f28e2997]:
+            - link "Апартаменты/квартиры" [ref=f28e2998] [cursor=pointer]:
+              - /url: https://www.booking.com/apartments/index.ru.html
+            - text: .
+          - listitem [ref=f28e3001]:
+            - link "Курортные отели" [ref=f28e3002] [cursor=pointer]:
+              - /url: https://www.booking.com/resorts/index.ru.html
+            - text: .
+          - listitem [ref=f28e3005]:
+            - link "Виллы" [ref=f28e3006] [cursor=pointer]:
+              - /url: https://www.booking.com/villas/index.ru.html
+            - text: .
+          - listitem [ref=f28e3009]:
+            - link "Хостелы" [ref=f28e3010] [cursor=pointer]:
+              - /url: https://www.booking.com/hostels/index.ru.html
+            - text: .
+          - listitem [ref=f28e3013]:
+            - link "Отели типа «постель и завтрак»" [ref=f28e3014] [cursor=pointer]:
+              - /url: https://www.booking.com/bed-and-breakfast/index.ru.html
+            - text: .
+          - listitem [ref=f28e3017]:
+            - link "Гостевые дома" [ref=f28e3018] [cursor=pointer]:
+              - /url: https://www.booking.com/guest-house/index.ru.html
+            - text: .
+          - listitem [ref=f28e3021]:
+            - link "Уникальное жилье" [ref=f28e3022] [cursor=pointer]:
+              - /url: https://www.booking.com/accommodations.ru.html
+            - text: .
+          - listitem [ref=f28e3025]:
+            - link "Все направления" [ref=f28e3026] [cursor=pointer]:
+              - /url: https://www.booking.com/destination.ru.html
+            - text: .
+          - listitem [ref=f28e3029]:
+            - 'link "Авиабилеты: все направления" [ref=f28e3030] [cursor=pointer]':
+              - /url: https://www.booking.com/flights/sitemap.ru.html
+            - text: .
+          - listitem [ref=f28e3033]:
+            - link "Все пункты проката" [ref=f28e3034] [cursor=pointer]:
+              - /url: https://www.booking.com/cars/sitemap.ru.html
+            - text: .
+          - listitem [ref=f28e3037]:
+            - link "Все направления для отпуска" [ref=f28e3038] [cursor=pointer]:
+              - /url: https://www.booking.com/holidays/sitemap.ru.html
+            - text: .
+          - listitem [ref=f28e3041]:
+            - link "Советы" [ref=f28e3042] [cursor=pointer]:
+              - /url: https://www.booking.com/guides/index.ru.html
+            - text: .
+          - listitem [ref=f28e3045]:
+            - link "Идеи для поездки" [ref=f28e3046] [cursor=pointer]:
+              - /url: https://www.booking.com/discover.ru.html
+            - text: .
+          - listitem [ref=f28e3049]:
+            - link "Жилье на месяц" [ref=f28e3050] [cursor=pointer]:
+              - /url: https://www.booking.com/extended-stays/index.ru.html
+      - generic [ref=f28e3054]:
+        - generic [ref=f28e3055]:
+          - heading "Помощь" [level=3] [ref=f28e3057]
+          - list [ref=f28e3058]:
+            - listitem [ref=f28e3059]:
+              - link "Управлять поездками" [ref=f28e3060] [cursor=pointer]:
+                - /url: https://secure.booking.com/content/cs.ru.html
+            - listitem [ref=f28e3062]:
+              - link "Связаться с нами" [ref=f28e3063] [cursor=pointer]:
+                - /url: https://secure.booking.com/help.ru.html
+            - listitem [ref=f28e3065]:
+              - link "Центр знаний по безопасности" [ref=f28e3066] [cursor=pointer]:
+                - /url: https://www.booking.com/trust_and_safety.ru.html
+        - generic [ref=f28e3068]:
+          - heading "Разное" [level=3] [ref=f28e3070]
+          - list [ref=f28e3071]:
+            - listitem [ref=f28e3072]:
+              - link "Программа лояльности Genius" [ref=f28e3073] [cursor=pointer]:
+                - /url: https://www.booking.com/genius.ru.html
+            - listitem [ref=f28e3075]:
+              - link "Сезонные и праздничные спецпредложения" [ref=f28e3076] [cursor=pointer]:
+                - /url: https://www.booking.com/deals/index.ru.html
+            - listitem [ref=f28e3078]:
+              - link "Статьи о путешествиях" [ref=f28e3079] [cursor=pointer]:
+                - /url: https://www.booking.com/articles.ru.html
+            - listitem [ref=f28e3081]:
+              - link "Booking.com для бизнеса" [ref=f28e3082] [cursor=pointer]:
+                - /url: https://business.booking.com/
+            - listitem [ref=f28e3084]:
+              - link "Traveller Review Awards" [ref=f28e3085] [cursor=pointer]:
+                - /url: https://www.booking.com/traveller-awards/index.ru.html
+            - listitem [ref=f28e3087]:
+              - link "Прокат автомобилей" [ref=f28e3088] [cursor=pointer]:
+                - /url: https://www.booking.com/cars/index.ru.html
+            - listitem [ref=f28e3090]:
+              - link "Поиск авиабилетов" [ref=f28e3091] [cursor=pointer]:
+                - /url: https://booking.com/flights/index.ru.html
+            - listitem [ref=f28e3093]:
+              - link "Заказ столиков в ресторанах" [ref=f28e3094] [cursor=pointer]:
+                - /url: https://www.opentable.com/
+            - listitem [ref=f28e3096]:
+              - link "Booking.com для турагентов" [ref=f28e3097] [cursor=pointer]:
+                - /url: https://www.booking.com/affiliate-program/v2/index.ru.html
+        - generic [ref=f28e3099]:
+          - heading "Правила и настройки" [level=3] [ref=f28e3101]
+          - list [ref=f28e3102]:
+            - listitem [ref=f28e3103]:
+              - link "Изменить настройки cookie-файлов" [ref=f28e3104] [cursor=pointer]:
+                - /url: https://www.booking.com/content/privacy.ru.html
+            - listitem [ref=f28e3106]:
+              - link "Положение о конфиденциальности" [ref=f28e3107] [cursor=pointer]:
+                - /url: https://www.booking.com/content/privacy.ru.html
+            - listitem [ref=f28e3109]:
+              - link "Условия предоставления услуг" [ref=f28e3110] [cursor=pointer]:
+                - /url: https://www.booking.com/content/terms.ru.html
+            - listitem [ref=f28e3112]:
+              - link "Заявление о доступности" [ref=f28e3113] [cursor=pointer]:
+                - /url: https://www.booking.com/content/accessibility_statement.ru.html
+            - listitem [ref=f28e3115]:
+              - link "Разрешение споров" [ref=f28e3116] [cursor=pointer]:
+                - /url: https://secure.booking.com/content/complaints.ru.html
+            - listitem [ref=f28e3118]:
+              - link "Противодействие современному рабству" [ref=f28e3119] [cursor=pointer]:
+                - /url: https://www.bookingholdings.com/modern-slavery-statement/
+            - listitem [ref=f28e3121]:
+              - link "Политика в области прав человека" [ref=f28e3122] [cursor=pointer]:
+                - /url: https://www.bookingholdings.com/about/compliance-and-ethics/human-rights/
+        - generic [ref=f28e3124]:
+          - heading "Партнерам" [level=3] [ref=f28e3126]
+          - list [ref=f28e3127]:
+            - listitem [ref=f28e3128]:
+              - link "Войти в Экстранет" [ref=f28e3129] [cursor=pointer]:
+                - /url: https://admin.booking.com/
+            - listitem [ref=f28e3131]:
+              - link "Центр помощи партнерам" [ref=f28e3132] [cursor=pointer]:
+                - /url: https://partner.booking.com/ru
+            - listitem [ref=f28e3134]:
+              - link "Зарегистрировать свой объект" [ref=f28e3135] [cursor=pointer]:
+                - /url: https://join.booking.com/
+            - listitem [ref=f28e3137]:
+              - link "Программа для аффилиатов" [ref=f28e3138] [cursor=pointer]:
+                - /url: https://www.booking.com/affiliate-program/v2/index.ru.html
+        - generic [ref=f28e3140]:
+          - heading "Компания" [level=3] [ref=f28e3142]
+          - list [ref=f28e3143]:
+            - listitem [ref=f28e3144]:
+              - link "О Booking.com" [ref=f28e3145] [cursor=pointer]:
+                - /url: https://www.booking.com/content/about.ru.html
+            - listitem [ref=f28e3147]:
+              - link "Как мы работаем" [ref=f28e3148] [cursor=pointer]:
+                - /url: https://www.booking.com/content/how_we_work.ru.html
+            - listitem [ref=f28e3150]:
+              - link "Устойчивое развитие" [ref=f28e3151] [cursor=pointer]:
+                - /url: https://sustainability.booking.com/
+            - listitem [ref=f28e3153]:
+              - link "Пресс-центр" [ref=f28e3154] [cursor=pointer]:
+                - /url: https://news.booking.com/ru-ru
+            - listitem [ref=f28e3156]:
+              - link "Вакансии" [ref=f28e3157] [cursor=pointer]:
+                - /url: https://careers.booking.com/
+            - listitem [ref=f28e3159]:
+              - link "Для инвесторов" [ref=f28e3160] [cursor=pointer]:
+                - /url: https://www.bookingholdings.com/
+            - listitem [ref=f28e3162]:
+              - link "Корпоративные контакты" [ref=f28e3163] [cursor=pointer]:
+                - /url: https://www.booking.com/content/contact-us.ru.html
+            - listitem [ref=f28e3165]:
+              - link "Требования к контенту и подача жалоб" [ref=f28e3166] [cursor=pointer]:
+                - /url: https://www.booking.com/content-moderation-policy/overview-page.ru.html
+      - generic [ref=f28e3169]:
+        - generic [ref=f28e3170]:
+          - 'button "Язык: Русский" [ref=f28e3172] [cursor=pointer]'
+          - button "Цены в Российский рубль RUB" [ref=f28e3177] [cursor=pointer]:
+            - generic [ref=f28e3178]: RUB
+        - separator [aria-hidden] [ref=f28e3179]
+        - generic [ref=f28e3180]:
+          - generic [ref=f28e3181]: Booking.com — часть Booking Holdings Inc., мирового лидера в сфере онлайн-туризма и сопутствующих услуг.
+          - generic [ref=f28e3183]: Copyright © 1996–2026 Booking.com™. Все права защищены.
+        - generic [ref=f28e3184]:
+          - img "Booking.com" [ref=f28e3185]
+          - img "Priceline.com" [ref=f28e3186]
+          - img "Kayak" [ref=f28e3187]
+          - img "Agoda" [ref=f28e3188]
+          - img "OpenTable" [ref=f28e3189]

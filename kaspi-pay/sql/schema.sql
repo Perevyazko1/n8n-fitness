@@ -100,3 +100,20 @@ SELECT DISTINCT ON (x.k) x.k, r.category, r.exclude_budget, r.source, r.updated_
  WHERE x.k <> r.merchant_norm
  ORDER BY x.k, (r.source = 'manual') DESC, (r.category IS NOT NULL AND r.category <> 'other') DESC, r.updated_at DESC
 ON CONFLICT (merchant_norm) DO NOTHING;
+
+-- ===== 2026-11-12: порядок как в выписке, владельцы карт, перевод продавцов =====
+
+-- Позиция строки в последней выписке, где она встречалась (0 — первая строка). Insert Ops обновляет
+-- её и у уже записанных строк, поэтому порядок задаёт свежая выписка. NULL — старые строки до правки.
+ALTER TABLE kaspi_expenses ADD COLUMN IF NOT EXISTS stmt_pos int;
+
+-- Цвет плашки владельца в Mini App (NULL — палитра страницы по порядку карт).
+ALTER TABLE kaspi_cards ADD COLUMN IF NOT EXISTS color text;
+-- Разово: выписки по этим картам пришли до того, как воркфлоу начал подписывать карты.
+INSERT INTO kaspi_cards (card, label, color) VALUES ('2956', 'Андрей', '#2563eb'), ('9246', 'Яна', '#db2777')
+ON CONFLICT (card) DO UPDATE SET label = EXCLUDED.label, color = COALESCE(kaspi_cards.color, EXCLUDED.color);
+
+-- Перевод названия продавца (по ключу kaspi_merchant_key). name_ru_at NOT NULL = «уже спрашивали»,
+-- даже если перевод пустой (бренд вроде GRAB): повторно в LLM не отправляем.
+ALTER TABLE kaspi_merchant_rules ADD COLUMN IF NOT EXISTS name_ru text;
+ALTER TABLE kaspi_merchant_rules ADD COLUMN IF NOT EXISTS name_ru_at timestamptz;

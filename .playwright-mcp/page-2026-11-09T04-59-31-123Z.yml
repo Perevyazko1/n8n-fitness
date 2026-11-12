@@ -1,0 +1,544 @@
+- generic [ref=f31e1]:
+  - banner [ref=f31e111]:
+    - generic [ref=f31e112]:
+      - navigation [ref=f31e114]:
+        - link "Agoda logo Home link" [ref=f31e116] [cursor=pointer]:
+          - /url: /ru-ru/
+          - generic [ref=f31e117]:
+            - img "Primary Logo" [ref=f31e120]
+            - img "Site secondary logo" [ref=f31e121]
+        - generic [ref=f31e122]:
+          - generic [ref=f31e124]:
+            - generic [ref=f31e125] [cursor=pointer]: Вместе дешевле!
+            - link "Перелет и отель" [ref=f31e128] [cursor=pointer]:
+              - /url: /ru-ru/packages
+          - link "Отели и жилье" [ref=f31e131] [cursor=pointer]:
+            - /url: /ru-ru/
+          - generic [ref=f31e133]:
+            - generic [ref=f31e134] [cursor=pointer]: Новинка!
+            - button "Транспорт" [ref=f31e140] [cursor=pointer]
+          - button "Набор услуг для поездки" [ref=f31e150] [cursor=pointer]
+      - generic [ref=f31e153]:
+        - generic [ref=f31e154]:
+          - generic [ref=f31e155]:
+            - 'button "Язык: Русский" [ref=f31e157]':
+              - img "Русский" [ref=f31e159] [cursor=pointer]
+              - generic [ref=f31e160]: Выберите язык
+            - 'button "Отображение цены: Вьетнамский донг" [ref=f31e162]':
+              - generic [ref=f31e163] [cursor=pointer]: ₫
+              - generic [ref=f31e166]: Выберите валюту
+          - generic [ref=f31e167]:
+            - button "Войти" [ref=f31e170] [cursor=pointer]
+            - button "Создать аккаунт" [ref=f31e175] [cursor=pointer]
+        - button "Меню личного кабинета" [ref=f31e183] [cursor=pointer]
+  - generic [ref=f31e188]:
+    - generic [ref=f31e189]:
+      - generic [ref=f31e194]:
+        - generic [ref=f31e196] [cursor=pointer]:
+          - generic [ref=f31e197]: 
+          - generic [ref=f31e199]:
+            - combobox "Введите направление или название объекта" [ref=f31e200]: Дананг
+            - generic [ref=f31e201]: Начните вводить название отеля или ключевое слово для поиска. Используйте стрелки или клавишу Tab для навигации и клавишу Enter для выбора
+        - button "Заезд 20 ноя 2026 пятница" [expanded] [ref=f31e202] [cursor=pointer]:
+          - generic [ref=f31e203]:
+            - generic [ref=f31e204]: 
+            - generic [ref=f31e207]:
+              - generic [ref=f31e208]: 20 ноя 2026
+              - generic [ref=f31e209]: пятница
+        - button "Выезд 20 дек 2026 воскресенье" [ref=f31e210] [cursor=pointer]:
+          - generic [ref=f31e211]:
+            - generic [ref=f31e212]: 
+            - generic [ref=f31e215]:
+              - generic [ref=f31e216]: 20 дек 2026
+              - generic [ref=f31e217]: воскресенье
+        - button "Гости и номера 2 взрослых,1 ребенок 1 номер" [ref=f31e218] [cursor=pointer]:
+          - generic [ref=f31e219]:
+            - generic [ref=f31e220]: 
+            - generic [ref=f31e223]:
+              - generic [ref=f31e224]: 2 взрослых,1 ребенок
+              - generic [ref=f31e225]: 1 номер
+              - generic [ref=f31e226]: 
+        - dialog "Выбор даты заезда" [ref=f31e969]:
+          - generic [ref=f31e970]:
+            - generic [ref=f31e971]: Нажмите Enter, чтобы активировать меню выбора дат. Стрелками перемещайтесь по датам заезда и выезда. После выбора даты заезда нажмите Enter для подтверждения. Повторите процесс для выбора даты выезда, после чего вы сможете указать вместимость номера.
+            - generic [ref=f31e972]:
+              - generic [ref=f31e973]:
+                - generic [aria-hidden]:
+                  - button [disabled]
+                - tablist [ref=f31e974]:
+                  - tab [selected] [ref=f31e976] [cursor=pointer]:
+                    - paragraph [ref=f31e977]: Посуточное бронирование
+                  - tab "Почасовое бронирование Новинка!" [ref=f31e980] [cursor=pointer]:
+                    - paragraph [ref=f31e981]: Почасовое бронирование
+                    - generic [ref=f31e982]: Новинка!
+                  - tab [ref=f31e985] [cursor=pointer]:
+                    - paragraph [ref=f31e986]: Гибкие даты
+                - generic [aria-hidden]:
+                  - button [disabled]
+              - tabpanel "Посуточное бронирование" [ref=f31e987]:
+                - generic [ref=f31e988]:
+                  - generic [ref=f31e990]:
+                    - generic:
+                      - button "Previous Month" [disabled] [ref=f31e992]
+                      - button "Next Month" [ref=f31e996] [cursor=pointer]
+                    - generic [ref=f31e999]:
+                      - grid [ref=f31e1000]:
+                        - generic [ref=f31e1001]: Ноябрь 2026
+                        - rowgroup [ref=f31e1002]:
+                          - row [ref=f31e1003]:
+                            - columnheader "Пн" [ref=f31e1004]
+                            - columnheader "Вт" [ref=f31e1005]
+                            - columnheader "Ср" [ref=f31e1006]
+                            - columnheader "Чт" [ref=f31e1007]
+                            - columnheader "Пт" [ref=f31e1008]
+                            - columnheader "Сб" [ref=f31e1009]
+                            - columnheader "Вс" [ref=f31e1010]
+                        - rowgroup [ref=f31e1011]:
+                          - row [ref=f31e1012]:
+                            - gridcell [disabled] [ref=f31e1013] [cursor=pointer]
+                            - gridcell [disabled] [ref=f31e1014] [cursor=pointer]
+                            - gridcell [disabled] [ref=f31e1015] [cursor=pointer]
+                            - gridcell [disabled] [ref=f31e1016] [cursor=pointer]
+                            - gridcell [disabled] [ref=f31e1017] [cursor=pointer]
+                            - gridcell [disabled] [ref=f31e1018] [cursor=pointer]
+                            - gridcell [disabled] [ref=f31e1019] [cursor=pointer]:
+                              - button "Sun Nov 01 2026" [disabled] [ref=f31e1020]:
+                                - generic [aria-hidden] [ref=f31e1023]: "1"
+                                - paragraph [ref=f31e1024]
+                          - row [ref=f31e1025]:
+                            - gridcell [disabled] [ref=f31e1026] [cursor=pointer]:
+                              - button "Mon Nov 02 2026" [disabled] [ref=f31e1027]:
+                                - generic [aria-hidden] [ref=f31e1030]: "2"
+                                - paragraph [ref=f31e1031]
+                            - gridcell [disabled] [ref=f31e1032] [cursor=pointer]:
+                              - button "Tue Nov 03 2026" [disabled] [ref=f31e1033]:
+                                - generic [aria-hidden] [ref=f31e1036]: "3"
+                                - paragraph [ref=f31e1037]
+                            - gridcell [disabled] [ref=f31e1038] [cursor=pointer]:
+                              - button "Wed Nov 04 2026" [disabled] [ref=f31e1039]:
+                                - generic [aria-hidden] [ref=f31e1042]: "4"
+                                - paragraph [ref=f31e1043]
+                            - gridcell [disabled] [ref=f31e1044] [cursor=pointer]:
+                              - button "Thu Nov 05 2026" [disabled] [ref=f31e1045]:
+                                - generic [aria-hidden] [ref=f31e1048]: "5"
+                                - paragraph [ref=f31e1049]
+                            - gridcell [disabled] [ref=f31e1050] [cursor=pointer]:
+                              - button "Fri Nov 06 2026" [disabled] [ref=f31e1051]:
+                                - generic [aria-hidden] [ref=f31e1054]: "6"
+                                - paragraph [ref=f31e1055]
+                            - gridcell [disabled] [ref=f31e1056] [cursor=pointer]:
+                              - button "Sat Nov 07 2026" [disabled] [ref=f31e1057]:
+                                - generic [aria-hidden] [ref=f31e1060]: "7"
+                                - paragraph [ref=f31e1061]
+                            - gridcell [ref=f31e1062] [cursor=pointer]:
+                              - button "Sun Nov 08 2026" [ref=f31e1063]:
+                                - generic [aria-hidden] [ref=f31e1066]: "8"
+                                - paragraph [ref=f31e1067]
+                          - row [ref=f31e1068]:
+                            - gridcell [ref=f31e1069] [cursor=pointer]:
+                              - button "Mon Nov 09 2026" [ref=f31e1070]:
+                                - generic [aria-hidden] [ref=f31e1073]: "9"
+                                - paragraph [ref=f31e1074]
+                            - gridcell [ref=f31e1075] [cursor=pointer]:
+                              - button "Tue Nov 10 2026" [ref=f31e1076]:
+                                - generic [aria-hidden] [ref=f31e1079]: "10"
+                                - paragraph [ref=f31e1080]
+                            - gridcell [ref=f31e1081] [cursor=pointer]:
+                              - button "Wed Nov 11 2026" [ref=f31e1082]:
+                                - generic [aria-hidden] [ref=f31e1085]: "11"
+                                - paragraph [ref=f31e1086]
+                            - gridcell [ref=f31e1087] [cursor=pointer]:
+                              - button "Thu Nov 12 2026" [ref=f31e1088]:
+                                - generic [aria-hidden] [ref=f31e1091]: "12"
+                                - paragraph [ref=f31e1092]
+                            - gridcell [ref=f31e1093] [cursor=pointer]:
+                              - button "Fri Nov 13 2026" [ref=f31e1094]:
+                                - generic [aria-hidden] [ref=f31e1097]: "13"
+                                - paragraph [ref=f31e1098]
+                            - gridcell [ref=f31e1099] [cursor=pointer]:
+                              - button "Sat Nov 14 2026" [ref=f31e1100]:
+                                - generic [aria-hidden] [ref=f31e1103]: "14"
+                                - paragraph [ref=f31e1104]
+                            - gridcell [ref=f31e1105] [cursor=pointer]:
+                              - button "Sun Nov 15 2026" [ref=f31e1106]:
+                                - generic [aria-hidden] [ref=f31e1109]: "15"
+                                - paragraph [ref=f31e1110]
+                          - row [ref=f31e1111]:
+                            - gridcell [ref=f31e1112] [cursor=pointer]:
+                              - button "Mon Nov 16 2026" [ref=f31e1113]:
+                                - generic [aria-hidden] [ref=f31e1116]: "16"
+                                - paragraph [ref=f31e1117]
+                            - gridcell [ref=f31e1118] [cursor=pointer]:
+                              - button "Tue Nov 17 2026" [ref=f31e1119]:
+                                - generic [aria-hidden] [ref=f31e1122]: "17"
+                                - paragraph [ref=f31e1123]
+                            - gridcell [ref=f31e1124] [cursor=pointer]:
+                              - button "Wed Nov 18 2026" [ref=f31e1125]:
+                                - generic [aria-hidden] [ref=f31e1128]: "18"
+                                - paragraph [ref=f31e1129]
+                            - gridcell [ref=f31e1130] [cursor=pointer]:
+                              - button "Thu Nov 19 2026" [ref=f31e1131]:
+                                - generic [aria-hidden] [ref=f31e1134]: "19"
+                                - paragraph [ref=f31e1135]
+                            - gridcell [active] [selected] [ref=f31e1136] [cursor=pointer]:
+                              - button "Fri Nov 20 2026" [ref=f31e1137]:
+                                - generic [aria-hidden] [ref=f31e1140]: "20"
+                                - paragraph [ref=f31e1141]
+                            - gridcell [selected] [ref=f31e1142] [cursor=pointer]:
+                              - button "Sat Nov 21 2026" [ref=f31e1143]:
+                                - generic [aria-hidden] [ref=f31e1146]: "21"
+                                - paragraph [ref=f31e1147]
+                            - gridcell [selected] [ref=f31e1148] [cursor=pointer]:
+                              - button "Sun Nov 22 2026" [ref=f31e1149]:
+                                - generic [aria-hidden] [ref=f31e1152]: "22"
+                                - paragraph [ref=f31e1153]
+                          - row [ref=f31e1154]:
+                            - gridcell [selected] [ref=f31e1155] [cursor=pointer]:
+                              - button "Mon Nov 23 2026" [ref=f31e1156]:
+                                - generic [aria-hidden] [ref=f31e1159]: "23"
+                                - paragraph [ref=f31e1160]
+                            - gridcell [selected] [ref=f31e1161] [cursor=pointer]:
+                              - button "Tue Nov 24 2026 Vietnam Culture Day" [ref=f31e1162]:
+                                - generic [aria-hidden] [ref=f31e1165]: "24"
+                                - paragraph [ref=f31e1166]
+                            - gridcell [selected] [ref=f31e1167] [cursor=pointer]:
+                              - button "Wed Nov 25 2026" [ref=f31e1168]:
+                                - generic [aria-hidden] [ref=f31e1171]: "25"
+                                - paragraph [ref=f31e1172]
+                            - gridcell [selected] [ref=f31e1173] [cursor=pointer]:
+                              - button "Thu Nov 26 2026" [ref=f31e1174]:
+                                - generic [aria-hidden] [ref=f31e1177]: "26"
+                                - paragraph [ref=f31e1178]
+                            - gridcell [selected] [ref=f31e1179] [cursor=pointer]:
+                              - button "Fri Nov 27 2026" [ref=f31e1180]:
+                                - generic [aria-hidden] [ref=f31e1183]: "27"
+                                - paragraph [ref=f31e1184]
+                            - gridcell [selected] [ref=f31e1185] [cursor=pointer]:
+                              - button "Sat Nov 28 2026" [ref=f31e1186]:
+                                - generic [aria-hidden] [ref=f31e1189]: "28"
+                                - paragraph [ref=f31e1190]
+                            - gridcell [selected] [ref=f31e1191] [cursor=pointer]:
+                              - button "Sun Nov 29 2026" [ref=f31e1192]:
+                                - generic [aria-hidden] [ref=f31e1195]: "29"
+                                - paragraph [ref=f31e1196]
+                          - row [ref=f31e1197]:
+                            - gridcell [selected] [ref=f31e1198] [cursor=pointer]:
+                              - button "Mon Nov 30 2026" [ref=f31e1199]:
+                                - generic [aria-hidden] [ref=f31e1202]: "30"
+                                - paragraph [ref=f31e1203]
+                            - gridcell [disabled] [ref=f31e1204] [cursor=pointer]
+                            - gridcell [disabled] [ref=f31e1205] [cursor=pointer]
+                            - gridcell [disabled] [ref=f31e1206] [cursor=pointer]
+                            - gridcell [disabled] [ref=f31e1207] [cursor=pointer]
+                            - gridcell [disabled] [ref=f31e1208] [cursor=pointer]
+                            - gridcell [disabled] [ref=f31e1209] [cursor=pointer]
+                      - grid [ref=f31e1210]:
+                        - generic [ref=f31e1211]: Декабрь 2026
+                        - rowgroup [ref=f31e1212]:
+                          - row [ref=f31e1213]:
+                            - columnheader "Пн" [ref=f31e1214]
+                            - columnheader "Вт" [ref=f31e1215]
+                            - columnheader "Ср" [ref=f31e1216]
+                            - columnheader "Чт" [ref=f31e1217]
+                            - columnheader "Пт" [ref=f31e1218]
+                            - columnheader "Сб" [ref=f31e1219]
+                            - columnheader "Вс" [ref=f31e1220]
+                        - rowgroup [ref=f31e1221]:
+                          - row [ref=f31e1222]:
+                            - gridcell [disabled] [ref=f31e1223] [cursor=pointer]
+                            - gridcell [selected] [ref=f31e1224] [cursor=pointer]:
+                              - button "Tue Dec 01 2026" [ref=f31e1225]:
+                                - generic [aria-hidden] [ref=f31e1228]: "1"
+                                - paragraph [ref=f31e1229]
+                            - gridcell [selected] [ref=f31e1230] [cursor=pointer]:
+                              - button "Wed Dec 02 2026" [ref=f31e1231]:
+                                - generic [aria-hidden] [ref=f31e1234]: "2"
+                                - paragraph [ref=f31e1235]
+                            - gridcell [selected] [ref=f31e1236] [cursor=pointer]:
+                              - button "Thu Dec 03 2026" [ref=f31e1237]:
+                                - generic [aria-hidden] [ref=f31e1240]: "3"
+                                - paragraph [ref=f31e1241]
+                            - gridcell [selected] [ref=f31e1242] [cursor=pointer]:
+                              - button "Fri Dec 04 2026" [ref=f31e1243]:
+                                - generic [aria-hidden] [ref=f31e1246]: "4"
+                                - paragraph [ref=f31e1247]
+                            - gridcell [selected] [ref=f31e1248] [cursor=pointer]:
+                              - button "Sat Dec 05 2026" [ref=f31e1249]:
+                                - generic [aria-hidden] [ref=f31e1252]: "5"
+                                - paragraph [ref=f31e1253]
+                            - gridcell [selected] [ref=f31e1254] [cursor=pointer]:
+                              - button "Sun Dec 06 2026" [ref=f31e1255]:
+                                - generic [aria-hidden] [ref=f31e1258]: "6"
+                                - paragraph [ref=f31e1259]
+                          - row [ref=f31e1260]:
+                            - gridcell [selected] [ref=f31e1261] [cursor=pointer]:
+                              - button "Mon Dec 07 2026" [ref=f31e1262]:
+                                - generic [aria-hidden] [ref=f31e1265]: "7"
+                                - paragraph [ref=f31e1266]
+                            - gridcell [selected] [ref=f31e1267] [cursor=pointer]:
+                              - button "Tue Dec 08 2026" [ref=f31e1268]:
+                                - generic [aria-hidden] [ref=f31e1271]: "8"
+                                - paragraph [ref=f31e1272]
+                            - gridcell [selected] [ref=f31e1273] [cursor=pointer]:
+                              - button "Wed Dec 09 2026" [ref=f31e1274]:
+                                - generic [aria-hidden] [ref=f31e1277]: "9"
+                                - paragraph [ref=f31e1278]
+                            - gridcell [selected] [ref=f31e1279] [cursor=pointer]:
+                              - button "Thu Dec 10 2026" [ref=f31e1280]:
+                                - generic [aria-hidden] [ref=f31e1283]: "10"
+                                - paragraph [ref=f31e1284]
+                            - gridcell [selected] [ref=f31e1285] [cursor=pointer]:
+                              - button "Fri Dec 11 2026" [ref=f31e1286]:
+                                - generic [aria-hidden] [ref=f31e1289]: "11"
+                                - paragraph [ref=f31e1290]
+                            - gridcell [selected] [ref=f31e1291] [cursor=pointer]:
+                              - button "Sat Dec 12 2026" [ref=f31e1292]:
+                                - generic [aria-hidden] [ref=f31e1295]: "12"
+                                - paragraph [ref=f31e1296]
+                            - gridcell [selected] [ref=f31e1297] [cursor=pointer]:
+                              - button "Sun Dec 13 2026" [ref=f31e1298]:
+                                - generic [aria-hidden] [ref=f31e1301]: "13"
+                                - paragraph [ref=f31e1302]
+                          - row [ref=f31e1303]:
+                            - gridcell [selected] [ref=f31e1304] [cursor=pointer]:
+                              - button "Mon Dec 14 2026" [ref=f31e1305]:
+                                - generic [aria-hidden] [ref=f31e1308]: "14"
+                                - paragraph [ref=f31e1309]
+                            - gridcell [selected] [ref=f31e1310] [cursor=pointer]:
+                              - button "Tue Dec 15 2026" [ref=f31e1311]:
+                                - generic [aria-hidden] [ref=f31e1314]: "15"
+                                - paragraph [ref=f31e1315]
+                            - gridcell [selected] [ref=f31e1316] [cursor=pointer]:
+                              - button "Wed Dec 16 2026" [ref=f31e1317]:
+                                - generic [aria-hidden] [ref=f31e1320]: "16"
+                                - paragraph [ref=f31e1321]
+                            - gridcell [selected] [ref=f31e1322] [cursor=pointer]:
+                              - button "Thu Dec 17 2026" [ref=f31e1323]:
+                                - generic [aria-hidden] [ref=f31e1326]: "17"
+                                - paragraph [ref=f31e1327]
+                            - gridcell [selected] [ref=f31e1328] [cursor=pointer]:
+                              - button "Fri Dec 18 2026" [ref=f31e1329]:
+                                - generic [aria-hidden] [ref=f31e1332]: "18"
+                                - paragraph [ref=f31e1333]
+                            - gridcell [selected] [ref=f31e1334] [cursor=pointer]:
+                              - button "Sat Dec 19 2026" [ref=f31e1335]:
+                                - generic [aria-hidden] [ref=f31e1338]: "19"
+                                - paragraph [ref=f31e1339]
+                            - gridcell [selected] [ref=f31e1340] [cursor=pointer]:
+                              - button "Sun Dec 20 2026" [ref=f31e1341]:
+                                - generic [aria-hidden] [ref=f31e1344]: "20"
+                                - paragraph [ref=f31e1345]
+                          - row [ref=f31e1346]:
+                            - gridcell [ref=f31e1347] [cursor=pointer]:
+                              - button "Mon Dec 21 2026" [ref=f31e1348]:
+                                - generic [aria-hidden] [ref=f31e1351]: "21"
+                                - paragraph [ref=f31e1352]
+                            - gridcell [ref=f31e1353] [cursor=pointer]:
+                              - button "Tue Dec 22 2026" [ref=f31e1354]:
+                                - generic [aria-hidden] [ref=f31e1357]: "22"
+                                - paragraph [ref=f31e1358]
+                            - gridcell [ref=f31e1359] [cursor=pointer]:
+                              - button "Wed Dec 23 2026" [ref=f31e1360]:
+                                - generic [aria-hidden] [ref=f31e1363]: "23"
+                                - paragraph [ref=f31e1364]
+                            - gridcell [ref=f31e1365] [cursor=pointer]:
+                              - button "Thu Dec 24 2026" [ref=f31e1366]:
+                                - generic [aria-hidden] [ref=f31e1369]: "24"
+                                - paragraph [ref=f31e1370]
+                            - gridcell [ref=f31e1371] [cursor=pointer]:
+                              - button "Fri Dec 25 2026" [ref=f31e1372]:
+                                - generic [aria-hidden] [ref=f31e1375]: "25"
+                                - paragraph [ref=f31e1376]
+                            - gridcell [ref=f31e1377] [cursor=pointer]:
+                              - button "Sat Dec 26 2026" [ref=f31e1378]:
+                                - generic [aria-hidden] [ref=f31e1381]: "26"
+                                - paragraph [ref=f31e1382]
+                            - gridcell [ref=f31e1383] [cursor=pointer]:
+                              - button "Sun Dec 27 2026" [ref=f31e1384]:
+                                - generic [aria-hidden] [ref=f31e1387]: "27"
+                                - paragraph [ref=f31e1388]
+                          - row [ref=f31e1389]:
+                            - gridcell [ref=f31e1390] [cursor=pointer]:
+                              - button "Mon Dec 28 2026" [ref=f31e1391]:
+                                - generic [aria-hidden] [ref=f31e1394]: "28"
+                                - paragraph [ref=f31e1395]
+                            - gridcell [ref=f31e1396] [cursor=pointer]:
+                              - button "Tue Dec 29 2026" [ref=f31e1397]:
+                                - generic [aria-hidden] [ref=f31e1400]: "29"
+                                - paragraph [ref=f31e1401]
+                            - gridcell [ref=f31e1402] [cursor=pointer]:
+                              - button "Wed Dec 30 2026" [ref=f31e1403]:
+                                - generic [aria-hidden] [ref=f31e1406]: "30"
+                                - paragraph [ref=f31e1407]
+                            - gridcell [ref=f31e1408] [cursor=pointer]:
+                              - button "Thu Dec 31 2026" [ref=f31e1409]:
+                                - generic [aria-hidden] [ref=f31e1412]: "31"
+                                - paragraph [ref=f31e1413]
+                            - gridcell [disabled] [ref=f31e1414] [cursor=pointer]
+                            - gridcell [disabled] [ref=f31e1415] [cursor=pointer]
+                            - gridcell [disabled] [ref=f31e1416] [cursor=pointer]
+                  - complementary [ref=f31e1417]:
+                    - list [ref=f31e1418]:
+                      - listitem [ref=f31e1419]:
+                        - listitem [ref=f31e1420]: Приблизительные цены (в VND) за размещение на одну ночь в 3-звездочных отелях по выбранному направлению
+                  - generic:
+                    - paragraph
+        - button "ПОИСК" [ref=f31e229] [cursor=pointer]
+      - generic [ref=f31e236]:
+        - button "Закрыть" [ref=f31e238] [cursor=pointer]
+        - generic [ref=f31e241]:
+          - img "null image" [ref=f31e242]
+          - generic [ref=f31e243]:
+            - heading "Хотите цены ниже?" [level=2] [ref=f31e244]
+            - generic [ref=f31e245]: Откройте нашу страницу с предложениями и найдите купоны, скидки и промоакции
+          - link "Открыть" [ref=f31e248] [cursor=pointer]:
+            - /url: https://www.agoda.com/deals?cid=1897344
+    - generic [ref=f31e251]:
+      - generic [ref=f31e253]:
+        - generic [ref=f31e254]:
+          - heading "Фильтр" [level=2] [ref=f31e255]
+          - paragraph [ref=f31e262] [cursor=pointer]:
+            - generic [ref=f31e263]:
+              - combobox [ref=f31e270]
+              - generic [ref=f31e271]:
+                - button [aria-hidden]
+          - region "Фильтр поиска":
+            - link "Перейти к основному контенту" [ref=f31e273] [cursor=pointer]:
+              - /url: "#contentContainer"
+            - generic [ref=f31e276]: При выборе параметров для данного региона содержимое страницы будет обновляться, а список продуктов — корректироваться в зависимости от выбора.
+        - generic [ref=f31e277]:
+          - generic [ref=f31e278]:
+            - region "Объявление" [ref=f31e685]:
+              - generic [ref=f31e688]:
+                - generic [ref=f31e692]:
+                  - heading "Поздравляем! Сегодня вы получаете ЭКСТРА СКИДКУ 5%." [level=5] [ref=f31e694]
+                  - paragraph [ref=f31e695]: Чтобы воспользоваться предложением, активируйте скидочный купон прямо сейчас.
+                - button "Активировать" [ref=f31e697] [cursor=pointer]
+            - list [ref=f31e849]:
+              - generic [ref=f31e853]:
+                - heading "При выполнении вашего поискового запроса возникла проблема." [level=2] [ref=f31e854]
+                - generic [ref=f31e855]: Вы можете попробовать еще раз, и если проблема не исчезнет, попробуйте осуществить поиск позднее.
+                - button "ПОПРОБУЙТЕ СНОВА" [ref=f31e857] [cursor=pointer]
+            - status [ref=f31e700]: Результаты поиска обновлены. Найдено 0 объекта(ов).
+          - generic [ref=f31e701]: Стр. 1 из 1
+        - navigation "хлебные крошки" [ref=f31e711]:
+          - list [ref=f31e712]:
+            - listitem [ref=f31e713]:
+              - link "Главная" [ref=f31e715] [cursor=pointer]:
+                - /url: /ru-ru/?asq=gDUl3ZojKHy%2BMAr54C5HV6RewFj31%2FEr%2Bsi%2FbuMbXntYB4C90AjMZKj7evVrzOwaKip4QmYI7JOKcBfE%2FoNTMMeChWwc9AhIzdGmoyUDfugihHBL3gjfqpVVv2IlRkqe
+            - listitem [ref=f31e717]:
+              - generic [ref=f31e718]:
+                - link "Весь мир" [ref=f31e719] [cursor=pointer]:
+                  - /url: /ru-ru/world.html?asq=gDUl3ZojKHy%2BMAr54C5HV6RewFj31%2FEr%2Bsi%2FbuMbXntYB4C90AjMZKj7evVrzOwaKip4QmYI7JOKcBfE%2FoNTMMeChWwc9AhIzdGmoyUDfugihHBL3gjfqpVVv2IlRkqe
+                - generic [ref=f31e721]: (6 363 615)
+            - listitem [ref=f31e722]:
+              - generic [ref=f31e723]:
+                - link "Вьетнам" [ref=f31e724] [cursor=pointer]:
+                  - /url: /ru-ru/country/vietnam.html?asq=gDUl3ZojKHy%2BMAr54C5HV6RewFj31%2FEr%2Bsi%2FbuMbXntYB4C90AjMZKj7evVrzOwaKip4QmYI7JOKcBfE%2FoNTMMeChWwc9AhIzdGmoyUDfugihHBL3gjfqpVVv2IlRkqe
+                - generic [ref=f31e726]: (118 578)
+            - listitem [ref=f31e727]:
+              - generic [ref=f31e728]:
+                - link "Провинция Дананг" [ref=f31e729] [cursor=pointer]:
+                  - /url: /ru-ru/region/da-nang-province-vn.html?asq=gDUl3ZojKHy%2BMAr54C5HV6RewFj31%2FEr%2Bsi%2FbuMbXntYB4C90AjMZKj7evVrzOwaKip4QmYI7JOKcBfE%2FoNTMMeChWwc9AhIzdGmoyUDfugihHBL3gjfqpVVv2IlRkqe
+                - generic [ref=f31e731]: (0)
+            - listitem [ref=f31e732]:
+              - generic [ref=f31e733]:
+                - link "Дананг" [ref=f31e734] [cursor=pointer]:
+                  - /url: /ru-ru/city/da-nang-vn.html?asq=gDUl3ZojKHy%2BMAr54C5HV6RewFj31%2FEr%2Bsi%2FbuMbXntYB4C90AjMZKj7evVrzOwaKip4QmYI7JOKcBfE%2FoNTMMeChWwc9AhIzdGmoyUDfugihHBL3gjfqpVVv2IlRkqe
+                - generic [ref=f31e736]: (5 534)
+            - listitem
+      - generic:
+        - button "My Trips" [ref=f31e740] [cursor=pointer]
+        - button "Загрузить приложение" [ref=f31e744]
+  - contentinfo [ref=f31e748]:
+    - generic [ref=f31e752]:
+      - generic [ref=f31e753]:
+        - heading "Помощь" [level=2] [ref=f31e754]
+        - list [ref=f31e755]:
+          - listitem [ref=f31e756]:
+            - link "Справочный центр" [ref=f31e757] [cursor=pointer]:
+              - /url: /ru-ru/info/contact.html
+          - listitem [ref=f31e759]:
+            - link "Часто задаваемые вопросы" [ref=f31e760] [cursor=pointer]:
+              - /url: /ru-ru/info/contact.html
+          - listitem [ref=f31e762]:
+            - link "Политика конфиденциальности" [ref=f31e763] [cursor=pointer]:
+              - /url: /ru-ru/info/privacy.html
+          - listitem [ref=f31e765]:
+            - link "Политика использования файлов cookie" [ref=f31e766] [cursor=pointer]:
+              - /url: /ru-ru/info/privacy.html#cookies
+          - listitem [ref=f31e768]:
+            - link "Условия использования" [ref=f31e769] [cursor=pointer]:
+              - /url: /ru-ru/info/termsofuse.html
+          - listitem [ref=f31e771]:
+            - link "Закон о цифровых услугах ЕС" [ref=f31e772] [cursor=pointer]:
+              - /url: /ru-ru/info/eu-digital-services-act.html
+          - listitem [ref=f31e774]:
+            - link "Рекомендации по содержанию и заявки" [ref=f31e775] [cursor=pointer]:
+              - /url: /ru-ru/info/eu-digital-services-act.html#CM
+          - listitem [ref=f31e777]:
+            - link "Заявление о современном рабстве" [ref=f31e778] [cursor=pointer]:
+              - /url: //www.bookingholdings.com/modern-slavery-statement/
+      - generic [ref=f31e780]:
+        - heading "Компания" [level=2] [ref=f31e781]
+        - list [ref=f31e782]:
+          - listitem [ref=f31e783]:
+            - link "О нас" [ref=f31e784] [cursor=pointer]:
+              - /url: /ru-ru/about-agoda
+          - listitem [ref=f31e786]:
+            - link "Вакансии" [ref=f31e787] [cursor=pointer]:
+              - /url: //careersatagoda.com
+          - listitem [ref=f31e789]:
+            - link "Пресс-служба" [ref=f31e790] [cursor=pointer]:
+              - /url: //mediaroom.agoda.com
+          - listitem [ref=f31e792]:
+            - link "Спецпроекты" [ref=f31e793] [cursor=pointer]:
+              - /url: /ru-ru/blog
+          - listitem [ref=f31e795]:
+            - link "PointsMAX" [ref=f31e796] [cursor=pointer]:
+              - /url: //www.agoda.com/ru-ru/pointsmax.html
+      - generic [ref=f31e798]:
+        - heading "Направления" [level=2] [ref=f31e799]
+        - list [ref=f31e800]:
+          - listitem [ref=f31e801]:
+            - link "Страны" [ref=f31e802] [cursor=pointer]:
+              - /url: //www.agoda.com/ru-ru/world.html
+          - listitem [ref=f31e804]:
+            - link "Все маршруты полетов" [ref=f31e805] [cursor=pointer]:
+              - /url: //www.agoda.com/ru-ru/flights/world.html
+      - generic [ref=f31e807]:
+        - heading "Сотрудничество" [level=2] [ref=f31e808]
+        - list [ref=f31e809]:
+          - listitem [ref=f31e810]:
+            - link "Портал YCS" [ref=f31e811] [cursor=pointer]:
+              - /url: ////portal.agoda.com/mldc/ru-ru/public/login
+          - listitem [ref=f31e813]:
+            - link "Partner Hub" [ref=f31e814] [cursor=pointer]:
+              - /url: //partnerhub.agoda.com/
+          - listitem [ref=f31e816]:
+            - link "Рекламируйте на Agoda" [ref=f31e817] [cursor=pointer]:
+              - /url: //partnerhub.agoda.com/advertising-solutions/
+          - listitem [ref=f31e819]:
+            - link "Аффилиаты" [ref=f31e820] [cursor=pointer]:
+              - /url: ////partners.agoda.com/ru-ru/index.html
+          - listitem [ref=f31e822]:
+            - link "Документация Agoda API" [ref=f31e823] [cursor=pointer]:
+              - /url: //developer.agoda.com/
+      - generic [ref=f31e825]:
+        - heading "Скачать приложение" [level=2] [ref=f31e826]
+        - list [ref=f31e827]:
+          - listitem [ref=f31e828]:
+            - link "Для iOS" [ref=f31e829] [cursor=pointer]:
+              - /url: //app.appsflyer.com/id440676901?pid=direct&c=hotel_page_footer&af_siteid=1716632&site_id=1716632&af_sub1=desktop
+          - listitem [ref=f31e831]:
+            - link "Для Android" [ref=f31e832] [cursor=pointer]:
+              - /url: //app.appsflyer.com/com.agoda.mobile.consumer?pid=direct&c=hotel_page_footer&af_siteid=1716632&site_id=1716632&af_sub1=desktop
+    - generic [ref=f31e835]:
+      - paragraph [ref=f31e836]: © 2005–2026 Agoda Company Pte. Ltd. Все права защищены.
+      - paragraph [ref=f31e837]: Agoda.com входит в состав холдинга Booking Holdings Inc, мирового лидера в сфере онлайн-туризма и сопутствующих услуг.
+      - generic [ref=f31e839]:
+        - img "Логотип Agoda" [ref=f31e841]
+        - img "Логотип Priceline" [ref=f31e843]
+        - img "Логотип Kayak" [ref=f31e845]
+        - img "Логотип Booking.com" [ref=f31e861]
+        - img "Логотип Open Table" [ref=f31e848]

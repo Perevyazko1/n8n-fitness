@@ -1,0 +1,1325 @@
+- generic [ref=f12e1]:
+  - link "Пропустить и перейти к тексту" [ref=f12e2] [cursor=pointer]:
+    - /url: "#site-content"
+  - alert
+  - generic [ref=f12e8]:
+    - generic [ref=f12e14]:
+      - banner [ref=f12e15]:
+        - generic [ref=f12e19]:
+          - link "Домашняя страница Airbnb" [ref=f12e21] [cursor=pointer]:
+            - /url: /
+          - search [ref=f12e25]:
+            - generic:
+              - generic:
+                - generic:
+                  - tablist:
+                    - tab [selected]:
+                      - generic [aria-hidden]: Жилье
+                      - generic: Жилье
+                    - tab:
+                      - generic [aria-hidden]: Впечатления
+                      - generic: Впечатления
+                    - tab:
+                      - generic [aria-hidden]: Услуги
+                      - generic: Услуги
+                - search "Начать поиск" [ref=f12e27] [cursor=pointer]:
+                  - generic [ref=f12e29]:
+                    - 'button "Местоположение Da Nang: жилье" [ref=f12e30]':
+                      - generic [ref=f12e31]: Местоположение
+                      - generic [ref=f12e33]: "Da Nang: жилье"
+                    - button "Прибытие и выезд 20 нояб. – 20 дек." [ref=f12e35]:
+                      - generic [ref=f12e36]: Прибытие и выезд
+                      - generic [ref=f12e37]: 20 нояб. – 20 дек.
+                    - button "Гости 3 гостя" [ref=f12e39]:
+                      - generic [ref=f12e40]: Гости
+                      - generic [ref=f12e41]: 3 гостя
+          - navigation "Профиль" [ref=f12e50]:
+            - generic [ref=f12e51]:
+              - button "Станьте хозяином" [ref=f12e52] [cursor=pointer]
+              - button "Войдите или зарегистрируйтесь" [ref=f12e55] [cursor=pointer]
+            - button "Главное навигационное меню" [ref=f12e63] [cursor=pointer]
+        - group "фильтры" [ref=f12e72]:
+          - generic [ref=f12e74]:
+            - button "Фильтры, Применено 3 фильтра" [ref=f12e78] [cursor=pointer]:
+              - generic [ref=f12e83]:
+                - generic [ref=f12e84]: Фильтры
+                - generic [aria-hidden] [ref=f12e85]: "3"
+            - generic [ref=f12e87]:
+              - generic [ref=f12e88]:
+                - button "2 спальни или больше, filter, selected" [ref=f12e91] [cursor=pointer]:
+                  - generic [ref=f12e92]: 2 спальни или больше
+                - button "Цена, До ‎50 000 RUB, filter, selected" [ref=f12e99] [cursor=pointer]:
+                  - generic [ref=f12e100]: До ‎50 000 RUB
+                - button "Тип размещения, Жилье целиком, filter, selected" [ref=f12e107] [cursor=pointer]:
+                  - generic [ref=f12e108]: Жилье целиком
+                - checkbox "Стиральная машина" [ref=f12e115] [cursor=pointer]
+                - checkbox "Кухня" [ref=f12e118] [cursor=pointer]
+                - checkbox "Wi-Fi" [ref=f12e121] [cursor=pointer]
+                - checkbox "Кондиционер" [ref=f12e124] [cursor=pointer]
+                - checkbox "Бассейн" [ref=f12e127] [cursor=pointer]
+                - checkbox "Телевизор" [ref=f12e130] [cursor=pointer]
+                - checkbox "Можно с питомцами" [ref=f12e133] [cursor=pointer]
+                - checkbox "Бесплатная парковка" [ref=f12e136] [cursor=pointer]
+              - button "Далее" [ref=f12e138] [cursor=pointer]
+      - main [ref=f12e142]:
+        - generic [ref=f12e143]:
+          - generic [ref=f12e147]:
+            - heading "Результаты поиска; 25 вариантов жилья" [active] [level=1] [ref=f12e150]: 25 вариантов жилья
+            - generic [ref=f12e191]:
+              - generic [aria-hidden] [ref=f12e192]:
+                - generic [ref=f12e193]: В цену входят все сборы
+                - generic [ref=f12e194]: В цену входят все сборы
+                - generic [ref=f12e195]: В цену входят все сборы
+                - generic [ref=f12e196]: В цену входят все сборы
+                - generic [ref=f12e197]: В цену входят все сборы
+                - generic [ref=f12e198]: В цену входят все сборы
+                - generic [ref=f12e199]: В цену входят все сборы
+                - generic [ref=f12e200]: В цену входят все сборы
+                - generic [ref=f12e201]: В цену входят все сборы
+                - generic [ref=f12e202]: В цену входят все сборы
+                - generic [ref=f12e203]: В цену входят все сборы
+                - generic [ref=f12e204]: В цену входят все сборы
+                - generic [ref=f12e205]: В цену входят все сборы
+                - generic [ref=f12e206]: В цену входят все сборы
+                - generic [ref=f12e207]: В цену входят все сборы
+                - generic [ref=f12e208]: В цену входят все сборы
+                - generic [ref=f12e209]: В цену входят все сборы
+                - generic [ref=f12e210]: В цену входят все сборы
+                - generic [ref=f12e211]: В цену входят все сборы
+                - generic [ref=f12e212]: В цену входят все сборы
+                - generic [ref=f12e213]: В цену входят все сборы
+                - generic [ref=f12e214]: В цену входят все сборы
+                - generic [ref=f12e215]: В цену входят все сборы
+              - generic [ref=f12e216]: В цену входят все сборы
+          - generic [ref=f12e222]:
+            - group [ref=f12e228]:
+              - link "Квартира, Сон Тра" [ref=f12e229] [cursor=pointer]:
+                - /url: /rooms/1491327202765777620?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1491327202765777620_0&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+              - generic [ref=f12e230]:
+                - generic [ref=f12e235]:
+                  - generic [ref=f12e236]: Фото 1 из 6
+                  - generic [ref=f12e237]:
+                    - link [aria-hidden] [ref=f12e238] [cursor=pointer]:
+                      - /url: /rooms/1491327202765777620?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1491327202765777620_0&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e242] [cursor=pointer]:
+                      - /url: /rooms/1491327202765777620?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1491327202765777620_0&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e244] [cursor=pointer]:
+                      - /url: /rooms/1491327202765777620?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1491327202765777620_0&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e246] [cursor=pointer]:
+                      - /url: /rooms/1491327202765777620?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1491327202765777620_0&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e248] [cursor=pointer]:
+                      - /url: /rooms/1491327202765777620?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1491327202765777620_0&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e250] [cursor=pointer]:
+                      - /url: /rooms/1491327202765777620?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1491327202765777620_0&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Суперхозяин
+                          - generic [aria-hidden]: Суперхозяин
+                      - 'button "Добавить в вишлист: Квартира, Сон Тра" [ref=f12e253] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=f12e258] [cursor=pointer]
+                      - 'button "Следующее фото: Квартира, Сон Тра" [ref=f12e263] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Фото 1 из 6"
+                - generic [ref=f12e267]:
+                  - generic [ref=f12e268]: Квартира, Сон Тра
+                  - generic [ref=f12e269]:
+                    - generic:
+                      - generic: "Средний рейтинг: 4,76 из 5. Отзывов: 41"
+                      - generic [aria-hidden]: 4,76 (41)
+                  - generic [ref=f12e270]: Ami MSDN 2 - Бассейн, 2 спальни, проходной, уютный
+                  - generic [ref=f12e272]:
+                    - generic [ref=f12e273]:
+                      - generic [ref=f12e274]: 2 спальни
+                      - generic [aria-hidden] [ref=f12e275]: 2 спальни
+                    - generic [ref=f12e276]:
+                      - generic [ref=f12e277]: ","
+                      - generic [aria-hidden] [ref=f12e278]: ·
+                      - generic [ref=f12e279]: 2 кровати 152x203 см
+                      - generic [aria-hidden] [ref=f12e280]: 2 кровати 152x203 см
+                    - generic [ref=f12e281]:
+                      - generic [ref=f12e282]: ","
+                      - generic [aria-hidden] [ref=f12e283]: ·
+                      - generic [ref=f12e284]: 1 ванная
+                      - generic [aria-hidden] [ref=f12e285]: 1 ванная
+                  - generic [ref=f12e286]:
+                    - generic [ref=f12e292]:
+                      - generic [ref=f12e293]:
+                        - generic [ref=f12e294]: 69 245 RUB
+                        - button "48 484 RUB помесячно, исходная цена 69 245 RUB" [ref=f12e297] [cursor=pointer]:
+                          - generic [ref=f12e298]:
+                            - text: 48 484 RUB
+                            - generic [ref=f12e299]: 48 484 RUB помесячно, исходная цена 69 245 RUB
+                      - generic [ref=f12e300]: помесячно
+                    - generic [ref=f12e303]: Месячная скидка
+            - group [ref=f12e310]:
+              - link "Квартира, Хайчауский район" [ref=f12e311] [cursor=pointer]:
+                - /url: /rooms/1518533782193901483?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1518533782193901483_1&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+              - generic [ref=f12e312]:
+                - generic [ref=f12e317]:
+                  - generic [ref=f12e318]: Фото 1 из 6
+                  - generic [ref=f12e319]:
+                    - link [aria-hidden] [ref=f12e320] [cursor=pointer]:
+                      - /url: /rooms/1518533782193901483?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1518533782193901483_1&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e324] [cursor=pointer]:
+                      - /url: /rooms/1518533782193901483?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1518533782193901483_1&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e326] [cursor=pointer]:
+                      - /url: /rooms/1518533782193901483?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1518533782193901483_1&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e328] [cursor=pointer]:
+                      - /url: /rooms/1518533782193901483?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1518533782193901483_1&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e330] [cursor=pointer]:
+                      - /url: /rooms/1518533782193901483?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1518533782193901483_1&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e332] [cursor=pointer]:
+                      - /url: /rooms/1518533782193901483?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1518533782193901483_1&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                  - generic:
+                    - 'button "Добавить в вишлист: Квартира, Хайчауский район" [ref=f12e335] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=f12e340] [cursor=pointer]
+                      - 'button "Следующее фото: Квартира, Хайчауский район" [ref=f12e345] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Фото 1 из 6"
+                - generic [ref=f12e349]:
+                  - generic [ref=f12e350]: Квартира, Хайчауский район
+                  - generic [ref=f12e351]: Просторная квартира с 2 спальнями в Хайчау ※
+                  - generic [ref=f12e353]:
+                    - generic [ref=f12e354]:
+                      - generic [ref=f12e355]: 2 спальни
+                      - generic [aria-hidden] [ref=f12e356]: 2 спальни
+                    - generic [ref=f12e357]:
+                      - generic [ref=f12e358]: ","
+                      - generic [aria-hidden] [ref=f12e359]: ·
+                      - generic [ref=f12e360]: 2 кровати 152x203 см
+                      - generic [aria-hidden] [ref=f12e361]: 2 кровати 152x203 см
+                    - generic [ref=f12e362]:
+                      - generic [ref=f12e363]: ","
+                      - generic [aria-hidden] [ref=f12e364]: ·
+                      - generic [ref=f12e365]: 1 ванная
+                      - generic [aria-hidden] [ref=f12e366]: 1 ванная
+                  - generic [ref=f12e367]:
+                    - generic [ref=f12e373]:
+                      - generic [ref=f12e374]:
+                        - generic [ref=f12e375]: 87 686 RUB
+                        - button "49 706 RUB помесячно, исходная цена 87 686 RUB" [ref=f12e378] [cursor=pointer]:
+                          - generic [ref=f12e379]:
+                            - text: 49 706 RUB
+                            - generic [ref=f12e380]: 49 706 RUB помесячно, исходная цена 87 686 RUB
+                      - generic [ref=f12e381]: помесячно
+                    - generic [ref=f12e384]: Месячная скидка
+            - group [ref=f12e391]:
+              - link "Квартира, Сон Тра" [ref=f12e392] [cursor=pointer]:
+                - /url: /rooms/1591956100070676096?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1591956100070676096_2&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+              - generic [ref=f12e393]:
+                - generic [ref=f12e398]:
+                  - generic [ref=f12e399]: Фото 1 из 6
+                  - generic [ref=f12e400]:
+                    - link [aria-hidden] [ref=f12e401] [cursor=pointer]:
+                      - /url: /rooms/1591956100070676096?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1591956100070676096_2&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e405] [cursor=pointer]:
+                      - /url: /rooms/1591956100070676096?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1591956100070676096_2&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e407] [cursor=pointer]:
+                      - /url: /rooms/1591956100070676096?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1591956100070676096_2&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e409] [cursor=pointer]:
+                      - /url: /rooms/1591956100070676096?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1591956100070676096_2&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e411] [cursor=pointer]:
+                      - /url: /rooms/1591956100070676096?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1591956100070676096_2&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e413] [cursor=pointer]:
+                      - /url: /rooms/1591956100070676096?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1591956100070676096_2&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                  - generic:
+                    - 'button "Добавить в вишлист: Квартира, Сон Тра" [ref=f12e416] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=f12e421] [cursor=pointer]
+                      - 'button "Следующее фото: Квартира, Сон Тра" [ref=f12e426] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Фото 1 из 6"
+                - generic [ref=f12e430]:
+                  - generic [ref=f12e431]: Квартира, Сон Тра
+                  - generic [ref=f12e432]: Квартира 402
+                  - generic [ref=f12e434]:
+                    - generic [ref=f12e435]:
+                      - generic [ref=f12e436]: 2 спальни
+                      - generic [aria-hidden] [ref=f12e437]: 2 спальни
+                    - generic [ref=f12e438]:
+                      - generic [ref=f12e439]: ","
+                      - generic [aria-hidden] [ref=f12e440]: ·
+                      - generic [ref=f12e441]: 2 кровати
+                      - generic [aria-hidden] [ref=f12e442]: 2 кровати
+                    - generic [ref=f12e443]:
+                      - generic [ref=f12e444]: ","
+                      - generic [aria-hidden] [ref=f12e445]: ·
+                      - generic [ref=f12e446]: 2 ванные
+                      - generic [aria-hidden] [ref=f12e447]: 2 ванные
+                  - generic [ref=f12e448]:
+                    - generic [ref=f12e454]:
+                      - generic [ref=f12e455]:
+                        - generic [ref=f12e456]: 88 205 RUB
+                        - button "45 001 RUB помесячно, исходная цена 88 205 RUB" [ref=f12e459] [cursor=pointer]:
+                          - generic [ref=f12e460]:
+                            - text: 45 001 RUB
+                            - generic [ref=f12e461]: 45 001 RUB помесячно, исходная цена 88 205 RUB
+                      - generic [ref=f12e462]: помесячно
+                    - generic [ref=f12e465]: Месячная скидка
+            - group [ref=f12e472]:
+              - link "Квартира, Dien Ban Dong" [ref=f12e473] [cursor=pointer]:
+                - /url: /rooms/1677946354358382547?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1677946354358382547_3&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+              - generic [ref=f12e474]:
+                - generic [ref=f12e479]:
+                  - generic [ref=f12e480]: Фото 1 из 6
+                  - generic [ref=f12e481]:
+                    - link [aria-hidden] [ref=f12e482] [cursor=pointer]:
+                      - /url: /rooms/1677946354358382547?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1677946354358382547_3&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e486] [cursor=pointer]:
+                      - /url: /rooms/1677946354358382547?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1677946354358382547_3&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e488] [cursor=pointer]:
+                      - /url: /rooms/1677946354358382547?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1677946354358382547_3&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e490] [cursor=pointer]:
+                      - /url: /rooms/1677946354358382547?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1677946354358382547_3&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e492] [cursor=pointer]:
+                      - /url: /rooms/1677946354358382547?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1677946354358382547_3&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e494] [cursor=pointer]:
+                      - /url: /rooms/1677946354358382547?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1677946354358382547_3&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Суперхозяин
+                          - generic [aria-hidden]: Суперхозяин
+                      - 'button "Добавить в вишлист: Квартира, Dien Ban Dong" [ref=f12e497] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=f12e502] [cursor=pointer]
+                      - 'button "Следующее фото: Квартира, Dien Ban Dong" [ref=f12e507] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Фото 1 из 6"
+                - generic [ref=f12e511]:
+                  - generic [ref=f12e512]: Квартира, Dien Ban Dong
+                  - generic [ref=f12e513]: Квартира с 2 спальнями рядом с FPT | Кухня и Wi-Fi
+                  - generic [ref=f12e515]:
+                    - generic [ref=f12e516]:
+                      - generic [ref=f12e517]: 2 спальни
+                      - generic [aria-hidden] [ref=f12e518]: 2 спальни
+                    - generic [ref=f12e519]:
+                      - generic [ref=f12e520]: ","
+                      - generic [aria-hidden] [ref=f12e521]: ·
+                      - generic [ref=f12e522]: 2 кровати
+                      - generic [aria-hidden] [ref=f12e523]: 2 кровати
+                    - generic [ref=f12e524]:
+                      - generic [ref=f12e525]: ","
+                      - generic [aria-hidden] [ref=f12e526]: ·
+                      - generic [ref=f12e527]: 2 ванные
+                      - generic [aria-hidden] [ref=f12e528]: 2 ванные
+                  - generic [ref=f12e529]:
+                    - generic [ref=f12e535]:
+                      - generic [ref=f12e536]:
+                        - generic [ref=f12e537]: 60 769 RUB
+                        - button "38 699 RUB помесячно, исходная цена 60 769 RUB" [ref=f12e540] [cursor=pointer]:
+                          - generic [ref=f12e541]:
+                            - text: 38 699 RUB
+                            - generic [ref=f12e542]: 38 699 RUB помесячно, исходная цена 60 769 RUB
+                      - generic [ref=f12e543]: помесячно
+                    - generic [ref=f12e546]: Месячная скидка
+            - group [ref=f12e553]:
+              - link "Квартира, Dien Ban Dong" [ref=f12e554] [cursor=pointer]:
+                - /url: /rooms/1803539645346540852?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1803539645346540852_4&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+              - generic [ref=f12e555]:
+                - generic [ref=f12e560]:
+                  - generic [ref=f12e561]: Фото 1 из 6
+                  - generic [ref=f12e562]:
+                    - link [aria-hidden] [ref=f12e563] [cursor=pointer]:
+                      - /url: /rooms/1803539645346540852?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1803539645346540852_4&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e567] [cursor=pointer]:
+                      - /url: /rooms/1803539645346540852?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1803539645346540852_4&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e569] [cursor=pointer]:
+                      - /url: /rooms/1803539645346540852?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1803539645346540852_4&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e571] [cursor=pointer]:
+                      - /url: /rooms/1803539645346540852?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1803539645346540852_4&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e573] [cursor=pointer]:
+                      - /url: /rooms/1803539645346540852?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1803539645346540852_4&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e575] [cursor=pointer]:
+                      - /url: /rooms/1803539645346540852?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1803539645346540852_4&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                  - generic:
+                    - 'button "Добавить в вишлист: Квартира, Dien Ban Dong" [ref=f12e578] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=f12e583] [cursor=pointer]
+                      - 'button "Следующее фото: Квартира, Dien Ban Dong" [ref=f12e588] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Фото 1 из 6"
+                - generic [ref=f12e592]:
+                  - generic [ref=f12e593]: Квартира, Dien Ban Dong
+                  - generic [ref=f12e594]:
+                    - generic:
+                      - generic: Новое жилье
+                      - generic [aria-hidden]: Новое
+                  - generic [ref=f12e595]: Просторная семейная квартира с 2 спальнями | Полностью оборудованная
+                  - generic [ref=f12e597]:
+                    - generic [ref=f12e598]:
+                      - generic [ref=f12e599]: 2 спальни
+                      - generic [aria-hidden] [ref=f12e600]: 2 спальни
+                    - generic [ref=f12e601]:
+                      - generic [ref=f12e602]: ","
+                      - generic [aria-hidden] [ref=f12e603]: ·
+                      - generic [ref=f12e604]: 2 кровати
+                      - generic [aria-hidden] [ref=f12e605]: 2 кровати
+                    - generic [ref=f12e606]:
+                      - generic [ref=f12e607]: ","
+                      - generic [aria-hidden] [ref=f12e608]: ·
+                      - generic [ref=f12e609]: 1 ванная
+                      - generic [aria-hidden] [ref=f12e610]: 1 ванная
+                  - generic [ref=f12e611]:
+                    - generic [ref=f12e617]:
+                      - generic [ref=f12e618]:
+                        - generic [ref=f12e619]: 61 951 RUB
+                        - button "35 118 RUB помесячно, исходная цена 61 951 RUB" [ref=f12e622] [cursor=pointer]:
+                          - generic [ref=f12e623]:
+                            - text: 35 118 RUB
+                            - generic [ref=f12e624]: 35 118 RUB помесячно, исходная цена 61 951 RUB
+                      - generic [ref=f12e625]: помесячно
+                    - generic [ref=f12e628]: Месячная скидка
+            - group [ref=f12e635]:
+              - link "Квартира, Điện Bàn Đông" [ref=f12e636] [cursor=pointer]:
+                - /url: /rooms/1803603977772192991?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1803603977772192991_5&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+              - generic [ref=f12e637]:
+                - generic [ref=f12e642]:
+                  - generic [ref=f12e643]: Фото 1 из 6
+                  - generic [ref=f12e644]:
+                    - link [aria-hidden] [ref=f12e645] [cursor=pointer]:
+                      - /url: /rooms/1803603977772192991?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1803603977772192991_5&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e649] [cursor=pointer]:
+                      - /url: /rooms/1803603977772192991?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1803603977772192991_5&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e651] [cursor=pointer]:
+                      - /url: /rooms/1803603977772192991?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1803603977772192991_5&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e653] [cursor=pointer]:
+                      - /url: /rooms/1803603977772192991?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1803603977772192991_5&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e655] [cursor=pointer]:
+                      - /url: /rooms/1803603977772192991?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1803603977772192991_5&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e657] [cursor=pointer]:
+                      - /url: /rooms/1803603977772192991?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1803603977772192991_5&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                  - generic:
+                    - 'button "Добавить в вишлист: Квартира, Điện Bàn Đông" [ref=f12e660] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=f12e665] [cursor=pointer]
+                      - 'button "Следующее фото: Квартира, Điện Bàn Đông" [ref=f12e670] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Фото 1 из 6"
+                - generic [ref=f12e674]:
+                  - generic [ref=f12e675]: Квартира, Điện Bàn Đông
+                  - generic [ref=f12e676]:
+                    - generic:
+                      - generic: Новое жилье
+                      - generic [aria-hidden]: Новое
+                  - generic [ref=f12e677]: Между Данангом и Хойаном | Уютная квартира с 2 спальнями
+                  - generic [ref=f12e679]:
+                    - generic [ref=f12e680]:
+                      - generic [ref=f12e681]: 2 спальни
+                      - generic [aria-hidden] [ref=f12e682]: 2 спальни
+                    - generic [ref=f12e683]:
+                      - generic [ref=f12e684]: ","
+                      - generic [aria-hidden] [ref=f12e685]: ·
+                      - generic [ref=f12e686]: 2 двуспальные кровати
+                      - generic [aria-hidden] [ref=f12e687]: 2 двуспальные кровати
+                    - generic [ref=f12e688]:
+                      - generic [ref=f12e689]: ","
+                      - generic [aria-hidden] [ref=f12e690]: ·
+                      - generic [ref=f12e691]: 1 ванная
+                      - generic [aria-hidden] [ref=f12e692]: 1 ванная
+                  - generic [ref=f12e693]:
+                    - generic [ref=f12e699]:
+                      - generic [ref=f12e700]:
+                        - generic [ref=f12e701]: 62 025 RUB
+                        - button "33 988 RUB помесячно, исходная цена 62 025 RUB" [ref=f12e704] [cursor=pointer]:
+                          - generic [ref=f12e705]:
+                            - text: 33 988 RUB
+                            - generic [ref=f12e706]: 33 988 RUB помесячно, исходная цена 62 025 RUB
+                      - generic [ref=f12e707]: помесячно
+                    - generic [ref=f12e710]: Месячная скидка
+            - group [ref=f12e734]:
+              - link "Квартира, Хойан" [ref=f12e735] [cursor=pointer]:
+                - /url: /rooms/1620877675257854595?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1620877675257854595_6&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+              - generic [ref=f12e736]:
+                - generic [ref=f12e741]:
+                  - generic [ref=f12e742]: Фото 1 из 6
+                  - generic [ref=f12e743]:
+                    - link [aria-hidden] [ref=f12e744] [cursor=pointer]:
+                      - /url: /rooms/1620877675257854595?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1620877675257854595_6&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e748] [cursor=pointer]:
+                      - /url: /rooms/1620877675257854595?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1620877675257854595_6&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e750] [cursor=pointer]:
+                      - /url: /rooms/1620877675257854595?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1620877675257854595_6&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e752] [cursor=pointer]:
+                      - /url: /rooms/1620877675257854595?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1620877675257854595_6&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e754] [cursor=pointer]:
+                      - /url: /rooms/1620877675257854595?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1620877675257854595_6&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e756] [cursor=pointer]:
+                      - /url: /rooms/1620877675257854595?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1620877675257854595_6&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Суперхозяин
+                          - generic [aria-hidden]: Суперхозяин
+                      - 'button "Добавить в вишлист: Квартира, Хойан" [ref=f12e759] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=f12e764] [cursor=pointer]
+                      - 'button "Следующее фото: Квартира, Хойан" [ref=f12e769] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Фото 1 из 6"
+                - generic [ref=f12e773]:
+                  - generic [ref=f12e774]: Квартира, Хойан
+                  - generic [ref=f12e775]: Апартаменты C9 с 2 спальнями в Хойане — очень экологичные и тихие
+                  - generic [ref=f12e777]:
+                    - generic [ref=f12e778]:
+                      - generic [ref=f12e779]: 2 спальни
+                      - generic [aria-hidden] [ref=f12e780]: 2 спальни
+                    - generic [ref=f12e781]:
+                      - generic [ref=f12e782]: ","
+                      - generic [aria-hidden] [ref=f12e783]: ·
+                      - generic [ref=f12e784]: 2 кровати
+                      - generic [aria-hidden] [ref=f12e785]: 2 кровати
+                    - generic [ref=f12e786]:
+                      - generic [ref=f12e787]: ","
+                      - generic [aria-hidden] [ref=f12e788]: ·
+                      - generic [ref=f12e789]: 1 ванная
+                      - generic [aria-hidden] [ref=f12e790]: 1 ванная
+                  - generic [ref=f12e791]:
+                    - generic [ref=f12e797]:
+                      - generic [ref=f12e798]:
+                        - generic [ref=f12e799]: 63 392 RUB
+                        - button "43 418 RUB помесячно, исходная цена 63 392 RUB" [ref=f12e802] [cursor=pointer]:
+                          - generic [ref=f12e803]:
+                            - text: 43 418 RUB
+                            - generic [ref=f12e804]: 43 418 RUB помесячно, исходная цена 63 392 RUB
+                      - generic [ref=f12e805]: помесячно
+                    - generic [ref=f12e808]: Месячная скидка
+            - group [ref=f12e832]:
+              - link "Квартира, Hai Van" [ref=f12e833] [cursor=pointer]:
+                - /url: /rooms/1673645251380452063?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1673645251380452063_7&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+              - generic [ref=f12e834]:
+                - generic [ref=f12e839]:
+                  - generic [ref=f12e840]: Фото 1 из 6
+                  - generic [ref=f12e841]:
+                    - link [aria-hidden] [ref=f12e842] [cursor=pointer]:
+                      - /url: /rooms/1673645251380452063?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1673645251380452063_7&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e846] [cursor=pointer]:
+                      - /url: /rooms/1673645251380452063?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1673645251380452063_7&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e848] [cursor=pointer]:
+                      - /url: /rooms/1673645251380452063?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1673645251380452063_7&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e850] [cursor=pointer]:
+                      - /url: /rooms/1673645251380452063?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1673645251380452063_7&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e852] [cursor=pointer]:
+                      - /url: /rooms/1673645251380452063?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1673645251380452063_7&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e854] [cursor=pointer]:
+                      - /url: /rooms/1673645251380452063?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1673645251380452063_7&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                  - generic:
+                    - 'button "Добавить в вишлист: Квартира, Hai Van" [ref=f12e857] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=f12e862] [cursor=pointer]
+                      - 'button "Следующее фото: Квартира, Hai Van" [ref=f12e867] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Фото 1 из 6"
+                - generic [ref=f12e871]:
+                  - generic [ref=f12e872]: Квартира, Hai Van
+                  - generic [ref=f12e873]: Квартира Ori Garden 2PN+1, рядом с морем, вид на холм БаНа
+                  - generic [ref=f12e875]:
+                    - generic [ref=f12e876]:
+                      - generic [ref=f12e877]: 2 спальни
+                      - generic [aria-hidden] [ref=f12e878]: 2 спальни
+                    - generic [ref=f12e879]:
+                      - generic [ref=f12e880]: ","
+                      - generic [aria-hidden] [ref=f12e881]: ·
+                      - generic [ref=f12e882]: 2 кровати
+                      - generic [aria-hidden] [ref=f12e883]: 2 кровати
+                    - generic [ref=f12e884]:
+                      - generic [ref=f12e885]: ","
+                      - generic [aria-hidden] [ref=f12e886]: ·
+                      - generic [ref=f12e887]: 2 ванные
+                      - generic [aria-hidden] [ref=f12e888]: 2 ванные
+                  - generic [ref=f12e889]:
+                    - generic [ref=f12e895]:
+                      - generic [ref=f12e896]:
+                        - generic [ref=f12e897]: 92 365 RUB
+                        - button "44 161 RUB помесячно, исходная цена 92 365 RUB" [ref=f12e900] [cursor=pointer]:
+                          - generic [ref=f12e901]:
+                            - text: 44 161 RUB
+                            - generic [ref=f12e902]: 44 161 RUB помесячно, исходная цена 92 365 RUB
+                      - generic [ref=f12e903]: помесячно
+                    - generic [ref=f12e906]: Месячная скидка
+            - group [ref=f12e930]:
+              - link "Квартира, Хойан" [ref=f12e931] [cursor=pointer]:
+                - /url: /rooms/1492598854477463935?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1492598854477463935_8&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+              - generic [ref=f12e932]:
+                - generic [ref=f12e937]:
+                  - generic [ref=f12e938]: Фото 1 из 6
+                  - generic [ref=f12e939]:
+                    - link [aria-hidden] [ref=f12e940] [cursor=pointer]:
+                      - /url: /rooms/1492598854477463935?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1492598854477463935_8&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e944] [cursor=pointer]:
+                      - /url: /rooms/1492598854477463935?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1492598854477463935_8&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e946] [cursor=pointer]:
+                      - /url: /rooms/1492598854477463935?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1492598854477463935_8&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e948] [cursor=pointer]:
+                      - /url: /rooms/1492598854477463935?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1492598854477463935_8&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e950] [cursor=pointer]:
+                      - /url: /rooms/1492598854477463935?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1492598854477463935_8&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e952] [cursor=pointer]:
+                      - /url: /rooms/1492598854477463935?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1492598854477463935_8&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                  - generic:
+                    - 'button "Добавить в вишлист: Квартира, Хойан" [ref=f12e955] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=f12e960] [cursor=pointer]
+                      - 'button "Следующее фото: Квартира, Хойан" [ref=f12e965] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Фото 1 из 6"
+                - generic [ref=f12e969]:
+                  - generic [ref=f12e970]: Квартира, Хойан
+                  - generic [ref=f12e971]: 03. Отдельная квартира с 2 спальнями
+                  - generic [ref=f12e973]:
+                    - generic [ref=f12e974]:
+                      - generic [ref=f12e975]: 2 спальни
+                      - generic [aria-hidden] [ref=f12e976]: 2 спальни
+                    - generic [ref=f12e977]:
+                      - generic [ref=f12e978]: ","
+                      - generic [aria-hidden] [ref=f12e979]: ·
+                      - generic [ref=f12e980]: 2 кровати
+                      - generic [aria-hidden] [ref=f12e981]: 2 кровати
+                    - generic [ref=f12e982]:
+                      - generic [ref=f12e983]: ","
+                      - generic [aria-hidden] [ref=f12e984]: ·
+                      - generic [ref=f12e985]: 1 ванная
+                      - generic [aria-hidden] [ref=f12e986]: 1 ванная
+                  - generic [ref=f12e987]:
+                    - generic [ref=f12e993]:
+                      - generic [ref=f12e994]:
+                        - generic [ref=f12e995]: 64 397 RUB
+                        - button "42 589 RUB помесячно, исходная цена 64 397 RUB" [ref=f12e998] [cursor=pointer]:
+                          - generic [ref=f12e999]:
+                            - text: 42 589 RUB
+                            - generic [ref=f12e1000]: 42 589 RUB помесячно, исходная цена 64 397 RUB
+                      - generic [ref=f12e1001]: помесячно
+                    - generic [ref=f12e1004]: Месячная скидка
+            - group [ref=f12e1028]:
+              - link "Квартира, Хойан" [ref=f12e1029] [cursor=pointer]:
+                - /url: /rooms/1643509251877008600?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1643509251877008600_9&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+              - generic [ref=f12e1030]:
+                - generic [ref=f12e1035]:
+                  - generic [ref=f12e1036]: Фото 1 из 6
+                  - generic [ref=f12e1037]:
+                    - link [aria-hidden] [ref=f12e1038] [cursor=pointer]:
+                      - /url: /rooms/1643509251877008600?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1643509251877008600_9&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1042] [cursor=pointer]:
+                      - /url: /rooms/1643509251877008600?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1643509251877008600_9&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1044] [cursor=pointer]:
+                      - /url: /rooms/1643509251877008600?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1643509251877008600_9&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1046] [cursor=pointer]:
+                      - /url: /rooms/1643509251877008600?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1643509251877008600_9&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1048] [cursor=pointer]:
+                      - /url: /rooms/1643509251877008600?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1643509251877008600_9&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1050] [cursor=pointer]:
+                      - /url: /rooms/1643509251877008600?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1643509251877008600_9&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Суперхозяин
+                          - generic [aria-hidden]: Суперхозяин
+                      - 'button "Добавить в вишлист: Квартира, Хойан" [ref=f12e1053] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=f12e1058] [cursor=pointer]
+                      - 'button "Следующее фото: Квартира, Хойан" [ref=f12e1063] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Фото 1 из 6"
+                - generic [ref=f12e1067]:
+                  - generic [ref=f12e1068]: Квартира, Хойан
+                  - generic [ref=f12e1069]: Апартаменты с 2 спальнями в Дьенбане — Скидка
+                  - generic [ref=f12e1071]:
+                    - generic [ref=f12e1072]:
+                      - generic [ref=f12e1073]: 2 спальни
+                      - generic [aria-hidden] [ref=f12e1074]: 2 спальни
+                    - generic [ref=f12e1075]:
+                      - generic [ref=f12e1076]: ","
+                      - generic [aria-hidden] [ref=f12e1077]: ·
+                      - generic [ref=f12e1078]: 2 кровати
+                      - generic [aria-hidden] [ref=f12e1079]: 2 кровати
+                    - generic [ref=f12e1080]:
+                      - generic [ref=f12e1081]: ","
+                      - generic [aria-hidden] [ref=f12e1082]: ·
+                      - generic [ref=f12e1083]: 1 ванная
+                      - generic [aria-hidden] [ref=f12e1084]: 1 ванная
+                  - generic [ref=f12e1085]:
+                    - generic [ref=f12e1091]:
+                      - generic [ref=f12e1092]:
+                        - generic [ref=f12e1093]: 76 838 RUB
+                        - button "43 557 RUB помесячно, исходная цена 76 838 RUB" [ref=f12e1096] [cursor=pointer]:
+                          - generic [ref=f12e1097]:
+                            - text: 43 557 RUB
+                            - generic [ref=f12e1098]: 43 557 RUB помесячно, исходная цена 76 838 RUB
+                      - generic [ref=f12e1099]: помесячно
+                    - generic [ref=f12e1102]: Месячная скидка
+            - group [ref=f12e1126]:
+              - link "Квартира, Dien Ban Dong" [ref=f12e1127] [cursor=pointer]:
+                - /url: /rooms/1706409878368136354?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1706409878368136354_10&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+              - generic [ref=f12e1128]:
+                - generic [ref=f12e1133]:
+                  - generic [ref=f12e1134]: Фото 1 из 6
+                  - generic [ref=f12e1135]:
+                    - link [aria-hidden] [ref=f12e1136] [cursor=pointer]:
+                      - /url: /rooms/1706409878368136354?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1706409878368136354_10&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1140] [cursor=pointer]:
+                      - /url: /rooms/1706409878368136354?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1706409878368136354_10&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1142] [cursor=pointer]:
+                      - /url: /rooms/1706409878368136354?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1706409878368136354_10&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1144] [cursor=pointer]:
+                      - /url: /rooms/1706409878368136354?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1706409878368136354_10&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1146] [cursor=pointer]:
+                      - /url: /rooms/1706409878368136354?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1706409878368136354_10&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1148] [cursor=pointer]:
+                      - /url: /rooms/1706409878368136354?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1706409878368136354_10&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                  - generic:
+                    - 'button "Добавить в вишлист: Квартира, Dien Ban Dong" [ref=f12e1151] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=f12e1156] [cursor=pointer]
+                      - 'button "Следующее фото: Квартира, Dien Ban Dong" [ref=f12e1161] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Фото 1 из 6"
+                - generic [ref=f12e1165]:
+                  - generic [ref=f12e1166]: Квартира, Dien Ban Dong
+                  - generic [ref=f12e1167]: Royal - Квартира с 2 спальнями и кухней
+                  - generic [ref=f12e1169]:
+                    - generic [ref=f12e1170]:
+                      - generic [ref=f12e1171]: 2 спальни
+                      - generic [aria-hidden] [ref=f12e1172]: 2 спальни
+                    - generic [ref=f12e1173]:
+                      - generic [ref=f12e1174]: ","
+                      - generic [aria-hidden] [ref=f12e1175]: ·
+                      - generic [ref=f12e1176]: 2 кровати
+                      - generic [aria-hidden] [ref=f12e1177]: 2 кровати
+                    - generic [ref=f12e1178]:
+                      - generic [ref=f12e1179]: ","
+                      - generic [aria-hidden] [ref=f12e1180]: ·
+                      - generic [ref=f12e1181]: 1 ванная
+                      - generic [aria-hidden] [ref=f12e1182]: 1 ванная
+                  - generic [ref=f12e1183]:
+                    - generic [ref=f12e1189]:
+                      - generic [ref=f12e1190]:
+                        - generic [ref=f12e1191]: 65 953 RUB
+                        - button "49 849 RUB помесячно, исходная цена 65 953 RUB" [ref=f12e1194] [cursor=pointer]:
+                          - generic [ref=f12e1195]:
+                            - text: 49 849 RUB
+                            - generic [ref=f12e1196]: 49 849 RUB помесячно, исходная цена 65 953 RUB
+                      - generic [ref=f12e1197]: помесячно
+                    - generic [ref=f12e1200]: Месячная скидка
+            - group [ref=f12e1224]:
+              - link "Квартира, Диен Бан" [ref=f12e1225] [cursor=pointer]:
+                - /url: /rooms/1117891311610667302?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1117891311610667302_11&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+              - generic [ref=f12e1226]:
+                - generic [ref=f12e1231]:
+                  - generic [ref=f12e1232]: Фото 1 из 6
+                  - generic [ref=f12e1233]:
+                    - link [aria-hidden] [ref=f12e1234] [cursor=pointer]:
+                      - /url: /rooms/1117891311610667302?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1117891311610667302_11&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1238] [cursor=pointer]:
+                      - /url: /rooms/1117891311610667302?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1117891311610667302_11&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1240] [cursor=pointer]:
+                      - /url: /rooms/1117891311610667302?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1117891311610667302_11&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1242] [cursor=pointer]:
+                      - /url: /rooms/1117891311610667302?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1117891311610667302_11&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1244] [cursor=pointer]:
+                      - /url: /rooms/1117891311610667302?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1117891311610667302_11&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1246] [cursor=pointer]:
+                      - /url: /rooms/1117891311610667302?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1117891311610667302_11&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                  - generic:
+                    - 'button "Добавить в вишлист: Квартира, Диен Бан" [ref=f12e1249] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=f12e1254] [cursor=pointer]
+                      - 'button "Следующее фото: Квартира, Диен Бан" [ref=f12e1259] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Фото 1 из 6"
+                - generic [ref=f12e1263]:
+                  - generic [ref=f12e1264]: Квартира, Диен Бан
+                  - generic [ref=f12e1265]: 05. Квартира с двумя спальнями — Dien Ngoc
+                  - generic [ref=f12e1267]:
+                    - generic [ref=f12e1268]:
+                      - generic [ref=f12e1269]: 2 спальни
+                      - generic [aria-hidden] [ref=f12e1270]: 2 спальни
+                    - generic [ref=f12e1271]:
+                      - generic [ref=f12e1272]: ","
+                      - generic [aria-hidden] [ref=f12e1273]: ·
+                      - generic [ref=f12e1274]: 2 кровати
+                      - generic [aria-hidden] [ref=f12e1275]: 2 кровати
+                    - generic [ref=f12e1276]:
+                      - generic [ref=f12e1277]: ","
+                      - generic [aria-hidden] [ref=f12e1278]: ·
+                      - generic [ref=f12e1279]: 1 ванная
+                      - generic [aria-hidden] [ref=f12e1280]: 1 ванная
+                  - generic [ref=f12e1281]:
+                    - generic [ref=f12e1287]:
+                      - generic [ref=f12e1288]:
+                        - generic [ref=f12e1289]: 63 920 RUB
+                        - button "40 462 RUB помесячно, исходная цена 63 920 RUB" [ref=f12e1292] [cursor=pointer]:
+                          - generic [ref=f12e1293]:
+                            - text: 40 462 RUB
+                            - generic [ref=f12e1294]: 40 462 RUB помесячно, исходная цена 63 920 RUB
+                      - generic [ref=f12e1295]: помесячно
+                    - generic [ref=f12e1298]: Месячная скидка
+            - group [ref=f12e1322]:
+              - link "Квартира, Хойан" [ref=f12e1323] [cursor=pointer]:
+                - /url: /rooms/1541766997455319503?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1541766997455319503_12&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+              - generic [ref=f12e1324]:
+                - generic [ref=f12e1329]:
+                  - generic [ref=f12e1330]: Фото 1 из 6
+                  - generic [ref=f12e1331]:
+                    - link [aria-hidden] [ref=f12e1332] [cursor=pointer]:
+                      - /url: /rooms/1541766997455319503?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1541766997455319503_12&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1336] [cursor=pointer]:
+                      - /url: /rooms/1541766997455319503?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1541766997455319503_12&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1338] [cursor=pointer]:
+                      - /url: /rooms/1541766997455319503?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1541766997455319503_12&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1340] [cursor=pointer]:
+                      - /url: /rooms/1541766997455319503?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1541766997455319503_12&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1342] [cursor=pointer]:
+                      - /url: /rooms/1541766997455319503?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1541766997455319503_12&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1344] [cursor=pointer]:
+                      - /url: /rooms/1541766997455319503?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1541766997455319503_12&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                  - generic:
+                    - 'button "Добавить в вишлист: Квартира, Хойан" [ref=f12e1347] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=f12e1352] [cursor=pointer]
+                      - 'button "Следующее фото: Квартира, Хойан" [ref=f12e1357] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Фото 1 из 6"
+                - generic [ref=f12e1361]:
+                  - generic [ref=f12e1362]: Квартира, Хойан
+                  - generic [ref=f12e1363]: Отдельная квартира с 2 спальнями
+                  - generic [ref=f12e1365]:
+                    - generic [ref=f12e1366]:
+                      - generic [ref=f12e1367]: 2 спальни
+                      - generic [aria-hidden] [ref=f12e1368]: 2 спальни
+                    - generic [ref=f12e1369]:
+                      - generic [ref=f12e1370]: ","
+                      - generic [aria-hidden] [ref=f12e1371]: ·
+                      - generic [ref=f12e1372]: 2 кровати
+                      - generic [aria-hidden] [ref=f12e1373]: 2 кровати
+                    - generic [ref=f12e1374]:
+                      - generic [ref=f12e1375]: ","
+                      - generic [aria-hidden] [ref=f12e1376]: ·
+                      - generic [ref=f12e1377]: 1 ванная
+                      - generic [aria-hidden] [ref=f12e1378]: 1 ванная
+                  - generic [ref=f12e1379]:
+                    - generic [ref=f12e1385]:
+                      - generic [ref=f12e1386]:
+                        - generic [ref=f12e1387]: 55 314 RUB
+                        - button "36 582 RUB помесячно, исходная цена 55 314 RUB" [ref=f12e1390] [cursor=pointer]:
+                          - generic [ref=f12e1391]:
+                            - text: 36 582 RUB
+                            - generic [ref=f12e1392]: 36 582 RUB помесячно, исходная цена 55 314 RUB
+                      - generic [ref=f12e1393]: помесячно
+                    - generic [ref=f12e1396]: Месячная скидка
+            - group [ref=f12e1420]:
+              - link "Квартира, Хойан" [ref=f12e1421] [cursor=pointer]:
+                - /url: /rooms/997511980474797881?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_997511980474797881_13&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+              - generic [ref=f12e1422]:
+                - generic [ref=f12e1427]:
+                  - generic [ref=f12e1428]: Фото 1 из 6
+                  - generic [ref=f12e1429]:
+                    - link [aria-hidden] [ref=f12e1430] [cursor=pointer]:
+                      - /url: /rooms/997511980474797881?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_997511980474797881_13&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1434] [cursor=pointer]:
+                      - /url: /rooms/997511980474797881?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_997511980474797881_13&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1436] [cursor=pointer]:
+                      - /url: /rooms/997511980474797881?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_997511980474797881_13&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1438] [cursor=pointer]:
+                      - /url: /rooms/997511980474797881?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_997511980474797881_13&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1440] [cursor=pointer]:
+                      - /url: /rooms/997511980474797881?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_997511980474797881_13&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1442] [cursor=pointer]:
+                      - /url: /rooms/997511980474797881?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_997511980474797881_13&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                  - generic:
+                    - 'button "Добавить в вишлист: Квартира, Хойан" [ref=f12e1445] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=f12e1450] [cursor=pointer]
+                      - 'button "Следующее фото: Квартира, Хойан" [ref=f12e1455] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Фото 1 из 6"
+                - generic [ref=f12e1459]:
+                  - generic [ref=f12e1460]: Квартира, Хойан
+                  - generic [ref=f12e1461]:
+                    - generic:
+                      - generic: "Средний рейтинг: 4,17 из 5. Отзывов: 6"
+                      - generic [aria-hidden]: 4,17 (6)
+                  - generic [ref=f12e1462]: Прекрасные 2 спальни с бассейном
+                  - generic [ref=f12e1464]:
+                    - generic [ref=f12e1465]:
+                      - generic [ref=f12e1466]: 2 спальни
+                      - generic [aria-hidden] [ref=f12e1467]: 2 спальни
+                    - generic [ref=f12e1468]:
+                      - generic [ref=f12e1469]: ","
+                      - generic [aria-hidden] [ref=f12e1470]: ·
+                      - generic [ref=f12e1471]: 1 кровать
+                      - generic [aria-hidden] [ref=f12e1472]: 1 кровать
+                    - generic [ref=f12e1473]:
+                      - generic [ref=f12e1474]: ","
+                      - generic [aria-hidden] [ref=f12e1475]: ·
+                      - generic [ref=f12e1476]: 2 ванные
+                      - generic [aria-hidden] [ref=f12e1477]: 2 ванные
+                  - generic [ref=f12e1478]:
+                    - generic [ref=f12e1484]:
+                      - generic [ref=f12e1485]:
+                        - generic [ref=f12e1486]: 105 396 RUB
+                        - button "34 852 RUB помесячно, исходная цена 105 396 RUB" [ref=f12e1489] [cursor=pointer]:
+                          - generic [ref=f12e1490]:
+                            - text: 34 852 RUB
+                            - generic [ref=f12e1491]: 34 852 RUB помесячно, исходная цена 105 396 RUB
+                      - generic [ref=f12e1492]: помесячно
+                    - generic [ref=f12e1495]: Месячная скидка
+            - group [ref=f12e1519]:
+              - link "Квартира, Хойан" [ref=f12e1520] [cursor=pointer]:
+                - /url: /rooms/1519393590856915487?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1519393590856915487_14&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+              - generic [ref=f12e1521]:
+                - generic [ref=f12e1526]:
+                  - generic [ref=f12e1527]: Фото 1 из 6
+                  - generic [ref=f12e1528]:
+                    - link [aria-hidden] [ref=f12e1529] [cursor=pointer]:
+                      - /url: /rooms/1519393590856915487?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1519393590856915487_14&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1533] [cursor=pointer]:
+                      - /url: /rooms/1519393590856915487?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1519393590856915487_14&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1535] [cursor=pointer]:
+                      - /url: /rooms/1519393590856915487?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1519393590856915487_14&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1537] [cursor=pointer]:
+                      - /url: /rooms/1519393590856915487?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1519393590856915487_14&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1539] [cursor=pointer]:
+                      - /url: /rooms/1519393590856915487?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1519393590856915487_14&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1541] [cursor=pointer]:
+                      - /url: /rooms/1519393590856915487?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1519393590856915487_14&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                  - generic:
+                    - 'button "Добавить в вишлист: Квартира, Хойан" [ref=f12e1544] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=f12e1549] [cursor=pointer]
+                      - 'button "Следующее фото: Квартира, Хойан" [ref=f12e1554] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Фото 1 из 6"
+                - generic [ref=f12e1558]:
+                  - generic [ref=f12e1559]: Квартира, Хойан
+                  - generic [ref=f12e1560]: Квартира с 2 отдельными спальнями
+                  - generic [ref=f12e1562]:
+                    - generic [ref=f12e1563]:
+                      - generic [ref=f12e1564]: 2 спальни
+                      - generic [aria-hidden] [ref=f12e1565]: 2 спальни
+                    - generic [ref=f12e1566]:
+                      - generic [ref=f12e1567]: ","
+                      - generic [aria-hidden] [ref=f12e1568]: ·
+                      - generic [ref=f12e1569]: 2 кровати
+                      - generic [aria-hidden] [ref=f12e1570]: 2 кровати
+                    - generic [ref=f12e1571]:
+                      - generic [ref=f12e1572]: ","
+                      - generic [aria-hidden] [ref=f12e1573]: ·
+                      - generic [ref=f12e1574]: 1 ванная
+                      - generic [aria-hidden] [ref=f12e1575]: 1 ванная
+                  - generic [ref=f12e1576]:
+                    - generic [ref=f12e1582]:
+                      - generic [ref=f12e1583]:
+                        - generic [ref=f12e1584]: 55 553 RUB
+                        - button "36 740 RUB помесячно, исходная цена 55 553 RUB" [ref=f12e1587] [cursor=pointer]:
+                          - generic [ref=f12e1588]:
+                            - text: 36 740 RUB
+                            - generic [ref=f12e1589]: 36 740 RUB помесячно, исходная цена 55 553 RUB
+                      - generic [ref=f12e1590]: помесячно
+                    - generic [ref=f12e1593]: Месячная скидка
+            - group [ref=f12e1617]:
+              - link "Квартира, Диен Бан" [ref=f12e1618] [cursor=pointer]:
+                - /url: /rooms/1198356791603765394?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1198356791603765394_15&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+              - generic [ref=f12e1619]:
+                - generic [ref=f12e1624]:
+                  - generic [ref=f12e1625]: Фото 1 из 6
+                  - generic [ref=f12e1626]:
+                    - link [aria-hidden] [ref=f12e1627] [cursor=pointer]:
+                      - /url: /rooms/1198356791603765394?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1198356791603765394_15&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1631] [cursor=pointer]:
+                      - /url: /rooms/1198356791603765394?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1198356791603765394_15&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1633] [cursor=pointer]:
+                      - /url: /rooms/1198356791603765394?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1198356791603765394_15&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1635] [cursor=pointer]:
+                      - /url: /rooms/1198356791603765394?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1198356791603765394_15&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1637] [cursor=pointer]:
+                      - /url: /rooms/1198356791603765394?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1198356791603765394_15&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1639] [cursor=pointer]:
+                      - /url: /rooms/1198356791603765394?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1198356791603765394_15&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                  - generic:
+                    - 'button "Добавить в вишлист: Квартира, Диен Бан" [ref=f12e1642] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=f12e1647] [cursor=pointer]
+                      - 'button "Следующее фото: Квартира, Диен Бан" [ref=f12e1652] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Фото 1 из 6"
+                - generic [ref=f12e1656]:
+                  - generic [ref=f12e1657]: Квартира, Диен Бан
+                  - generic [ref=f12e1658]: 02. Квартира в пригороде с 2 спальнями
+                  - generic [ref=f12e1660]:
+                    - generic [ref=f12e1661]:
+                      - generic [ref=f12e1662]: 2 спальни
+                      - generic [aria-hidden] [ref=f12e1663]: 2 спальни
+                    - generic [ref=f12e1664]:
+                      - generic [ref=f12e1665]: ","
+                      - generic [aria-hidden] [ref=f12e1666]: ·
+                      - generic [ref=f12e1667]: 2 кровати
+                      - generic [aria-hidden] [ref=f12e1668]: 2 кровати
+                    - generic [ref=f12e1669]:
+                      - generic [ref=f12e1670]: ","
+                      - generic [aria-hidden] [ref=f12e1671]: ·
+                      - generic [ref=f12e1672]: 1 ванная
+                      - generic [aria-hidden] [ref=f12e1673]: 1 ванная
+                  - generic [ref=f12e1674]:
+                    - generic [ref=f12e1680]:
+                      - generic [ref=f12e1681]:
+                        - generic [ref=f12e1682]: 78 512 RUB
+                        - button "48 957 RUB помесячно, исходная цена 78 512 RUB" [ref=f12e1685] [cursor=pointer]:
+                          - generic [ref=f12e1686]:
+                            - text: 48 957 RUB
+                            - generic [ref=f12e1687]: 48 957 RUB помесячно, исходная цена 78 512 RUB
+                      - generic [ref=f12e1688]: помесячно
+                    - generic [ref=f12e1691]: Месячная скидка
+            - group [ref=f12e1715]:
+              - link "Дом на дереве, Диен Бан" [ref=f12e1716] [cursor=pointer]:
+                - /url: /rooms/1377861143206122774?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1377861143206122774_16&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+              - generic [ref=f12e1717]:
+                - generic [ref=f12e1722]:
+                  - generic [ref=f12e1723]: Фото 1 из 6
+                  - generic [ref=f12e1724]:
+                    - link [aria-hidden] [ref=f12e1725] [cursor=pointer]:
+                      - /url: /rooms/1377861143206122774?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1377861143206122774_16&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1729] [cursor=pointer]:
+                      - /url: /rooms/1377861143206122774?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1377861143206122774_16&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1731] [cursor=pointer]:
+                      - /url: /rooms/1377861143206122774?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1377861143206122774_16&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1733] [cursor=pointer]:
+                      - /url: /rooms/1377861143206122774?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1377861143206122774_16&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1735] [cursor=pointer]:
+                      - /url: /rooms/1377861143206122774?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1377861143206122774_16&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1737] [cursor=pointer]:
+                      - /url: /rooms/1377861143206122774?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1377861143206122774_16&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                  - generic:
+                    - 'button "Добавить в вишлист: Дом на дереве, Диен Бан" [ref=f12e1740] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=f12e1745] [cursor=pointer]
+                      - 'button "Следующее фото: Дом на дереве, Диен Бан" [ref=f12e1750] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Фото 1 из 6"
+                - generic [ref=f12e1754]:
+                  - generic [ref=f12e1755]: Дом на дереве, Диен Бан
+                  - generic [ref=f12e1756]: "Бунгало на дереве: глэмпинг"
+                  - generic [ref=f12e1758]:
+                    - generic [ref=f12e1759]:
+                      - generic [ref=f12e1760]: 20 спален
+                      - generic [aria-hidden] [ref=f12e1761]: 20 спален
+                    - generic [ref=f12e1762]:
+                      - generic [ref=f12e1763]: ","
+                      - generic [aria-hidden] [ref=f12e1764]: ·
+                      - generic [ref=f12e1765]: 20 ванных комнат
+                      - generic [aria-hidden] [ref=f12e1766]: 20 ванных комнат
+                  - generic [ref=f12e1773]:
+                    - generic [ref=f12e1774]:
+                      - generic [ref=f12e1775]: 59 230 RUB
+                      - button "44 767 RUB помесячно, исходная цена 59 230 RUB" [ref=f12e1778] [cursor=pointer]:
+                        - generic [ref=f12e1779]:
+                          - text: 44 767 RUB
+                          - generic [ref=f12e1780]: 44 767 RUB помесячно, исходная цена 59 230 RUB
+                    - generic [ref=f12e1781]: помесячно
+            - group [ref=f12e1806]:
+              - link "Дом, Хойан" [ref=f12e1807] [cursor=pointer]:
+                - /url: /rooms/1134685102080101553?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1134685102080101553_17&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+              - generic [ref=f12e1808]:
+                - generic [ref=f12e1813]:
+                  - generic [ref=f12e1814]: Фото 1 из 6
+                  - generic [ref=f12e1815]:
+                    - link [aria-hidden] [ref=f12e1816] [cursor=pointer]:
+                      - /url: /rooms/1134685102080101553?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1134685102080101553_17&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1820] [cursor=pointer]:
+                      - /url: /rooms/1134685102080101553?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1134685102080101553_17&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1822] [cursor=pointer]:
+                      - /url: /rooms/1134685102080101553?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1134685102080101553_17&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1824] [cursor=pointer]:
+                      - /url: /rooms/1134685102080101553?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1134685102080101553_17&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1826] [cursor=pointer]:
+                      - /url: /rooms/1134685102080101553?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1134685102080101553_17&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                    - link [aria-hidden] [ref=f12e1828] [cursor=pointer]:
+                      - /url: /rooms/1134685102080101553?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a_69b14863-e61d-4231-a8ec-7bc819ec865e_0_1134685102080101553_17&previous_page_section_name=1000&federated_search_id=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a
+                  - generic:
+                    - 'button "Добавить в вишлист: Дом, Хойан" [ref=f12e1831] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=f12e1836] [cursor=pointer]
+                      - 'button "Следующее фото: Дом, Хойан" [ref=f12e1841] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Фото 1 из 6"
+                - generic [ref=f12e1845]:
+                  - generic [ref=f12e1846]: Дом, Хойан
+                  - generic [ref=f12e1847]: Дом у пляжа Анбанг
+                  - generic [ref=f12e1849]:
+                    - generic [ref=f12e1850]:
+                      - generic [ref=f12e1851]: 2 спальни
+                      - generic [aria-hidden] [ref=f12e1852]: 2 спальни
+                    - generic [ref=f12e1853]:
+                      - generic [ref=f12e1854]: ","
+                      - generic [aria-hidden] [ref=f12e1855]: ·
+                      - generic [ref=f12e1856]: 2 кровати
+                      - generic [aria-hidden] [ref=f12e1857]: 2 кровати
+                    - generic [ref=f12e1858]:
+                      - generic [ref=f12e1859]: ","
+                      - generic [aria-hidden] [ref=f12e1860]: ·
+                      - generic [ref=f12e1861]: 2 ванные
+                      - generic [aria-hidden] [ref=f12e1862]: 2 ванные
+                  - generic [ref=f12e1869]:
+                    - generic [ref=f12e1870]:
+                      - generic [ref=f12e1871]: 61 462 RUB
+                      - button "46 454 RUB помесячно, исходная цена 61 462 RUB" [ref=f12e1874] [cursor=pointer]:
+                        - generic [ref=f12e1875]:
+                          - text: 46 454 RUB
+                          - generic [ref=f12e1876]: 46 454 RUB помесячно, исходная цена 61 462 RUB
+                    - generic [ref=f12e1877]: помесячно
+          - navigation "Разбивка результатов поиска на страницы" [ref=f12e1884]:
+            - generic [ref=f12e1886]:
+              - button "Предыдущий" [disabled] [ref=f12e1887]
+              - link "Страница 1, всего 2" [disabled] [ref=f12e1891]:
+                - generic [ref=f12e1892]: "1"
+              - link "Страница 2, последняя" [ref=f12e1893] [cursor=pointer]:
+                - /url: /s/Da-Nang--Vietnam/homes?adults=2&checkin=2026-11-20&checkout=2026-12-20&children=1&ref_fsid=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a&ref_search_session_id=0b642296-5bcc-4afe-b47e-94f31e7efaad&place_id=ChIJEyolkscZQjERBn5yhkvL8B0&refinement_paths%5B%5D=%2Fhomes&flexible_trip_lengths%5B%5D=one_week&monthly_start_date=2026-12-01&monthly_length=3&monthly_end_date=2027-03-01&min_bedrooms=2&room_types%5B%5D=Entire%20home%2Fapt&price_max=50000&price_filter_input_type=1&price_filter_num_nights=30&channel=EXPLORE&selected_filter_order%5B%5D=room_types%3AEntire%20home%2Fapt&selected_filter_order%5B%5D=price_max%3A50000&selected_filter_order%5B%5D=min_bedrooms%3A2&federated_search_session_id=0b642296-5bcc-4afe-b47e-94f31e7efaad&pagination_search=true&cursor=eyJzZWN0aW9uX29mZnNldCI6MCwiaXRlbXNfb2Zmc2V0IjoxOCwidmVyc2lvbiI6MX0%3D
+                - generic [ref=f12e1894]: "2"
+              - link "Далее" [ref=f12e1895] [cursor=pointer]:
+                - /url: /s/Da-Nang--Vietnam/homes?adults=2&checkin=2026-11-20&checkout=2026-12-20&children=1&ref_fsid=9f4cdfed-88c0-4dd8-9c59-aad1621b6b1a&ref_search_session_id=0b642296-5bcc-4afe-b47e-94f31e7efaad&place_id=ChIJEyolkscZQjERBn5yhkvL8B0&refinement_paths%5B%5D=%2Fhomes&flexible_trip_lengths%5B%5D=one_week&monthly_start_date=2026-12-01&monthly_length=3&monthly_end_date=2027-03-01&min_bedrooms=2&room_types%5B%5D=Entire%20home%2Fapt&price_max=50000&price_filter_input_type=1&price_filter_num_nights=30&channel=EXPLORE&selected_filter_order%5B%5D=room_types%3AEntire%20home%2Fapt&selected_filter_order%5B%5D=price_max%3A50000&selected_filter_order%5B%5D=min_bedrooms%3A2&federated_search_session_id=0b642296-5bcc-4afe-b47e-94f31e7efaad&pagination_search=true&cursor=eyJzZWN0aW9uX29mZnNldCI6MCwiaXRlbXNfb2Zmc2V0IjoxOCwidmVyc2lvbiI6MX0%3D
+        - region "Google Map" [ref=f12e1904]:
+          - heading "Google map Показаны 18 вариантов жилья," [level=2] [ref=f12e1906]
+          - button "Настройки" [ref=f12e1907] [cursor=pointer]
+          - generic [ref=f12e1910]:
+            - button "Показать карту на весь экран" [ref=f12e1913] [cursor=pointer]
+            - generic [ref=f12e1923]:
+              - button "Приблизить" [ref=f12e1924] [cursor=pointer]
+              - button "Уменьшить масштаб" [ref=f12e1928] [cursor=pointer]
+          - generic [ref=f12e1931]:
+            - generic "Карта" [ref=f12e1932]
+            - generic [ref=f12e1933]:
+              - generic [ref=f12e1936]:
+                - generic:
+                  - generic:
+                    - generic:
+                      - button "Квартира, Сон Тра, 48 484 RUB":
+                        - generic [ref=f12e1944] [cursor=pointer]:
+                          - generic [ref=f12e1945]: Квартира, Сон Тра, 48 484 RUB
+                          - text: 48 484 RUB
+                      - button "Квартира, Хайчауский район, 49 706 RUB":
+                        - generic [ref=f12e1952] [cursor=pointer]:
+                          - generic [ref=f12e1953]: Квартира, Хайчауский район, 49 706 RUB
+                          - text: 49 706 RUB
+                      - button "Квартира, Сон Тра, 45 001 RUB":
+                        - generic [ref=f12e1960] [cursor=pointer]:
+                          - generic [ref=f12e1961]: Квартира, Сон Тра, 45 001 RUB
+                          - text: 45 001 RUB
+                      - button "Квартира, Dien Ban Dong, 38 699 RUB":
+                        - generic [ref=f12e1968] [cursor=pointer]:
+                          - generic [ref=f12e1969]: Квартира, Dien Ban Dong, 38 699 RUB
+                          - text: 38 699 RUB
+                      - button "Квартира, Dien Ban Dong, 35 118 RUB":
+                        - generic [ref=f12e1976] [cursor=pointer]:
+                          - generic [ref=f12e1977]: Квартира, Dien Ban Dong, 35 118 RUB
+                          - text: 35 118 RUB
+                      - button "Квартира, Điện Bàn Đông, 33 988 RUB":
+                        - generic [ref=f12e1984] [cursor=pointer]:
+                          - generic [ref=f12e1985]: Квартира, Điện Bàn Đông, 33 988 RUB
+                          - text: 33 988 RUB
+                      - button "Квартира, Хойан, 43 418 RUB":
+                        - generic [ref=f12e1992] [cursor=pointer]:
+                          - generic [ref=f12e1993]: Квартира, Хойан, 43 418 RUB
+                          - text: 43 418 RUB
+                      - button "Квартира, Hai Van, 44 161 RUB":
+                        - generic [ref=f12e2000] [cursor=pointer]:
+                          - generic [ref=f12e2001]: Квартира, Hai Van, 44 161 RUB
+                          - text: 44 161 RUB
+                      - button "Квартира, Хойан, 42 589 RUB":
+                        - generic [ref=f12e2008] [cursor=pointer]:
+                          - generic [ref=f12e2009]: Квартира, Хойан, 42 589 RUB
+                          - text: 42 589 RUB
+                      - button "Квартира, Хойан, 43 557 RUB":
+                        - generic [ref=f12e2016] [cursor=pointer]:
+                          - generic [ref=f12e2017]: Квартира, Хойан, 43 557 RUB
+                          - text: 43 557 RUB
+                      - button "Квартира, Dien Ban Dong, 49 849 RUB":
+                        - generic [ref=f12e2024] [cursor=pointer]:
+                          - generic [ref=f12e2025]: Квартира, Dien Ban Dong, 49 849 RUB
+                          - text: 49 849 RUB
+                      - button "Квартира, Диен Бан, 40 462 RUB":
+                        - generic [ref=f12e2032] [cursor=pointer]:
+                          - generic [ref=f12e2033]: Квартира, Диен Бан, 40 462 RUB
+                          - text: 40 462 RUB
+                      - button "Квартира, Хойан, 36 582 RUB":
+                        - generic [ref=f12e2040] [cursor=pointer]:
+                          - generic [ref=f12e2041]: Квартира, Хойан, 36 582 RUB
+                          - text: 36 582 RUB
+                      - button "Квартира, Хойан, 34 852 RUB":
+                        - generic [ref=f12e2048] [cursor=pointer]:
+                          - generic [ref=f12e2049]: Квартира, Хойан, 34 852 RUB
+                          - text: 34 852 RUB
+                      - button "Квартира, Хойан, 36 740 RUB":
+                        - generic [ref=f12e2056] [cursor=pointer]:
+                          - generic [ref=f12e2057]: Квартира, Хойан, 36 740 RUB
+                          - text: 36 740 RUB
+                      - button "Квартира, Диен Бан, 48 957 RUB":
+                        - generic [ref=f12e2064] [cursor=pointer]:
+                          - generic [ref=f12e2065]: Квартира, Диен Бан, 48 957 RUB
+                          - text: 48 957 RUB
+                      - button "Дом на дереве, Диен Бан, 44 767 RUB":
+                        - generic [ref=f12e2072] [cursor=pointer]:
+                          - generic [ref=f12e2073]: Дом на дереве, Диен Бан, 44 767 RUB
+                          - text: 44 767 RUB
+                      - button "Дом, Хойан, 46 454 RUB":
+                        - generic [ref=f12e2080] [cursor=pointer]:
+                          - generic [ref=f12e2081]: Дом, Хойан, 46 454 RUB
+                          - text: 46 454 RUB
+                      - button "Дананг":
+                        - generic "Дананг" [ref=f12e2083] [cursor=pointer]
+                      - button:
+                        - generic [ref=f12e2094] [cursor=pointer]
+              - iframe [aria-hidden] [ref=f12e2098]
+      - contentinfo [ref=f12e2104]:
+        - generic [ref=f12e2105]:
+          - heading "Нижний колонтитул" [level=2] [ref=f12e2107]
+          - generic [ref=f12e2108]:
+            - generic [ref=f12e2109]:
+              - heading "Поддержка" [level=3] [ref=f12e2110]
+              - list [ref=f12e2111]:
+                - listitem [ref=f12e2112]:
+                  - link "Центр помощи" [ref=f12e2113] [cursor=pointer]:
+                    - /url: /help/home?from=footer
+                - listitem [ref=f12e2114]:
+                  - 'link "Помощь: проблема с безопасностью" [ref=f12e2115] [cursor=pointer]':
+                    - /url: /help/contact-us?entry=DESKTOP_FOOTER_SAFETY
+                - listitem [ref=f12e2116]:
+                  - link "AirCover" [ref=f12e2117] [cursor=pointer]:
+                    - /url: /help/article/3218
+                - listitem [ref=f12e2118]:
+                  - link "Страховка путешественника" [ref=f12e2119] [cursor=pointer]:
+                    - /url: /travelinsurance
+                - listitem [ref=f12e2120]:
+                  - link "Борьба с дискриминацией" [ref=f12e2121] [cursor=pointer]:
+                    - /url: /against-discrimination
+                - listitem [ref=f12e2122]:
+                  - link "Помощь людям с инвалидностью" [ref=f12e2123] [cursor=pointer]:
+                    - /url: /accessibility
+                - listitem [ref=f12e2124]:
+                  - link "Отмена в период пандемии" [ref=f12e2125] [cursor=pointer]:
+                    - /url: /help/article/2701/extenuating-circumstances-policy-and-the-coronavirus-covid19
+                - listitem [ref=f12e2126]:
+                  - link "Сообщить о проблеме в районе" [ref=f12e2127] [cursor=pointer]:
+                    - /url: /neighbors
+            - generic [ref=f12e2128]:
+              - heading "Прием гостей" [level=3] [ref=f12e2129]
+              - list [ref=f12e2130]:
+                - listitem [ref=f12e2131]:
+                  - link "Сдайте жилье на Airbnb" [ref=f12e2132] [cursor=pointer]:
+                    - /url: /host/homes?from_footer=1
+                - listitem [ref=f12e2133]:
+                  - link "Ваша гостиница на Airbnb" [ref=f12e2134] [cursor=pointer]:
+                    - /url: /e/host-hotels
+                - listitem [ref=f12e2135]:
+                  - link "Опубликуйте Впечатление на Airbnb" [ref=f12e2136] [cursor=pointer]:
+                    - /url: /host/experiences
+                - listitem [ref=f12e2137]:
+                  - link "Предложите услугу на Airbnb" [ref=f12e2138] [cursor=pointer]:
+                    - /url: /host/services
+                - listitem [ref=f12e2139]:
+                  - link "AirCover для хозяев" [ref=f12e2140] [cursor=pointer]:
+                    - /url: /aircover-for-hosts
+                - listitem [ref=f12e2141]:
+                  - link "Защита дохода" [ref=f12e2142] [cursor=pointer]:
+                    - /url: /earnings-protection-insurance
+                - listitem [ref=f12e2143]:
+                  - link "Материалы для хозяев" [ref=f12e2144] [cursor=pointer]:
+                    - /url: /resources
+                - listitem [ref=f12e2145]:
+                  - link "Форум сообщества" [ref=f12e2146] [cursor=pointer]:
+                    - /url: https://community.withairbnb.com/t5/Community-Center/ct-p/community-center
+                - listitem [ref=f12e2147]:
+                  - link "Ответственный прием гостей" [ref=f12e2148] [cursor=pointer]:
+                    - /url: /help/responsible-hosting
+                - listitem [ref=f12e2149]:
+                  - link "Бесплатный урок для хозяев" [ref=f12e2150] [cursor=pointer]:
+                    - /url: /e/intro-to-hosting
+                - listitem [ref=f12e2151]:
+                  - link "Найти второго хозяина" [ref=f12e2152] [cursor=pointer]:
+                    - /url: /host/co-hosts
+                - listitem [ref=f12e2153]:
+                  - link "Порекомендовать хозяина" [ref=f12e2154] [cursor=pointer]:
+                    - /url: /refer
+            - generic [ref=f12e2155]:
+              - heading "Airbnb" [level=3] [ref=f12e2156]
+              - list [ref=f12e2157]:
+                - listitem [ref=f12e2158]:
+                  - link "Летний выпуск — 2026" [ref=f12e2159] [cursor=pointer]:
+                    - /url: /release
+                - listitem [ref=f12e2160]:
+                  - link "Пресс-центр" [ref=f12e2161] [cursor=pointer]:
+                    - /url: /press/news
+                - listitem [ref=f12e2162]:
+                  - link "Карьера в Airbnb" [ref=f12e2163] [cursor=pointer]:
+                    - /url: /careers
+                - listitem [ref=f12e2164]:
+                  - link "Для инвесторов" [ref=f12e2165] [cursor=pointer]:
+                    - /url: https://investors.airbnb.com
+                - listitem [ref=f12e2166]:
+                  - link "Подарочные карты" [ref=f12e2167] [cursor=pointer]:
+                    - /url: /giftcards
+                - listitem [ref=f12e2168]:
+                  - link "Прием гостей на Airbnb.org" [ref=f12e2169] [cursor=pointer]:
+                    - /url: https://www.airbnb.org?locale=ru
+          - generic [ref=f12e2170]:
+            - generic [ref=f12e2171]: Раздел нижнего колонтитула
+            - generic [ref=f12e2173]:
+              - generic [ref=f12e2175]:
+                - generic [ref=f12e2176]: © 2026 Airbnb, Inc.
+                - generic [ref=f12e2177]:
+                  - generic [aria-hidden] [ref=f12e2179]: ·
+                  - list [ref=f12e2181]:
+                    - listitem [ref=f12e2182]:
+                      - link "Конфиденциальность" [ref=f12e2183] [cursor=pointer]:
+                        - /url: /terms/privacy_policy
+                      - generic [ref=f12e2184]:
+                        - generic [aria-hidden]:
+                          - generic [aria-hidden]: ·
+                    - listitem [ref=f12e2185]:
+                      - link "Условия" [ref=f12e2186] [cursor=pointer]:
+                        - /url: /terms
+              - generic [ref=f12e2187]:
+                - generic [ref=f12e2189]:
+                  - button "Выбрать язык" [ref=f12e2191] [cursor=pointer]:
+                    - generic [ref=f12e2192]: Русский
+                  - button "Выбрать валюту" [ref=f12e2194] [cursor=pointer]:
+                    - generic [ref=f12e2196]:
+                      - generic [ref=f12e2197]: ₽
+                      - generic [ref=f12e2198]: RUB
+                - list [ref=f12e2200]:
+                  - listitem [ref=f12e2201]:
+                    - link "Открыть Facebook" [ref=f12e2202] [cursor=pointer]:
+                      - /url: https://www.facebook.com/airbnb
+                  - listitem [ref=f12e2206]:
+                    - link "Открыть «ВКонтакте»" [ref=f12e2207] [cursor=pointer]:
+                      - /url: https://vk.com/airbnb
+                  - listitem [ref=f12e2212]:
+                    - link "Открыть Twitter" [ref=f12e2213] [cursor=pointer]:
+                      - /url: https://twitter.com/airbnb
+                  - listitem [ref=f12e2217]:
+                    - link "Открыть Instagram" [ref=f12e2218] [cursor=pointer]:
+                      - /url: https://instagram.com/airbnb
+    - generic [ref=f12e2222]: Загрузка

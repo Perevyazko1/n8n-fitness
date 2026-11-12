@@ -1,0 +1,281 @@
+- generic [ref=f20e3]:
+  - link "Перейти к основному содержанию" [ref=f20e5] [cursor=pointer]:
+    - /url: "#main"
+  - generic [ref=f20e7]:
+    - banner [ref=f20e22]:
+      - generic [ref=f20e23]:
+        - navigation [ref=f20e24]:
+          - link "Booking.com" [ref=f20e28] [cursor=pointer]:
+            - /url: https://www.booking.com/index.ru.html
+          - generic [ref=f20e31]:
+            - button "Цены в Российский рубль RUB" [ref=f20e33] [cursor=pointer]:
+              - generic [ref=f20e34]: RUB
+            - 'button "Язык: Русский" [ref=f20e36] [cursor=pointer]'
+            - link "Поддержка клиентов" [ref=f20e41] [cursor=pointer]:
+              - /url: https://secure.booking.com/help.ru.html?source=header&src=profile_contact_cs
+            - link "Зарегистрировать свой объект" [ref=f20e46] [cursor=pointer]:
+              - /url: https://join.booking.com/?utm_source=topbar
+            - link "Регистрация аккаунта" [ref=f20e48] [cursor=pointer]:
+              - /url: https://account.booking.com/auth/oauth2?client_id=vO1Kblk7xX9tUn2cpZLS&redirect_uri=https%3A%2F%2Fsecure.booking.com%2Flogin.html%3Fop%3Doauth_return&response_type=code&lang=ru&aid=304142&bkng_action=searchresults_irene&prompt=signin&state=UrYCZ5MOtLNXfUT7cYIlmi38j_Pph_WhuqAEmTxQRwWVlmxtL_pFx-Uda6hODvL3UB3IyQqXlVRBTgp6_U70Sk6XFCLKtHk6yvT8HkM_8WcjAisCQ51rWuo8h0uhChesU3550ZWXRNizm6O9b8RKEKR-19YRS30kI4p0akNcNn0my00dRLCZwlBG3Rmx94h1XAMU5JR1-D1v1QJDNNhz3QHo9I8cAAmqimiGUIUSFXPv759lY3AaA0fqxJIynlMqRJhAcOAOJXgDWSBi6aYcKlI_3gjUrwL75qtqRAXrcyNx8NY8BSkggvbo1Znj-MF93rdhNi1YHP6Hw7QjTeuYEjn_V1hI2TKiPMhgrDHnj4kUAhC7CMA83pnrehbrtGoPhQuYZseDo_ilSptxZ3u_a1xuklYcQmAI5A%3D%3D*eyJpZCI6InRyYXZlbGxlcl9oZWFkZXIifQ%3D%3D
+              - generic [ref=f20e49]: Зарегистрироваться
+            - link "Войти в аккаунт" [ref=f20e51] [cursor=pointer]:
+              - /url: https://account.booking.com/auth/oauth2?client_id=vO1Kblk7xX9tUn2cpZLS&redirect_uri=https%3A%2F%2Fsecure.booking.com%2Flogin.html%3Fop%3Doauth_return&response_type=code&lang=ru&aid=304142&bkng_action=searchresults_irene&prompt=signin&state=UrYCZ5MOtLNXfUT7cYIlmi38j_Pph_WhuqAEmTxQRwWVlmxtL_pFx-Uda6hODvL3UB3IyQqXlVRBTgp6_U70Sk6XFCLKtHk6yvT8HkM_8WcjAisCQ51rWuo8h0uhChesU3550ZWXRNizm6O9b8RKEKR-19YRS30kI4p0akNcNn0my00dRLCZwlBG3Rmx94h1XAMU5JR1-D1v1QJDNNhz3QHo9I8cAAmqimiGUIUSFXPv759lY3AaA0fqxJIynlMqRJhAcOAOJXgDWSBi6aYcKlI_3gjUrwL75qtqRAXrcyNx8NY8BSkggvbo1Znj-MF93rdhNi1YHP6Hw7QjTeuYEjn_V1hI2TKiPMhgrDHnj4kUAhC7CMA83pnrehbrtGoPhQuYZseDo_ilSptxZ3u_a1xuklYcQmAI5A%3D%3D*eyJpZCI6InRyYXZlbGxlcl9oZWFkZXIifQ%3D%3D
+        - navigation "Что вы ищете?" [ref=f20e53]:
+          - menubar [ref=f20e55]:
+            - menuitem "Жилье" [ref=f20e56] [cursor=pointer]
+            - menuitem "Авиабилеты" [ref=f20e62] [cursor=pointer]
+            - menuitem "Авиабилеты + отели" [ref=f20e68] [cursor=pointer]
+            - menuitem "Аренда автомобилей" [ref=f20e74] [cursor=pointer]
+            - menuitem "Досуг" [ref=f20e80] [cursor=pointer]
+            - menuitem "Трансфер от/до аэропорта" [ref=f20e86] [cursor=pointer]
+    - main [ref=f20e95]:
+      - generic [ref=f20e107]:
+        - region "Найти варианты размещения" [ref=f20e110]:
+          - generic [ref=f20e111]:
+            - generic [ref=f20e115]:
+              - generic [ref=f20e120]:
+                - generic [ref=f20e121]: Куда поедете?
+                - combobox "Куда поедете?" [ref=f20e125]: Da Nang, Da Nang Municipality, Vietnam
+              - button [ref=f20e398] [cursor=pointer]:
+                - img "Очистить" [ref=f20e399]
+            - button "Выбрать даты пт, 20 нояб. — сб, 19 дек." [ref=f20e765] [cursor=pointer]:
+              - generic [ref=f20e133]:
+                - generic [ref=f20e134]: Выбрать даты
+                - generic [ref=f20e135]: пт, 20 нояб. — сб, 19 дек.
+            - generic [ref=f20e141] [cursor=pointer]:
+              - generic [ref=f20e142]: Выберите количество номеров и гостей
+              - generic [ref=f20e143]:
+                - 'button "Число путешественников и номеров. Сейчас выбрано: 2 взрослых · 0 детей · 1 номер" [expanded] [active] [ref=f20e144]':
+                  - generic [ref=f20e145]: 2 взрослых · 0 детей · 1 номер
+                - generic [ref=f20e766]:
+                  - generic [ref=f20e767]:
+                    - generic [ref=f20e768]:
+                      - generic [ref=f20e769]: Взрослых
+                      - generic [ref=f20e770]:
+                        - slider "Взрослых": "2"
+                        - button [aria-hidden] [ref=f20e771]
+                        - generic [aria-hidden] [ref=f20e776]: "2"
+                        - button [aria-hidden] [ref=f20e777]
+                    - generic [ref=f20e782]:
+                      - generic [ref=f20e783]: Детей
+                      - generic [ref=f20e784]:
+                        - slider "Детей": "0"
+                        - button [disabled] [aria-hidden] [ref=f20e785]
+                        - generic [aria-hidden] [ref=f20e790]: "0"
+                        - button [aria-hidden] [ref=f20e791]
+                    - status
+                    - generic [ref=f20e796]:
+                      - generic [ref=f20e797]: Номера
+                      - generic [ref=f20e798]:
+                        - slider "Номера": "1"
+                        - button [disabled] [aria-hidden] [ref=f20e799]
+                        - generic [aria-hidden] [ref=f20e804]: "1"
+                        - button [aria-hidden] [ref=f20e805]
+                    - generic [ref=f20e810]:
+                      - switch "Вы путешествуете с животными?" [ref=f20e811]
+                      - generic [ref=f20e812]: Вы путешествуете с животными?
+                    - generic [ref=f20e816]:
+                      - text: Животные-помощники не считаются.
+                      - button "Подробнее о путешествиях с животными-помощниками" [ref=f20e817]
+                  - button "Готово" [ref=f20e818]
+            - button "Найти" [ref=f20e151] [cursor=pointer]
+        - generic [ref=f20e154]:
+          - button "Показать на карте" [ref=f20e163] [cursor=pointer]
+          - generic [ref=f20e170]:
+            - heading "В этом месте и недалеко от него есть 0 вариантов размещения" [level=1] [ref=f20e171]
+            - radiogroup "Перейти" [ref=f20e172]:
+              - generic [ref=f20e173]:
+                - radio "Список" [checked] [ref=f20e174]
+                - generic [ref=f20e175] [cursor=pointer]: Список
+                - radio "Таблица" [ref=f20e176]
+                - generic [ref=f20e177] [cursor=pointer]: Таблица
+    - contentinfo [ref=f20e191]:
+      - navigation "Полезные ссылки" [ref=f20e194]:
+        - list [ref=f20e195]:
+          - listitem [ref=f20e196]:
+            - link "Страны" [ref=f20e197] [cursor=pointer]:
+              - /url: https://www.booking.com/country.ru.html
+            - text: .
+          - listitem [ref=f20e200]:
+            - link "Регионы" [ref=f20e201] [cursor=pointer]:
+              - /url: https://www.booking.com/region.ru.html
+            - text: .
+          - listitem [ref=f20e204]:
+            - link "Города" [ref=f20e205] [cursor=pointer]:
+              - /url: https://www.booking.com/city.ru.html
+            - text: .
+          - listitem [ref=f20e208]:
+            - link "Районы" [ref=f20e209] [cursor=pointer]:
+              - /url: https://www.booking.com/district.ru.html
+            - text: .
+          - listitem [ref=f20e212]:
+            - link "Аэропорты" [ref=f20e213] [cursor=pointer]:
+              - /url: https://www.booking.com/airport.ru.html
+            - text: .
+          - listitem [ref=f20e216]:
+            - link "Отели" [ref=f20e217] [cursor=pointer]:
+              - /url: https://www.booking.com/hotel/index.ru.html
+            - text: .
+          - listitem [ref=f20e220]:
+            - link "Ориентиры" [ref=f20e221] [cursor=pointer]:
+              - /url: https://www.booking.com/landmark.ru.html
+            - text: .
+          - listitem [ref=f20e224]:
+            - link "Дома для отпуска" [ref=f20e225] [cursor=pointer]:
+              - /url: https://www.booking.com/booking-home/index.ru.html
+            - text: .
+          - listitem [ref=f20e228]:
+            - link "Апартаменты/квартиры" [ref=f20e229] [cursor=pointer]:
+              - /url: https://www.booking.com/apartments/index.ru.html
+            - text: .
+          - listitem [ref=f20e232]:
+            - link "Курортные отели" [ref=f20e233] [cursor=pointer]:
+              - /url: https://www.booking.com/resorts/index.ru.html
+            - text: .
+          - listitem [ref=f20e236]:
+            - link "Виллы" [ref=f20e237] [cursor=pointer]:
+              - /url: https://www.booking.com/villas/index.ru.html
+            - text: .
+          - listitem [ref=f20e240]:
+            - link "Хостелы" [ref=f20e241] [cursor=pointer]:
+              - /url: https://www.booking.com/hostels/index.ru.html
+            - text: .
+          - listitem [ref=f20e244]:
+            - link "Отели типа «постель и завтрак»" [ref=f20e245] [cursor=pointer]:
+              - /url: https://www.booking.com/bed-and-breakfast/index.ru.html
+            - text: .
+          - listitem [ref=f20e248]:
+            - link "Гостевые дома" [ref=f20e249] [cursor=pointer]:
+              - /url: https://www.booking.com/guest-house/index.ru.html
+            - text: .
+          - listitem [ref=f20e252]:
+            - link "Уникальное жилье" [ref=f20e253] [cursor=pointer]:
+              - /url: https://www.booking.com/accommodations.ru.html
+            - text: .
+          - listitem [ref=f20e256]:
+            - link "Жилье на месяц" [ref=f20e257] [cursor=pointer]:
+              - /url: https://www.booking.com/extended-stays/index.ru.html
+      - generic [ref=f20e261]:
+        - generic [ref=f20e262]:
+          - heading "Помощь" [level=3] [ref=f20e264]
+          - list [ref=f20e265]:
+            - listitem [ref=f20e266]:
+              - link "Управлять поездками" [ref=f20e267] [cursor=pointer]:
+                - /url: https://secure.booking.com/content/cs.ru.html
+            - listitem [ref=f20e269]:
+              - link "Связаться с нами" [ref=f20e270] [cursor=pointer]:
+                - /url: https://secure.booking.com/help.ru.html
+            - listitem [ref=f20e272]:
+              - link "Центр знаний по безопасности" [ref=f20e273] [cursor=pointer]:
+                - /url: https://www.booking.com/trust_and_safety.ru.html
+        - generic [ref=f20e275]:
+          - heading "Разное" [level=3] [ref=f20e277]
+          - list [ref=f20e278]:
+            - listitem [ref=f20e279]:
+              - link "Программа лояльности Genius" [ref=f20e280] [cursor=pointer]:
+                - /url: https://www.booking.com/genius.ru.html
+            - listitem [ref=f20e282]:
+              - link "Сезонные и праздничные спецпредложения" [ref=f20e283] [cursor=pointer]:
+                - /url: https://www.booking.com/deals/index.ru.html
+            - listitem [ref=f20e285]:
+              - link "Статьи о путешествиях" [ref=f20e286] [cursor=pointer]:
+                - /url: https://www.booking.com/articles.ru.html
+            - listitem [ref=f20e288]:
+              - link "Booking.com для бизнеса" [ref=f20e289] [cursor=pointer]:
+                - /url: https://business.booking.com/
+            - listitem [ref=f20e291]:
+              - link "Traveller Review Awards" [ref=f20e292] [cursor=pointer]:
+                - /url: https://www.booking.com/traveller-awards/index.ru.html
+            - listitem [ref=f20e294]:
+              - link "Прокат автомобилей" [ref=f20e295] [cursor=pointer]:
+                - /url: https://www.booking.com/cars/index.ru.html
+            - listitem [ref=f20e297]:
+              - link "Поиск авиабилетов" [ref=f20e298] [cursor=pointer]:
+                - /url: https://booking.com/flights/index.ru.html
+            - listitem [ref=f20e300]:
+              - link "Заказ столиков в ресторанах" [ref=f20e301] [cursor=pointer]:
+                - /url: https://www.opentable.com/
+            - listitem [ref=f20e303]:
+              - link "Booking.com для турагентов" [ref=f20e304] [cursor=pointer]:
+                - /url: https://www.booking.com/affiliate-program/v2/index.ru.html
+        - generic [ref=f20e306]:
+          - heading "Правила и настройки" [level=3] [ref=f20e308]
+          - list [ref=f20e309]:
+            - listitem [ref=f20e310]:
+              - link "Изменить настройки cookie-файлов" [ref=f20e311] [cursor=pointer]:
+                - /url: https://www.booking.com/content/privacy.ru.html
+            - listitem [ref=f20e313]:
+              - link "Положение о конфиденциальности" [ref=f20e314] [cursor=pointer]:
+                - /url: https://www.booking.com/content/privacy.ru.html
+            - listitem [ref=f20e316]:
+              - link "Условия предоставления услуг" [ref=f20e317] [cursor=pointer]:
+                - /url: https://www.booking.com/content/terms.ru.html
+            - listitem [ref=f20e319]:
+              - link "Заявление о доступности" [ref=f20e320] [cursor=pointer]:
+                - /url: https://www.booking.com/content/accessibility_statement.ru.html
+            - listitem [ref=f20e322]:
+              - link "Разрешение споров" [ref=f20e323] [cursor=pointer]:
+                - /url: https://secure.booking.com/content/complaints.ru.html
+            - listitem [ref=f20e325]:
+              - link "Противодействие современному рабству" [ref=f20e326] [cursor=pointer]:
+                - /url: https://www.bookingholdings.com/modern-slavery-statement/
+            - listitem [ref=f20e328]:
+              - link "Политика в области прав человека" [ref=f20e329] [cursor=pointer]:
+                - /url: https://www.bookingholdings.com/about/compliance-and-ethics/human-rights/
+        - generic [ref=f20e331]:
+          - heading "Партнерам" [level=3] [ref=f20e333]
+          - list [ref=f20e334]:
+            - listitem [ref=f20e335]:
+              - link "Войти в Экстранет" [ref=f20e336] [cursor=pointer]:
+                - /url: https://admin.booking.com/
+            - listitem [ref=f20e338]:
+              - link "Центр помощи партнерам" [ref=f20e339] [cursor=pointer]:
+                - /url: https://partner.booking.com/ru
+            - listitem [ref=f20e341]:
+              - link "Зарегистрировать свой объект" [ref=f20e342] [cursor=pointer]:
+                - /url: https://join.booking.com/
+            - listitem [ref=f20e344]:
+              - link "Программа для аффилиатов" [ref=f20e345] [cursor=pointer]:
+                - /url: https://www.booking.com/affiliate-program/v2/index.ru.html
+        - generic [ref=f20e347]:
+          - heading "Компания" [level=3] [ref=f20e349]
+          - list [ref=f20e350]:
+            - listitem [ref=f20e351]:
+              - link "О Booking.com" [ref=f20e352] [cursor=pointer]:
+                - /url: https://www.booking.com/content/about.ru.html
+            - listitem [ref=f20e354]:
+              - link "Как мы работаем" [ref=f20e355] [cursor=pointer]:
+                - /url: https://www.booking.com/content/how_we_work.ru.html
+            - listitem [ref=f20e357]:
+              - link "Устойчивое развитие" [ref=f20e358] [cursor=pointer]:
+                - /url: https://sustainability.booking.com/
+            - listitem [ref=f20e360]:
+              - link "Пресс-центр" [ref=f20e361] [cursor=pointer]:
+                - /url: https://news.booking.com/
+            - listitem [ref=f20e363]:
+              - link "Вакансии" [ref=f20e364] [cursor=pointer]:
+                - /url: https://careers.booking.com/
+            - listitem [ref=f20e366]:
+              - link "Для инвесторов" [ref=f20e367] [cursor=pointer]:
+                - /url: https://www.bookingholdings.com/
+            - listitem [ref=f20e369]:
+              - link "Корпоративные контакты" [ref=f20e370] [cursor=pointer]:
+                - /url: https://www.booking.com/content/contact-us.ru.html
+            - listitem [ref=f20e372]:
+              - link "Требования к контенту и подача жалоб" [ref=f20e373] [cursor=pointer]:
+                - /url: https://www.booking.com/content-moderation-policy/overview-page.ru.html
+      - generic [ref=f20e376]:
+        - generic [ref=f20e377]:
+          - 'button "Язык: Русский" [ref=f20e379] [cursor=pointer]'
+          - button "Цены в Российский рубль RUB" [ref=f20e384] [cursor=pointer]:
+            - generic [ref=f20e385]: RUB
+        - separator [aria-hidden] [ref=f20e386]
+        - generic [ref=f20e387]:
+          - generic [ref=f20e388]: Booking.com — часть Booking Holdings Inc., мирового лидера в сфере онлайн-туризма и сопутствующих услуг.
+          - generic [ref=f20e390]: Copyright © 1996–2026 Booking.com™. Все права защищены.
+        - generic [ref=f20e391]:
+          - img "Booking.com" [ref=f20e392]
+          - img "Priceline.com" [ref=f20e393]
+          - img "Kayak" [ref=f20e394]
+          - img "Agoda" [ref=f20e395]
+          - img "OpenTable" [ref=f20e396]

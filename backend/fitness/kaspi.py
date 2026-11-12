@@ -95,10 +95,12 @@ def _spend(amount):
 # ---------- чтение ----------
 def _cards():
     with connection.cursor() as cur:
-        cur.execute("""SELECT DISTINCT e.card, c.label
+        # порядок — по первой трате карты: от него зависит запасной цвет на странице
+        cur.execute("""SELECT e.card, c.label, c.color
                          FROM kaspi_expenses e LEFT JOIN kaspi_cards c ON c.card = e.card
-                        WHERE e.card IS NOT NULL ORDER BY e.card""")
-        return [{"card": card, "label": f"{label or 'Карта'} *{card}"} for card, label in cur.fetchall()]
+                        WHERE e.card IS NOT NULL GROUP BY e.card, c.label, c.color ORDER BY min(e.id)""")
+        return [{"card": card, "name": label or "Карта", "label": f"{label or 'Карта'} *{card}", "color": color}
+                for card, label, color in cur.fetchall()]
 
 
 def budget_status(today=None):
@@ -126,11 +128,15 @@ def budget_status(today=None):
         out = {"today": today.isoformat(), "today_spent_rub": round(today_spent, 2), "active": None}
         if row:
             bid, start, end, limit = row
-            cur.execute(f"""SELECT e.op_date, sum(e.amount_rub) {_FROM}
+            cur.execute(f"""SELECT e.op_date,
+                                   sum(e.amount_rub) FILTER (WHERE NOT COALESCE(e.exclude_budget, r.exclude_budget, false)),
+                                   sum(e.amount_rub) FILTER (WHERE COALESCE(e.exclude_budget, r.exclude_budget, false))
+                              {_FROM}
                              WHERE e.kind = ANY(%s) AND e.op_date BETWEEN %s AND %s
-                               AND NOT COALESCE(e.exclude_budget, r.exclude_budget, false)
                              GROUP BY e.op_date""", [SPEND_KINDS, start, end])
-            by_day = {d: _spend(s) or 0.0 for d, s in cur.fetchall()}
+            rows_ = cur.fetchall()
+            by_day = {d: _spend(s) or 0.0 for d, s, _ in rows_}
+            excluded = sum(_spend(x) or 0.0 for _, _, x in rows_)
             spent = sum(by_day.values())
             ended = today > end
             days_left = 0 if ended else (end - max(today, start)).days + 1
@@ -138,6 +144,7 @@ def budget_status(today=None):
             out["active"] = {
                 "id": bid, "start": start.isoformat(), "end": end.isoformat(),
                 "limit_rub": float(limit), "spent_rub": round(spent, 2), "left_rub": round(left, 2),
+                "excluded_rub": round(excluded, 2),
                 "days_left": days_left, "per_day_rub": round(left / days_left, 2) if days_left and left > 0 else 0,
                 "ended": ended, "upcoming": upcoming,
                 "days": [{"date": (start + timedelta(days=i)).isoformat(),
@@ -158,7 +165,8 @@ def budget_status(today=None):
     return out
 
 
-def summary(period, start=None, end=None, card=None, category=None):
+def summary(period, start=None, end=None, card=None, category=None, only_excluded=False):
+    """only_excluded — только траты «вне лимита» (переход из виджета лимита)."""
     p_start, p_end = period_range(period, start=start, end=end)
     if category and category not in CATEGORIES:
         raise KaspiError("bad_category")
@@ -170,10 +178,11 @@ def summary(period, start=None, end=None, card=None, category=None):
         cur.execute(f"""SELECT e.id, e.card, e.op_date, e.kind, e.merchant, e.merchant_norm,
                                e.amount_kzt, e.amount_rub, e.orig_amount, e.orig_currency,
                                kaspi_merchant_key(e.merchant, e.merchant_norm) AS mkey,
+                               NULLIF(r.name_ru, '') AS name_ru,
                                {_RESOLVED}
                           {_FROM}
                          WHERE {' AND '.join(where)}
-                         ORDER BY e.op_date DESC, e.id""", params)
+                         ORDER BY e.op_date DESC, e.stmt_pos NULLS LAST, e.id""", params)
         rows = cur.fetchall()
         cur.execute("SELECT max(op_date), max(created_at) FROM kaspi_expenses")
         last_op, last_upload = cur.fetchone()
@@ -185,14 +194,14 @@ def summary(period, start=None, end=None, card=None, category=None):
     items, days = [], {}
     total_kzt = total_rub = excl_rub = fx_kzt = 0.0
     no_rate = False
-    for (eid, card_, op_date, kind, merchant, mnorm, kzt, rub, orig, cur_code, mkey, cat, excluded) in rows:
+    for (eid, card_, op_date, kind, merchant, mnorm, kzt, rub, orig, cur_code, mkey, name_ru, cat, excluded) in rows:
         cat = cat if cat in CATEGORIES else "other"
         s_kzt, s_rub = _spend(kzt), _spend(rub)
         no_rate |= s_rub is None
         # разбивка по категориям — по всем тратам периода/карты (до фильтра категории),
         # чтобы карточка категорий не схлопывалась в одну полосу при выборе фильтра
         cats[cat]["excluded_rub" if excluded else "rub"] += s_rub or 0.0
-        if category and cat != category:
+        if (category and cat != category) or (only_excluded and not excluded):
             continue
         d = days.setdefault(op_date.isoformat(), {"date": op_date.isoformat(), "rub": 0.0, "excluded_rub": 0.0})
         d["excluded_rub" if excluded else "rub"] += s_rub or 0.0
@@ -206,6 +215,7 @@ def summary(period, start=None, end=None, card=None, category=None):
             continue
         items.append({
             "id": eid, "date": op_date.isoformat(), "merchant": merchant, "merchant_norm": mnorm,
+            "name_ru": name_ru if name_ru and name_ru.lower() != merchant.lower() else None,
             "kzt": round(s_kzt, 2), "rub": round(s_rub, 2) if s_rub is not None else None,
             "orig": abs(_f(orig)) if orig is not None else None, "cur": cur_code,
             "refund": s_kzt < 0, "card": card_, "category": cat, "excluded": bool(excluded),
@@ -215,7 +225,7 @@ def summary(period, start=None, end=None, card=None, category=None):
     return {
         "ok": True,
         "period": period, "from": p_start.isoformat(), "to": p_end.isoformat(),
-        "filters": {"card": card or None, "category": category or None},
+        "filters": {"card": card or None, "category": category or None, "only_excluded": only_excluded},
         "total_rub": round(total_rub, 2), "total_kzt": round(total_kzt, 2),
         "excluded_rub": round(excl_rub, 2), "fx_kzt": round(fx_kzt, 2),
         "count": len(items), "no_rate": no_rate,

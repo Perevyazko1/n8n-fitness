@@ -483,7 +483,8 @@ def kaspi_summary(request):
     p = request.payload
     try:
         return ok(kaspi.summary(p.get("period", "day"), start=p.get("from"), end=p.get("to"),
-                                card=p.get("card") or None, category=p.get("category") or None))
+                                card=p.get("card") or None, category=p.get("category") or None,
+                                only_excluded=p.get("only_excluded") is True))
     except kaspi.KaspiError as e:
         return ok({"ok": False, "error": str(e)}, status=400)
 

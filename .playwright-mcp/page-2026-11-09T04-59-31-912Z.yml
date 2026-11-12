@@ -1,0 +1,221 @@
+- generic [active] [ref=f32e1]:
+  - generic [ref=f32e5]:
+    - status [ref=f32e6]: Минутку!Мы ищем лучшие варианты по вашему направлению на ваши даты.
+    - generic [ref=f32e38]:
+      - heading "Минутку!" [level=3] [ref=f32e39]
+      - paragraph [ref=f32e40]: Мы ищем лучшие варианты по вашему направлению на ваши даты.
+  - banner [ref=f32e111]:
+    - generic [ref=f32e112]:
+      - navigation [ref=f32e114]:
+        - link "Agoda logo Home link" [ref=f32e116] [cursor=pointer]:
+          - /url: /ru-ru/
+          - generic [ref=f32e117]:
+            - img "Primary Logo" [ref=f32e120]
+            - img "Site secondary logo" [ref=f32e121]
+        - generic [ref=f32e122]:
+          - generic [ref=f32e124]:
+            - generic [ref=f32e125] [cursor=pointer]: Вместе дешевле!
+            - link "Перелет и отель" [ref=f32e128] [cursor=pointer]:
+              - /url: /ru-ru/packages
+          - link "Отели и жилье" [ref=f32e131] [cursor=pointer]:
+            - /url: /ru-ru/
+          - generic [ref=f32e133]:
+            - generic [ref=f32e134] [cursor=pointer]: Новинка!
+            - button "Транспорт" [ref=f32e140] [cursor=pointer]
+          - button "Набор услуг для поездки" [ref=f32e150] [cursor=pointer]
+      - generic [ref=f32e153]:
+        - generic [ref=f32e154]:
+          - generic [ref=f32e155]:
+            - 'button "Язык: Русский" [ref=f32e157]':
+              - img "Русский" [ref=f32e159] [cursor=pointer]
+              - generic [ref=f32e160]: Выберите язык
+            - 'button "Отображение цены: Вьетнамский донг" [ref=f32e162]':
+              - generic [ref=f32e163] [cursor=pointer]: ₫
+              - generic [ref=f32e166]: Выберите валюту
+          - generic [ref=f32e167]:
+            - button "Войти" [ref=f32e170] [cursor=pointer]
+            - button "Создать аккаунт" [ref=f32e175] [cursor=pointer]
+        - button "Меню личного кабинета" [ref=f32e183] [cursor=pointer]
+  - generic [ref=f32e188]:
+    - generic [ref=f32e189]:
+      - generic [ref=f32e194]:
+        - generic [ref=f32e196] [cursor=pointer]:
+          - generic [ref=f32e197]: 
+          - generic [ref=f32e199]:
+            - combobox "Введите направление или название объекта" [ref=f32e200]
+            - generic [ref=f32e201]: Начните вводить название отеля или ключевое слово для поиска. Используйте стрелки или клавишу Tab для навигации и клавишу Enter для выбора
+        - button "Заезд 20 ноя 2026 пятница" [ref=f32e202] [cursor=pointer]:
+          - generic [ref=f32e203]:
+            - generic [ref=f32e204]: 
+            - generic [ref=f32e207]:
+              - generic [ref=f32e208]: 20 ноя 2026
+              - generic [ref=f32e209]: пятница
+        - button "Выезд 20 дек 2026 воскресенье" [ref=f32e210] [cursor=pointer]:
+          - generic [ref=f32e211]:
+            - generic [ref=f32e212]: 
+            - generic [ref=f32e215]:
+              - generic [ref=f32e216]: 20 дек 2026
+              - generic [ref=f32e217]: воскресенье
+        - button "Гости и номера 2 взрослых,1 ребенок 1 номер" [ref=f32e218] [cursor=pointer]:
+          - generic [ref=f32e219]:
+            - generic [ref=f32e220]: 
+            - generic [ref=f32e223]:
+              - generic [ref=f32e224]: 2 взрослых,1 ребенок
+              - generic [ref=f32e225]: 1 номер
+              - generic [ref=f32e226]: 
+        - button "ПОИСК" [ref=f32e229] [cursor=pointer]
+      - generic [ref=f32e236]:
+        - button "Закрыть" [ref=f32e238] [cursor=pointer]
+        - generic [ref=f32e241]:
+          - img "null image" [ref=f32e242]
+          - generic [ref=f32e243]:
+            - heading "Хотите цены ниже?" [level=2] [ref=f32e244]
+            - generic [ref=f32e245]: Откройте нашу страницу с предложениями и найдите купоны, скидки и промоакции
+          - link "Открыть" [ref=f32e248] [cursor=pointer]:
+            - /url: https://www.agoda.com/deals?cid=1897344
+    - generic [ref=f32e251]:
+      - generic [ref=f32e253]:
+        - generic [ref=f32e254]:
+          - heading "Фильтр" [level=2] [ref=f32e255]
+          - paragraph [ref=f32e262] [cursor=pointer]:
+            - generic [ref=f32e263]:
+              - combobox [ref=f32e270]
+              - generic [ref=f32e271]:
+                - button [aria-hidden]
+          - region "Фильтр поиска":
+            - link "Перейти к основному контенту" [ref=f32e273] [cursor=pointer]:
+              - /url: "#contentContainer"
+            - generic [ref=f32e276]: При выборе параметров для данного региона содержимое страницы будет обновляться, а список продуктов — корректироваться в зависимости от выбора.
+        - generic [ref=f32e277]:
+          - generic [ref=f32e278]:
+            - listitem [aria-hidden] [ref=f32e279]
+            - region "Объявление" [ref=f32e685]:
+              - generic [ref=f32e688]:
+                - generic [ref=f32e692]:
+                  - heading "Поздравляем! Сегодня вы получаете ЭКСТРА СКИДКУ 5%." [level=5] [ref=f32e694]
+                  - paragraph [ref=f32e695]: Чтобы воспользоваться предложением, активируйте скидочный купон прямо сейчас.
+                - button "Активировать" [ref=f32e697] [cursor=pointer]
+            - list
+            - status [ref=f32e700]: Загрузка результатов поиска
+          - generic [ref=f32e701]: Стр. 1 из 1
+        - navigation "хлебные крошки" [ref=f32e711]:
+          - list [ref=f32e712]:
+            - listitem [ref=f32e713]:
+              - link "Главная" [ref=f32e715] [cursor=pointer]:
+                - /url: /ru-ru/?asq=u2qcKLxwzRU5NDuxJ0kOF3T91go8JoYYMxAgy8FkBH1BN0lGAtYH25sdXoy34qb9zm%2FOkh5XuyIO%2FG7ZbCNbB%2FCarAb7NHzpA2la1g31l4OblbdRRxtOKFcLKark3oNzREhxff1Upk0Px6DavpRyAFkwqVIChwgqdqXHVZ4ajPLThMW3HCgB8Mnc0YQhfcGVDIKNomEIe2aFNzl%2BEsaVNLkagY8s0o9kVHstaL4eCI3qSwHO5DZpy8OqjDGSEDMt
+            - listitem [ref=f32e717]:
+              - generic [ref=f32e718]:
+                - link "Весь мир" [ref=f32e719] [cursor=pointer]:
+                  - /url: /ru-ru/world.html?asq=u2qcKLxwzRU5NDuxJ0kOF3T91go8JoYYMxAgy8FkBH1BN0lGAtYH25sdXoy34qb9zm%2FOkh5XuyIO%2FG7ZbCNbB%2FCarAb7NHzpA2la1g31l4OblbdRRxtOKFcLKark3oNzREhxff1Upk0Px6DavpRyAFkwqVIChwgqdqXHVZ4ajPLThMW3HCgB8Mnc0YQhfcGVDIKNomEIe2aFNzl%2BEsaVNLkagY8s0o9kVHstaL4eCI3qSwHO5DZpy8OqjDGSEDMt
+                - generic [ref=f32e721]: (6 363 615)
+            - listitem [ref=f32e722]:
+              - generic [ref=f32e723]:
+                - link "Вьетнам" [ref=f32e724] [cursor=pointer]:
+                  - /url: /ru-ru/country/vietnam.html?asq=u2qcKLxwzRU5NDuxJ0kOF3T91go8JoYYMxAgy8FkBH1BN0lGAtYH25sdXoy34qb9zm%2FOkh5XuyIO%2FG7ZbCNbB%2FCarAb7NHzpA2la1g31l4OblbdRRxtOKFcLKark3oNzREhxff1Upk0Px6DavpRyAFkwqVIChwgqdqXHVZ4ajPLThMW3HCgB8Mnc0YQhfcGVDIKNomEIe2aFNzl%2BEsaVNLkagY8s0o9kVHstaL4eCI3qSwHO5DZpy8OqjDGSEDMt
+                - generic [ref=f32e726]: (118 578)
+            - listitem [ref=f32e727]:
+              - generic [ref=f32e728]:
+                - link "Провинция Дананг" [ref=f32e729] [cursor=pointer]:
+                  - /url: /ru-ru/region/da-nang-province-vn.html?asq=u2qcKLxwzRU5NDuxJ0kOF3T91go8JoYYMxAgy8FkBH1BN0lGAtYH25sdXoy34qb9zm%2FOkh5XuyIO%2FG7ZbCNbB%2FCarAb7NHzpA2la1g31l4OblbdRRxtOKFcLKark3oNzREhxff1Upk0Px6DavpRyAFkwqVIChwgqdqXHVZ4ajPLThMW3HCgB8Mnc0YQhfcGVDIKNomEIe2aFNzl%2BEsaVNLkagY8s0o9kVHstaL4eCI3qSwHO5DZpy8OqjDGSEDMt
+                - generic [ref=f32e731]: (0)
+            - listitem [ref=f32e732]:
+              - generic [ref=f32e733]:
+                - link "Дананг" [ref=f32e734] [cursor=pointer]:
+                  - /url: /ru-ru/city/da-nang-vn.html?asq=u2qcKLxwzRU5NDuxJ0kOF3T91go8JoYYMxAgy8FkBH1BN0lGAtYH25sdXoy34qb9zm%2FOkh5XuyIO%2FG7ZbCNbB%2FCarAb7NHzpA2la1g31l4OblbdRRxtOKFcLKark3oNzREhxff1Upk0Px6DavpRyAFkwqVIChwgqdqXHVZ4ajPLThMW3HCgB8Mnc0YQhfcGVDIKNomEIe2aFNzl%2BEsaVNLkagY8s0o9kVHstaL4eCI3qSwHO5DZpy8OqjDGSEDMt
+                - generic [ref=f32e736]: (5 534)
+            - listitem
+      - generic:
+        - button "My Trips" [ref=f32e740] [cursor=pointer]
+        - button "Загрузить приложение" [ref=f32e744]
+  - contentinfo [ref=f32e748]:
+    - generic [ref=f32e752]:
+      - generic [ref=f32e753]:
+        - heading "Помощь" [level=2] [ref=f32e754]
+        - list [ref=f32e755]:
+          - listitem [ref=f32e756]:
+            - link "Справочный центр" [ref=f32e757] [cursor=pointer]:
+              - /url: /ru-ru/info/contact.html
+          - listitem [ref=f32e759]:
+            - link "Часто задаваемые вопросы" [ref=f32e760] [cursor=pointer]:
+              - /url: /ru-ru/info/contact.html
+          - listitem [ref=f32e762]:
+            - link "Политика конфиденциальности" [ref=f32e763] [cursor=pointer]:
+              - /url: /ru-ru/info/privacy.html
+          - listitem [ref=f32e765]:
+            - link "Политика использования файлов cookie" [ref=f32e766] [cursor=pointer]:
+              - /url: /ru-ru/info/privacy.html#cookies
+          - listitem [ref=f32e768]:
+            - link "Условия использования" [ref=f32e769] [cursor=pointer]:
+              - /url: /ru-ru/info/termsofuse.html
+          - listitem [ref=f32e771]:
+            - link "Закон о цифровых услугах ЕС" [ref=f32e772] [cursor=pointer]:
+              - /url: /ru-ru/info/eu-digital-services-act.html
+          - listitem [ref=f32e774]:
+            - link "Рекомендации по содержанию и заявки" [ref=f32e775] [cursor=pointer]:
+              - /url: /ru-ru/info/eu-digital-services-act.html#CM
+          - listitem [ref=f32e777]:
+            - link "Заявление о современном рабстве" [ref=f32e778] [cursor=pointer]:
+              - /url: //www.bookingholdings.com/modern-slavery-statement/
+      - generic [ref=f32e780]:
+        - heading "Компания" [level=2] [ref=f32e781]
+        - list [ref=f32e782]:
+          - listitem [ref=f32e783]:
+            - link "О нас" [ref=f32e784] [cursor=pointer]:
+              - /url: /ru-ru/about-agoda
+          - listitem [ref=f32e786]:
+            - link "Вакансии" [ref=f32e787] [cursor=pointer]:
+              - /url: //careersatagoda.com
+          - listitem [ref=f32e789]:
+            - link "Пресс-служба" [ref=f32e790] [cursor=pointer]:
+              - /url: //mediaroom.agoda.com
+          - listitem [ref=f32e792]:
+            - link "Спецпроекты" [ref=f32e793] [cursor=pointer]:
+              - /url: /ru-ru/blog
+          - listitem [ref=f32e795]:
+            - link "PointsMAX" [ref=f32e796] [cursor=pointer]:
+              - /url: //www.agoda.com/ru-ru/pointsmax.html
+      - generic [ref=f32e798]:
+        - heading "Направления" [level=2] [ref=f32e799]
+        - list [ref=f32e800]:
+          - listitem [ref=f32e801]:
+            - link "Страны" [ref=f32e802] [cursor=pointer]:
+              - /url: //www.agoda.com/ru-ru/world.html
+          - listitem [ref=f32e804]:
+            - link "Все маршруты полетов" [ref=f32e805] [cursor=pointer]:
+              - /url: //www.agoda.com/ru-ru/flights/world.html
+      - generic [ref=f32e807]:
+        - heading "Сотрудничество" [level=2] [ref=f32e808]
+        - list [ref=f32e809]:
+          - listitem [ref=f32e810]:
+            - link "Портал YCS" [ref=f32e811] [cursor=pointer]:
+              - /url: ////portal.agoda.com/mldc/ru-ru/public/login
+          - listitem [ref=f32e813]:
+            - link "Partner Hub" [ref=f32e814] [cursor=pointer]:
+              - /url: //partnerhub.agoda.com/
+          - listitem [ref=f32e816]:
+            - link "Рекламируйте на Agoda" [ref=f32e817] [cursor=pointer]:
+              - /url: //partnerhub.agoda.com/advertising-solutions/
+          - listitem [ref=f32e819]:
+            - link "Аффилиаты" [ref=f32e820] [cursor=pointer]:
+              - /url: ////partners.agoda.com/ru-ru/index.html
+          - listitem [ref=f32e822]:
+            - link "Документация Agoda API" [ref=f32e823] [cursor=pointer]:
+              - /url: //developer.agoda.com/
+      - generic [ref=f32e825]:
+        - heading "Скачать приложение" [level=2] [ref=f32e826]
+        - list [ref=f32e827]:
+          - listitem [ref=f32e828]:
+            - link "Для iOS" [ref=f32e829] [cursor=pointer]:
+              - /url: //app.appsflyer.com/id440676901?pid=direct&c=hotel_page_footer&af_siteid=1716632&site_id=1716632&af_sub1=desktop
+          - listitem [ref=f32e831]:
+            - link "Для Android" [ref=f32e832] [cursor=pointer]:
+              - /url: //app.appsflyer.com/com.agoda.mobile.consumer?pid=direct&c=hotel_page_footer&af_siteid=1716632&site_id=1716632&af_sub1=desktop
+    - generic [ref=f32e835]:
+      - paragraph [ref=f32e836]: © 2005–2026 Agoda Company Pte. Ltd. Все права защищены.
+      - paragraph [ref=f32e837]: Agoda.com входит в состав холдинга Booking Holdings Inc, мирового лидера в сфере онлайн-туризма и сопутствующих услуг.
+      - generic [ref=f32e839]:
+        - img "Логотип Agoda" [ref=f32e841]
+        - img "Логотип Priceline" [ref=f32e843]
+        - img "Логотип Kayak" [ref=f32e845]
+        - img "Логотип Booking.com" [ref=f32e847]
+        - img "Логотип Open Table" [ref=f32e849]

@@ -20,6 +20,7 @@
     --bar: color-mix(in srgb, var(--accent) 28%, var(--bg));
     --warn: #b45309;
     --good: #15803d;
+    --bad: #dc2626;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; background: var(--bg2); color: var(--text);
@@ -38,10 +39,12 @@
   .btn { border: 0; height: 50px; border-radius: 14px; background: var(--accent); color: var(--accent-text);
     font-weight: 600; cursor: pointer; width: 100%; }
   .btn:disabled { opacity: .5; }
-  .bars { display: grid; gap: 4px; align-items: end; height: 60px; }
+  .bars { display: grid; gap: 4px; align-items: end; height: 60px; position: relative; }
+  .bars .norm { position: absolute; left: 0; right: 0; border-top: 1.5px dashed color-mix(in srgb, var(--bad) 55%, transparent); pointer-events: none; }
   .bars > * { display: flex; flex-direction: column; align-items: center; gap: 4px; justify-content: flex-end; height: 100%; }
   .bars i { display: block; width: 100%; border-radius: 4px; background: var(--bar); min-height: 3px; }
   .bars i.today { background: var(--accent); }
+  .bars i.over { background: var(--bad); }
   .bars button { border: 0; background: none; padding: 0; cursor: pointer; }
   .bars button:disabled { cursor: default; }
   .bars .picked i { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -53,7 +56,7 @@
   .daynav button:disabled { color: var(--sep); cursor: default; }
   .daynav .back { font-size: 13.5px; font-weight: 600; padding: 0 10px; }
   button.day-head { border: 0; background: none; width: 100%; cursor: pointer; text-align: left; }
-  .bars span { font-size: 11px; color: var(--hint); }
+  .bars span { font-size: 11px; line-height: 14px; color: var(--hint); }
   .progress { height: 8px; border-radius: 999px; background: var(--soft); overflow: hidden; }
   .progress i { display: block; height: 100%; border-radius: 999px; background: var(--accent); }
   .tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; background: var(--bg); border-radius: 12px; padding: 4px; }
@@ -72,10 +75,16 @@
   .item + .item { border-top: 1px solid var(--sep); }
   .item .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
   .item .m { flex: 1; min-width: 0; }
+  .item .m .orig { display: block; color: var(--hint); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .item .m b { display: block; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .item small { display: block; color: var(--hint); font-size: 12.5px; }
   .item .r { text-align: right; white-space: nowrap; font-weight: 600; }
   .item.out { opacity: .55; }
+  .who { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: 11.5px; font-weight: 600;
+    color: var(--who); background: color-mix(in srgb, var(--who) 16%, transparent); }
+  .chip .cdot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; background: var(--who); }
+  .excl-line { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 13px; color: var(--hint); }
+  .excl-line b { color: var(--text); }
   .item.refund .r { color: var(--good); }
   .empty, .error { text-align: center; color: var(--hint); padding: 18px 8px; }
   .error { color: #d14343; }
@@ -182,6 +191,7 @@ const n = (v) => nf.format(Math.round(Math.abs(Number(v) || 0)));
 const CUR = { VND: '₫', USD: '$', EUR: '€', RUB: '₽' };
 const COLORS = { shops: '#1f6fd1', cafe: '#d9480f', transport: '#0f766e', fun: '#7c3aed', housing: '#6b7280',
   subs: '#0e7490', health: '#be185d', other: '#a16207' };
+const PEOPLE = ['#2563eb', '#db2777', '#0f766e', '#d97706'];   // запасные цвета карт по порядку
 const MON = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
 const WD = ['вс','пн','вт','ср','чт','пт','сб'];
 const pd = (iso) => { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d); };
@@ -207,20 +217,26 @@ function el(tag, attrs, ...kids) {
   return e;
 }
 
-const state = { period: 'day', from: null, to: null, card: null, category: null };
-let beforeDay = null;   // куда вернуться из просмотра одного дня
+const state = { period: 'day', from: null, to: null, card: null, category: null, only_excluded: false };
+let beforeDrill = null;   // куда вернуться из просмотра (один день / траты вне лимита)
 
-// «Провалиться» в день: из столбика лимита или заголовка дня в списке
-function openDay(date) {
-  if (!isDayView()) beforeDay = { period: state.period, from: state.from, to: state.to };
-  Object.assign(state, { period: 'custom', from: date, to: date });
+const isDayView = () => state.period === 'custom' && state.from && state.from === state.to;
+const inDrill = () => isDayView() || state.only_excluded;
+function enterDrill(patch) {
+  if (!inDrill()) beforeDrill = { period: state.period, from: state.from, to: state.to, card: state.card,
+    category: state.category, only_excluded: false };
+  Object.assign(state, patch);
   reload().then(() => $('daynav').scrollIntoView({ behavior: 'smooth', block: 'start' }));
 }
-function leaveDay() {
-  Object.assign(state, beforeDay || { period: 'day', from: null, to: null });
-  beforeDay = null; reload();
+// «Провалиться» в день: из столбика лимита или заголовка дня в списке (фильтр «вне лимита» сохраняется)
+const openDay = (date) => enterDrill({ period: 'custom', from: date, to: date });
+// Траты вне лимита за период: из виджета лимита или строки «Вне лимита» в категориях
+const openExcluded = (from, to) => enterDrill({ period: 'custom', from, to, card: null, category: null, only_excluded: true });
+function leaveDrill() {
+  Object.assign(state, beforeDrill || { period: 'day', from: null, to: null, only_excluded: false });
+  beforeDrill = null; reload();
 }
-const isDayView = () => state.period === 'custom' && state.from && state.from === state.to;
+let who = {};             // card → { name, color } — чья трата
 let data = null;
 
 async function api(path, body) {
@@ -235,7 +251,7 @@ async function api(path, body) {
 
 async function reload() {
   try {
-    const body = { period: state.period, card: state.card, category: state.category };
+    const body = { period: state.period, card: state.card, category: state.category, only_excluded: state.only_excluded };
     if (state.period === 'custom') Object.assign(body, { from: state.from, to: state.to });
     data = await api('summary', body);
     render();
@@ -247,13 +263,14 @@ async function reload() {
 function render() {
   const s = data, b = s.budget;
   // карты
+  who = Object.fromEntries(s.cards.map((c, i) => [c.card, { name: c.name, color: c.color || PEOPLE[i % PEOPLE.length] }]));
   const cards = [{ card: null, label: s.cards.length > 1 ? 'Обе карты' : 'Все карты' }, ...s.cards];
   $('cards').replaceChildren(...cards.map((c) => el('button', {
-    class: 'chip', 'aria-pressed': String(state.card === c.card),
-    onclick: () => { state.card = c.card; reload(); } }, c.label)));
+    class: 'chip', 'aria-pressed': String(state.card === c.card), style: c.card && who[c.card] ? `--who:${who[c.card].color}` : null,
+    onclick: () => { state.card = c.card; reload(); } }, c.card && s.cards.length > 1 ? el('i', { class: 'cdot' }) : null, c.label)));
   renderBudget(b);
   // вкладки
-  document.querySelectorAll('#tabs button').forEach((x) => x.setAttribute('aria-selected', String(!isDayView() && x.dataset.p === state.period)));
+  document.querySelectorAll('#tabs button').forEach((x) => x.setAttribute('aria-selected', String(!inDrill() && x.dataset.p === state.period)));
   renderDayNav(s);
   renderCats(s);
   renderList(s);
@@ -261,6 +278,15 @@ function render() {
   $('fresh').textContent = up
     ? `Данные по выписке на ${short(s.last_op_date)} · загружена ${up.toLocaleString('ru-RU', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}`
     : 'Выписок ещё не было — пришли PDF боту.';
+}
+
+// «Всего с вне лимита N ₽ · вне лимита M ₽ ›» — за период лимита, тап → список этих трат
+function exclLine(a, today) {
+  if (!a.excluded_rub) return null;
+  const to = a.end < today ? a.end : today;
+  return el('div', { class: 'excl-line' },
+    el('span', {}, 'Всего с вне лимита ', el('b', {}, `${n(a.spent_rub + a.excluded_rub)} ₽`)),
+    el('button', { class: 'link', style: 'padding:0', onclick: () => openExcluded(a.start, to) }, `вне лимита ${n(a.excluded_rub)} ₽ ›`));
 }
 
 function renderBudget(b) {
@@ -296,18 +322,27 @@ function renderBudget(b) {
       el('div', {}, el('div', { class: 'big', style: `font-size:28px;color:${over ? 'var(--warn)' : 'var(--good)'}` },
         over ? `Перерасход ${n(a.left_rub)} ₽` : `Уложились, осталось ${n(a.left_rub)} ₽`),
         el('div', { class: 'hint' }, `Потрачено ${n(a.spent_rub)} из ${n(a.limit_rub)} ₽`)),
+      exclLine(a, today),
       el('div', { class: 'row-between' }, el('span', { class: 'hint' }, 'Сегодня потрачено'),
         el('b', {}, (b.today_spent_rub < 0 ? '+' : '') + n(b.today_spent_rub) + ' ₽')),
       el('button', { class: 'btn', onclick: () => openLimit(nd) }, `Выставить новый: ${short(nd.start)} — ${short(nd.end)}`));
     return;
   }
-  const max = Math.max(1, ...a.days.map((d) => d.rub));
+  // норма дня = лимит / дни периода; день выше нормы — красный, норма — пунктир
+  const norm = a.limit_rub / a.days.length, H = 44;
+  const max = Math.max(1, norm, ...a.days.map((d) => d.rub));
   const bars = el('div', { class: 'bars', style: `grid-template-columns:repeat(${a.days.length},1fr)` },
-    ...a.days.map((d) => el('button', {
-      class: isDayView() && state.from === d.date ? 'picked' : '', disabled: d.date > today,
-      'aria-label': `${dayTitle(d.date, today)}: ${n(d.rub)} ₽`, onclick: () => openDay(d.date) },
-      el('i', { class: d.date === today ? 'today' : '', style: `height:${d.date > today ? 3 : Math.max(3, Math.round(Math.max(0, d.rub) / max * 44))}px` }),
-      el('span', {}, a.days.length <= 10 ? WD[pd(d.date).getDay()] : pd(d.date).getDate()))));
+    ...a.days.map((d) => {
+      const over = d.date <= today && d.rub > norm;
+      return el('button', {
+        class: isDayView() && state.from === d.date ? 'picked' : '', disabled: d.date > today,
+        'aria-label': `${dayTitle(d.date, today)}: ${n(d.rub)} ₽` + (over ? `, перерасход дня (норма ${n(norm)} ₽)` : ''),
+        onclick: () => openDay(d.date) },
+        el('i', { class: [d.date === today ? 'today' : '', over ? 'over' : ''].join(' ').trim() || null,
+          style: `height:${d.date > today ? 3 : Math.max(3, Math.round(Math.max(0, d.rub) / max * H))}px` }),
+        el('span', {}, a.days.length <= 10 ? WD[pd(d.date).getDay()] : pd(d.date).getDate()));
+    }),
+    el('div', { class: 'norm', style: `bottom:${18 + Math.round(norm / max * H)}px`, title: `норма ${n(norm)} ₽ в день` }));
   const pct = Math.min(100, Math.max(0, a.spent_rub / a.limit_rub * 100));
   const over = a.left_rub < 0;
   box.replaceChildren(
@@ -320,26 +355,32 @@ function renderBudget(b) {
           : `осталось из ${n(a.limit_rub)} · ~${n(a.per_day_rub)} ₽ в день · ${a.days_left} ${plural(a.days_left, 'день', 'дня', 'дней')}`)),
       todayLine),
     el('div', { class: 'progress' }, el('i', { style: `width:${pct}%;${over ? 'background:var(--warn)' : ''}` })),
+    exclLine(a, today),
     bars);
 }
 
 function renderDayNav(s) {
   const nav = $('daynav');
-  nav.hidden = !isDayView();
+  nav.hidden = !inDrill();
   if (nav.hidden) return;
   const d = state.from, today = s.budget.today;
+  if (!isDayView()) {                    // траты вне лимита за период
+    nav.replaceChildren(el('b', {}, `Вне лимита · ${short(s.from)} — ${short(s.to)}`),
+      el('button', { class: 'back', onclick: leaveDrill }, 'Назад'));
+    return;
+  }
   const prev = iso(addDays(pd(d), -1)), next = iso(addDays(pd(d), 1));
   nav.replaceChildren(
     el('button', { 'aria-label': 'Предыдущий день', onclick: () => openDay(prev) }, '‹'),
-    el('b', {}, dayTitle(d, today)),
+    el('b', {}, dayTitle(d, today) + (state.only_excluded ? ' · вне лимита' : '')),
     el('button', { 'aria-label': 'Следующий день', disabled: next > today, onclick: () => openDay(next) }, '›'),
-    el('button', { class: 'back', onclick: leaveDay }, 'Назад'));
+    el('button', { class: 'back', onclick: leaveDrill }, 'Назад'));
 }
 
 function renderCats(s) {
   const box = $('cats');
   const cats = s.categories;
-  if (!cats.length) { box.style.display = 'none'; return; }
+  if (!cats.length || state.only_excluded) { box.style.display = 'none'; return; }
   box.style.display = '';
   const max = Math.max(1, ...cats.map((c) => c.rub));
   const rows = [];
@@ -350,9 +391,9 @@ function renderCats(s) {
       el('span', { class: 'track' }, el('i', { style: `width:${Math.max(2, c.rub / max * 100)}%;background:${COLORS[c.key]}` }))));
   }
   const out = cats.filter((c) => c.excluded_rub);
-  if (out.length) rows.push(el('div', { class: 'cat out' }, el('span', { class: 'line' },
+  if (out.length) rows.push(el('button', { class: 'cat out', onclick: () => openExcluded(s.from, s.to) }, el('span', { class: 'line' },
     el('span', {}, 'Вне лимита: ' + out.map((c) => c.label.toLowerCase()).join(', ')),
-    el('b', {}, n(out.reduce((t, c) => t + c.excluded_rub, 0)) + ' ₽'))));
+    el('b', {}, n(out.reduce((t, c) => t + c.excluded_rub, 0)) + ' ₽ ›'))));
   box.replaceChildren(
     el('div', { class: 'row-between' }, el('b', {}, 'По категориям'),
       state.category ? el('button', { class: 'link', onclick: () => toggleCat(state.category) }, 'Сбросить') : el('span', { class: 'hint' }, 'тап = фильтр')),
@@ -365,7 +406,7 @@ function renderList(s) {
   const box = $('list');
   const today = s.budget.today;
   if (!s.items.length) {
-    box.replaceChildren(el('div', { class: 'empty' }, state.period === 'day'
+    box.replaceChildren(el('div', { class: 'empty' }, state.only_excluded ? 'Трат вне лимита за этот период нет.' : state.period === 'day'
       ? 'За сегодня трат пока нет. Траты появляются, когда присылаешь выписку боту.'
       : 'Трат за этот период нет.'));
     return;
@@ -377,7 +418,6 @@ function renderList(s) {
     el('span', { class: 'hint' }, s.from === s.to ? short(s.from) : `${short(s.from)} — ${short(s.to)}`),
     el('b', {}, `${n(s.total_rub)} ₽ · ${s.count} ${plural(s.count, 'трата', 'траты', 'трат')}`));
   const multi = s.cards.length > 1;
-  const cardLabel = Object.fromEntries(s.cards.map((c) => [c.card, c.label]));
   const groups = Object.keys(byDay).map((date) => {
     const t = dayTot[date] || { rub: 0, excluded_rub: 0 };
     return [
@@ -388,13 +428,15 @@ function renderList(s) {
         const sub = [];
         if (it.orig != null && it.cur) sub.push(`${n(it.orig)} ${CUR[it.cur] || it.cur}`);
         if (it.rub != null) sub.push(`${n(it.kzt)} ₸`);
-        if (multi && it.card) sub.push(cardLabel[it.card] || '*' + it.card);
+        const w = multi && it.card ? who[it.card] : null;
         const catLabel = s.category_labels[it.category] + (it.excluded ? ' · вне лимита' : '') + (it.refund ? ' · возврат' : '');
-        return el('button', { class: 'item' + (it.excluded ? ' out' : '') + (it.refund ? ' refund' : ''), onclick: () => openExpense(it) },
+        return el('button', { class: 'item' + (it.excluded ? ' out' : '') + (it.refund ? ' refund' : ''), onclick: () => openExpense(it),
+            style: w ? `box-shadow:inset 3px 0 0 ${w.color}` : null },
           el('span', { class: 'dot', style: `background:${COLORS[it.category]}` }),
-          el('span', { class: 'm' }, el('b', {}, it.merchant), el('small', {}, catLabel)),
+          el('span', { class: 'm' }, el('b', {}, it.name_ru || it.merchant),
+            it.name_ru ? el('span', { class: 'orig' }, it.merchant) : null, el('small', {}, catLabel)),
           el('span', { class: 'r' }, it.rub != null ? `${it.refund ? '+' : ''}${n(it.rub)} ₽` : `${n(it.kzt)} ₸`,
-            sub.length ? el('small', {}, sub.join(' · ')) : null));
+            sub.length || w ? el('small', {}, sub.join(' · '), w ? [sub.length ? ' ' : '', el('span', { class: 'who', style: `--who:${w.color}` }, w.name)] : null) : null));
       })),
     ];
   });
@@ -461,8 +503,8 @@ $('periodForm').addEventListener('submit', (e) => {
   e.preventDefault();
   const f = e.target;
   if (f.to.value < f.from.value) return;
-  Object.assign(state, { period: 'custom', from: f.from.value, to: f.to.value });
-  beforeDay = null; close('periodSheet'); reload();
+  Object.assign(state, { period: 'custom', from: f.from.value, to: f.to.value, only_excluded: false });
+  beforeDrill = null; close('periodSheet'); reload();
 });
 document.querySelectorAll('#tabs button').forEach((b) => b.addEventListener('click', () => {
   if (b.dataset.p === 'custom') {
@@ -470,15 +512,16 @@ document.querySelectorAll('#tabs button').forEach((b) => b.addEventListener('cli
     f.from.value = state.from || iso(addDays(pd(t), -6)); f.to.value = state.to || t;
     open('periodSheet'); return;
   }
-  beforeDay = null; state.period = b.dataset.p; reload();
+  beforeDrill = null; Object.assign(state, { period: b.dataset.p, only_excluded: false }); reload();
 }));
 
 let editing = null;
 function openExpense(it) {
   editing = { it, category: it.category };
-  $('expTitle').textContent = it.merchant;
-  const cardLabel = (data.cards.find((c) => c.card === it.card) || {}).label;
-  $('expMeta').textContent = dayTitle(it.date, data.budget.today) + (cardLabel ? ' · ' + cardLabel : '');
+  $('expTitle').textContent = it.name_ru || it.merchant;
+  const cardLabel = (data.cards.find((c) => c.card === it.card) || {}).label, w = who[it.card];
+  $('expMeta').replaceChildren(it.name_ru ? el('div', {}, it.merchant) : '', dayTitle(it.date, data.budget.today),
+    cardLabel ? ' · ' : '', w && data.cards.length > 1 ? el('span', { class: 'who', style: `--who:${w.color}` }, cardLabel) : (cardLabel || ''));
   $('expRub').textContent = it.rub != null ? `${it.refund ? '+' : ''}${n(it.rub)} ₽` : `${n(it.kzt)} ₸`;
   $('expSub').textContent = [it.orig != null && it.cur ? `${n(it.orig)} ${CUR[it.cur] || it.cur}` : null, `${n(it.kzt)} ₸`].filter(Boolean).join(' · ');
   $('expOut').checked = it.excluded;

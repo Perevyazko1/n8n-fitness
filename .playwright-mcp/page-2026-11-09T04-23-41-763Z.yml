@@ -1,0 +1,428 @@
+- generic [ref=f23e1]:
+  - link "Пропустить и перейти к тексту" [ref=f23e2] [cursor=pointer]:
+    - /url: "#site-content"
+  - alert
+  - generic [ref=f23e8]:
+    - generic [ref=f23e14]:
+      - banner [ref=f23e15]:
+        - generic [ref=f23e19]:
+          - link "Домашняя страница Airbnb" [ref=f23e21] [cursor=pointer]:
+            - /url: /
+          - search [ref=f23e25]:
+            - generic:
+              - generic:
+                - generic:
+                  - tablist:
+                    - tab [selected]:
+                      - generic [aria-hidden]: Жилье
+                      - generic: Жилье
+                    - tab:
+                      - generic [aria-hidden]: Впечатления
+                      - generic: Впечатления
+                    - tab:
+                      - generic [aria-hidden]: Услуги
+                      - generic: Услуги
+                - search "Начать поиск" [ref=f23e27] [cursor=pointer]:
+                  - generic [ref=f23e29]:
+                    - 'button "Местоположение Vung Tau: жилье" [ref=f23e30]':
+                      - generic [ref=f23e31]: Местоположение
+                      - generic [ref=f23e33]: "Vung Tau: жилье"
+                    - button "Прибытие и выезд 20 нояб. – 20 дек." [ref=f23e35]:
+                      - generic [ref=f23e36]: Прибытие и выезд
+                      - generic [ref=f23e37]: 20 нояб. – 20 дек.
+                    - button "Гости 3 гостя" [ref=f23e39]:
+                      - generic [ref=f23e40]: Гости
+                      - generic [ref=f23e41]: 3 гостя
+          - navigation "Профиль" [ref=f23e50]:
+            - generic [ref=f23e51]:
+              - button "Станьте хозяином" [ref=f23e52] [cursor=pointer]
+              - button "Войдите или зарегистрируйтесь" [ref=f23e55] [cursor=pointer]
+            - button "Главное навигационное меню" [ref=f23e63] [cursor=pointer]
+        - group "фильтры" [ref=f23e72]:
+          - generic [ref=f23e74]:
+            - button "Фильтры, Применено 3 фильтра" [ref=f23e78] [cursor=pointer]:
+              - generic [ref=f23e83]:
+                - generic [ref=f23e84]: Фильтры
+                - generic [aria-hidden] [ref=f23e85]: "3"
+            - generic [ref=f23e87]:
+              - generic [ref=f23e88]:
+                - button "2 спальни или больше, filter, selected" [ref=f23e91] [cursor=pointer]:
+                  - generic [ref=f23e92]: 2 спальни или больше
+                - button "Цена, До ‎50 000 RUB, filter, selected" [ref=f23e99] [cursor=pointer]:
+                  - generic [ref=f23e100]: До ‎50 000 RUB
+                - button "Тип размещения, Жилье целиком, filter, selected" [ref=f23e107] [cursor=pointer]:
+                  - generic [ref=f23e108]: Жилье целиком
+                - checkbox "Стиральная машина" [ref=f23e115] [cursor=pointer]
+                - checkbox "Кухня" [ref=f23e118] [cursor=pointer]
+                - checkbox "Wi-Fi" [ref=f23e121] [cursor=pointer]
+                - checkbox "Кондиционер" [ref=f23e124] [cursor=pointer]
+                - checkbox "Бесплатная парковка" [ref=f23e127] [cursor=pointer]
+                - checkbox "Бассейн" [ref=f23e130] [cursor=pointer]
+                - checkbox "Телевизор" [ref=f23e133] [cursor=pointer]
+              - button "Далее" [ref=f23e135] [cursor=pointer]
+      - main [ref=f23e139]:
+        - generic [ref=f23e140]:
+          - generic [ref=f23e144]:
+            - heading "Результаты поиска; 3 варианта жилья" [active] [level=1] [ref=f23e147]: 3 варианта жилья
+            - generic [ref=f23e188]:
+              - generic [aria-hidden] [ref=f23e189]:
+                - generic [ref=f23e190]: В цену входят все сборы
+                - generic [ref=f23e191]: В цену входят все сборы
+                - generic [ref=f23e192]: В цену входят все сборы
+                - generic [ref=f23e193]: В цену входят все сборы
+                - generic [ref=f23e194]: В цену входят все сборы
+                - generic [ref=f23e195]: В цену входят все сборы
+                - generic [ref=f23e196]: В цену входят все сборы
+                - generic [ref=f23e197]: В цену входят все сборы
+                - generic [ref=f23e198]: В цену входят все сборы
+                - generic [ref=f23e199]: В цену входят все сборы
+                - generic [ref=f23e200]: В цену входят все сборы
+                - generic [ref=f23e201]: В цену входят все сборы
+                - generic [ref=f23e202]: В цену входят все сборы
+                - generic [ref=f23e203]: В цену входят все сборы
+                - generic [ref=f23e204]: В цену входят все сборы
+                - generic [ref=f23e205]: В цену входят все сборы
+                - generic [ref=f23e206]: В цену входят все сборы
+                - generic [ref=f23e207]: В цену входят все сборы
+                - generic [ref=f23e208]: В цену входят все сборы
+                - generic [ref=f23e209]: В цену входят все сборы
+                - generic [ref=f23e210]: В цену входят все сборы
+                - generic [ref=f23e211]: В цену входят все сборы
+                - generic [ref=f23e212]: В цену входят все сборы
+              - generic [ref=f23e213]: В цену входят все сборы
+          - generic [ref=f23e219]:
+            - group [ref=f23e225]:
+              - link "Квартира, Вунгтау" [ref=f23e226] [cursor=pointer]:
+                - /url: /rooms/1570126301064737008?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_50143691-d2c3-4358-9430-65e8f2b44375_82e61bfc-27cf-4f10-bd4f-e0f804a66c20_0_1570126301064737008_0&previous_page_section_name=1000&federated_search_id=50143691-d2c3-4358-9430-65e8f2b44375
+              - generic [ref=f23e227]:
+                - generic [ref=f23e232]:
+                  - generic [ref=f23e233]: Фото 1 из 6
+                  - generic [ref=f23e234]:
+                    - link [aria-hidden] [ref=f23e235] [cursor=pointer]:
+                      - /url: /rooms/1570126301064737008?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_50143691-d2c3-4358-9430-65e8f2b44375_82e61bfc-27cf-4f10-bd4f-e0f804a66c20_0_1570126301064737008_0&previous_page_section_name=1000&federated_search_id=50143691-d2c3-4358-9430-65e8f2b44375
+                    - link [aria-hidden] [ref=f23e239] [cursor=pointer]:
+                      - /url: /rooms/1570126301064737008?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_50143691-d2c3-4358-9430-65e8f2b44375_82e61bfc-27cf-4f10-bd4f-e0f804a66c20_0_1570126301064737008_0&previous_page_section_name=1000&federated_search_id=50143691-d2c3-4358-9430-65e8f2b44375
+                    - link [aria-hidden] [ref=f23e241] [cursor=pointer]:
+                      - /url: /rooms/1570126301064737008?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_50143691-d2c3-4358-9430-65e8f2b44375_82e61bfc-27cf-4f10-bd4f-e0f804a66c20_0_1570126301064737008_0&previous_page_section_name=1000&federated_search_id=50143691-d2c3-4358-9430-65e8f2b44375
+                    - link [aria-hidden] [ref=f23e243] [cursor=pointer]:
+                      - /url: /rooms/1570126301064737008?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_50143691-d2c3-4358-9430-65e8f2b44375_82e61bfc-27cf-4f10-bd4f-e0f804a66c20_0_1570126301064737008_0&previous_page_section_name=1000&federated_search_id=50143691-d2c3-4358-9430-65e8f2b44375
+                    - link [aria-hidden] [ref=f23e245] [cursor=pointer]:
+                      - /url: /rooms/1570126301064737008?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_50143691-d2c3-4358-9430-65e8f2b44375_82e61bfc-27cf-4f10-bd4f-e0f804a66c20_0_1570126301064737008_0&previous_page_section_name=1000&federated_search_id=50143691-d2c3-4358-9430-65e8f2b44375
+                    - link [aria-hidden] [ref=f23e247] [cursor=pointer]:
+                      - /url: /rooms/1570126301064737008?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_50143691-d2c3-4358-9430-65e8f2b44375_82e61bfc-27cf-4f10-bd4f-e0f804a66c20_0_1570126301064737008_0&previous_page_section_name=1000&federated_search_id=50143691-d2c3-4358-9430-65e8f2b44375
+                  - generic:
+                    - 'button "Добавить в вишлист: Квартира, Вунгтау" [ref=f23e250] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=f23e255] [cursor=pointer]
+                      - 'button "Следующее фото: Квартира, Вунгтау" [ref=f23e260] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Фото 1 из 6"
+                - generic [ref=f23e264]:
+                  - generic [ref=f23e265]: Квартира, Вунгтау
+                  - generic [ref=f23e266]: Апартаменты Melody с 2 спальнями и 2 ванными комнатами (долгосрочная аренда)
+                  - generic [ref=f23e268]:
+                    - generic [ref=f23e269]:
+                      - generic [ref=f23e270]: 2 спальни
+                      - generic [aria-hidden] [ref=f23e271]: 2 спальни
+                    - generic [ref=f23e272]:
+                      - generic [ref=f23e273]: ","
+                      - generic [aria-hidden] [ref=f23e274]: ·
+                      - generic [ref=f23e275]: 2 кровати
+                      - generic [aria-hidden] [ref=f23e276]: 2 кровати
+                    - generic [ref=f23e277]:
+                      - generic [ref=f23e278]: ","
+                      - generic [aria-hidden] [ref=f23e279]: ·
+                      - generic [ref=f23e280]: 2 ванные
+                      - generic [aria-hidden] [ref=f23e281]: 2 ванные
+                  - generic [ref=f23e288]:
+                    - generic [ref=f23e289]:
+                      - generic [ref=f23e290]: 50 265 RUB
+                      - button "47 021 RUB помесячно, исходная цена 50 265 RUB" [ref=f23e293] [cursor=pointer]:
+                        - generic [ref=f23e294]:
+                          - text: 47 021 RUB
+                          - generic [ref=f23e295]: 47 021 RUB помесячно, исходная цена 50 265 RUB
+                    - generic [ref=f23e296]: помесячно
+            - group [ref=f23e304]:
+              - link "Квартира, Вунгтау" [ref=f23e305] [cursor=pointer]:
+                - /url: /rooms/964441409724186414?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_50143691-d2c3-4358-9430-65e8f2b44375_82e61bfc-27cf-4f10-bd4f-e0f804a66c20_0_964441409724186414_1&previous_page_section_name=1000&federated_search_id=50143691-d2c3-4358-9430-65e8f2b44375
+              - generic [ref=f23e306]:
+                - generic [ref=f23e311]:
+                  - generic [ref=f23e312]: Фото 1 из 6
+                  - generic [ref=f23e313]:
+                    - link [aria-hidden] [ref=f23e314] [cursor=pointer]:
+                      - /url: /rooms/964441409724186414?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_50143691-d2c3-4358-9430-65e8f2b44375_82e61bfc-27cf-4f10-bd4f-e0f804a66c20_0_964441409724186414_1&previous_page_section_name=1000&federated_search_id=50143691-d2c3-4358-9430-65e8f2b44375
+                    - link [aria-hidden] [ref=f23e318] [cursor=pointer]:
+                      - /url: /rooms/964441409724186414?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_50143691-d2c3-4358-9430-65e8f2b44375_82e61bfc-27cf-4f10-bd4f-e0f804a66c20_0_964441409724186414_1&previous_page_section_name=1000&federated_search_id=50143691-d2c3-4358-9430-65e8f2b44375
+                    - link [aria-hidden] [ref=f23e320] [cursor=pointer]:
+                      - /url: /rooms/964441409724186414?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_50143691-d2c3-4358-9430-65e8f2b44375_82e61bfc-27cf-4f10-bd4f-e0f804a66c20_0_964441409724186414_1&previous_page_section_name=1000&federated_search_id=50143691-d2c3-4358-9430-65e8f2b44375
+                    - link [aria-hidden] [ref=f23e322] [cursor=pointer]:
+                      - /url: /rooms/964441409724186414?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_50143691-d2c3-4358-9430-65e8f2b44375_82e61bfc-27cf-4f10-bd4f-e0f804a66c20_0_964441409724186414_1&previous_page_section_name=1000&federated_search_id=50143691-d2c3-4358-9430-65e8f2b44375
+                    - link [aria-hidden] [ref=f23e324] [cursor=pointer]:
+                      - /url: /rooms/964441409724186414?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_50143691-d2c3-4358-9430-65e8f2b44375_82e61bfc-27cf-4f10-bd4f-e0f804a66c20_0_964441409724186414_1&previous_page_section_name=1000&federated_search_id=50143691-d2c3-4358-9430-65e8f2b44375
+                    - link [aria-hidden] [ref=f23e326] [cursor=pointer]:
+                      - /url: /rooms/964441409724186414?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_50143691-d2c3-4358-9430-65e8f2b44375_82e61bfc-27cf-4f10-bd4f-e0f804a66c20_0_964441409724186414_1&previous_page_section_name=1000&federated_search_id=50143691-d2c3-4358-9430-65e8f2b44375
+                  - generic:
+                    - 'button "Добавить в вишлист: Квартира, Вунгтау" [ref=f23e329] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=f23e334] [cursor=pointer]
+                      - 'button "Следующее фото: Квартира, Вунгтау" [ref=f23e339] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Фото 1 из 6"
+                - generic [ref=f23e343]:
+                  - generic [ref=f23e344]: Квартира, Вунгтау
+                  - generic [ref=f23e345]: Minie House - Prestige - Dedicated Tam
+                  - generic [ref=f23e347]:
+                    - generic [ref=f23e348]:
+                      - generic [ref=f23e349]: 2 спальни
+                      - generic [aria-hidden] [ref=f23e350]: 2 спальни
+                    - generic [ref=f23e351]:
+                      - generic [ref=f23e352]: ","
+                      - generic [aria-hidden] [ref=f23e353]: ·
+                      - generic [ref=f23e354]: 2 кровати
+                      - generic [aria-hidden] [ref=f23e355]: 2 кровати
+                    - generic [ref=f23e356]:
+                      - generic [ref=f23e357]: ","
+                      - generic [aria-hidden] [ref=f23e358]: ·
+                      - generic [ref=f23e359]: 1 ванная
+                      - generic [aria-hidden] [ref=f23e360]: 1 ванная
+                  - generic [ref=f23e361]:
+                    - generic [ref=f23e367]:
+                      - generic [ref=f23e368]:
+                        - generic [ref=f23e369]: 67 772 RUB
+                        - button "47 381 RUB помесячно, исходная цена 67 772 RUB" [ref=f23e372] [cursor=pointer]:
+                          - generic [ref=f23e373]:
+                            - text: 47 381 RUB
+                            - generic [ref=f23e374]: 47 381 RUB помесячно, исходная цена 67 772 RUB
+                      - generic [ref=f23e375]: помесячно
+                    - generic [ref=f23e378]: Месячная скидка
+            - group [ref=f23e385]:
+              - link "Квартира, Хошимин" [ref=f23e386] [cursor=pointer]:
+                - /url: /rooms/1743855200883311169?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_50143691-d2c3-4358-9430-65e8f2b44375_82e61bfc-27cf-4f10-bd4f-e0f804a66c20_0_1743855200883311169_2&previous_page_section_name=1000&federated_search_id=50143691-d2c3-4358-9430-65e8f2b44375
+              - generic [ref=f23e387]:
+                - generic [ref=f23e392]:
+                  - generic [ref=f23e393]: Фото 1 из 6
+                  - generic [ref=f23e394]:
+                    - link [aria-hidden] [ref=f23e395] [cursor=pointer]:
+                      - /url: /rooms/1743855200883311169?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_50143691-d2c3-4358-9430-65e8f2b44375_82e61bfc-27cf-4f10-bd4f-e0f804a66c20_0_1743855200883311169_2&previous_page_section_name=1000&federated_search_id=50143691-d2c3-4358-9430-65e8f2b44375
+                    - link [aria-hidden] [ref=f23e399] [cursor=pointer]:
+                      - /url: /rooms/1743855200883311169?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_50143691-d2c3-4358-9430-65e8f2b44375_82e61bfc-27cf-4f10-bd4f-e0f804a66c20_0_1743855200883311169_2&previous_page_section_name=1000&federated_search_id=50143691-d2c3-4358-9430-65e8f2b44375
+                    - link [aria-hidden] [ref=f23e401] [cursor=pointer]:
+                      - /url: /rooms/1743855200883311169?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_50143691-d2c3-4358-9430-65e8f2b44375_82e61bfc-27cf-4f10-bd4f-e0f804a66c20_0_1743855200883311169_2&previous_page_section_name=1000&federated_search_id=50143691-d2c3-4358-9430-65e8f2b44375
+                    - link [aria-hidden] [ref=f23e403] [cursor=pointer]:
+                      - /url: /rooms/1743855200883311169?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_50143691-d2c3-4358-9430-65e8f2b44375_82e61bfc-27cf-4f10-bd4f-e0f804a66c20_0_1743855200883311169_2&previous_page_section_name=1000&federated_search_id=50143691-d2c3-4358-9430-65e8f2b44375
+                    - link [aria-hidden] [ref=f23e405] [cursor=pointer]:
+                      - /url: /rooms/1743855200883311169?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_50143691-d2c3-4358-9430-65e8f2b44375_82e61bfc-27cf-4f10-bd4f-e0f804a66c20_0_1743855200883311169_2&previous_page_section_name=1000&federated_search_id=50143691-d2c3-4358-9430-65e8f2b44375
+                    - link [aria-hidden] [ref=f23e407] [cursor=pointer]:
+                      - /url: /rooms/1743855200883311169?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_50143691-d2c3-4358-9430-65e8f2b44375_82e61bfc-27cf-4f10-bd4f-e0f804a66c20_0_1743855200883311169_2&previous_page_section_name=1000&federated_search_id=50143691-d2c3-4358-9430-65e8f2b44375
+                  - generic:
+                    - 'button "Добавить в вишлист: Квартира, Хошимин" [ref=f23e410] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=f23e415] [cursor=pointer]
+                      - 'button "Следующее фото: Квартира, Хошимин" [ref=f23e420] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Фото 1 из 6"
+                - generic [ref=f23e424]:
+                  - generic [ref=f23e425]: Квартира, Хошимин
+                  - generic [ref=f23e426]: Хомстей Dang Gia Vung Tau
+                  - generic [ref=f23e428]:
+                    - generic [ref=f23e429]:
+                      - generic [ref=f23e430]: 7 спален
+                      - generic [aria-hidden] [ref=f23e431]: 7 спален
+                    - generic [ref=f23e432]:
+                      - generic [ref=f23e433]: ","
+                      - generic [aria-hidden] [ref=f23e434]: ·
+                      - generic [ref=f23e435]: 3 односпальные кровати
+                      - generic [aria-hidden] [ref=f23e436]: 3 односпальные кровати
+                    - generic [ref=f23e437]:
+                      - generic [ref=f23e438]: ","
+                      - generic [aria-hidden] [ref=f23e439]: ·
+                      - generic [ref=f23e440]: 7 ванных комнат
+                      - generic [aria-hidden] [ref=f23e441]: 7 ванных комнат
+                  - generic [ref=f23e448]:
+                    - generic [ref=f23e449]:
+                      - generic [ref=f23e450]: 44 823 RUB
+                      - button "33 878 RUB помесячно, исходная цена 44 823 RUB" [ref=f23e453] [cursor=pointer]:
+                        - generic [ref=f23e454]:
+                          - text: 33 878 RUB
+                          - generic [ref=f23e455]: 33 878 RUB помесячно, исходная цена 44 823 RUB
+                    - generic [ref=f23e456]: помесячно
+        - region "Google Map" [ref=f23e464]:
+          - heading "Google map Показаны 3 варианта жилья," [level=2] [ref=f23e466]
+          - button "Настройки" [ref=f23e467] [cursor=pointer]
+          - generic [ref=f23e470]:
+            - button "Показать карту на весь экран" [ref=f23e473] [cursor=pointer]
+            - generic [ref=f23e483]:
+              - button "Приблизить" [ref=f23e484] [cursor=pointer]
+              - button "Уменьшить масштаб" [ref=f23e488] [cursor=pointer]
+          - generic [ref=f23e491]:
+            - generic:
+              - button "Быстрые клавиши"
+            - generic "Карта" [ref=f23e492]
+            - generic [ref=f23e493]:
+              - generic [ref=f23e495]:
+                - generic:
+                  - generic:
+                    - generic:
+                      - button "Квартира, Вунгтау, 47 021 RUB":
+                        - generic [ref=f23e503] [cursor=pointer]:
+                          - generic [ref=f23e504]: Квартира, Вунгтау, 47 021 RUB
+                          - text: 47 021 RUB
+                      - button "Квартира, Вунгтау, 47 381 RUB":
+                        - generic [ref=f23e511] [cursor=pointer]:
+                          - generic [ref=f23e512]: Квартира, Вунгтау, 47 381 RUB
+                          - text: 47 381 RUB
+                      - button "Квартира, Хошимин, 33 878 RUB":
+                        - generic [ref=f23e519] [cursor=pointer]:
+                          - generic [ref=f23e520]: Квартира, Хошимин, 33 878 RUB
+                          - text: 33 878 RUB
+                      - button "Vung Tau":
+                        - generic "Vung Tau" [ref=f23e522] [cursor=pointer]
+                      - button:
+                        - generic [ref=f23e533] [cursor=pointer]
+              - iframe [aria-hidden] [ref=f23e537]
+              - link "Открыть эту область в Google Картах (в новом окне)" [ref=f23e539] [cursor=pointer]:
+                - /url: https://maps.google.com/maps?ll=10.342993,107.089702&z=15.439223320868868&t=m&hl=ru&gl=VN&mapclient=apiv3
+                - img "Google" [ref=f23e541]
+              - generic [ref=f23e542]:
+                - button "Быстрые клавиши" [ref=f23e548] [cursor=pointer]
+                - button "Картографические данные" [ref=f23e554] [cursor=pointer]
+                - 'button "Масштаб карты: 200 м на 58 пкс" [ref=f23e555] [cursor=pointer]':
+                  - generic [ref=f23e558]: 200 м
+                - link "Условия (ссылка откроется в новой вкладке)" [ref=f23e570] [cursor=pointer]:
+                  - /url: https://www.google.com/intl/ru_VN/help/terms_maps.html
+                  - text: Условия
+                - link "Сообщить об ошибке на карте (ссылка откроется в новой вкладке)" [ref=f23e575] [cursor=pointer]:
+                  - /url: https://www.google.com/maps/@10.3429926,107.089702,15.44z/data=!10m1!1e1!12b1?source=apiv3&rapsrc=apiv3
+      - contentinfo [ref=f23e581]:
+        - generic [ref=f23e582]:
+          - heading "Нижний колонтитул" [level=2] [ref=f23e584]
+          - generic [ref=f23e585]:
+            - generic [ref=f23e586]:
+              - heading "Поддержка" [level=3] [ref=f23e587]
+              - list [ref=f23e588]:
+                - listitem [ref=f23e589]:
+                  - link "Центр помощи" [ref=f23e590] [cursor=pointer]:
+                    - /url: /help/home?from=footer
+                - listitem [ref=f23e591]:
+                  - 'link "Помощь: проблема с безопасностью" [ref=f23e592] [cursor=pointer]':
+                    - /url: /help/contact-us?entry=DESKTOP_FOOTER_SAFETY
+                - listitem [ref=f23e593]:
+                  - link "AirCover" [ref=f23e594] [cursor=pointer]:
+                    - /url: /help/article/3218
+                - listitem [ref=f23e595]:
+                  - link "Страховка путешественника" [ref=f23e596] [cursor=pointer]:
+                    - /url: /travelinsurance
+                - listitem [ref=f23e597]:
+                  - link "Борьба с дискриминацией" [ref=f23e598] [cursor=pointer]:
+                    - /url: /against-discrimination
+                - listitem [ref=f23e599]:
+                  - link "Помощь людям с инвалидностью" [ref=f23e600] [cursor=pointer]:
+                    - /url: /accessibility
+                - listitem [ref=f23e601]:
+                  - link "Отмена в период пандемии" [ref=f23e602] [cursor=pointer]:
+                    - /url: /help/article/2701/extenuating-circumstances-policy-and-the-coronavirus-covid19
+                - listitem [ref=f23e603]:
+                  - link "Сообщить о проблеме в районе" [ref=f23e604] [cursor=pointer]:
+                    - /url: /neighbors
+            - generic [ref=f23e605]:
+              - heading "Прием гостей" [level=3] [ref=f23e606]
+              - list [ref=f23e607]:
+                - listitem [ref=f23e608]:
+                  - link "Сдайте жилье на Airbnb" [ref=f23e609] [cursor=pointer]:
+                    - /url: /host/homes?from_footer=1
+                - listitem [ref=f23e610]:
+                  - link "Ваша гостиница на Airbnb" [ref=f23e611] [cursor=pointer]:
+                    - /url: /e/host-hotels
+                - listitem [ref=f23e612]:
+                  - link "Опубликуйте Впечатление на Airbnb" [ref=f23e613] [cursor=pointer]:
+                    - /url: /host/experiences
+                - listitem [ref=f23e614]:
+                  - link "Предложите услугу на Airbnb" [ref=f23e615] [cursor=pointer]:
+                    - /url: /host/services
+                - listitem [ref=f23e616]:
+                  - link "AirCover для хозяев" [ref=f23e617] [cursor=pointer]:
+                    - /url: /aircover-for-hosts
+                - listitem [ref=f23e618]:
+                  - link "Защита дохода" [ref=f23e619] [cursor=pointer]:
+                    - /url: /earnings-protection-insurance
+                - listitem [ref=f23e620]:
+                  - link "Материалы для хозяев" [ref=f23e621] [cursor=pointer]:
+                    - /url: /resources
+                - listitem [ref=f23e622]:
+                  - link "Форум сообщества" [ref=f23e623] [cursor=pointer]:
+                    - /url: https://community.withairbnb.com/t5/Community-Center/ct-p/community-center
+                - listitem [ref=f23e624]:
+                  - link "Ответственный прием гостей" [ref=f23e625] [cursor=pointer]:
+                    - /url: /help/responsible-hosting
+                - listitem [ref=f23e626]:
+                  - link "Бесплатный урок для хозяев" [ref=f23e627] [cursor=pointer]:
+                    - /url: /e/intro-to-hosting
+                - listitem [ref=f23e628]:
+                  - link "Найти второго хозяина" [ref=f23e629] [cursor=pointer]:
+                    - /url: /host/co-hosts
+                - listitem [ref=f23e630]:
+                  - link "Порекомендовать хозяина" [ref=f23e631] [cursor=pointer]:
+                    - /url: /refer
+            - generic [ref=f23e632]:
+              - heading "Airbnb" [level=3] [ref=f23e633]
+              - list [ref=f23e634]:
+                - listitem [ref=f23e635]:
+                  - link "Летний выпуск — 2026" [ref=f23e636] [cursor=pointer]:
+                    - /url: /release
+                - listitem [ref=f23e637]:
+                  - link "Пресс-центр" [ref=f23e638] [cursor=pointer]:
+                    - /url: /press/news
+                - listitem [ref=f23e639]:
+                  - link "Карьера в Airbnb" [ref=f23e640] [cursor=pointer]:
+                    - /url: /careers
+                - listitem [ref=f23e641]:
+                  - link "Для инвесторов" [ref=f23e642] [cursor=pointer]:
+                    - /url: https://investors.airbnb.com
+                - listitem [ref=f23e643]:
+                  - link "Подарочные карты" [ref=f23e644] [cursor=pointer]:
+                    - /url: /giftcards
+                - listitem [ref=f23e645]:
+                  - link "Прием гостей на Airbnb.org" [ref=f23e646] [cursor=pointer]:
+                    - /url: https://www.airbnb.org?locale=ru
+          - generic [ref=f23e647]:
+            - generic [ref=f23e648]: Раздел нижнего колонтитула
+            - generic [ref=f23e650]:
+              - generic [ref=f23e652]:
+                - generic [ref=f23e653]: © 2026 Airbnb, Inc.
+                - generic [ref=f23e654]:
+                  - generic [aria-hidden] [ref=f23e656]: ·
+                  - list [ref=f23e658]:
+                    - listitem [ref=f23e659]:
+                      - link "Конфиденциальность" [ref=f23e660] [cursor=pointer]:
+                        - /url: /terms/privacy_policy
+                      - generic [ref=f23e661]:
+                        - generic [aria-hidden]:
+                          - generic [aria-hidden]: ·
+                    - listitem [ref=f23e662]:
+                      - link "Условия" [ref=f23e663] [cursor=pointer]:
+                        - /url: /terms
+              - generic [ref=f23e664]:
+                - generic [ref=f23e666]:
+                  - button "Выбрать язык" [ref=f23e668] [cursor=pointer]:
+                    - generic [ref=f23e669]: Русский
+                  - button "Выбрать валюту" [ref=f23e671] [cursor=pointer]:
+                    - generic [ref=f23e673]:
+                      - generic [ref=f23e674]: ₽
+                      - generic [ref=f23e675]: RUB
+                - list [ref=f23e677]:
+                  - listitem [ref=f23e678]:
+                    - link "Открыть Facebook" [ref=f23e679] [cursor=pointer]:
+                      - /url: https://www.facebook.com/airbnb
+                  - listitem [ref=f23e683]:
+                    - link "Открыть «ВКонтакте»" [ref=f23e684] [cursor=pointer]:
+                      - /url: https://vk.com/airbnb
+                  - listitem [ref=f23e689]:
+                    - link "Открыть Twitter" [ref=f23e690] [cursor=pointer]:
+                      - /url: https://twitter.com/airbnb
+                  - listitem [ref=f23e694]:
+                    - link "Открыть Instagram" [ref=f23e695] [cursor=pointer]:
+                      - /url: https://instagram.com/airbnb
+    - generic [ref=f23e699]: Загрузка
