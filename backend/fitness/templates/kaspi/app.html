@@ -39,13 +39,19 @@
   .btn { border: 0; height: 50px; border-radius: 14px; background: var(--accent); color: var(--accent-text);
     font-weight: 600; cursor: pointer; width: 100%; }
   .btn:disabled { opacity: .5; }
-  .bars { display: grid; gap: 4px; align-items: end; height: 60px; position: relative; }
-  .bars .norm { position: absolute; left: 0; right: 0; border-top: 1.5px dashed color-mix(in srgb, var(--bad) 55%, transparent); pointer-events: none; }
+  .bars { display: grid; gap: 4px; align-items: end; height: 60px; }
   .bars > * { display: flex; flex-direction: column; align-items: center; gap: 4px; justify-content: flex-end; height: 100%; }
   .bars i { display: block; width: 100%; border-radius: 4px; background: var(--bar); min-height: 3px; }
   .bars i.today { background: var(--accent); }
   .bars i.over { background: var(--bad); }
-  .bars button { border: 0; background: none; padding: 0; cursor: pointer; }
+  .bars button { border: 0; background: none; padding: 0; cursor: pointer; position: relative; }
+  /* план дня (от остатка на утро этого дня) — планка поверх столбика */
+  .bars b.plan { position: absolute; left: -1px; right: -1px; height: 2px; border-radius: 2px; background: var(--text); opacity: .7; pointer-events: none; }
+  /* на сколько день вылез за свой план */
+  .bars em { font-style: normal; font-size: 10.5px; line-height: 13px; font-weight: 700; color: var(--bad); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .bars em.env { color: var(--hint); font-weight: 600; }
+  /* будущий день — пустой конверт высотой «можно в день» */
+  .bars i.env { background: none; border: 1.5px dashed color-mix(in srgb, var(--hint) 70%, transparent); }
   .bars button:disabled { cursor: default; }
   .bars .picked i { outline: 2px solid var(--accent); outline-offset: 2px; }
   .bars .picked span { color: var(--text); font-weight: 700; }
@@ -68,6 +74,13 @@
   .cat .track i { display: block; height: 6px; border-radius: 999px; }
   .cat.dim { opacity: .45; }
   .cat.out .line { color: var(--hint); }
+  .top-row { display: flex; flex-direction: column; gap: 4px; }
+  .top-row .line { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; }
+  .top-row .line span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .top-row small { color: var(--hint); font-size: 12.5px; }
+  .top-row .track { height: 5px; border-radius: 999px; background: var(--soft); }
+  .top-row .track i { display: block; height: 5px; border-radius: 999px; }
+  .insight { font-size: 13.5px; padding: 10px 12px; border-radius: 12px; background: var(--soft); }
   .day-head { display: flex; justify-content: space-between; padding: 4px 4px 0; color: var(--hint); font-size: 13px; }
   .list { background: var(--bg); border-radius: 16px; overflow: hidden; }
   .item { display: flex; gap: 12px; align-items: center; padding: 11px 14px; width: 100%; border: 0; background: none;
@@ -127,6 +140,7 @@
 
   <div class="daynav" id="daynav" hidden></div>
   <section class="card" id="cats"></section>
+  <section class="card" id="top"></section>
   <div id="list"></div>
   <div class="fresh" id="fresh"></div>
 </main>
@@ -273,6 +287,7 @@ function render() {
   document.querySelectorAll('#tabs button').forEach((x) => x.setAttribute('aria-selected', String(!inDrill() && x.dataset.p === state.period)));
   renderDayNav(s);
   renderCats(s);
+  renderTop(s);
   renderList(s);
   const up = s.last_upload ? new Date(s.last_upload) : null;
   $('fresh').textContent = up
@@ -328,35 +343,56 @@ function renderBudget(b) {
       el('button', { class: 'btn', onclick: () => openLimit(nd) }, `Выставить новый: ${short(nd.start)} — ${short(nd.end)}`));
     return;
   }
-  // норма дня = лимит / дни периода; день выше нормы — красный, норма — пунктир
-  const norm = a.limit_rub / a.days.length, H = 44;
-  const max = Math.max(1, norm, ...a.days.map((d) => d.rub));
-  const bars = el('div', { class: 'bars', style: `grid-template-columns:repeat(${a.days.length},1fr)` },
-    ...a.days.map((d) => {
-      const over = d.date <= today && d.rub > norm;
-      return el('button', {
-        class: isDayView() && state.from === d.date ? 'picked' : '', disabled: d.date > today,
-        'aria-label': `${dayTitle(d.date, today)}: ${n(d.rub)} ₽` + (over ? `, перерасход дня (норма ${n(norm)} ₽)` : ''),
-        onclick: () => openDay(d.date) },
-        el('i', { class: [d.date === today ? 'today' : '', over ? 'over' : ''].join(' ').trim() || null,
-          style: `height:${d.date > today ? 3 : Math.max(3, Math.round(Math.max(0, d.rub) / max * H))}px` }),
-        el('span', {}, a.days.length <= 10 ? WD[pd(d.date).getDay()] : pd(d.date).getDate()));
-    }),
-    el('div', { class: 'norm', style: `bottom:${18 + Math.round(norm / max * H)}px`, title: `норма ${n(norm)} ₽ в день` }));
-  const pct = Math.min(100, Math.max(0, a.spent_rub / a.limit_rub * 100));
-  const over = a.left_rub < 0;
+  // План дня — от остатка на утро этого дня: перерасход сегодня уменьшает план всех следующих дней.
+  // Красный день — вылез за СВОЙ план (над ним «+N»); будущие дни — конверты «можно в день».
+  const N = a.days.length, L = a.limit_rub;
+  let before = 0;
+  const days = a.days.map((d, i) => {
+    const past = d.date <= today;
+    const plan = Math.max(0, (L - before) / (N - i));
+    if (past) before += d.rub;
+    return { ...d, past, plan, over: past && d.rub > plan + 0.5 };
+  });
+  const tday = days.find((d) => d.date === today) || { rub: b.today_spent_rub, plan: 0 };
+  const left = L - a.spent_rub, futureDays = days.filter((d) => !d.past).length;
+  const futurePlan = futureDays ? Math.max(0, left / futureDays) : 0;
+  const canToday = tday.plan - tday.rub;
+  const exhausted = left <= 0;
+  const k = (v) => N > 10 && Math.abs(v) >= 1000 ? (Math.abs(v) / 1000).toFixed(1).replace('.', ',').replace(',0', '') + 'к' : n(v);
+  const H = 56, LBL = 18;                                   // высота столбиков; место под подпись дня
+  const max = Math.max(1, futurePlan, ...days.map((d) => Math.max(d.rub, d.past ? d.plan : 0)));
+  const px = (v) => Math.max(3, Math.round(Math.max(0, v) / max * H));
+  const bars = el('div', { class: 'bars', style: `grid-template-columns:repeat(${N},1fr);height:${H + LBL + 16}px` },
+    ...days.map((d) => el('button', {
+      class: isDayView() && state.from === d.date ? 'picked' : '', disabled: !d.past,
+      'aria-label': d.past ? `${dayTitle(d.date, today)}: ${n(d.rub)} ₽, план ${n(d.plan)} ₽` + (d.over ? `, перерасход ${n(d.rub - d.plan)} ₽` : '')
+        : `${dayTitle(d.date, today)}: можно ${n(futurePlan)} ₽`,
+      onclick: () => openDay(d.date) },
+      d.past ? (d.over ? el('em', {}, '+' + k(d.rub - d.plan)) : null) : (N <= 10 ? el('em', { class: 'env' }, k(futurePlan)) : null),
+      d.past ? el('i', { class: [d.date === today ? 'today' : '', d.over ? 'over' : ''].join(' ').trim() || null, style: `height:${px(d.rub)}px` })
+        : el('i', { class: 'env', style: `height:${futurePlan ? px(futurePlan) : 3}px` }),
+      d.past ? el('b', { class: 'plan', style: `bottom:${LBL + px(d.plan) - 1}px` }) : null,
+      el('span', {}, N <= 10 ? WD[pd(d.date).getDay()] : pd(d.date).getDate()))));
+  const pct = Math.min(100, Math.max(0, a.spent_rub / L * 100));
   box.replaceChildren(
     el('div', { class: 'row-between' }, el('span', { class: 'hint' }, `Лимит · ${range}`),
-      el('button', { class: 'link', onclick: () => openLimit({ start: a.start, end: a.end, limit_rub: a.limit_rub }) }, 'Изменить')),
+      el('button', { class: 'link', onclick: () => openLimit({ start: a.start, end: a.end, limit_rub: L }) }, 'Изменить')),
     el('div', { class: 'row-between', style: 'align-items:flex-end' },
       el('div', {},
-        el('div', { class: 'big', style: over ? 'color:var(--warn)' : '' }, over ? `−${n(a.left_rub)} ₽` : `${n(a.left_rub)} ₽`),
-        el('div', { class: 'hint' }, over ? `перерасход · лимит ${n(a.limit_rub)} ₽`
-          : `осталось из ${n(a.limit_rub)} · ~${n(a.per_day_rub)} ₽ в день · ${a.days_left} ${plural(a.days_left, 'день', 'дня', 'дней')}`)),
-      todayLine),
-    el('div', { class: 'progress' }, el('i', { style: `width:${pct}%;${over ? 'background:var(--warn)' : ''}` })),
+        el('div', { class: 'big', style: exhausted || canToday < 0 ? 'color:var(--bad)' : '' },
+          exhausted ? '0 ₽' : `${canToday < 0 ? '−' : ''}${n(canToday)} ₽`),
+        el('div', { class: 'hint' }, exhausted ? 'сегодня можно · лимит исчерпан'
+          : canToday < 0 ? `сегодня сверх плана · план дня ${n(tday.plan)} ₽`
+          : `сегодня можно · план дня ${n(tday.plan)} ₽` + (tday.rub ? `, уже ${n(tday.rub)} ₽` : ''))),
+      el('div', { style: 'text-align:right' }, el('div', { class: 'hint' }, 'в день дальше'),
+        el('div', { style: 'font-size:20px;font-weight:700' }, futureDays ? `${n(futurePlan)} ₽` : '—'))),
+    el('div', { class: 'row-between' },
+      el('span', { class: 'hint' }, exhausted ? `перерасход за период · лимит ${n(L)} ₽` : `осталось на период из ${n(L)} ₽`),
+      el('b', { style: exhausted ? 'color:var(--bad)' : '' }, `${exhausted && left < 0 ? '−' : ''}${n(left)} ₽`)),
+    el('div', { class: 'progress' }, el('i', { style: `width:${pct}%;${exhausted ? 'background:var(--bad)' : ''}` })),
     exclLine(a, today),
-    bars);
+    bars,
+    futureDays && N > 1 ? el('div', { class: 'hint' }, `было в начале ${n(L / N)} ₽ в день · планка — план дня, рамка — сколько можно дальше`) : null);
 }
 
 function renderDayNav(s) {
@@ -398,6 +434,30 @@ function renderCats(s) {
     el('div', { class: 'row-between' }, el('b', {}, 'По категориям'),
       state.category ? el('button', { class: 'link', onclick: () => toggleCat(state.category) }, 'Сбросить') : el('span', { class: 'hint' }, 'тап = фильтр')),
     ...rows);
+}
+
+// Где больше всего: сети/продавцы по сумме, визиты и медианный чек + выводы «частота или цена»
+let topAll = false;
+function renderTop(s) {
+  const box = $('top'), ms = (s.merchants || []).filter((m) => m.rub > 0);
+  if (!ms.length || state.only_excluded) { box.style.display = 'none'; return; }
+  box.style.display = '';
+  const shown = topAll ? ms : ms.slice(0, 5), max = Math.max(1, ...ms.map((m) => m.rub));
+  const times = (k) => plural(k, 'раз', 'раза', 'раз');
+  box.replaceChildren(
+    el('div', { class: 'row-between' }, el('b', {}, 'Где больше всего'),
+      el('span', { class: 'hint' }, state.category ? s.category_labels[state.category] : 'за период')),
+    ...(s.insights || []).map((x) => el('div', { class: 'insight' }, x.text)),
+    ...shown.map((m) => el('div', { class: 'top-row' },
+      el('span', { class: 'line' }, el('span', {}, m.name), el('b', {}, n(m.rub) + ' ₽')),
+      el('span', { class: 'track' }, el('i', { style: `width:${Math.max(2, m.rub / max * 100)}%;background:${COLORS[m.category]}` })),
+      el('small', {}, [s.category_labels[m.category].toLowerCase(),
+        m.visits ? `${m.visits} ${times(m.visits)}` : null,
+        m.visits > 1 && m.check ? `чек ~${n(m.check)} ₽` : null,
+        m.share != null && m.share < 1 ? `${Math.round(m.share * 100)}% категории` : null,
+        m.excluded ? 'вне лимита' : null].filter(Boolean).join(' · ')))),
+    ms.length > 5 ? el('button', { class: 'link', onclick: () => { topAll = !topAll; renderTop(s); } },
+      topAll ? 'Свернуть' : `Все ${ms.length}`) : null);
 }
 
 function toggleCat(key) { state.category = state.category === key ? null : key; reload(); }

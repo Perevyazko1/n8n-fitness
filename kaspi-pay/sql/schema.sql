@@ -117,3 +117,9 @@ ON CONFLICT (card) DO UPDATE SET label = EXCLUDED.label, color = COALESCE(kaspi_
 -- даже если перевод пустой (бренд вроде GRAB): повторно в LLM не отправляем.
 ALTER TABLE kaspi_merchant_rules ADD COLUMN IF NOT EXISTS name_ru text;
 ALTER TABLE kaspi_merchant_rules ADD COLUMN IF NOT EXISTS name_ru_at timestamptz;
+
+-- ===== 2026-11-12: группировка продавцов по сети + категории от GPT =====
+-- brand — название сети/заведения без филиала и номера («WINMART+ NT 123» → «WinMart»), от GPT.
+-- '' — «спрашивали, сети нет»; NULL — ещё не спрашивали (уйдёт в следующий запрос вместе с переводом).
+-- Аналитика «где больше всего» группирует по lower(brand), а без него — по ключу продавца.
+ALTER TABLE kaspi_merchant_rules ADD COLUMN IF NOT EXISTS brand text;

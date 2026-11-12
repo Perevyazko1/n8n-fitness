@@ -12,6 +12,7 @@ kaspi-pay/sql/schema.sql. Здесь только сырой SQL, migrate их �
 - «Сегодня» — по Вьетнаму (Asia/Ho_Chi_Minh).
 """
 from datetime import date, datetime, timedelta
+from statistics import median
 from zoneinfo import ZoneInfo
 
 from django.db import connection, transaction
@@ -30,6 +31,10 @@ CATEGORIES = {
     "other": "Прочее",
 }
 FRIDAY = 4
+# «дороже за визит» сравниваем только там, где чек ≈ цена: в магазине большой чек — это «купили много»,
+# в такси — «ехали далеко». Для остальных категорий — только сумма и частота.
+PRICE_CATS = {"cafe", "fun"}
+MIN_VISITS = 3          # меньше — сравнения шумные
 MAX_BUDGET_DAYS = 92
 
 # Резолв категории и «вне лимита» для строки e (+ правило r).
@@ -178,7 +183,7 @@ def summary(period, start=None, end=None, card=None, category=None, only_exclude
         cur.execute(f"""SELECT e.id, e.card, e.op_date, e.kind, e.merchant, e.merchant_norm,
                                e.amount_kzt, e.amount_rub, e.orig_amount, e.orig_currency,
                                kaspi_merchant_key(e.merchant, e.merchant_norm) AS mkey,
-                               NULLIF(r.name_ru, '') AS name_ru,
+                               NULLIF(r.name_ru, '') AS name_ru, NULLIF(r.brand, '') AS brand,
                                {_RESOLVED}
                           {_FROM}
                          WHERE {' AND '.join(where)}
@@ -194,7 +199,8 @@ def summary(period, start=None, end=None, card=None, category=None, only_exclude
     items, days = [], {}
     total_kzt = total_rub = excl_rub = fx_kzt = 0.0
     no_rate = False
-    for (eid, card_, op_date, kind, merchant, mnorm, kzt, rub, orig, cur_code, mkey, name_ru, cat, excluded) in rows:
+    groups = {}
+    for (eid, card_, op_date, kind, merchant, mnorm, kzt, rub, orig, cur_code, mkey, name_ru, brand, cat, excluded) in rows:
         cat = cat if cat in CATEGORIES else "other"
         s_kzt, s_rub = _spend(kzt), _spend(rub)
         no_rate |= s_rub is None
@@ -205,6 +211,15 @@ def summary(period, start=None, end=None, card=None, category=None, only_exclude
             continue
         d = days.setdefault(op_date.isoformat(), {"date": op_date.isoformat(), "rub": 0.0, "excluded_rub": 0.0})
         d["excluded_rub" if excluded else "rub"] += s_rub or 0.0
+        # продавцы, сгруппированные по сети (brand от GPT), без сети — по ключу продавца
+        gkey = brand.lower() if brand else mkey
+        g = groups.setdefault(gkey, {"key": gkey, "name": brand or name_ru or merchant.split("*")[0].strip() or merchant,
+                                     "cats": {}, "rub": 0.0, "checks": [], "excluded": True})
+        g["rub"] += s_rub or 0.0
+        g["cats"][cat] = g["cats"].get(cat, 0.0) + (s_rub or 0.0)
+        g["excluded"] &= bool(excluded)
+        if kind == "purchase" and (s_rub or 0) > 0:
+            g["checks"].append(s_rub)
         if excluded:
             excl_rub += s_rub or 0.0
         else:
@@ -222,6 +237,7 @@ def summary(period, start=None, end=None, card=None, category=None, only_exclude
             "merchant_key": mkey, "merchant_count": m_counts.get(mkey, 1),
         })
 
+    merchants, insights = _merchant_stats(groups)
     return {
         "ok": True,
         "period": period, "from": p_start.isoformat(), "to": p_end.isoformat(),
@@ -237,9 +253,61 @@ def summary(period, start=None, end=None, card=None, category=None, only_exclude
         "cards": _cards(),
         "budget": budget_status(),
         "items": items,
+        "merchants": merchants,
+        "insights": insights,
         "last_op_date": last_op.isoformat() if last_op else None,
         "last_upload": last_upload.isoformat() if last_upload else None,
     }
+
+
+def _merchant_stats(groups):
+    """Где больше всего: по каждой сети — сумма, визиты, медианный чек, доля в категории; + выводы.
+    Сумма = визиты × чек, поэтому вывод всегда говорит, ЧТО раздуло трату: частота или цена."""
+    cat_tot = {}
+    out = []
+    for g in groups.values():
+        cat = max(g["cats"], key=g["cats"].get)            # категория сети — где больше денег
+        cat_tot[cat] = cat_tot.get(cat, 0.0) + g["rub"]
+        out.append({"key": g["key"], "name": g["name"], "category": cat, "rub": round(g["rub"], 2),
+                    "visits": len(g["checks"]), "check": round(median(g["checks"]), 2) if g["checks"] else None,
+                    "excluded": g["excluded"], "_checks": g["checks"]})
+    out.sort(key=lambda m: -m["rub"])
+    for m in out:
+        t = cat_tot.get(m["category"]) or 0
+        m["share"] = round(m["rub"] / t, 3) if t > 0 else None
+
+    fmt = lambda v: f"{round(v):,}".replace(",", " ")
+    times = lambda k: "раз" if k % 10 in (0, 1, 5, 6, 7, 8, 9) or 11 <= k % 100 <= 14 else "раза"
+    insights = []
+    by_cat = {}
+    for m in out:
+        if not m["excluded"]:
+            by_cat.setdefault(m["category"], []).append(m)
+    for cat, ms in sorted(by_cat.items(), key=lambda kv: -cat_tot.get(kv[0], 0)):
+        label = CATEGORIES[cat].lower()
+        top = ms[0]
+        # 1) кто съедает категорию и почему: частота или чек
+        if len(ms) >= 2 and top["share"] and top["share"] >= 0.35 and top["visits"] >= MIN_VISITS:
+            rest = [c for m in ms[1:] for c in m["_checks"]]
+            why = (f"ходим часто ({top['visits']} {times(top['visits'])}), чек обычный ~{fmt(top['check'])} ₽"
+                   if rest and top["check"] <= median(rest) * 1.2
+                   else f"дорогой чек ~{fmt(top['check'])} ₽, были {top['visits']} {times(top['visits'])}")
+            insights.append({"category": cat, "kind": "share",
+                             "text": f"{top['name']} — {round(top['share'] * 100)}% трат на {label}: {why}"})
+        # 2) дороже за визит — только где чек ≈ цена
+        if cat in PRICE_CATS:
+            ok = [m for m in ms if m["visits"] >= MIN_VISITS and m["check"]]
+            if len(ok) >= 2:
+                hi, lo = max(ok, key=lambda m: m["check"]), min(ok, key=lambda m: m["check"])
+                k = hi["check"] / lo["check"]
+                if k >= 1.5:
+                    kt = f"{k:.1f}".removesuffix(".0").replace(".", ",")
+                    insights.append({"category": cat, "kind": "price",
+                                     "text": f"{hi['name']} дороже {lo['name']} в {kt} раза за визит: "
+                                             f"~{fmt(hi['check'])} ₽ против ~{fmt(lo['check'])} ₽"})
+    for m in out:
+        del m["_checks"]
+    return out[:30], insights[:3]
 
 
 # ---------- запись ----------
