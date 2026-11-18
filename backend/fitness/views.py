@@ -510,6 +510,26 @@ def kaspi_expense_update(request):
         return ok({"ok": False, "error": str(e)}, status=400)
     return ok({"ok": True, **res})
 
+def kaspi_cash_add(request):
+    """Трата наличными: {date, amount, currency: RUB|VND, merchant?, category?, excluded?} → ₽ по курсу ЦБ."""
+    p = request.payload
+    try:
+        res = kaspi.cash_add(p.get("date"), p.get("amount"), p.get("currency"), merchant=p.get("merchant") or "",
+                             category=p.get("category") or "other", excluded=p.get("excluded") is True,
+                             user_id=(request.kaspi_user or {}).get("id"))
+    except kaspi.KaspiError as e:
+        return ok({"ok": False, "error": str(e)}, status=400)
+    return ok({"ok": True, **res})
+
+
+def kaspi_cash_delete(request):
+    """Удалить ручную трату наличными: {id}. Строки выписки не удаляются."""
+    try:
+        kaspi.cash_delete(int(request.payload.get("id") or 0))
+    except (kaspi.KaspiError, ValueError) as e:
+        return ok({"ok": False, "error": str(e)}, status=400)
+    return ok({"ok": True})
+
 def exercises(request):
     """Справочник упражнений для приложения/будущего коуча. Опц. фильтр ?section / по группе."""
     qs = ExerciseLibrary.objects.all().order_by("section", "muscle_group", "name")

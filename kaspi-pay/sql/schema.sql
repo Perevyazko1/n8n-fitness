@@ -123,3 +123,10 @@ ALTER TABLE kaspi_merchant_rules ADD COLUMN IF NOT EXISTS name_ru_at timestamptz
 -- '' — «спрашивали, сети нет»; NULL — ещё не спрашивали (уйдёт в следующий запрос вместе с переводом).
 -- Аналитика «где больше всего» группирует по lower(brand), а без него — по ключу продавца.
 ALTER TABLE kaspi_merchant_rules ADD COLUMN IF NOT EXISTS brand text;
+
+-- ===== 2026-11-18: наличные — ручной ввод из Mini App (₽ или ₫ → ₽ по курсу ЦБ) =====
+-- Строка в kaspi_expenses с card = 'cash', kind = 'purchase', dedup_key = 'cash|<uuid>'. Пишет Django
+-- (/api/kaspi/cash-add), не n8n. orig_amount/orig_currency — что ввели (RUB|VND), amount_kzt — пересчёт
+-- рублей по kzt_rub (колонка NOT NULL, в Mini App у наличных тенге не показываются).
+ALTER TABLE kaspi_expenses ADD COLUMN IF NOT EXISTS created_by bigint;   -- Telegram user_id (ручной ввод)
+INSERT INTO kaspi_cards (card, label, color) VALUES ('cash', 'Наличные', '#15803d') ON CONFLICT (card) DO NOTHING;

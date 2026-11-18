@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Траты Kaspi</title>
-<!-- kaspi-pay Mini App (вариант C). API: /api/kaspi/summary | budget-set | expense-update. Проект — kaspi-pay/WORKLOG.md -->
+<!-- kaspi-pay Mini App (вариант C). API: /api/kaspi/summary | budget-set | expense-update | cash-add | cash-delete. Проект — kaspi-pay/WORKLOG.md -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
   :root {
@@ -122,6 +122,12 @@
   .toggle.plain { background: none; padding: 0 4px; }
   .toggle input { width: 24px; height: 24px; accent-color: var(--accent); flex: none; }
   .toggle span small { display: block; color: var(--hint); font-size: 13px; }
+  .add-cash { border: 0; border-radius: 14px; height: 46px; background: var(--bg); color: var(--link); font-weight: 600; cursor: pointer; }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: var(--soft); border-radius: 12px; padding: 4px; }
+  .seg button { border: 0; background: none; border-radius: 9px; height: 40px; font-weight: 600; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--bg); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .field input[type="text"] { font-size: 15px; }
+  .btn.danger { background: none; color: var(--bad); height: 40px; }
 </style>
 </head>
 <body>
@@ -137,6 +143,8 @@
     <button role="tab" data-p="month">Месяц</button>
     <button role="tab" data-p="custom">Период</button>
   </div>
+
+  <button class="add-cash" id="addCash" type="button">＋ Наличные</button>
 
   <div class="daynav" id="daynav" hidden></div>
   <section class="card" id="cats"></section>
@@ -191,8 +199,30 @@
     <div class="field">Категория<div class="wrap" id="expCats"></div></div>
     <label class="toggle"><span>Не учитывать в лимите<small>Трата останется в списке, но не съест лимит</small></span>
       <input type="checkbox" id="expOut"></label>
-    <label class="toggle plain"><span id="expAllLabel"></span><input type="checkbox" id="expAll"></label>
+    <label class="toggle plain" id="expAllRow"><span id="expAllLabel"></span><input type="checkbox" id="expAll"></label>
     <button class="btn" type="submit">Готово</button>
+    <button class="btn danger" type="button" id="expDel" hidden>Удалить трату</button>
+  </form>
+</div>
+
+<!-- шторка: трата наличными -->
+<div class="scrim" id="cashSheet">
+  <form class="sheet" id="cashForm" novalidate>
+    <div class="grab"></div>
+    <div class="row-between"><h2>Наличные</h2><button type="button" class="x" data-close aria-label="Закрыть">×</button></div>
+    <div class="seg" id="cashCur" role="group" aria-label="Валюта">
+      <button type="button" data-cur="VND">Донги ₫</button>
+      <button type="button" data-cur="RUB">Рубли ₽</button>
+    </div>
+    <label class="field"><span id="cashAmtLabel">Сумма</span>
+      <input class="money" type="text" name="amount" inputmode="decimal" autocomplete="off" placeholder="0"></label>
+    <div class="hint" id="cashHint"></div>
+    <label class="field">Что купили<input type="text" name="merchant" maxlength="120" placeholder="Например: рынок, кофе, массаж"></label>
+    <div class="field">Категория<div class="wrap" id="cashCats"></div></div>
+    <label class="field">Дата<input type="date" name="date" required></label>
+    <label class="toggle"><span>Не учитывать в лимите<small>Трата останется в списке, но не съест лимит</small></span>
+      <input type="checkbox" name="excluded"></label>
+    <button class="btn" type="submit">Добавить</button>
   </form>
 </div>
 
@@ -278,7 +308,7 @@ function render() {
   const s = data, b = s.budget;
   // карты
   who = Object.fromEntries(s.cards.map((c, i) => [c.card, { name: c.name, color: c.color || PEOPLE[i % PEOPLE.length] }]));
-  const cards = [{ card: null, label: s.cards.length > 1 ? 'Обе карты' : 'Все карты' }, ...s.cards];
+  const cards = [{ card: null, label: s.cards.length === 2 ? 'Обе карты' : 'Все' }, ...s.cards];
   $('cards').replaceChildren(...cards.map((c) => el('button', {
     class: 'chip', 'aria-pressed': String(state.card === c.card), style: c.card && who[c.card] ? `--who:${who[c.card].color}` : null,
     onclick: () => { state.card = c.card; reload(); } }, c.card && s.cards.length > 1 ? el('i', { class: 'cdot' }) : null, c.label)));
@@ -467,7 +497,7 @@ function renderList(s) {
   const today = s.budget.today;
   if (!s.items.length) {
     box.replaceChildren(el('div', { class: 'empty' }, state.only_excluded ? 'Трат вне лимита за этот период нет.' : state.period === 'day'
-      ? 'За сегодня трат пока нет. Траты появляются, когда присылаешь выписку боту.'
+      ? 'За сегодня трат пока нет. Карта — из выписки в боте, наличные — кнопкой «＋ Наличные».'
       : 'Трат за этот период нет.'));
     return;
   }
@@ -486,8 +516,9 @@ function renderList(s) {
         el('span', {}, `${n(t.rub)} ₽` + (t.excluded_rub ? ` · вне лимита ${n(t.excluded_rub)} ₽` : ''))),
       el('div', { class: 'list' }, ...byDay[date].map((it) => {
         const sub = [];
-        if (it.orig != null && it.cur) sub.push(`${n(it.orig)} ${CUR[it.cur] || it.cur}`);
-        if (it.rub != null) sub.push(`${n(it.kzt)} ₸`);
+        const cash = it.card === 'cash';
+        if (it.orig != null && it.cur && !(cash && it.cur === 'RUB')) sub.push(`${n(it.orig)} ${CUR[it.cur] || it.cur}`);
+        if (it.rub != null && !cash) sub.push(`${n(it.kzt)} ₸`);
         const w = multi && it.card ? who[it.card] : null;
         const catLabel = s.category_labels[it.category] + (it.excluded ? ' · вне лимита' : '') + (it.refund ? ' · возврат' : '');
         return el('button', { class: 'item' + (it.excluded ? ' out' : '') + (it.refund ? ' refund' : ''), onclick: () => openExpense(it),
@@ -583,7 +614,13 @@ function openExpense(it) {
   $('expMeta').replaceChildren(it.name_ru ? el('div', {}, it.merchant) : '', dayTitle(it.date, data.budget.today),
     cardLabel ? ' · ' : '', w && data.cards.length > 1 ? el('span', { class: 'who', style: `--who:${w.color}` }, cardLabel) : (cardLabel || ''));
   $('expRub').textContent = it.rub != null ? `${it.refund ? '+' : ''}${n(it.rub)} ₽` : `${n(it.kzt)} ₸`;
-  $('expSub').textContent = [it.orig != null && it.cur ? `${n(it.orig)} ${CUR[it.cur] || it.cur}` : null, `${n(it.kzt)} ₸`].filter(Boolean).join(' · ');
+  const cash = it.card === 'cash';
+  $('expSub').textContent = cash
+    ? (it.cur === 'VND' ? `${n(it.orig)} ₫ · наличные` : 'наличные')
+    : [it.orig != null && it.cur ? `${n(it.orig)} ${CUR[it.cur] || it.cur}` : null, `${n(it.kzt)} ₸`].filter(Boolean).join(' · ');
+  // у наличных «так же для всех трат продавца» не нужно (название — свободный текст), зато можно удалить
+  $('expAllRow').hidden = cash; $('expDel').hidden = !cash;
+  $('expDel').disabled = false; $('expDel').dataset.confirm = ''; $('expDel').textContent = 'Удалить трату';
   $('expOut').checked = it.excluded;
   $('expAll').checked = false;
   const group = it.merchant.includes('*') ? it.merchant.split('*')[0].trim() + '*…' : it.merchant;
@@ -600,7 +637,7 @@ $('expForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   // отправляем только то, что поменяли: с галкой непоменянная категория не должна застыть
   // в правиле продавца (иначе «Прочее» навсегда перекроет автоматику)
-  const it = editing.it, body = { id: it.id, apply_to_merchant: $('expAll').checked };
+  const it = editing.it, body = { id: it.id, apply_to_merchant: it.card !== 'cash' && $('expAll').checked };
   if (editing.category !== it.category) body.category = editing.category;
   if ($('expOut').checked !== it.excluded) body.excluded = $('expOut').checked;
   if (body.apply_to_merchant && !('category' in body) && !('excluded' in body)) body.excluded = it.excluded;
@@ -609,6 +646,71 @@ $('expForm').addEventListener('submit', async (e) => {
   try { await api('expense-update', body); close('expSheet'); await reload(); }
   catch (err) { $('expSub').textContent = err.message; }
   btn.disabled = false;
+});
+
+$('expDel').addEventListener('click', async () => {
+  const b = $('expDel');
+  if (b.dataset.confirm !== '1') { b.dataset.confirm = '1'; b.textContent = 'Точно удалить? Нажми ещё раз'; return; }
+  b.dataset.confirm = ''; b.disabled = true;
+  try { await api('cash-delete', { id: editing.it.id }); close('expSheet'); await reload(); }
+  catch (err) { $('expSub').textContent = err.message; b.disabled = false; }
+});
+
+// ---- наличные: ₫ или ₽, в рубли по курсу ЦБ ----
+const cash = { cur: 'VND', category: null };
+try { cash.cur = localStorage.getItem('kaspi.cashCur') || 'VND'; } catch (e) {}
+// «97к», «97 000», «1,5k» → число; «к/k» = тысячи (донги удобно вводить так)
+function parseAmount(v) {
+  const m = String(v || '').toLowerCase().replace(/\s/g, '').replace(',', '.').match(/^(\d+(?:\.\d+)?)(к|k|кк|m|м)?$/);
+  if (!m) return NaN;
+  const mul = { 'к': 1e3, k: 1e3, 'кк': 1e6, m: 1e6, 'м': 1e6 }[m[2]] || 1;
+  return Number(m[1]) * mul;
+}
+function cashRender() {
+  document.querySelectorAll('#cashCur [data-cur]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.cur === cash.cur)));
+  $('cashAmtLabel').textContent = cash.cur === 'VND' ? 'Сумма, ₫ (можно «97к»)' : 'Сумма, ₽';
+  $('cashCats').replaceChildren(...Object.entries(data.category_labels).map(([k, v]) => el('button', {
+    type: 'button', class: 'soft-chip', 'aria-pressed': String(cash.category === k),
+    onclick: () => { cash.category = cash.category === k ? null : k; cashRender(); } }, v)));
+  cashHint();
+}
+function cashHint() {
+  const a = parseAmount($('cashForm').amount.value), fx = data && data.fx;
+  if (!(a > 0)) { $('cashHint').textContent = ''; return; }
+  if (cash.cur === 'RUB') { $('cashHint').textContent = `${n(a)} ₽`; return; }
+  $('cashHint').textContent = fx && fx.vnd_rub
+    ? `${n(a)} ₫ ≈ ${n(a * fx.vnd_rub)} ₽ · курс ЦБ на ${short(fx.day)}, при сохранении возьмём сегодняшний`
+    : `${n(a)} ₫ · в рубли пересчитаем по курсу ЦБ при сохранении`;
+}
+$('addCash').addEventListener('click', () => {
+  if (!data) return;
+  const f = $('cashForm');
+  f.reset(); cash.category = null;
+  f.date.value = isDayView() ? state.from : data.budget.today;
+  f.date.max = data.budget.today;
+  cashRender(); open('cashSheet');
+  setTimeout(() => f.amount.focus(), 150);
+});
+document.querySelectorAll('#cashCur [data-cur]').forEach((b) => b.addEventListener('click', () => {
+  cash.cur = b.dataset.cur;
+  try { localStorage.setItem('kaspi.cashCur', cash.cur); } catch (e) {}
+  cashRender();
+}));
+$('cashForm').amount.addEventListener('input', cashHint);
+$('cashForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = e.target, btn = f.querySelector('.btn'), hint = $('cashHint');
+  const amount = parseAmount(f.amount.value);
+  if (!(amount > 0)) { hint.textContent = 'Укажи сумму: например 97000 или 97к.'; return; }
+  if (!f.date.value) { hint.textContent = 'Укажи дату.'; return; }
+  btn.disabled = true; btn.textContent = 'Сохраняю…';
+  try {
+    await api('cash-add', { amount, currency: cash.cur, merchant: f.merchant.value.trim(), date: f.date.value,
+      category: cash.category || 'other', excluded: f.excluded.checked });
+    close('cashSheet'); tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('success');
+    await reload();
+  } catch (err) { hint.textContent = err.message; }
+  btn.disabled = false; btn.textContent = 'Добавить';
 });
 
 reload();

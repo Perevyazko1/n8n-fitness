@@ -10,14 +10,24 @@ kaspi-pay/sql/schema.sql. Здесь только сырой SQL, migrate их �
   Продавец для правил — kaspi_merchant_key(): часть названия до «*» (все «Grab* A-…» — один Grab).
 - Лимит общий на всех: считает траты всех карт и категорий, кроме «вне лимита».
 - «Сегодня» — по Вьетнаму (Asia/Ho_Chi_Minh).
+- Наличные (card = 'cash') вводятся руками из Mini App в ₽ или ₫, пересчёт в ₽ по курсу ЦБ (kaspi_fx_rates).
 """
+import json
+import logging
+import uuid
 from datetime import date, datetime, timedelta
 from statistics import median
+from urllib.request import urlopen
 from zoneinfo import ZoneInfo
 
 from django.db import connection, transaction
 
 TZ = ZoneInfo("Asia/Ho_Chi_Minh")
+MSK = ZoneInfo("Europe/Moscow")              # день кэша курса — по Москве, как в n8n
+CASH = "cash"
+CASH_CURRENCIES = ("RUB", "VND")
+CBR_URL = "https://www.cbr-xml-daily.ru/daily_json.js"
+log = logging.getLogger(__name__)
 SPEND_KINDS = ["purchase", "fx_diff"]
 PERIODS = ("day", "yesterday", "week", "month", "custom")
 CATEGORIES = {
@@ -104,7 +114,8 @@ def _cards():
         cur.execute("""SELECT e.card, c.label, c.color
                          FROM kaspi_expenses e LEFT JOIN kaspi_cards c ON c.card = e.card
                         WHERE e.card IS NOT NULL GROUP BY e.card, c.label, c.color ORDER BY min(e.id)""")
-        return [{"card": card, "name": label or "Карта", "label": f"{label or 'Карта'} *{card}", "color": color}
+        return [{"card": card, "name": label or "Карта",
+                 "label": label or "Наличные" if card == CASH else f"{label or 'Карта'} *{card}", "color": color}
                 for card, label, color in cur.fetchall()]
 
 
@@ -189,11 +200,15 @@ def summary(period, start=None, end=None, card=None, category=None, only_exclude
                          WHERE {' AND '.join(where)}
                          ORDER BY e.op_date DESC, e.stmt_pos NULLS LAST, e.id""", params)
         rows = cur.fetchall()
-        cur.execute("SELECT max(op_date), max(created_at) FROM kaspi_expenses")
+        # «данные по выписке на …» — только выписки, ручные наличные не в счёт
+        cur.execute("SELECT max(op_date), max(created_at) FROM kaspi_expenses WHERE card IS DISTINCT FROM %s", [CASH])
         last_op, last_upload = cur.fetchone()
         cur.execute("""SELECT kaspi_merchant_key(merchant, merchant_norm), count(*) FROM kaspi_expenses
                         WHERE kind = 'purchase' GROUP BY 1""")
         m_counts = dict(cur.fetchall())
+        # курс для подсказки «≈ N ₽» в форме наличных (без похода в ЦБ — это делает cash_add)
+        cur.execute("SELECT day, kzt_rub, vnd_rub FROM kaspi_fx_rates ORDER BY day DESC LIMIT 1")
+        fx = cur.fetchone()
 
     cats = {k: {"key": k, "label": v, "rub": 0.0, "excluded_rub": 0.0} for k, v in CATEGORIES.items()}
     items, days = [], {}
@@ -255,6 +270,7 @@ def summary(period, start=None, end=None, card=None, category=None, only_exclude
         "items": items,
         "merchants": merchants,
         "insights": insights,
+        "fx": {"day": fx[0].isoformat(), "kzt_rub": _f(fx[1]), "vnd_rub": _f(fx[2])} if fx else None,
         "last_op_date": last_op.isoformat() if last_op else None,
         "last_upload": last_upload.isoformat() if last_upload else None,
     }
@@ -375,3 +391,76 @@ def expense_update(expense_id, category=_UNSET, excluded=_UNSET, apply_to_mercha
         cur.execute(f"UPDATE kaspi_expenses SET {', '.join(sets)} WHERE id = %s", params + [expense_id])
         return {"merchant_norm": mnorm, "scope": "expense", "affected": cur.rowcount}
 
+
+
+# ---------- наличные ----------
+def _fx_rate():
+    """(day, kzt_rub, vnd_rub) — сегодняшний курс ЦБ. Кэш пополняет и n8n (при выписке), и мы:
+    нет строки на сегодня по Москве — тянем ЦБ сами; ЦБ не ответил — последний известный."""
+    today = datetime.now(MSK).date()
+    with connection.cursor() as cur:
+        cur.execute("SELECT day, kzt_rub, vnd_rub FROM kaspi_fx_rates ORDER BY day DESC LIMIT 1")
+        row = cur.fetchone()
+        if row and row[0] >= today:
+            return row
+        try:
+            with urlopen(CBR_URL, timeout=6) as r:
+                j = json.load(r)
+            v = j["Valute"]
+            kzt = v["KZT"]["Value"] / v["KZT"]["Nominal"]
+            vnd = v["VND"]["Value"] / v["VND"]["Nominal"] if "VND" in v else None
+            cur.execute("""INSERT INTO kaspi_fx_rates (day, cbr_date, kzt_rub, vnd_rub) VALUES (%s, %s, %s, %s)
+                           ON CONFLICT (day) DO UPDATE SET cbr_date = EXCLUDED.cbr_date, kzt_rub = EXCLUDED.kzt_rub,
+                                  vnd_rub = EXCLUDED.vnd_rub, fetched_at = now()
+                           RETURNING day, kzt_rub, vnd_rub""", [today, str(j["Date"])[:10], kzt, vnd])
+            return cur.fetchone()
+        except Exception as e:                 # сеть/формат ЦБ — не повод не записать трату
+            log.warning("kaspi: CBR fetch failed: %s", e)
+            if row:
+                return row
+            raise KaspiError("no_rate")
+
+
+def cash_add(op_date, amount, currency, merchant="", category="other", excluded=False, user_id=None):
+    """Трата наличными: amount > 0 в RUB или VND → строка kaspi_expenses (card = 'cash')."""
+    d = _d(op_date, "date")
+    if d > today_vn() or (today_vn() - d).days > 366:
+        raise KaspiError("bad_date")
+    currency = str(currency or "").upper()
+    if currency not in CASH_CURRENCIES:
+        raise KaspiError("bad_currency")
+    try:
+        amt = round(float(str(amount).replace(" ", "").replace(",", ".")), 2)
+    except (TypeError, ValueError):
+        raise KaspiError("bad_amount")
+    if not 0 < amt < 1_000_000_000:
+        raise KaspiError("bad_amount")
+    if category not in CATEGORIES:
+        raise KaspiError("bad_category")
+    if not isinstance(excluded, bool):
+        raise KaspiError("bad_excluded")
+    merchant = " ".join(str(merchant or "").split())[:120] or "Наличные"
+
+    rate_day, kzt_rub, vnd_rub = _fx_rate()
+    if currency == "VND" and not vnd_rub:
+        raise KaspiError("no_vnd_rate")
+    rub = amt if currency == "RUB" else round(amt * float(vnd_rub), 2)
+    kzt = round(rub / float(kzt_rub), 2)
+    mnorm = " ".join("".join(c if c.isalnum() else " " for c in merchant.lower()).split()) or "наличные"
+    with connection.cursor() as cur:
+        cur.execute("""INSERT INTO kaspi_expenses (card, op_date, kind, operation, merchant, merchant_norm,
+                              amount_kzt, orig_amount, orig_currency, amount_rub, rate_day, kzt_rub, occ, dedup_key,
+                              category, exclude_budget, created_by)
+                       VALUES (%s, %s, 'purchase', 'Наличные', %s, %s, %s, %s, %s, %s, %s, %s, 0, %s, %s, %s, %s)
+                       RETURNING id""",
+                    [CASH, d, merchant, mnorm, -kzt, -amt, currency, -rub, rate_day, kzt_rub,
+                     f"{CASH}|{uuid.uuid4().hex}", category, excluded, user_id])
+        return {"id": cur.fetchone()[0], "rub": rub, "rate_day": rate_day.isoformat()}
+
+
+def cash_delete(expense_id):
+    """Удалить можно только ручную трату наличными — строки выписки вернулись бы при следующей выписке."""
+    with connection.cursor() as cur:
+        cur.execute("DELETE FROM kaspi_expenses WHERE id = %s AND card = %s", [expense_id, CASH])
+        if not cur.rowcount:
+            raise KaspiError("not_found")

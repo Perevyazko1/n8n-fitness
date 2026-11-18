@@ -61,4 +61,6 @@ urlpatterns = [
     path("kaspi/summary", views.kaspi_summary),
     path("kaspi/budget-set", views.kaspi_budget_set),
     path("kaspi/expense-update", views.kaspi_expense_update),
+    path("kaspi/cash-add", views.kaspi_cash_add),
+    path("kaspi/cash-delete", views.kaspi_cash_delete),
 ]
