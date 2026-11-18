@@ -1,0 +1,22 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - img "Значок www.hometogo.com" [ref=e5]
+        - heading "www.hometogo.com" [level=1] [ref=e6]
+      - heading "Выполнение проверки безопасности" [level=2] [ref=e7]
+      - paragraph [ref=e8]: Этот веб-сайт использует сервис безопасности для защиты от вредоносных ботов. Эта страница отображается, пока веб-сайт проверяет, что вы не бот.
+  - contentinfo [ref=e15]:
+    - generic [ref=e17]:
+      - generic [ref=e19]:
+        - text: "Ray ID:"
+        - code [ref=e20]: a595a3829981e2ef
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - text: Производительность и безопасность с
+          - link "Cloudflare, открывается в новой вкладке" [ref=e23] [cursor=pointer]:
+            - /url: https://www.cloudflare.com?utm_source=challenge&utm_campaign=m
+            - text: Cloudflare
+        - link "Конфиденциальность, открывается в новой вкладке" [ref=e25] [cursor=pointer]:
+          - /url: https://www.cloudflare.com/privacypolicy/
+          - text: Конфиденциальность

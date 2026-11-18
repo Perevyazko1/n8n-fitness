@@ -93,3 +93,10 @@ HTTP-нодой: `POST https://api.openai.com/v1/chat/completions`, `authenticat
 **Грабли:** локальный `OPENAI_API_KEY` на маке — **другая организация, без кредитов и без квоты**
 (`insufficient_quota`). Живые вызовы проверять только через n8n.
 
+
+## 2026-11-18 — коллизия хоста `db` с serotonin
+
+`/root/serotonin/docker-compose.yml` подключает свой сервис `db` к нашей сети `n8n-fitness_default`
+(external). Docker DNS отдаёт по имени `db` то `fitness-db`, то `serotonin-db` → периодически
+`password authentication failed for user "fitness"` (в логах serotonin-db: `Role "fitness" does not exist`).
+Фикс: обращаться к базе по имени контейнера `fitness-db` — в compose (`POSTGRES_HOST`) и в credential `PG` в n8n.

@@ -1,0 +1,379 @@
+- generic [ref=e5]:
+  - banner:
+    - generic [ref=e8]:
+      - generic [ref=e10]:
+        - generic [aria-hidden]:
+          - button [disabled]
+        - button "Facebook" [ref=e12] [cursor=pointer]:
+          - img "Facebook" [ref=e13]
+      - generic [ref=e18]:
+        - textbox "Электронный адрес или номер телефона" [ref=e21]
+        - textbox "Пароль" [ref=e24]
+        - button "Вход" [ref=e27] [cursor=pointer]
+        - link "Забыли аккаунт?" [ref=e34] [cursor=pointer]:
+          - /url: https://www.facebook.com/recover/initiate?ars=royal_blue_bar
+  - generic [ref=e39]:
+    - navigation [ref=e40]:
+      - generic [ref=e41]:
+        - generic [ref=e45]:
+          - navigation [ref=e47]:
+            - generic [ref=e50]:
+              - link [ref=e52] [cursor=pointer]:
+                - /url: /marketplace/
+                - text: Marketplace
+              - text: ›
+              - link [ref=e54] [cursor=pointer]:
+                - /url: /marketplace/category/propertyrentals/
+                - text: Аренда недвижимости
+          - heading [level=1] [ref=e58]: Аренда недвижимости
+        - combobox [ref=e68]
+        - generic [ref=e71]:
+          - button [ref=e77] [cursor=pointer]:
+            - generic [ref=e78]: Получать уведомления
+          - link [ref=e84] [cursor=pointer]:
+            - /url: /marketplace/create/
+            - generic [ref=e85]: Создать новое объявление
+          - generic [ref=e90]:
+            - heading [level=2] [ref=e103]:
+              - generic [ref=e104]: Фильтры
+            - generic [ref=e106]:
+              - button [ref=e107] [cursor=pointer]:
+                - generic [ref=e108]: Сан-Франциско
+              - button [ref=e114] [cursor=pointer]:
+                - generic [ref=e115]: Укажите город для просмотра местных результатов
+              - generic [ref=e118]:
+                - button [ref=e119] [cursor=pointer]:
+                  - generic [ref=e120]: Сортировка
+                - generic [ref=e127]:
+                  - generic [ref=e128]: Цена
+                  - generic [ref=e130]:
+                    - textbox [ref=e133]:
+                      - /placeholder: Мин.
+                    - generic [ref=e134]: до
+                    - textbox [ref=e138]:
+                      - /placeholder: Макс.
+                - button [ref=e139] [cursor=pointer]:
+                  - generic [ref=e140]: Количество спален
+                - button [ref=e147] [cursor=pointer]:
+                  - generic [ref=e148]: Количество санузлов
+                - button [ref=e155] [cursor=pointer]:
+                  - generic [ref=e156]: Тип объекта
+                - generic [ref=e163]:
+                  - generic [ref=e164]: Квадратные метры
+                  - generic [ref=e166]:
+                    - textbox [ref=e169]:
+                      - /placeholder: Мин.
+                    - generic [ref=e170]: до
+                    - textbox [ref=e174]:
+                      - /placeholder: Макс.
+                - generic [ref=e175]:
+                  - generic [ref=e176]: Объявления только от физических лиц
+                  - switch [ref=e180] [cursor=pointer]
+          - generic [ref=e181]: Категории
+          - list [ref=e195]:
+            - listitem [ref=e196]:
+              - link [ref=e198] [cursor=pointer]:
+                - /url: /marketplace/category/search/?category_id=546583916084032&query=%D0%A2%D1%80%D0%B0%D0%BD%D1%81%D0%BF%D0%BE%D1%80%D1%82%D0%BD%D1%8B%D0%B5%20%D1%81%D1%80%D0%B5%D0%B4%D1%81%D1%82%D0%B2%D0%B0&referral_ui_component=category_menu_item
+                - generic [ref=e199]: Транспортные средства
+            - listitem [ref=e210]:
+              - link [ref=e212] [cursor=pointer]:
+                - /url: /marketplace/category/propertyrentals/
+                - generic [ref=e213]: Аренда недвижимости
+            - listitem [ref=e224]:
+              - link [ref=e226] [cursor=pointer]:
+                - /url: /marketplace/category/free/
+                - generic [ref=e227]: Бесплатные предложения
+            - listitem [ref=e239]:
+              - link [ref=e241] [cursor=pointer]:
+                - /url: /marketplace/category/search/?category_id=199404184572737&query=%D0%98%D0%B3%D1%80%D1%83%D1%88%D0%BA%D0%B8%20%D0%B8%20%D0%B8%D0%B3%D1%80%D1%8B&referral_ui_component=category_menu_item
+                - generic [ref=e242]: Игрушки и игры
+            - listitem [ref=e252]:
+              - link [ref=e254] [cursor=pointer]:
+                - /url: /marketplace/category/search/?category_id=1078592699170502&query=%D0%9C%D1%83%D0%B7%D1%8B%D0%BA%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B5%20%D0%B8%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8B&referral_ui_component=category_menu_item
+                - generic [ref=e255]: Музыкальные инструменты
+            - listitem [ref=e266]:
+              - link [ref=e268] [cursor=pointer]:
+                - /url: /marketplace/category/search/?category_id=476291743038859&query=%D0%9E%D0%B1%D1%83%D1%81%D1%82%D1%80%D0%BE%D0%B9%D1%81%D1%82%D0%B2%D0%BE%20%D0%B4%D0%BE%D0%BC%D0%B0&referral_ui_component=category_menu_item
+                - generic [ref=e269]: Обустройство дома
+            - listitem [ref=e280]:
+              - link [ref=e282] [cursor=pointer]:
+                - /url: /marketplace/category/search/?category_id=759201041254543&query=%D0%9E%D0%B1%D1%8A%D1%8F%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F&referral_ui_component=category_menu_item
+                - generic [ref=e283]: Объявления
+            - listitem [ref=e294]:
+              - link [ref=e296] [cursor=pointer]:
+                - /url: /marketplace/category/search/?category_id=677457442746983&query=%D0%9E%D0%B4%D0%B5%D0%B6%D0%B4%D0%B0&referral_ui_component=category_menu_item
+                - generic [ref=e297]: Одежда
+            - listitem [ref=e307]:
+              - link [ref=e309] [cursor=pointer]:
+                - /url: /marketplace/category/search/?category_id=1270772586445798&query=%D0%9F%D1%80%D0%BE%D0%B4%D0%B0%D0%B6%D0%B0%20%D0%BD%D0%B5%D0%B4%D0%B2%D0%B8%D0%B6%D0%B8%D0%BC%D0%BE%D1%81%D1%82%D0%B8&referral_ui_component=category_menu_item
+                - generic [ref=e310]: Продажа недвижимости
+            - listitem [ref=e321]:
+              - link [ref=e323] [cursor=pointer]:
+                - /url: /marketplace/category/search/?category_id=529595287638583&query=%D0%A0%D0%B0%D0%B7%D0%B2%D0%BB%D0%B5%D1%87%D0%B5%D0%BD%D0%B8%D1%8F&referral_ui_component=category_menu_item
+                - generic [ref=e324]: Развлечения
+            - listitem [ref=e335]:
+              - link [ref=e337] [cursor=pointer]:
+                - /url: /marketplace/category/search/?category_id=891748581240437&query=%D0%A1%D0%B5%D0%BC%D1%8C%D1%8F&referral_ui_component=category_menu_item
+                - generic [ref=e338]: Семья
+            - listitem [ref=e349]:
+              - link [ref=e351] [cursor=pointer]:
+                - /url: /marketplace/category/search/?category_id=391335928190702&query=%D0%A1%D0%BF%D0%BE%D1%80%D1%82%D0%B8%D0%B2%D0%BD%D1%8B%D0%B5%20%D1%82%D0%BE%D0%B2%D0%B0%D1%80%D1%8B&referral_ui_component=category_menu_item
+                - generic [ref=e352]: Спортивные товары
+            - listitem [ref=e364]:
+              - link [ref=e366] [cursor=pointer]:
+                - /url: /marketplace/category/search/?category_id=753380185098614&query=%D0%A2%D0%BE%D0%B2%D0%B0%D1%80%D1%8B%20%D0%B4%D0%BB%D1%8F%20%D0%B4%D0%BE%D0%BC%D0%B0&referral_ui_component=category_menu_item
+                - generic [ref=e367]: Товары для дома
+            - listitem [ref=e378]:
+              - link [ref=e380] [cursor=pointer]:
+                - /url: /marketplace/category/search/?category_id=197143151659643&query=%D0%A2%D0%BE%D0%B2%D0%B0%D1%80%D1%8B%20%D0%B4%D0%BB%D1%8F%20%D0%B4%D0%BE%D0%BC%D0%B0%D1%88%D0%BD%D0%B8%D1%85%20%D0%B6%D0%B8%D0%B2%D0%BE%D1%82%D0%BD%D1%8B%D1%85&referral_ui_component=category_menu_item
+                - generic [ref=e381]: Товары для домашних животных
+            - listitem [ref=e392]:
+              - link [ref=e394] [cursor=pointer]:
+                - /url: /marketplace/category/search/?category_id=586894672179024&query=%D0%A2%D0%BE%D0%B2%D0%B0%D1%80%D1%8B%20%D0%B4%D0%BB%D1%8F%20%D0%BE%D1%84%D0%B8%D1%81%D0%B0&referral_ui_component=category_menu_item
+                - generic [ref=e395]: Товары для офиса
+            - listitem [ref=e406]:
+              - link [ref=e408] [cursor=pointer]:
+                - /url: /marketplace/category/search/?category_id=1109541402725436&query=%D0%A2%D0%BE%D0%B2%D0%B0%D1%80%D1%8B%20%D0%B4%D0%BB%D1%8F%20%D1%83%D0%BB%D0%B8%D1%86%D1%8B%20%D0%B8%20%D1%81%D0%B0%D0%B4%D0%B0&referral_ui_component=category_menu_item
+                - generic [ref=e409]: Товары для улицы и сада
+            - listitem [ref=e420]:
+              - link [ref=e422] [cursor=pointer]:
+                - /url: /marketplace/category/search/?category_id=459026188375950&query=%D0%A5%D0%BE%D0%B1%D0%B1%D0%B8&referral_ui_component=category_menu_item
+                - generic [ref=e423]: Хобби
+            - listitem [ref=e433]:
+              - link [ref=e435] [cursor=pointer]:
+                - /url: /marketplace/category/search/?category_id=479353692612078&query=%D0%AD%D0%BB%D0%B5%D0%BA%D1%82%D1%80%D0%BE%D0%BD%D0%B8%D0%BA%D0%B0&referral_ui_component=category_menu_item
+                - generic [ref=e436]: Электроника
+          - generic [ref=e447]:
+            - heading [level=2] [ref=e460]:
+              - generic [ref=e461]: Популярные похожие запросы
+            - link [ref=e467] [cursor=pointer]:
+              - /url: /marketplace/category/modular-homes/
+              - generic [ref=e468]: Модульные дома
+    - main [ref=e471]:
+      - generic [ref=e474]:
+        - generic [ref=e476]:
+          - generic [ref=e477]:
+            - button [ref=e480] [cursor=pointer]:
+              - generic [ref=e481]: "5"
+            - button [ref=e487] [cursor=pointer]:
+              - generic [ref=e488]: "6"
+            - button [ref=e494] [cursor=pointer]:
+              - generic [ref=e495]: "24"
+            - button [ref=e501] [cursor=pointer]:
+              - generic [ref=e502]: "7"
+            - button [ref=e508] [cursor=pointer]:
+              - generic [ref=e509]: "2"
+            - button [ref=e515] [cursor=pointer]:
+              - generic [ref=e516]: "14"
+            - button [ref=e522] [cursor=pointer]:
+              - generic [ref=e523]: "6"
+            - button [ref=e529] [cursor=pointer]:
+              - generic [ref=e530]: "4"
+            - button [ref=e536] [cursor=pointer]:
+              - generic [ref=e537]: "10"
+            - button [ref=e543] [cursor=pointer]:
+              - generic [ref=e544]: "7"
+            - button [ref=e550] [cursor=pointer]:
+              - generic [ref=e551]: "7"
+            - button [ref=e557] [cursor=pointer]:
+              - generic [ref=e558]: "2"
+            - button [ref=e564] [cursor=pointer]:
+              - generic [ref=e565]: "2"
+            - button [ref=e571] [cursor=pointer]:
+              - generic [ref=e572]: "2"
+            - button [ref=e578] [cursor=pointer]:
+              - generic [ref=e579]: "3"
+            - button [ref=e585] [cursor=pointer]:
+              - generic [ref=e586]: "2"
+          - button [ref=e592] [cursor=pointer]
+          - generic [ref=e598]:
+            - button [ref=e599] [cursor=pointer]
+            - button [ref=e603] [cursor=pointer]
+            - button [ref=e607] [cursor=pointer]
+        - generic [ref=e611]:
+          - generic [ref=e616]:
+            - heading [level=2] [ref=e625]:
+              - generic [ref=e626]: Поиск по категориям
+            - generic [ref=e628]:
+              - link [ref=e632] [cursor=pointer]:
+                - /url: /marketplace/category/apartments-for-rent/
+                - generic [ref=e633]: Апартаменты в аренду
+              - link [ref=e638] [cursor=pointer]:
+                - /url: /marketplace/category/condos-for-rent/
+                - generic [ref=e639]: Кооперативные квартиры в аренду
+              - link [ref=e644] [cursor=pointer]:
+                - /url: /marketplace/category/houses-for-rent/
+                - generic [ref=e645]: Дома в аренду
+              - link [ref=e650] [cursor=pointer]:
+                - /url: /marketplace/category/townhouses-for-rent/
+                - generic [ref=e651]: Таунхаусы в аренду
+          - generic [ref=e655]:
+            - link [ref=e664] [cursor=pointer]:
+              - /url: /marketplace/item/826833527119753/?ref=category_feed&referral_story_type=listing&tracking=%7B%22qid%22%3A%22-5807330417051677705%22%2C%22mf_story_key%22%3A%2237873552972290614%22%2C%22commerce_rank_obj%22%3A%22%7B%5C%22target_id%5C%22%3A37873552972290614%2C%5C%22target_type%5C%22%3A0%2C%5C%22primary_position%5C%22%3A2%2C%5C%22ranking_signature%5C%22%3A8312748636920940524%2C%5C%22ranking_region%5C%22%3A%5C%22cco%5C%22%2C%5C%22ranking_request_id%5C%22%3A5142030912073435323%2C%5C%22commerce_channel%5C%22%3A504%2C%5C%22value%5C%22%3A0.002224668004197%2C%5C%22candidate_retrieval_source_map%5C%22%3A%7B%5C%2237873552972290614%5C%22%3A204%7D%2C%5C%22candidate_write_path_source_map%5C%22%3A[]%2C%5C%22candidate_seller_rerank_version_id_map%5C%22%3A%7B%5C%2237873552972290614%5C%22%3A0%7D%2C%5C%22is_prefetch%5C%22%3Afalse%7D%22%7D&__tn__=!%3AD
+              - generic [ref=e673]:
+                - generic [ref=e674]: 1 100 $
+                - generic [ref=e678]: One room
+                - generic [ref=e683]: Hercules, CA
+            - link [ref=e696] [cursor=pointer]:
+              - /url: /marketplace/item/1334862944880134/?ref=category_feed&referral_story_type=listing&tracking=%7B%22qid%22%3A%22-5807330417051677705%22%2C%22mf_story_key%22%3A%2224495101156841060%22%2C%22commerce_rank_obj%22%3A%22%7B%5C%22target_id%5C%22%3A24495101156841060%2C%5C%22target_type%5C%22%3A0%2C%5C%22primary_position%5C%22%3A5%2C%5C%22ranking_signature%5C%22%3A8312748636920940524%2C%5C%22ranking_region%5C%22%3A%5C%22cco%5C%22%2C%5C%22ranking_request_id%5C%22%3A5142030912073435323%2C%5C%22commerce_channel%5C%22%3A504%2C%5C%22value%5C%22%3A0.0014113450734808%2C%5C%22candidate_retrieval_source_map%5C%22%3A%7B%5C%2224495101156841060%5C%22%3A204%7D%2C%5C%22candidate_write_path_source_map%5C%22%3A[]%2C%5C%22candidate_seller_rerank_version_id_map%5C%22%3A%7B%5C%2224495101156841060%5C%22%3A0%7D%2C%5C%22is_prefetch%5C%22%3Afalse%7D%22%7D&__tn__=!%3AD
+              - generic [ref=e705]:
+                - generic [ref=e706]: 800 $
+                - generic [ref=e710]: Curto en renta
+                - generic [ref=e715]: Vallejo, CA
+            - link [ref=e728] [cursor=pointer]:
+              - /url: /marketplace/item/28219835214372475/?ref=category_feed&referral_story_type=listing&tracking=%7B%22qid%22%3A%22-5807330417051677705%22%2C%22mf_story_key%22%3A%2228177601241863267%22%2C%22commerce_rank_obj%22%3A%22%7B%5C%22target_id%5C%22%3A28177601241863267%2C%5C%22target_type%5C%22%3A0%2C%5C%22primary_position%5C%22%3A7%2C%5C%22ranking_signature%5C%22%3A8312748636920940524%2C%5C%22ranking_region%5C%22%3A%5C%22cco%5C%22%2C%5C%22ranking_request_id%5C%22%3A5142030912073435323%2C%5C%22commerce_channel%5C%22%3A504%2C%5C%22value%5C%22%3A0.0014113430734808%2C%5C%22candidate_retrieval_source_map%5C%22%3A%7B%5C%2228177601241863267%5C%22%3A204%7D%2C%5C%22candidate_write_path_source_map%5C%22%3A[]%2C%5C%22candidate_seller_rerank_version_id_map%5C%22%3A%7B%5C%2228177601241863267%5C%22%3A0%7D%2C%5C%22is_prefetch%5C%22%3Afalse%7D%22%7D&__tn__=!%3AD
+              - generic [ref=e737]:
+                - generic [ref=e740]:
+                  - generic [ref=e741]: 99 $
+                  - generic [ref=e742]: 500 $
+                - generic [ref=e744]: Cuarto hayward
+                - generic [ref=e749]: Fremont, CA
+            - link [ref=e762] [cursor=pointer]:
+              - /url: /marketplace/item/1069859762757909/?ref=category_feed&referral_story_type=listing&tracking=%7B%22qid%22%3A%22-5807330417051677705%22%2C%22mf_story_key%22%3A%2229183546434641599%22%2C%22commerce_rank_obj%22%3A%22%7B%5C%22target_id%5C%22%3A29183546434641599%2C%5C%22target_type%5C%22%3A0%2C%5C%22primary_position%5C%22%3A9%2C%5C%22ranking_signature%5C%22%3A8312748636920940524%2C%5C%22ranking_region%5C%22%3A%5C%22cco%5C%22%2C%5C%22ranking_request_id%5C%22%3A5142030912073435323%2C%5C%22commerce_channel%5C%22%3A504%2C%5C%22value%5C%22%3A0.0014113410734808%2C%5C%22candidate_retrieval_source_map%5C%22%3A%7B%5C%2229183546434641599%5C%22%3A204%7D%2C%5C%22candidate_write_path_source_map%5C%22%3A[]%2C%5C%22candidate_seller_rerank_version_id_map%5C%22%3A%7B%5C%2229183546434641599%5C%22%3A0%7D%2C%5C%22is_prefetch%5C%22%3Afalse%7D%22%7D&__tn__=!%3AD
+              - generic [ref=e771]:
+                - generic [ref=e772]: 2 625 $
+                - generic [ref=e776]: Christmas in Kauai, Hawaii | Ocean View Villa Dec 20-27
+                - generic [ref=e781]: San Francisco, CA
+            - link [ref=e794] [cursor=pointer]:
+              - /url: /marketplace/item/982348034898041/?ref=category_feed&referral_story_type=listing&tracking=%7B%22qid%22%3A%22-5807330417051677705%22%2C%22mf_story_key%22%3A%2229128385860078607%22%2C%22commerce_rank_obj%22%3A%22%7B%5C%22target_id%5C%22%3A29128385860078607%2C%5C%22target_type%5C%22%3A0%2C%5C%22primary_position%5C%22%3A11%2C%5C%22ranking_signature%5C%22%3A8312748636920940524%2C%5C%22ranking_region%5C%22%3A%5C%22cco%5C%22%2C%5C%22ranking_request_id%5C%22%3A5142030912073435323%2C%5C%22commerce_channel%5C%22%3A504%2C%5C%22value%5C%22%3A0.0014113390734808%2C%5C%22candidate_retrieval_source_map%5C%22%3A%7B%5C%2229128385860078607%5C%22%3A204%7D%2C%5C%22candidate_write_path_source_map%5C%22%3A[]%2C%5C%22candidate_seller_rerank_version_id_map%5C%22%3A%7B%5C%2229128385860078607%5C%22%3A0%7D%2C%5C%22is_prefetch%5C%22%3Afalse%7D%22%7D&__tn__=!%3AD
+              - generic [ref=e803]:
+                - generic [ref=e804]: 24 $
+                - generic [ref=e808]: N.I.B. Ikea closet organizer insert
+                - generic [ref=e813]: Mill Valley, CA
+            - link [ref=e826] [cursor=pointer]:
+              - /url: /marketplace/item/2059106851399481/?ref=category_feed&referral_story_type=listing&tracking=%7B%22qid%22%3A%22-5807330417051677705%22%2C%22mf_story_key%22%3A%2229438621249075870%22%2C%22commerce_rank_obj%22%3A%22%7B%5C%22target_id%5C%22%3A29438621249075870%2C%5C%22target_type%5C%22%3A0%2C%5C%22primary_position%5C%22%3A12%2C%5C%22ranking_signature%5C%22%3A8312748636920940524%2C%5C%22ranking_region%5C%22%3A%5C%22cco%5C%22%2C%5C%22ranking_request_id%5C%22%3A5142030912073435323%2C%5C%22commerce_channel%5C%22%3A504%2C%5C%22value%5C%22%3A0.0014113380734808%2C%5C%22candidate_retrieval_source_map%5C%22%3A%7B%5C%2229438621249075870%5C%22%3A204%7D%2C%5C%22candidate_write_path_source_map%5C%22%3A[]%2C%5C%22candidate_seller_rerank_version_id_map%5C%22%3A%7B%5C%2229438621249075870%5C%22%3A0%7D%2C%5C%22is_prefetch%5C%22%3Afalse%7D%22%7D&__tn__=!%3AD
+              - generic [ref=e835]:
+                - generic [ref=e836]: 100 $
+                - generic [ref=e840]: 1 habitación 0 baños - Departamento
+                - generic [ref=e845]: Daly City, CA
+            - link [ref=e858] [cursor=pointer]:
+              - /url: /marketplace/item/1234282769770589/?ref=category_feed&referral_story_type=listing&tracking=%7B%22qid%22%3A%22-5807330417051677705%22%2C%22mf_story_key%22%3A%2227757166583933299%22%2C%22commerce_rank_obj%22%3A%22%7B%5C%22target_id%5C%22%3A27757166583933299%2C%5C%22target_type%5C%22%3A0%2C%5C%22primary_position%5C%22%3A13%2C%5C%22ranking_signature%5C%22%3A8312748636920940524%2C%5C%22ranking_region%5C%22%3A%5C%22cco%5C%22%2C%5C%22ranking_request_id%5C%22%3A5142030912073435323%2C%5C%22commerce_channel%5C%22%3A504%2C%5C%22value%5C%22%3A0.0014113370734808%2C%5C%22candidate_retrieval_source_map%5C%22%3A%7B%5C%2227757166583933299%5C%22%3A204%7D%2C%5C%22candidate_write_path_source_map%5C%22%3A[]%2C%5C%22candidate_seller_rerank_version_id_map%5C%22%3A%7B%5C%2227757166583933299%5C%22%3A0%7D%2C%5C%22is_prefetch%5C%22%3Afalse%7D%22%7D&__tn__=!%3AD
+              - generic [ref=e867]:
+                - generic [ref=e868]: 408 $
+                - generic [ref=e872]: Rentals
+                - generic [ref=e877]: Santa Clara, CA
+            - link [ref=e890] [cursor=pointer]:
+              - /url: /marketplace/item/3225444024306663/?ref=category_feed&referral_story_type=listing&tracking=%7B%22qid%22%3A%22-5807330417051677705%22%2C%22mf_story_key%22%3A%2227980108981595120%22%2C%22commerce_rank_obj%22%3A%22%7B%5C%22target_id%5C%22%3A27980108981595120%2C%5C%22target_type%5C%22%3A0%2C%5C%22primary_position%5C%22%3A14%2C%5C%22ranking_signature%5C%22%3A8312748636920940524%2C%5C%22ranking_region%5C%22%3A%5C%22cco%5C%22%2C%5C%22ranking_request_id%5C%22%3A5142030912073435323%2C%5C%22commerce_channel%5C%22%3A504%2C%5C%22value%5C%22%3A0.0014113360734808%2C%5C%22candidate_retrieval_source_map%5C%22%3A%7B%5C%2227980108981595120%5C%22%3A204%7D%2C%5C%22candidate_write_path_source_map%5C%22%3A[]%2C%5C%22candidate_seller_rerank_version_id_map%5C%22%3A%7B%5C%2227980108981595120%5C%22%3A50001%7D%2C%5C%22is_prefetch%5C%22%3Afalse%7D%22%7D&__tn__=!%3AD
+              - generic [ref=e899]:
+                - generic [ref=e900]: 1 $
+                - generic [ref=e904]: Torres Family Daycare
+                - generic [ref=e909]: Oakland, CA
+            - link [ref=e922] [cursor=pointer]:
+              - /url: /marketplace/item/1533289274299730/?ref=category_feed&referral_story_type=listing&tracking=%7B%22qid%22%3A%22-5807330417051677705%22%2C%22mf_story_key%22%3A%2227520910527593399%22%2C%22commerce_rank_obj%22%3A%22%7B%5C%22target_id%5C%22%3A27520910527593399%2C%5C%22target_type%5C%22%3A0%2C%5C%22primary_position%5C%22%3A15%2C%5C%22ranking_signature%5C%22%3A8312748636920940524%2C%5C%22ranking_region%5C%22%3A%5C%22cco%5C%22%2C%5C%22ranking_request_id%5C%22%3A5142030912073435323%2C%5C%22commerce_channel%5C%22%3A504%2C%5C%22value%5C%22%3A0.0013873622517265%2C%5C%22candidate_retrieval_source_map%5C%22%3A%7B%5C%2227520910527593399%5C%22%3A204%7D%2C%5C%22candidate_write_path_source_map%5C%22%3A[]%2C%5C%22candidate_seller_rerank_version_id_map%5C%22%3A%7B%5C%2227520910527593399%5C%22%3A30033%7D%2C%5C%22is_prefetch%5C%22%3Afalse%7D%22%7D&__tn__=!%3AD
+              - generic [ref=e931]:
+                - generic [ref=e932]: Бесплатно
+                - generic [ref=e936]: Baños de Renta/ Bathroom rental
+                - generic [ref=e941]: Oakland, CA
+            - link [ref=e954] [cursor=pointer]:
+              - /url: /marketplace/item/1494093458340176/?ref=category_feed&referral_story_type=listing&tracking=%7B%22qid%22%3A%22-5807330417051677705%22%2C%22mf_story_key%22%3A%2225159281813752485%22%2C%22commerce_rank_obj%22%3A%22%7B%5C%22target_id%5C%22%3A25159281813752485%2C%5C%22target_type%5C%22%3A0%2C%5C%22primary_position%5C%22%3A16%2C%5C%22ranking_signature%5C%22%3A8312748636920940524%2C%5C%22ranking_region%5C%22%3A%5C%22cco%5C%22%2C%5C%22ranking_request_id%5C%22%3A5142030912073435323%2C%5C%22commerce_channel%5C%22%3A504%2C%5C%22value%5C%22%3A0.0013727468121881%2C%5C%22candidate_retrieval_source_map%5C%22%3A%7B%5C%2225159281813752485%5C%22%3A204%7D%2C%5C%22candidate_write_path_source_map%5C%22%3A[]%2C%5C%22candidate_seller_rerank_version_id_map%5C%22%3A%7B%5C%2225159281813752485%5C%22%3A50001%7D%2C%5C%22is_prefetch%5C%22%3Afalse%7D%22%7D&__tn__=!%3AD
+              - generic [ref=e963]:
+                - generic [ref=e964]: 650 $
+                - generic [ref=e968]: Rent
+                - generic [ref=e973]: Concord, CA
+            - link [ref=e986] [cursor=pointer]:
+              - /url: /marketplace/item/1381141383916053/?ref=category_feed&referral_story_type=listing&tracking=%7B%22qid%22%3A%22-5807330417051677705%22%2C%22mf_story_key%22%3A%2227585662764399960%22%2C%22commerce_rank_obj%22%3A%22%7B%5C%22target_id%5C%22%3A27585662764399960%2C%5C%22target_type%5C%22%3A0%2C%5C%22primary_position%5C%22%3A17%2C%5C%22ranking_signature%5C%22%3A8312748636920940524%2C%5C%22ranking_region%5C%22%3A%5C%22cco%5C%22%2C%5C%22ranking_request_id%5C%22%3A5142030912073435323%2C%5C%22commerce_channel%5C%22%3A504%2C%5C%22value%5C%22%3A0.0012661970644611%2C%5C%22candidate_retrieval_source_map%5C%22%3A%7B%5C%2227585662764399960%5C%22%3A204%7D%2C%5C%22candidate_write_path_source_map%5C%22%3A[]%2C%5C%22candidate_seller_rerank_version_id_map%5C%22%3A%7B%5C%2227585662764399960%5C%22%3A40001%7D%2C%5C%22is_prefetch%5C%22%3Afalse%7D%22%7D&__tn__=!%3AD
+              - generic [ref=e995]:
+                - generic [ref=e996]: 70 $
+                - generic [ref=e1003]: Monoambiente 0 baños - Departamento
+                - generic [ref=e1008]: San Rafael, CA
+            - link [ref=e1021] [cursor=pointer]:
+              - /url: /marketplace/item/1466846768662081/?ref=category_feed&referral_story_type=listing&tracking=%7B%22qid%22%3A%22-5807330417051677705%22%2C%22mf_story_key%22%3A%2238916960501281064%22%2C%22commerce_rank_obj%22%3A%22%7B%5C%22target_id%5C%22%3A38916960501281064%2C%5C%22target_type%5C%22%3A0%2C%5C%22primary_position%5C%22%3A18%2C%5C%22ranking_signature%5C%22%3A8312748636920940524%2C%5C%22ranking_region%5C%22%3A%5C%22cco%5C%22%2C%5C%22ranking_request_id%5C%22%3A5142030912073435323%2C%5C%22commerce_channel%5C%22%3A504%2C%5C%22value%5C%22%3A0.0012656709424652%2C%5C%22candidate_retrieval_source_map%5C%22%3A%7B%5C%2238916960501281064%5C%22%3A204%7D%2C%5C%22candidate_write_path_source_map%5C%22%3A[]%2C%5C%22candidate_seller_rerank_version_id_map%5C%22%3A%7B%5C%2238916960501281064%5C%22%3A0%7D%2C%5C%22is_prefetch%5C%22%3Afalse%7D%22%7D&__tn__=!%3AD
+              - generic [ref=e1030]:
+                - generic [ref=e1031]: 400 $
+                - generic [ref=e1035]: Linpio
+                - generic [ref=e1040]: Oakland, CA
+            - link [ref=e1053] [cursor=pointer]:
+              - /url: /marketplace/item/1430928075124897/?ref=category_feed&referral_story_type=listing&tracking=%7B%22qid%22%3A%22-5807330417051677705%22%2C%22mf_story_key%22%3A%2228968677056100915%22%2C%22commerce_rank_obj%22%3A%22%7B%5C%22target_id%5C%22%3A28968677056100915%2C%5C%22target_type%5C%22%3A0%2C%5C%22primary_position%5C%22%3A19%2C%5C%22ranking_signature%5C%22%3A8312748636920940524%2C%5C%22ranking_region%5C%22%3A%5C%22cco%5C%22%2C%5C%22ranking_request_id%5C%22%3A5142030912073435323%2C%5C%22commerce_channel%5C%22%3A504%2C%5C%22value%5C%22%3A0.0011126178500443%2C%5C%22candidate_retrieval_source_map%5C%22%3A%7B%5C%2228968677056100915%5C%22%3A204%7D%2C%5C%22candidate_write_path_source_map%5C%22%3A[]%2C%5C%22candidate_seller_rerank_version_id_map%5C%22%3A%7B%5C%2228968677056100915%5C%22%3A0%7D%2C%5C%22is_prefetch%5C%22%3Afalse%7D%22%7D&__tn__=!%3AD
+              - generic [ref=e1062]:
+                - generic [ref=e1063]: 1 200 $
+                - generic [ref=e1067]: Oakland
+                - generic [ref=e1072]: Oakland, CA
+            - link [ref=e1085] [cursor=pointer]:
+              - /url: /marketplace/item/1029358669923215/?ref=category_feed&referral_story_type=listing&tracking=%7B%22qid%22%3A%22-5807330417051677705%22%2C%22mf_story_key%22%3A%2237351016031209670%22%2C%22commerce_rank_obj%22%3A%22%7B%5C%22target_id%5C%22%3A37351016031209670%2C%5C%22target_type%5C%22%3A0%2C%5C%22primary_position%5C%22%3A20%2C%5C%22ranking_signature%5C%22%3A8312748636920940524%2C%5C%22ranking_region%5C%22%3A%5C%22cco%5C%22%2C%5C%22ranking_request_id%5C%22%3A5142030912073435323%2C%5C%22commerce_channel%5C%22%3A504%2C%5C%22value%5C%22%3A0.0010913242658664%2C%5C%22candidate_retrieval_source_map%5C%22%3A%7B%5C%2237351016031209670%5C%22%3A204%7D%2C%5C%22candidate_write_path_source_map%5C%22%3A[]%2C%5C%22candidate_seller_rerank_version_id_map%5C%22%3A%7B%5C%2237351016031209670%5C%22%3A50000%7D%2C%5C%22is_prefetch%5C%22%3Afalse%7D%22%7D&__tn__=!%3AD
+              - generic [ref=e1094]:
+                - generic [ref=e1095]: 1 850 $
+                - generic [ref=e1099]: Apartamento
+                - generic [ref=e1104]: Pittsburg, CA
+            - link [ref=e1117] [cursor=pointer]:
+              - /url: /marketplace/item/1476150854024876/?ref=category_feed&referral_story_type=listing&tracking=%7B%22qid%22%3A%22-5807330417051677705%22%2C%22mf_story_key%22%3A%2225947823284888672%22%2C%22commerce_rank_obj%22%3A%22%7B%5C%22target_id%5C%22%3A25947823284888672%2C%5C%22target_type%5C%22%3A0%2C%5C%22primary_position%5C%22%3A22%2C%5C%22ranking_signature%5C%22%3A8312748636920940524%2C%5C%22ranking_region%5C%22%3A%5C%22cco%5C%22%2C%5C%22ranking_request_id%5C%22%3A5142030912073435323%2C%5C%22commerce_channel%5C%22%3A504%2C%5C%22value%5C%22%3A0.0010527288710819%2C%5C%22candidate_retrieval_source_map%5C%22%3A%7B%5C%2225947823284888672%5C%22%3A204%7D%2C%5C%22candidate_write_path_source_map%5C%22%3A[]%2C%5C%22candidate_seller_rerank_version_id_map%5C%22%3A%7B%5C%2225947823284888672%5C%22%3A30032%7D%2C%5C%22is_prefetch%5C%22%3Afalse%7D%22%7D&__tn__=!%3AD
+              - generic [ref=e1126]:
+                - generic [ref=e1127]: 1 $
+                - generic [ref=e1131]: Gauderia en Newark CA
+                - generic [ref=e1136]: Newark, CA
+            - link [ref=e1149] [cursor=pointer]:
+              - /url: /marketplace/item/29599088573012227/?ref=category_feed&referral_story_type=listing&tracking=%7B%22qid%22%3A%22-5807330417051677705%22%2C%22mf_story_key%22%3A%2228614874848122070%22%2C%22commerce_rank_obj%22%3A%22%7B%5C%22target_id%5C%22%3A28614874848122070%2C%5C%22target_type%5C%22%3A0%2C%5C%22primary_position%5C%22%3A24%2C%5C%22ranking_signature%5C%22%3A8312748636920940524%2C%5C%22ranking_region%5C%22%3A%5C%22cco%5C%22%2C%5C%22ranking_request_id%5C%22%3A5142030912073435323%2C%5C%22commerce_channel%5C%22%3A504%2C%5C%22value%5C%22%3A0.0010052558543702%2C%5C%22candidate_retrieval_source_map%5C%22%3A%7B%5C%2228614874848122070%5C%22%3A204%7D%2C%5C%22candidate_write_path_source_map%5C%22%3A[]%2C%5C%22candidate_seller_rerank_version_id_map%5C%22%3A%7B%5C%2228614874848122070%5C%22%3A50001%7D%2C%5C%22is_prefetch%5C%22%3Afalse%7D%22%7D&__tn__=!%3AD
+              - generic [ref=e1158]:
+                - generic [ref=e1159]: 30 $
+                - generic [ref=e1163]: Cuido niños pequeños en Fairfield si alguien quiere manden mensaje
+                - generic [ref=e1168]: Fairfield, CA
+            - link [ref=e1181] [cursor=pointer]:
+              - /url: /marketplace/item/2118147522087152/?ref=category_feed&referral_story_type=listing&tracking=%7B%22qid%22%3A%22-5807330417051677705%22%2C%22mf_story_key%22%3A%2227002044442763794%22%2C%22commerce_rank_obj%22%3A%22%7B%5C%22target_id%5C%22%3A27002044442763794%2C%5C%22target_type%5C%22%3A0%2C%5C%22primary_position%5C%22%3A25%2C%5C%22ranking_signature%5C%22%3A8312748636920940524%2C%5C%22ranking_region%5C%22%3A%5C%22cco%5C%22%2C%5C%22ranking_request_id%5C%22%3A5142030912073435323%2C%5C%22commerce_channel%5C%22%3A504%2C%5C%22value%5C%22%3A0.00098298139251322%2C%5C%22candidate_retrieval_source_map%5C%22%3A%7B%5C%2227002044442763794%5C%22%3A204%7D%2C%5C%22candidate_write_path_source_map%5C%22%3A[]%2C%5C%22candidate_seller_rerank_version_id_map%5C%22%3A%7B%5C%2227002044442763794%5C%22%3A30032%7D%2C%5C%22is_prefetch%5C%22%3Afalse%7D%22%7D&__tn__=!%3AD
+              - generic [ref=e1190]:
+                - generic [ref=e1191]: 400 $
+                - generic [ref=e1195]: Tatoo room, eyelashes room for rent
+                - generic [ref=e1200]: Daly City, CA
+            - link [ref=e1213] [cursor=pointer]:
+              - /url: /marketplace/item/2274646116410561/?ref=category_feed&referral_story_type=listing&tracking=%7B%22qid%22%3A%22-5807330417051677705%22%2C%22mf_story_key%22%3A%2229937098352544721%22%2C%22commerce_rank_obj%22%3A%22%7B%5C%22target_id%5C%22%3A29937098352544721%2C%5C%22target_type%5C%22%3A0%2C%5C%22primary_position%5C%22%3A26%2C%5C%22ranking_signature%5C%22%3A8312748636920940524%2C%5C%22ranking_region%5C%22%3A%5C%22cco%5C%22%2C%5C%22ranking_request_id%5C%22%3A5142030912073435323%2C%5C%22commerce_channel%5C%22%3A504%2C%5C%22value%5C%22%3A0.00092063196424693%2C%5C%22candidate_retrieval_source_map%5C%22%3A%7B%5C%2229937098352544721%5C%22%3A204%7D%2C%5C%22candidate_write_path_source_map%5C%22%3A[]%2C%5C%22candidate_seller_rerank_version_id_map%5C%22%3A%7B%5C%2229937098352544721%5C%22%3A40001%7D%2C%5C%22is_prefetch%5C%22%3Afalse%7D%22%7D&__tn__=!%3AD
+              - generic [ref=e1222]:
+                - generic [ref=e1223]: 70 $
+                - generic [ref=e1230]: Monoambiente 0 baños - Departamento
+                - generic [ref=e1235]: San Rafael, CA
+            - link [ref=e1248] [cursor=pointer]:
+              - /url: /marketplace/item/1028096506685608/?ref=category_feed&referral_story_type=listing&tracking=%7B%22qid%22%3A%22-5807330417051677705%22%2C%22mf_story_key%22%3A%2227817358031257807%22%2C%22commerce_rank_obj%22%3A%22%7B%5C%22target_id%5C%22%3A27817358031257807%2C%5C%22target_type%5C%22%3A0%2C%5C%22primary_position%5C%22%3A28%2C%5C%22ranking_signature%5C%22%3A8312748636920940524%2C%5C%22ranking_region%5C%22%3A%5C%22cco%5C%22%2C%5C%22ranking_request_id%5C%22%3A5142030912073435323%2C%5C%22commerce_channel%5C%22%3A504%2C%5C%22value%5C%22%3A0.00089875526527079%2C%5C%22candidate_retrieval_source_map%5C%22%3A%7B%5C%2227817358031257807%5C%22%3A204%7D%2C%5C%22candidate_write_path_source_map%5C%22%3A[]%2C%5C%22candidate_seller_rerank_version_id_map%5C%22%3A%7B%5C%2227817358031257807%5C%22%3A0%7D%2C%5C%22is_prefetch%5C%22%3Afalse%7D%22%7D&__tn__=!%3AD
+              - generic [ref=e1257]:
+                - generic [ref=e1258]: 3 800 $
+                - generic [ref=e1265]: Private room for rent
+                - generic [ref=e1270]: San Francisco, CA
+            - link [ref=e1283] [cursor=pointer]:
+              - /url: /marketplace/item/1079591544902016/?ref=category_feed&referral_story_type=listing&tracking=%7B%22qid%22%3A%22-5807330417051677705%22%2C%22mf_story_key%22%3A%2229050425574597785%22%2C%22commerce_rank_obj%22%3A%22%7B%5C%22target_id%5C%22%3A29050425574597785%2C%5C%22target_type%5C%22%3A0%2C%5C%22primary_position%5C%22%3A35%2C%5C%22ranking_signature%5C%22%3A8312748636920940524%2C%5C%22ranking_region%5C%22%3A%5C%22cco%5C%22%2C%5C%22ranking_request_id%5C%22%3A5142030912073435323%2C%5C%22commerce_channel%5C%22%3A504%2C%5C%22value%5C%22%3A0.00078875446790261%2C%5C%22candidate_retrieval_source_map%5C%22%3A%7B%5C%2229050425574597785%5C%22%3A204%7D%2C%5C%22candidate_write_path_source_map%5C%22%3A[]%2C%5C%22candidate_seller_rerank_version_id_map%5C%22%3A%7B%5C%2229050425574597785%5C%22%3A40001%7D%2C%5C%22is_prefetch%5C%22%3Afalse%7D%22%7D&__tn__=!%3AD
+              - generic [ref=e1292]:
+                - generic [ref=e1293]: 70 $
+                - generic [ref=e1300]: Monoambiente 0 baños - Departamento
+                - generic [ref=e1305]: San Rafael, CA
+            - link [ref=e1318] [cursor=pointer]:
+              - /url: /marketplace/item/1656437382935572/?ref=category_feed&referral_story_type=listing&tracking=%7B%22qid%22%3A%22-5807330417051677705%22%2C%22mf_story_key%22%3A%2229430723463226307%22%2C%22commerce_rank_obj%22%3A%22%7B%5C%22target_id%5C%22%3A29430723463226307%2C%5C%22target_type%5C%22%3A0%2C%5C%22primary_position%5C%22%3A38%2C%5C%22ranking_signature%5C%22%3A8312748636920940524%2C%5C%22ranking_region%5C%22%3A%5C%22cco%5C%22%2C%5C%22ranking_request_id%5C%22%3A5142030912073435323%2C%5C%22commerce_channel%5C%22%3A504%2C%5C%22value%5C%22%3A0.00077209345166382%2C%5C%22candidate_retrieval_source_map%5C%22%3A%7B%5C%2229430723463226307%5C%22%3A204%7D%2C%5C%22candidate_write_path_source_map%5C%22%3A[]%2C%5C%22candidate_seller_rerank_version_id_map%5C%22%3A%7B%5C%2229430723463226307%5C%22%3A0%7D%2C%5C%22is_prefetch%5C%22%3Afalse%7D%22%7D&__tn__=!%3AD
+              - generic [ref=e1327]:
+                - generic [ref=e1328]: 1 750 $
+                - generic [ref=e1332]: Private room for rent
+                - generic [ref=e1337]: Mountain View, CA
+            - link [ref=e1350] [cursor=pointer]:
+              - /url: /marketplace/item/4651895611732443/?ref=category_feed&referral_story_type=listing&tracking=%7B%22qid%22%3A%22-5807330417051677705%22%2C%22mf_story_key%22%3A%2229576772915242614%22%2C%22commerce_rank_obj%22%3A%22%7B%5C%22target_id%5C%22%3A29576772915242614%2C%5C%22target_type%5C%22%3A0%2C%5C%22primary_position%5C%22%3A41%2C%5C%22ranking_signature%5C%22%3A8312748636920940524%2C%5C%22ranking_region%5C%22%3A%5C%22cco%5C%22%2C%5C%22ranking_request_id%5C%22%3A5142030912073435323%2C%5C%22commerce_channel%5C%22%3A504%2C%5C%22value%5C%22%3A0.00066376907121618%2C%5C%22candidate_retrieval_source_map%5C%22%3A%7B%5C%2229576772915242614%5C%22%3A204%7D%2C%5C%22candidate_write_path_source_map%5C%22%3A[]%2C%5C%22candidate_seller_rerank_version_id_map%5C%22%3A%7B%5C%2229576772915242614%5C%22%3A0%7D%2C%5C%22is_prefetch%5C%22%3Afalse%7D%22%7D&__tn__=!%3AD
+              - generic [ref=e1359]:
+                - generic [ref=e1360]: 1 400 $
+                - generic [ref=e1367]: Full one Room
+                - generic [ref=e1372]: Sunnyvale, CA
+            - link [ref=e1385] [cursor=pointer]:
+              - /url: /marketplace/item/415949580804939/?ref=category_feed&referral_story_type=listing&tracking=%7B%22qid%22%3A%22-5807330417051677705%22%2C%22mf_story_key%22%3A%227160253940757051%22%2C%22commerce_rank_obj%22%3A%22%7B%5C%22target_id%5C%22%3A7160253940757051%2C%5C%22target_type%5C%22%3A0%2C%5C%22primary_position%5C%22%3A42%2C%5C%22ranking_signature%5C%22%3A8312748636920940524%2C%5C%22ranking_region%5C%22%3A%5C%22cco%5C%22%2C%5C%22ranking_request_id%5C%22%3A5142030912073435323%2C%5C%22commerce_channel%5C%22%3A504%2C%5C%22value%5C%22%3A0.00066100436380393%2C%5C%22candidate_retrieval_source_map%5C%22%3A%7B%5C%227160253940757051%5C%22%3A204%7D%2C%5C%22candidate_write_path_source_map%5C%22%3A[]%2C%5C%22candidate_seller_rerank_version_id_map%5C%22%3A%7B%5C%227160253940757051%5C%22%3A50001%7D%2C%5C%22is_prefetch%5C%22%3Afalse%7D%22%7D&__tn__=!%3AD
+              - generic [ref=e1394]:
+                - generic [ref=e1395]: 17 500 $
+                - generic [ref=e1402]: 2 Beds 1 Bath - House
+                - generic [ref=e1407]: Vallejo, CA
+            - link [ref=e1420] [cursor=pointer]:
+              - /url: /marketplace/item/1599660301890873/?ref=category_feed&referral_story_type=listing&tracking=%7B%22qid%22%3A%22-5807330417051677705%22%2C%22mf_story_key%22%3A%2228918938981024528%22%2C%22commerce_rank_obj%22%3A%22%7B%5C%22target_id%5C%22%3A28918938981024528%2C%5C%22target_type%5C%22%3A0%2C%5C%22primary_position%5C%22%3A46%2C%5C%22ranking_signature%5C%22%3A8312748636920940524%2C%5C%22ranking_region%5C%22%3A%5C%22cco%5C%22%2C%5C%22ranking_request_id%5C%22%3A5142030912073435323%2C%5C%22commerce_channel%5C%22%3A504%2C%5C%22value%5C%22%3A0.00062683342955089%2C%5C%22candidate_retrieval_source_map%5C%22%3A%7B%5C%2228918938981024528%5C%22%3A204%7D%2C%5C%22candidate_write_path_source_map%5C%22%3A[]%2C%5C%22candidate_seller_rerank_version_id_map%5C%22%3A%7B%5C%2228918938981024528%5C%22%3A0%7D%2C%5C%22is_prefetch%5C%22%3Afalse%7D%22%7D&__tn__=!%3AD
+              - generic [ref=e1429]:
+                - generic [ref=e1430]: 600 $
+                - generic [ref=e1434]: Office available in south Berkeley
+                - generic [ref=e1439]: Oakland, CA
+            - generic [ref=e1445]:
+              - status [ref=e1448]
+              - generic [ref=e1449]:
+                - status [ref=e1450]
+                - status [ref=e1451]
+                - status [ref=e1452]
+                - status [ref=e1453]
+  - dialog [ref=e1463]:
+    - button "Закрыть" [ref=e1465] [cursor=pointer]
+    - generic [ref=e1472]:
+      - generic [ref=e1473]: Войдите на Facebook
+      - generic [ref=e1480]:
+        - generic: Электронный адрес или номер телефона
+        - textbox "Электронный адрес или номер телефона" [active] [ref=e1481]
+      - generic [ref=e1486]:
+        - generic: Пароль
+        - textbox "Пароль" [ref=e1487]
+      - button "Войти на Facebook" [ref=e1489] [cursor=pointer]:
+        - generic [ref=e1490]: Вход
+      - link "Забыли пароль?" [ref=e1494] [cursor=pointer]:
+        - /url: https://www.facebook.com/recover/initiate?ars=royal_blue_bar
+      - generic [ref=e1496]: или
+      - button "Создать новый аккаунт" [ref=e1505] [cursor=pointer]

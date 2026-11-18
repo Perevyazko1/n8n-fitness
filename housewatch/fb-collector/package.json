@@ -1,0 +1,13 @@
+{
+  "name": "housewatch-fb-collector",
+  "private": true,
+  "type": "module",
+  "description": "Сборщик постов из групп аренды Facebook для HouseWatch: подключается к обычному Chrome пользователя через расширение Playwright (launchd на Mac)",
+  "scripts": {
+    "dry": "node collect.mjs --dry",
+    "run": "node collect.mjs --force"
+  },
+  "dependencies": {
+    "@playwright/cli": "0.1.22"
+  }
+}

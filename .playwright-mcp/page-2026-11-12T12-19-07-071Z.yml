@@ -1,0 +1,1429 @@
+- generic [ref=e1]:
+  - link "Skip to content" [ref=e2] [cursor=pointer]:
+    - /url: "#site-content"
+  - alert
+  - generic [ref=e8]:
+    - generic [ref=e14]:
+      - banner [ref=e15]:
+        - generic [ref=e19]:
+          - link "Airbnb homepage" [ref=e21] [cursor=pointer]:
+            - /url: /
+          - search [ref=e25]:
+            - generic:
+              - generic:
+                - generic:
+                  - tablist:
+                    - tab "Homes" [selected]:
+                      - generic [aria-hidden]: Homes
+                    - tab "Experiences":
+                      - generic [aria-hidden]: Experiences
+                    - tab "Services":
+                      - generic [aria-hidden]: Services
+                - search "Start your search" [ref=e27] [cursor=pointer]:
+                  - generic [ref=e29]:
+                    - button "Location Homes near Nha Trang" [ref=e30]:
+                      - generic [ref=e31]: Location
+                      - generic [ref=e33]: Homes near Nha Trang
+                    - button "Check in / Check out Nov 20 – Dec 20" [ref=e35]:
+                      - generic [ref=e36]: Check in / Check out
+                      - generic [ref=e37]: Nov 20 – Dec 20
+                    - button "Guests 3 guests" [ref=e39]:
+                      - generic [ref=e40]: Guests
+                      - generic [ref=e41]: 3 guests
+          - navigation "Profile" [ref=e50]:
+            - generic [ref=e51]:
+              - button "Become a host" [ref=e52] [cursor=pointer]
+              - button "Log in or sign up" [ref=e55] [cursor=pointer]
+            - button "Main navigation menu" [ref=e63] [cursor=pointer]
+        - group "filters" [ref=e72]:
+          - generic [ref=e74]:
+            - button "Filters, 2 filters applied" [ref=e78] [cursor=pointer]:
+              - generic [ref=e83]:
+                - generic [ref=e84]: Filters
+                - generic [aria-hidden] [ref=e85]: "2"
+            - generic [ref=e88]:
+              - checkbox "2+ bedrooms" [checked] [ref=e91] [cursor=pointer]
+              - checkbox "Entire home" [checked] [ref=e94] [cursor=pointer]
+              - checkbox "Washer" [ref=e97] [cursor=pointer]
+              - checkbox "Kitchen" [ref=e100] [cursor=pointer]
+              - checkbox "Wifi" [ref=e103] [cursor=pointer]
+              - checkbox "TV" [ref=e106] [cursor=pointer]
+              - checkbox "Air conditioning" [ref=e109] [cursor=pointer]
+              - checkbox "Free parking" [ref=e112] [cursor=pointer]
+              - checkbox "2+ beds" [ref=e115] [cursor=pointer]
+              - checkbox "Pool" [ref=e118] [cursor=pointer]
+              - checkbox "Allows pets" [ref=e121] [cursor=pointer]
+      - main [ref=e122]:
+        - generic [ref=e123]:
+          - generic [ref=e127]:
+            - heading "Search results; Over 1,000 homes" [active] [level=1] [ref=e130]: Over 1,000 homes
+            - generic [ref=e171]:
+              - generic [aria-hidden] [ref=e172]:
+                - generic [ref=e173]: Prices include all fees
+                - generic [ref=e174]: Prices include all fees
+                - generic [ref=e175]: Prices include all fees
+                - generic [ref=e176]: Prices include all fees
+                - generic [ref=e177]: Prices include all fees
+                - generic [ref=e178]: Prices include all fees
+                - generic [ref=e179]: Prices include all fees
+                - generic [ref=e180]: Prices include all fees
+                - generic [ref=e181]: Prices include all fees
+                - generic [ref=e182]: Prices include all fees
+                - generic [ref=e183]: Prices include all fees
+                - generic [ref=e184]: Prices include all fees
+                - generic [ref=e185]: Prices include all fees
+                - generic [ref=e186]: Prices include all fees
+                - generic [ref=e187]: Prices include all fees
+                - generic [ref=e188]: Prices include all fees
+                - generic [ref=e189]: Prices include all fees
+                - generic [ref=e190]: Prices include all fees
+                - generic [ref=e191]: Prices include all fees
+                - generic [ref=e192]: Prices include all fees
+                - generic [ref=e193]: Prices include all fees
+                - generic [ref=e194]: Prices include all fees
+                - generic [ref=e195]: Prices include all fees
+              - generic [ref=e196]: Prices include all fees
+          - generic [ref=e202]:
+            - group [ref=e208]:
+              - link "Condo in Nha Trang" [ref=e209] [cursor=pointer]:
+                - /url: /rooms/1497050234375639334?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1497050234375639334_0&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+              - generic [ref=e210]:
+                - generic [ref=e215]:
+                  - generic [ref=e216]: Photo 1 of 6
+                  - generic [ref=e217]:
+                    - link [aria-hidden] [ref=e218] [cursor=pointer]:
+                      - /url: /rooms/1497050234375639334?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1497050234375639334_0&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e222] [cursor=pointer]:
+                      - /url: /rooms/1497050234375639334?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1497050234375639334_0&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e224] [cursor=pointer]:
+                      - /url: /rooms/1497050234375639334?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1497050234375639334_0&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e226] [cursor=pointer]:
+                      - /url: /rooms/1497050234375639334?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1497050234375639334_0&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e228] [cursor=pointer]:
+                      - /url: /rooms/1497050234375639334?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1497050234375639334_0&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e230] [cursor=pointer]:
+                      - /url: /rooms/1497050234375639334?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1497050234375639334_0&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Guest favorite
+                          - generic [aria-hidden]: Guest favorite
+                      - 'button "Add to wishlist: Condo in Nha Trang" [ref=e233] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=e238] [cursor=pointer]
+                      - 'button "Next photo: Condo in Nha Trang" [ref=e243] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Photo 1 of 6"
+                - generic [ref=e247]:
+                  - generic [ref=e248]: Condo in Nha Trang
+                  - generic [ref=e249]:
+                    - generic:
+                      - generic: 4.86 out of 5 average rating, 36 reviews
+                      - generic [aria-hidden]: 4.86 (36)
+                  - generic [ref=e250]: Gold Coast Sea View Apartment • 2BR • Near Beach
+                  - generic [ref=e252]:
+                    - generic [ref=e253]:
+                      - generic [ref=e254]: 2 bedrooms
+                      - generic [aria-hidden] [ref=e255]: 2 bedrooms
+                    - generic [ref=e256]:
+                      - generic [ref=e257]: ","
+                      - generic [aria-hidden] [ref=e258]: ·
+                      - generic [ref=e259]: 2 king beds
+                      - generic [aria-hidden] [ref=e260]: 2 king beds
+                    - generic [ref=e261]:
+                      - generic [ref=e262]: ","
+                      - generic [aria-hidden] [ref=e263]: ·
+                      - generic [ref=e264]: 2 baths
+                      - generic [aria-hidden] [ref=e265]: 2 baths
+                  - generic [ref=e266]:
+                    - generic [ref=e272]:
+                      - generic [ref=e273]:
+                        - generic [ref=e274]: ₫50,086,400
+                        - button "₫42,741,187 monthly, originally ₫50,086,400" [ref=e277] [cursor=pointer]:
+                          - generic [ref=e278]:
+                            - text: ₫42,741,187
+                            - generic [ref=e279]: ₫42,741,187 monthly, originally ₫50,086,400
+                      - generic [ref=e280]: monthly
+                    - generic [ref=e283]: Monthly discount
+            - group [ref=e290]:
+              - link "Apartment in Nha Trang" [ref=e291] [cursor=pointer]:
+                - /url: /rooms/1055016872288669820?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1055016872288669820_1&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+              - generic [ref=e292]:
+                - generic [ref=e297]:
+                  - generic [ref=e298]: Photo 1 of 6
+                  - generic [ref=e299]:
+                    - link [aria-hidden] [ref=e300] [cursor=pointer]:
+                      - /url: /rooms/1055016872288669820?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1055016872288669820_1&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e304] [cursor=pointer]:
+                      - /url: /rooms/1055016872288669820?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1055016872288669820_1&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e306] [cursor=pointer]:
+                      - /url: /rooms/1055016872288669820?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1055016872288669820_1&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e308] [cursor=pointer]:
+                      - /url: /rooms/1055016872288669820?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1055016872288669820_1&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e310] [cursor=pointer]:
+                      - /url: /rooms/1055016872288669820?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1055016872288669820_1&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e312] [cursor=pointer]:
+                      - /url: /rooms/1055016872288669820?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1055016872288669820_1&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Superhost
+                          - generic [aria-hidden]: Superhost
+                      - 'button "Add to wishlist: Apartment in Nha Trang" [ref=e315] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=e320] [cursor=pointer]
+                      - 'button "Next photo: Apartment in Nha Trang" [ref=e325] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Photo 1 of 6"
+                - generic [ref=e329]:
+                  - generic [ref=e330]: Apartment in Nha Trang
+                  - generic [ref=e331]:
+                    - generic:
+                      - generic: 4.91 out of 5 average rating, 53 reviews
+                      - generic [aria-hidden]: 4.91 (53)
+                  - generic [ref=e332]: 2BR - Cozy & Warm Sea Retreat Apt - Pool & Gym
+                  - generic [ref=e334]:
+                    - generic [ref=e335]:
+                      - generic [ref=e336]: 2 bedrooms
+                      - generic [aria-hidden] [ref=e337]: 2 bedrooms
+                    - generic [ref=e338]:
+                      - generic [ref=e339]: ","
+                      - generic [aria-hidden] [ref=e340]: ·
+                      - generic [ref=e341]: 2 king beds
+                      - generic [aria-hidden] [ref=e342]: 2 king beds
+                    - generic [ref=e343]:
+                      - generic [ref=e344]: ","
+                      - generic [aria-hidden] [ref=e345]: ·
+                      - generic [ref=e346]: 2.5 baths
+                      - generic [aria-hidden] [ref=e347]: 2.5 baths
+                  - generic [ref=e348]:
+                    - generic [ref=e354]:
+                      - generic [ref=e355]:
+                        - generic [ref=e356]: ₫52,150,000
+                        - button "₫35,460,555 monthly, originally ₫52,150,000" [ref=e359] [cursor=pointer]:
+                          - generic [ref=e360]:
+                            - text: ₫35,460,555
+                            - generic [ref=e361]: ₫35,460,555 monthly, originally ₫52,150,000
+                      - generic [ref=e362]: monthly
+                    - generic [ref=e365]: Monthly discount
+            - group [ref=e372]:
+              - link "Condo in Nha Trang" [ref=e373] [cursor=pointer]:
+                - /url: /rooms/1165185200827155960?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1165185200827155960_2&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+              - generic [ref=e374]:
+                - generic [ref=e379]:
+                  - generic [ref=e380]: Photo 1 of 6
+                  - generic [ref=e381]:
+                    - link [aria-hidden] [ref=e382] [cursor=pointer]:
+                      - /url: /rooms/1165185200827155960?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1165185200827155960_2&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e386] [cursor=pointer]:
+                      - /url: /rooms/1165185200827155960?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1165185200827155960_2&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e388] [cursor=pointer]:
+                      - /url: /rooms/1165185200827155960?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1165185200827155960_2&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e390] [cursor=pointer]:
+                      - /url: /rooms/1165185200827155960?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1165185200827155960_2&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e392] [cursor=pointer]:
+                      - /url: /rooms/1165185200827155960?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1165185200827155960_2&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e394] [cursor=pointer]:
+                      - /url: /rooms/1165185200827155960?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1165185200827155960_2&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Superhost
+                          - generic [aria-hidden]: Superhost
+                      - 'button "Add to wishlist: Condo in Nha Trang" [ref=e397] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=e402] [cursor=pointer]
+                      - 'button "Next photo: Condo in Nha Trang" [ref=e407] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Photo 1 of 6"
+                - generic [ref=e411]:
+                  - generic [ref=e412]: Condo in Nha Trang
+                  - generic [ref=e413]:
+                    - generic:
+                      - generic: 4.89 out of 5 average rating, 36 reviews
+                      - generic [aria-hidden]: 4.89 (36)
+                  - generic [ref=e414]: 2BR - Luxury Apt Full Option Ocean Views - Marina
+                  - generic [ref=e416]:
+                    - generic [ref=e417]:
+                      - generic [ref=e418]: 2 bedrooms
+                      - generic [aria-hidden] [ref=e419]: 2 bedrooms
+                    - generic [ref=e420]:
+                      - generic [ref=e421]: ","
+                      - generic [aria-hidden] [ref=e422]: ·
+                      - generic [ref=e423]: 2 king beds
+                      - generic [aria-hidden] [ref=e424]: 2 king beds
+                    - generic [ref=e425]:
+                      - generic [ref=e426]: ","
+                      - generic [aria-hidden] [ref=e427]: ·
+                      - generic [ref=e428]: 2 baths
+                      - generic [aria-hidden] [ref=e429]: 2 baths
+                  - generic [ref=e430]:
+                    - generic [ref=e436]:
+                      - generic [ref=e437]:
+                        - generic [ref=e438]: ₫60,000,000
+                        - button "₫39,049,731 monthly, originally ₫60,000,000" [ref=e441] [cursor=pointer]:
+                          - generic [ref=e442]:
+                            - text: ₫39,049,731
+                            - generic [ref=e443]: ₫39,049,731 monthly, originally ₫60,000,000
+                      - generic [ref=e444]: monthly
+                    - generic [ref=e447]: Monthly discount
+            - group [ref=e454]:
+              - link "Condo in Nha Trang" [ref=e455] [cursor=pointer]:
+                - /url: /rooms/35888610?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_35888610_3&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+              - generic [ref=e456]:
+                - generic [ref=e461]:
+                  - generic [ref=e462]: Photo 1 of 6
+                  - generic [ref=e463]:
+                    - link [aria-hidden] [ref=e464] [cursor=pointer]:
+                      - /url: /rooms/35888610?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_35888610_3&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e468] [cursor=pointer]:
+                      - /url: /rooms/35888610?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_35888610_3&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e470] [cursor=pointer]:
+                      - /url: /rooms/35888610?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_35888610_3&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e472] [cursor=pointer]:
+                      - /url: /rooms/35888610?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_35888610_3&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e474] [cursor=pointer]:
+                      - /url: /rooms/35888610?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_35888610_3&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e476] [cursor=pointer]:
+                      - /url: /rooms/35888610?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_35888610_3&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Superhost
+                          - generic [aria-hidden]: Superhost
+                      - 'button "Add to wishlist: Condo in Nha Trang" [ref=e479] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=e484] [cursor=pointer]
+                      - 'button "Next photo: Condo in Nha Trang" [ref=e489] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Photo 1 of 6"
+                - generic [ref=e493]:
+                  - generic [ref=e494]: Condo in Nha Trang
+                  - generic [ref=e495]:
+                    - generic:
+                      - generic: 4.68 out of 5 average rating, 31 reviews
+                      - generic [aria-hidden]: 4.68 (31)
+                  - generic [ref=e496]: Baymax Home. Muong Thanh Apartment 2BR Riverview
+                  - generic [ref=e498]:
+                    - generic [ref=e499]:
+                      - generic [ref=e500]: 2 bedrooms
+                      - generic [aria-hidden] [ref=e501]: 2 bedrooms
+                    - generic [ref=e502]:
+                      - generic [ref=e503]: ","
+                      - generic [aria-hidden] [ref=e504]: ·
+                      - generic [ref=e505]: 2 beds
+                      - generic [aria-hidden] [ref=e506]: 2 beds
+                    - generic [ref=e507]:
+                      - generic [ref=e508]: ","
+                      - generic [aria-hidden] [ref=e509]: ·
+                      - generic [ref=e510]: 3 baths
+                      - generic [aria-hidden] [ref=e511]: 3 baths
+                  - generic [ref=e512]:
+                    - generic [ref=e518]:
+                      - generic [ref=e519]:
+                        - generic [ref=e520]: ₫28,425,950
+                        - button "₫25,202,199 monthly, originally ₫28,425,950" [ref=e523] [cursor=pointer]:
+                          - generic [ref=e524]:
+                            - text: ₫25,202,199
+                            - generic [ref=e525]: ₫25,202,199 monthly, originally ₫28,425,950
+                      - generic [ref=e526]: monthly
+                    - generic [ref=e529]: Monthly discount
+            - group [ref=e536]:
+              - link "Apartment in Nha Trang" [ref=e537] [cursor=pointer]:
+                - /url: /rooms/1366322903353562123?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1366322903353562123_4&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+              - generic [ref=e538]:
+                - generic [ref=e543]:
+                  - generic [ref=e544]: Photo 1 of 6
+                  - generic [ref=e545]:
+                    - link [aria-hidden] [ref=e546] [cursor=pointer]:
+                      - /url: /rooms/1366322903353562123?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1366322903353562123_4&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e550] [cursor=pointer]:
+                      - /url: /rooms/1366322903353562123?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1366322903353562123_4&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e552] [cursor=pointer]:
+                      - /url: /rooms/1366322903353562123?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1366322903353562123_4&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e554] [cursor=pointer]:
+                      - /url: /rooms/1366322903353562123?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1366322903353562123_4&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e556] [cursor=pointer]:
+                      - /url: /rooms/1366322903353562123?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1366322903353562123_4&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e558] [cursor=pointer]:
+                      - /url: /rooms/1366322903353562123?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1366322903353562123_4&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Guest favorite
+                          - generic [aria-hidden]: Guest favorite
+                      - 'button "Add to wishlist: Apartment in Nha Trang" [ref=e561] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=e566] [cursor=pointer]
+                      - 'button "Next photo: Apartment in Nha Trang" [ref=e571] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Photo 1 of 6"
+                - generic [ref=e575]:
+                  - generic [ref=e576]: Apartment in Nha Trang
+                  - generic [ref=e577]:
+                    - generic:
+                      - generic: 4.95 out of 5 average rating, 38 reviews
+                      - generic [aria-hidden]: 4.95 (38)
+                  - generic [ref=e578]: Cozy 2-Bedroom-5Mins Walk to Beach | HUD Nha Trang
+                  - generic [ref=e580]:
+                    - generic [ref=e581]:
+                      - generic [ref=e582]: 2 bedrooms
+                      - generic [aria-hidden] [ref=e583]: 2 bedrooms
+                    - generic [ref=e584]:
+                      - generic [ref=e585]: ","
+                      - generic [aria-hidden] [ref=e586]: ·
+                      - generic [ref=e587]: 2 beds
+                      - generic [aria-hidden] [ref=e588]: 2 beds
+                    - generic [ref=e589]:
+                      - generic [ref=e590]: ","
+                      - generic [aria-hidden] [ref=e591]: ·
+                      - generic [ref=e592]: 2 baths
+                      - generic [aria-hidden] [ref=e593]: 2 baths
+                  - generic [ref=e594]:
+                    - generic [ref=e600]:
+                      - generic [ref=e601]:
+                        - generic [ref=e602]: ₫44,250,000
+                        - button "₫38,624,340 monthly, originally ₫44,250,000" [ref=e605] [cursor=pointer]:
+                          - generic [ref=e606]:
+                            - text: ₫38,624,340
+                            - generic [ref=e607]: ₫38,624,340 monthly, originally ₫44,250,000
+                      - generic [ref=e608]: monthly
+                    - generic [ref=e611]: Monthly discount
+            - group [ref=e618]:
+              - link "Apartment in Nha Trang" [ref=e619] [cursor=pointer]:
+                - /url: /rooms/1054662396326861044?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1054662396326861044_5&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+              - generic [ref=e620]:
+                - generic [ref=e625]:
+                  - generic [ref=e626]: Photo 1 of 6
+                  - generic [ref=e627]:
+                    - link [aria-hidden] [ref=e628] [cursor=pointer]:
+                      - /url: /rooms/1054662396326861044?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1054662396326861044_5&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e632] [cursor=pointer]:
+                      - /url: /rooms/1054662396326861044?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1054662396326861044_5&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e634] [cursor=pointer]:
+                      - /url: /rooms/1054662396326861044?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1054662396326861044_5&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e636] [cursor=pointer]:
+                      - /url: /rooms/1054662396326861044?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1054662396326861044_5&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e638] [cursor=pointer]:
+                      - /url: /rooms/1054662396326861044?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1054662396326861044_5&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e640] [cursor=pointer]:
+                      - /url: /rooms/1054662396326861044?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1054662396326861044_5&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Superhost
+                          - generic [aria-hidden]: Superhost
+                      - 'button "Add to wishlist: Apartment in Nha Trang" [ref=e643] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=e648] [cursor=pointer]
+                      - 'button "Next photo: Apartment in Nha Trang" [ref=e653] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Photo 1 of 6"
+                - generic [ref=e657]:
+                  - generic [ref=e658]: Apartment in Nha Trang
+                  - generic [ref=e659]:
+                    - generic:
+                      - generic: 4.8 out of 5 average rating, 20 reviews
+                      - generic [aria-hidden]: 4.8 (20)
+                  - generic [ref=e660]: V-1092A*Cozy 2br Apt*High Floorl* FREE Pool, Gym
+                  - generic [ref=e662]:
+                    - generic [ref=e663]:
+                      - generic [ref=e664]: 2 bedrooms
+                      - generic [aria-hidden] [ref=e665]: 2 bedrooms
+                    - generic [ref=e666]:
+                      - generic [ref=e667]: ","
+                      - generic [aria-hidden] [ref=e668]: ·
+                      - generic [ref=e669]: 2 beds
+                      - generic [aria-hidden] [ref=e670]: 2 beds
+                    - generic [ref=e671]:
+                      - generic [ref=e672]: ","
+                      - generic [aria-hidden] [ref=e673]: ·
+                      - generic [ref=e674]: 2 baths
+                      - generic [aria-hidden] [ref=e675]: 2 baths
+                  - generic [ref=e682]:
+                    - generic [ref=e683]:
+                      - generic [ref=e684]: ₫39,747,833
+                      - button "₫36,225,583 monthly, originally ₫39,747,833" [ref=e687] [cursor=pointer]:
+                        - generic [ref=e688]:
+                          - text: ₫36,225,583
+                          - generic [ref=e689]: ₫36,225,583 monthly, originally ₫39,747,833
+                    - generic [ref=e690]: monthly
+            - group [ref=e698]:
+              - link "Condo in Nha Trang" [ref=e699] [cursor=pointer]:
+                - /url: /rooms/1333306881074866687?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1333306881074866687_7&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+              - generic [ref=e700]:
+                - generic [ref=e705]:
+                  - generic [ref=e706]: Photo 1 of 6
+                  - generic [ref=e707]:
+                    - link [aria-hidden] [ref=e708] [cursor=pointer]:
+                      - /url: /rooms/1333306881074866687?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1333306881074866687_7&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e712] [cursor=pointer]:
+                      - /url: /rooms/1333306881074866687?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1333306881074866687_7&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e714] [cursor=pointer]:
+                      - /url: /rooms/1333306881074866687?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1333306881074866687_7&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e716] [cursor=pointer]:
+                      - /url: /rooms/1333306881074866687?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1333306881074866687_7&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e718] [cursor=pointer]:
+                      - /url: /rooms/1333306881074866687?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1333306881074866687_7&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e720] [cursor=pointer]:
+                      - /url: /rooms/1333306881074866687?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1333306881074866687_7&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Guest favorite
+                          - generic [aria-hidden]: Guest favorite
+                      - 'button "Add to wishlist: Condo in Nha Trang" [ref=e723] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=e728] [cursor=pointer]
+                      - 'button "Next photo: Condo in Nha Trang" [ref=e733] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Photo 1 of 6"
+                - generic [ref=e737]:
+                  - generic [ref=e738]: Condo in Nha Trang
+                  - generic [ref=e739]:
+                    - generic:
+                      - generic: 5.0 out of 5 average rating, 9 reviews
+                      - generic [aria-hidden]: 5.0 (9)
+                  - generic [ref=e740]: 2-Bedroom Apartment with Balcony and Sea View on the 33rd Floor
+                  - generic [ref=e742]:
+                    - generic [ref=e743]:
+                      - generic [ref=e744]: 2 bedrooms
+                      - generic [aria-hidden] [ref=e745]: 2 bedrooms
+                    - generic [ref=e746]:
+                      - generic [ref=e747]: ","
+                      - generic [aria-hidden] [ref=e748]: ·
+                      - generic [ref=e749]: 2 beds
+                      - generic [aria-hidden] [ref=e750]: 2 beds
+                    - generic [ref=e751]:
+                      - generic [ref=e752]: ","
+                      - generic [aria-hidden] [ref=e753]: ·
+                      - generic [ref=e754]: 2 baths
+                      - generic [aria-hidden] [ref=e755]: 2 baths
+                  - generic [ref=e756]:
+                    - generic [ref=e762]:
+                      - generic [ref=e763]:
+                        - generic [ref=e764]: ₫66,000,000
+                        - button "₫56,279,520 monthly, originally ₫66,000,000" [ref=e767] [cursor=pointer]:
+                          - generic [ref=e768]:
+                            - text: ₫56,279,520
+                            - generic [ref=e769]: ₫56,279,520 monthly, originally ₫66,000,000
+                      - generic [ref=e770]: monthly
+                    - generic [ref=e773]: Monthly discount
+            - group [ref=e797]:
+              - link "Apartment in Nha Trang" [ref=e798] [cursor=pointer]:
+                - /url: /rooms/1521016827154599292?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1521016827154599292_8&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+              - generic [ref=e799]:
+                - generic [ref=e804]:
+                  - generic [ref=e805]: Photo 1 of 6
+                  - generic [ref=e806]:
+                    - link [aria-hidden] [ref=e807] [cursor=pointer]:
+                      - /url: /rooms/1521016827154599292?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1521016827154599292_8&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e811] [cursor=pointer]:
+                      - /url: /rooms/1521016827154599292?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1521016827154599292_8&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e813] [cursor=pointer]:
+                      - /url: /rooms/1521016827154599292?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1521016827154599292_8&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e815] [cursor=pointer]:
+                      - /url: /rooms/1521016827154599292?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1521016827154599292_8&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e817] [cursor=pointer]:
+                      - /url: /rooms/1521016827154599292?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1521016827154599292_8&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e819] [cursor=pointer]:
+                      - /url: /rooms/1521016827154599292?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1521016827154599292_8&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Guest favorite
+                          - generic [aria-hidden]: Guest favorite
+                      - 'button "Add to wishlist: Apartment in Nha Trang" [ref=e822] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=e827] [cursor=pointer]
+                      - 'button "Next photo: Apartment in Nha Trang" [ref=e832] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Photo 1 of 6"
+                - generic [ref=e836]:
+                  - generic [ref=e837]: Apartment in Nha Trang
+                  - generic [ref=e838]:
+                    - generic:
+                      - generic: 5.0 out of 5 average rating, 9 reviews
+                      - generic [aria-hidden]: 5.0 (9)
+                  - generic [ref=e839]: Luxury 2BR-2 Bathrooms-5 mins walk to beach-HUD NT
+                  - generic [ref=e841]:
+                    - generic [ref=e842]:
+                      - generic [ref=e843]: 2 bedrooms
+                      - generic [aria-hidden] [ref=e844]: 2 bedrooms
+                    - generic [ref=e845]:
+                      - generic [ref=e846]: ","
+                      - generic [aria-hidden] [ref=e847]: ·
+                      - generic [ref=e848]: 1 sofa bed
+                      - generic [aria-hidden] [ref=e849]: 1 sofa bed
+                    - generic [ref=e850]:
+                      - generic [ref=e851]: ","
+                      - generic [aria-hidden] [ref=e852]: ·
+                      - generic [ref=e853]: 2 baths
+                      - generic [aria-hidden] [ref=e854]: 2 baths
+                  - generic [ref=e855]:
+                    - generic [ref=e861]:
+                      - generic [ref=e862]:
+                        - generic [ref=e863]: ₫44,482,881
+                        - button "₫38,850,002 monthly, originally ₫44,482,881" [ref=e866] [cursor=pointer]:
+                          - generic [ref=e867]:
+                            - text: ₫38,850,002
+                            - generic [ref=e868]: ₫38,850,002 monthly, originally ₫44,482,881
+                      - generic [ref=e869]: monthly
+                    - generic [ref=e872]: Monthly discount
+            - group [ref=e896]:
+              - link "Condo in Nha Trang" [ref=e897] [cursor=pointer]:
+                - /url: /rooms/39493415?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_39493415_9&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+              - generic [ref=e898]:
+                - generic [ref=e903]:
+                  - generic [ref=e904]: Photo 1 of 6
+                  - generic [ref=e905]:
+                    - link [aria-hidden] [ref=e906] [cursor=pointer]:
+                      - /url: /rooms/39493415?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_39493415_9&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e910] [cursor=pointer]:
+                      - /url: /rooms/39493415?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_39493415_9&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e912] [cursor=pointer]:
+                      - /url: /rooms/39493415?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_39493415_9&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e914] [cursor=pointer]:
+                      - /url: /rooms/39493415?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_39493415_9&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e916] [cursor=pointer]:
+                      - /url: /rooms/39493415?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_39493415_9&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e918] [cursor=pointer]:
+                      - /url: /rooms/39493415?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_39493415_9&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                  - generic:
+                    - 'button "Add to wishlist: Condo in Nha Trang" [ref=e921] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=e926] [cursor=pointer]
+                      - 'button "Next photo: Condo in Nha Trang" [ref=e931] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Photo 1 of 6"
+                - generic [ref=e935]:
+                  - generic [ref=e936]: Condo in Nha Trang
+                  - generic [ref=e937]:
+                    - generic:
+                      - generic: 4.69 out of 5 average rating, 96 reviews
+                      - generic [aria-hidden]: 4.69 (96)
+                  - generic [ref=e938]: Panoramic Sea-view*63sqm*Huge Balcony*Pools*Gym
+                  - generic [ref=e940]:
+                    - generic [ref=e941]:
+                      - generic [ref=e942]: 2 bedrooms
+                      - generic [aria-hidden] [ref=e943]: 2 bedrooms
+                    - generic [ref=e944]:
+                      - generic [ref=e945]: ","
+                      - generic [aria-hidden] [ref=e946]: ·
+                      - generic [ref=e947]: 2 beds
+                      - generic [aria-hidden] [ref=e948]: 2 beds
+                    - generic [ref=e949]:
+                      - generic [ref=e950]: ","
+                      - generic [aria-hidden] [ref=e951]: ·
+                      - generic [ref=e952]: 1 bath
+                      - generic [aria-hidden] [ref=e953]: 1 bath
+                  - generic [ref=e954]:
+                    - generic [ref=e960]:
+                      - generic [ref=e961]:
+                        - generic [ref=e962]: ₫56,759,172
+                        - button "₫41,906,510 monthly, originally ₫56,759,172" [ref=e965] [cursor=pointer]:
+                          - generic [ref=e966]:
+                            - text: ₫41,906,510
+                            - generic [ref=e967]: ₫41,906,510 monthly, originally ₫56,759,172
+                      - generic [ref=e968]: monthly
+                    - generic [ref=e971]: Monthly discount
+            - group [ref=e995]:
+              - link "Condo in Nha Trang" [ref=e996] [cursor=pointer]:
+                - /url: /rooms/1742534099978102817?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1742534099978102817_10&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+              - generic [ref=e997]:
+                - generic [ref=e1002]:
+                  - generic [ref=e1003]: Photo 1 of 6
+                  - generic [ref=e1004]:
+                    - link [aria-hidden] [ref=e1005] [cursor=pointer]:
+                      - /url: /rooms/1742534099978102817?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1742534099978102817_10&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1009] [cursor=pointer]:
+                      - /url: /rooms/1742534099978102817?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1742534099978102817_10&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1011] [cursor=pointer]:
+                      - /url: /rooms/1742534099978102817?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1742534099978102817_10&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1013] [cursor=pointer]:
+                      - /url: /rooms/1742534099978102817?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1742534099978102817_10&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1015] [cursor=pointer]:
+                      - /url: /rooms/1742534099978102817?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1742534099978102817_10&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1017] [cursor=pointer]:
+                      - /url: /rooms/1742534099978102817?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1742534099978102817_10&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Superhost
+                          - generic [aria-hidden]: Superhost
+                      - 'button "Add to wishlist: Condo in Nha Trang" [ref=e1020] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=e1025] [cursor=pointer]
+                      - 'button "Next photo: Condo in Nha Trang" [ref=e1030] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Photo 1 of 6"
+                - generic [ref=e1034]:
+                  - generic [ref=e1035]: Condo in Nha Trang
+                  - generic [ref=e1036]:
+                    - generic:
+                      - generic: 4.5 out of 5 average rating, 4 reviews
+                      - generic [aria-hidden]: 4.5 (4)
+                  - generic [ref=e1037]: 2Brs Marina Suites 77m in the Center - With Swimming Pool
+                  - generic [ref=e1039]:
+                    - generic [ref=e1040]:
+                      - generic [ref=e1041]: 2 bedrooms
+                      - generic [aria-hidden] [ref=e1042]: 2 bedrooms
+                    - generic [ref=e1043]:
+                      - generic [ref=e1044]: ","
+                      - generic [aria-hidden] [ref=e1045]: ·
+                      - generic [ref=e1046]: 2 king beds
+                      - generic [aria-hidden] [ref=e1047]: 2 king beds
+                    - generic [ref=e1048]:
+                      - generic [ref=e1049]: ","
+                      - generic [aria-hidden] [ref=e1050]: ·
+                      - generic [ref=e1051]: 2 baths
+                      - generic [aria-hidden] [ref=e1052]: 2 baths
+                  - generic [ref=e1053]:
+                    - generic [ref=e1059]:
+                      - generic [ref=e1060]:
+                        - generic [ref=e1061]: ₫57,222,214
+                        - button "₫46,576,587 monthly, originally ₫57,222,214" [ref=e1064] [cursor=pointer]:
+                          - generic [ref=e1065]:
+                            - text: ₫46,576,587
+                            - generic [ref=e1066]: ₫46,576,587 monthly, originally ₫57,222,214
+                      - generic [ref=e1067]: monthly
+                    - generic [ref=e1070]: Monthly discount
+            - group [ref=e1094]:
+              - link "Apartment in Nha Trang" [ref=e1095] [cursor=pointer]:
+                - /url: /rooms/860564482717145025?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_860564482717145025_11&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+              - generic [ref=e1096]:
+                - generic [ref=e1101]:
+                  - generic [ref=e1102]: Photo 1 of 6
+                  - generic [ref=e1103]:
+                    - link [aria-hidden] [ref=e1104] [cursor=pointer]:
+                      - /url: /rooms/860564482717145025?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_860564482717145025_11&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1108] [cursor=pointer]:
+                      - /url: /rooms/860564482717145025?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_860564482717145025_11&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1110] [cursor=pointer]:
+                      - /url: /rooms/860564482717145025?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_860564482717145025_11&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1112] [cursor=pointer]:
+                      - /url: /rooms/860564482717145025?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_860564482717145025_11&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1114] [cursor=pointer]:
+                      - /url: /rooms/860564482717145025?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_860564482717145025_11&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1116] [cursor=pointer]:
+                      - /url: /rooms/860564482717145025?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_860564482717145025_11&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Superhost
+                          - generic [aria-hidden]: Superhost
+                      - 'button "Add to wishlist: Apartment in Nha Trang" [ref=e1119] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=e1124] [cursor=pointer]
+                      - 'button "Next photo: Apartment in Nha Trang" [ref=e1129] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Photo 1 of 6"
+                - generic [ref=e1133]:
+                  - generic [ref=e1134]: Apartment in Nha Trang
+                  - generic [ref=e1135]:
+                    - generic:
+                      - generic: 4.75 out of 5 average rating, 28 reviews
+                      - generic [aria-hidden]: 4.75 (28)
+                  - generic [ref=e1136]: Two-Bedroom Apartment With Balcony with Sea View
+                  - generic [ref=e1138]:
+                    - generic [ref=e1139]:
+                      - generic [ref=e1140]: 2 bedrooms
+                      - generic [aria-hidden] [ref=e1141]: 2 bedrooms
+                    - generic [ref=e1142]:
+                      - generic [ref=e1143]: ","
+                      - generic [aria-hidden] [ref=e1144]: ·
+                      - generic [ref=e1145]: 2 beds
+                      - generic [aria-hidden] [ref=e1146]: 2 beds
+                    - generic [ref=e1147]:
+                      - generic [ref=e1148]: ","
+                      - generic [aria-hidden] [ref=e1149]: ·
+                      - generic [ref=e1150]: 2 baths
+                      - generic [aria-hidden] [ref=e1151]: 2 baths
+                  - generic [ref=e1158]:
+                    - generic [ref=e1159]:
+                      - generic [ref=e1160]: ₫54,500,000
+                      - button "₫48,585,660 monthly, originally ₫54,500,000" [ref=e1163] [cursor=pointer]:
+                        - generic [ref=e1164]:
+                          - text: ₫48,585,660
+                          - generic [ref=e1165]: ₫48,585,660 monthly, originally ₫54,500,000
+                    - generic [ref=e1166]: monthly
+            - group [ref=e1191]:
+              - link "Apartment in Nha Trang" [ref=e1192] [cursor=pointer]:
+                - /url: /rooms/624494807104017321?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_624494807104017321_12&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+              - generic [ref=e1193]:
+                - generic [ref=e1198]:
+                  - generic [ref=e1199]: Photo 1 of 6
+                  - generic [ref=e1200]:
+                    - link [aria-hidden] [ref=e1201] [cursor=pointer]:
+                      - /url: /rooms/624494807104017321?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_624494807104017321_12&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1205] [cursor=pointer]:
+                      - /url: /rooms/624494807104017321?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_624494807104017321_12&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1207] [cursor=pointer]:
+                      - /url: /rooms/624494807104017321?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_624494807104017321_12&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1209] [cursor=pointer]:
+                      - /url: /rooms/624494807104017321?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_624494807104017321_12&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1211] [cursor=pointer]:
+                      - /url: /rooms/624494807104017321?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_624494807104017321_12&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1213] [cursor=pointer]:
+                      - /url: /rooms/624494807104017321?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_624494807104017321_12&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                  - generic:
+                    - 'button "Add to wishlist: Apartment in Nha Trang" [ref=e1216] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=e1221] [cursor=pointer]
+                      - 'button "Next photo: Apartment in Nha Trang" [ref=e1226] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Photo 1 of 6"
+                - generic [ref=e1230]:
+                  - generic [ref=e1231]: Apartment in Nha Trang
+                  - generic [ref=e1232]:
+                    - generic:
+                      - generic: 4.63 out of 5 average rating, 63 reviews
+                      - generic [aria-hidden]: 4.63 (63)
+                  - generic [ref=e1233]: Cozy 3 seperate bedroom Apt|Corner unit| Maple
+                  - generic [ref=e1235]:
+                    - generic [ref=e1236]:
+                      - generic [ref=e1237]: 3 bedrooms
+                      - generic [aria-hidden] [ref=e1238]: 3 bedrooms
+                    - generic [ref=e1239]:
+                      - generic [ref=e1240]: ","
+                      - generic [aria-hidden] [ref=e1241]: ·
+                      - generic [ref=e1242]: 3 beds
+                      - generic [aria-hidden] [ref=e1243]: 3 beds
+                    - generic [ref=e1244]:
+                      - generic [ref=e1245]: ","
+                      - generic [aria-hidden] [ref=e1246]: ·
+                      - generic [ref=e1247]: 2 baths
+                      - generic [aria-hidden] [ref=e1248]: 2 baths
+                  - generic [ref=e1249]:
+                    - generic [ref=e1255]:
+                      - generic [ref=e1256]:
+                        - generic [ref=e1257]: ₫77,000,000
+                        - button "₫48,498,450 monthly, originally ₫77,000,000" [ref=e1260] [cursor=pointer]:
+                          - generic [ref=e1261]:
+                            - text: ₫48,498,450
+                            - generic [ref=e1262]: ₫48,498,450 monthly, originally ₫77,000,000
+                      - generic [ref=e1263]: monthly
+                    - generic [ref=e1266]: Monthly discount
+            - group [ref=e1290]:
+              - link "Apartment in Nha Trang" [ref=e1291] [cursor=pointer]:
+                - /url: /rooms/1730454356705974749?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1730454356705974749_13&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+              - generic [ref=e1292]:
+                - generic [ref=e1297]:
+                  - generic [ref=e1298]: Photo 1 of 6
+                  - generic [ref=e1299]:
+                    - link [aria-hidden] [ref=e1300] [cursor=pointer]:
+                      - /url: /rooms/1730454356705974749?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1730454356705974749_13&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1304] [cursor=pointer]:
+                      - /url: /rooms/1730454356705974749?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1730454356705974749_13&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1306] [cursor=pointer]:
+                      - /url: /rooms/1730454356705974749?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1730454356705974749_13&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1308] [cursor=pointer]:
+                      - /url: /rooms/1730454356705974749?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1730454356705974749_13&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1310] [cursor=pointer]:
+                      - /url: /rooms/1730454356705974749?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1730454356705974749_13&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1312] [cursor=pointer]:
+                      - /url: /rooms/1730454356705974749?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1730454356705974749_13&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Superhost
+                          - generic [aria-hidden]: Superhost
+                      - 'button "Add to wishlist: Apartment in Nha Trang" [ref=e1315] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=e1320] [cursor=pointer]
+                      - 'button "Next photo: Apartment in Nha Trang" [ref=e1325] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Photo 1 of 6"
+                - generic [ref=e1329]:
+                  - generic [ref=e1330]: Apartment in Nha Trang
+                  - generic [ref=e1331]: 2Brs Marina Suites 77m in the Center - With Swimming Pool
+                  - generic [ref=e1333]:
+                    - generic [ref=e1334]:
+                      - generic [ref=e1335]: 2 bedrooms
+                      - generic [aria-hidden] [ref=e1336]: 2 bedrooms
+                    - generic [ref=e1337]:
+                      - generic [ref=e1338]: ","
+                      - generic [aria-hidden] [ref=e1339]: ·
+                      - generic [ref=e1340]: 2 beds
+                      - generic [aria-hidden] [ref=e1341]: 2 beds
+                    - generic [ref=e1342]:
+                      - generic [ref=e1343]: ","
+                      - generic [aria-hidden] [ref=e1344]: ·
+                      - generic [ref=e1345]: 2 baths
+                      - generic [aria-hidden] [ref=e1346]: 2 baths
+                  - generic [ref=e1347]:
+                    - generic [ref=e1353]:
+                      - generic [ref=e1354]:
+                        - generic [ref=e1355]: ₫61,101,762
+                        - button "₫49,199,041 monthly, originally ₫61,101,762" [ref=e1358] [cursor=pointer]:
+                          - generic [ref=e1359]:
+                            - text: ₫49,199,041
+                            - generic [ref=e1360]: ₫49,199,041 monthly, originally ₫61,101,762
+                      - generic [ref=e1361]: monthly
+                    - generic [ref=e1364]: Monthly discount
+            - group [ref=e1388]:
+              - link "Condo in Nha Trang" [ref=e1389] [cursor=pointer]:
+                - /url: /rooms/1744132496213759445?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1744132496213759445_14&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+              - generic [ref=e1390]:
+                - generic [ref=e1395]:
+                  - generic [ref=e1396]: Photo 1 of 6
+                  - generic [ref=e1397]:
+                    - link [aria-hidden] [ref=e1398] [cursor=pointer]:
+                      - /url: /rooms/1744132496213759445?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1744132496213759445_14&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1402] [cursor=pointer]:
+                      - /url: /rooms/1744132496213759445?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1744132496213759445_14&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1404] [cursor=pointer]:
+                      - /url: /rooms/1744132496213759445?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1744132496213759445_14&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1406] [cursor=pointer]:
+                      - /url: /rooms/1744132496213759445?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1744132496213759445_14&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1408] [cursor=pointer]:
+                      - /url: /rooms/1744132496213759445?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1744132496213759445_14&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1410] [cursor=pointer]:
+                      - /url: /rooms/1744132496213759445?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1744132496213759445_14&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Superhost
+                          - generic [aria-hidden]: Superhost
+                      - 'button "Add to wishlist: Condo in Nha Trang" [ref=e1413] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=e1418] [cursor=pointer]
+                      - 'button "Next photo: Condo in Nha Trang" [ref=e1423] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Photo 1 of 6"
+                - generic [ref=e1427]:
+                  - generic [ref=e1428]: Condo in Nha Trang
+                  - generic [ref=e1429]:
+                    - generic:
+                      - generic: 4.33 out of 5 average rating, 3 reviews
+                      - generic [aria-hidden]: 4.33 (3)
+                  - generic [ref=e1430]: 2Brs Gold Coast At The Center - Lotte Mart
+                  - generic [ref=e1432]:
+                    - generic [ref=e1433]:
+                      - generic [ref=e1434]: 2 bedrooms
+                      - generic [aria-hidden] [ref=e1435]: 2 bedrooms
+                    - generic [ref=e1436]:
+                      - generic [ref=e1437]: ","
+                      - generic [aria-hidden] [ref=e1438]: ·
+                      - generic [ref=e1439]: 2 beds
+                      - generic [aria-hidden] [ref=e1440]: 2 beds
+                    - generic [ref=e1441]:
+                      - generic [ref=e1442]: ","
+                      - generic [aria-hidden] [ref=e1443]: ·
+                      - generic [ref=e1444]: 2 baths
+                      - generic [aria-hidden] [ref=e1445]: 2 baths
+                  - generic [ref=e1446]:
+                    - generic [ref=e1452]:
+                      - generic [ref=e1453]:
+                        - generic [ref=e1454]: ₫59,888,878
+                        - button "₫49,907,801 monthly, originally ₫59,888,878" [ref=e1457] [cursor=pointer]:
+                          - generic [ref=e1458]:
+                            - text: ₫49,907,801
+                            - generic [ref=e1459]: ₫49,907,801 monthly, originally ₫59,888,878
+                      - generic [ref=e1460]: monthly
+                    - generic [ref=e1463]: Monthly discount
+            - group [ref=e1487]:
+              - link "Apartment in Nha Trang" [ref=e1488] [cursor=pointer]:
+                - /url: /rooms/870146352095091051?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_870146352095091051_15&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+              - generic [ref=e1489]:
+                - generic [ref=e1494]:
+                  - generic [ref=e1495]: Photo 1 of 6
+                  - generic [ref=e1496]:
+                    - link [aria-hidden] [ref=e1497] [cursor=pointer]:
+                      - /url: /rooms/870146352095091051?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_870146352095091051_15&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1501] [cursor=pointer]:
+                      - /url: /rooms/870146352095091051?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_870146352095091051_15&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1503] [cursor=pointer]:
+                      - /url: /rooms/870146352095091051?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_870146352095091051_15&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1505] [cursor=pointer]:
+                      - /url: /rooms/870146352095091051?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_870146352095091051_15&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1507] [cursor=pointer]:
+                      - /url: /rooms/870146352095091051?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_870146352095091051_15&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1509] [cursor=pointer]:
+                      - /url: /rooms/870146352095091051?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_870146352095091051_15&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Superhost
+                          - generic [aria-hidden]: Superhost
+                      - 'button "Add to wishlist: Apartment in Nha Trang" [ref=e1512] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=e1517] [cursor=pointer]
+                      - 'button "Next photo: Apartment in Nha Trang" [ref=e1522] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Photo 1 of 6"
+                - generic [ref=e1526]:
+                  - generic [ref=e1527]: Apartment in Nha Trang
+                  - generic [ref=e1528]:
+                    - generic:
+                      - generic: 4.81 out of 5 average rating, 37 reviews
+                      - generic [aria-hidden]: 4.81 (37)
+                  - generic [ref=e1529]: Two-Bedroom Apartment With Ocean View
+                  - generic [ref=e1531]:
+                    - generic [ref=e1532]:
+                      - generic [ref=e1533]: 2 bedrooms
+                      - generic [aria-hidden] [ref=e1534]: 2 bedrooms
+                    - generic [ref=e1535]:
+                      - generic [ref=e1536]: ","
+                      - generic [aria-hidden] [ref=e1537]: ·
+                      - generic [ref=e1538]: 2 beds
+                      - generic [aria-hidden] [ref=e1539]: 2 beds
+                    - generic [ref=e1540]:
+                      - generic [ref=e1541]: ","
+                      - generic [aria-hidden] [ref=e1542]: ·
+                      - generic [ref=e1543]: 2 baths
+                      - generic [aria-hidden] [ref=e1544]: 2 baths
+                  - generic [ref=e1551]:
+                    - generic [ref=e1552]:
+                      - generic [ref=e1553]: ₫73,000,000
+                      - button "₫65,078,040 monthly, originally ₫73,000,000" [ref=e1556] [cursor=pointer]:
+                        - generic [ref=e1557]:
+                          - text: ₫65,078,040
+                          - generic [ref=e1558]: ₫65,078,040 monthly, originally ₫73,000,000
+                    - generic [ref=e1559]: monthly
+            - group [ref=e1584]:
+              - link "Apartment in Nha Trang" [ref=e1585] [cursor=pointer]:
+                - /url: /rooms/1808538487328400283?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1808538487328400283_16&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+              - generic [ref=e1586]:
+                - generic [ref=e1591]:
+                  - generic [ref=e1592]: Photo 1 of 6
+                  - generic [ref=e1593]:
+                    - link [aria-hidden] [ref=e1594] [cursor=pointer]:
+                      - /url: /rooms/1808538487328400283?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1808538487328400283_16&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1598] [cursor=pointer]:
+                      - /url: /rooms/1808538487328400283?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1808538487328400283_16&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1600] [cursor=pointer]:
+                      - /url: /rooms/1808538487328400283?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1808538487328400283_16&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1602] [cursor=pointer]:
+                      - /url: /rooms/1808538487328400283?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1808538487328400283_16&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1604] [cursor=pointer]:
+                      - /url: /rooms/1808538487328400283?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1808538487328400283_16&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1606] [cursor=pointer]:
+                      - /url: /rooms/1808538487328400283?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1808538487328400283_16&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                  - generic:
+                    - 'button "Add to wishlist: Apartment in Nha Trang" [ref=e1609] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=e1614] [cursor=pointer]
+                      - 'button "Next photo: Apartment in Nha Trang" [ref=e1619] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Photo 1 of 6"
+                - generic [ref=e1623]:
+                  - generic [ref=e1624]: Apartment in Nha Trang
+                  - generic [ref=e1625]:
+                    - generic:
+                      - generic: New place to stay
+                      - generic [aria-hidden]: New
+                  - generic [ref=e1626]: Brand New Neo-classical 2br APT with River View
+                  - generic [ref=e1628]:
+                    - generic [ref=e1629]:
+                      - generic [ref=e1630]: 2 bedrooms
+                      - generic [aria-hidden] [ref=e1631]: 2 bedrooms
+                    - generic [ref=e1632]:
+                      - generic [ref=e1633]: ","
+                      - generic [aria-hidden] [ref=e1634]: ·
+                      - generic [ref=e1635]: 2 beds
+                      - generic [aria-hidden] [ref=e1636]: 2 beds
+                    - generic [ref=e1637]:
+                      - generic [ref=e1638]: ","
+                      - generic [aria-hidden] [ref=e1639]: ·
+                      - generic [ref=e1640]: 2 baths
+                      - generic [aria-hidden] [ref=e1641]: 2 baths
+                  - generic [ref=e1642]:
+                    - generic [ref=e1648]:
+                      - generic [ref=e1649]:
+                        - generic [ref=e1650]: ₫35,720,000
+                        - button "₫31,151,412 monthly, originally ₫35,720,000" [ref=e1653] [cursor=pointer]:
+                          - generic [ref=e1654]:
+                            - text: ₫31,151,412
+                            - generic [ref=e1655]: ₫31,151,412 monthly, originally ₫35,720,000
+                      - generic [ref=e1656]: monthly
+                    - generic [ref=e1659]: Weekly discount
+            - group [ref=e1683]:
+              - link "Condo in Nha Trang" [ref=e1684] [cursor=pointer]:
+                - /url: /rooms/1731724512523036832?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1731724512523036832_17&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+              - generic [ref=e1685]:
+                - generic [ref=e1690]:
+                  - generic [ref=e1691]: Photo 1 of 6
+                  - generic [ref=e1692]:
+                    - link [aria-hidden] [ref=e1693] [cursor=pointer]:
+                      - /url: /rooms/1731724512523036832?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1731724512523036832_17&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1697] [cursor=pointer]:
+                      - /url: /rooms/1731724512523036832?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1731724512523036832_17&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1699] [cursor=pointer]:
+                      - /url: /rooms/1731724512523036832?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1731724512523036832_17&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1701] [cursor=pointer]:
+                      - /url: /rooms/1731724512523036832?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1731724512523036832_17&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1703] [cursor=pointer]:
+                      - /url: /rooms/1731724512523036832?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1731724512523036832_17&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1705] [cursor=pointer]:
+                      - /url: /rooms/1731724512523036832?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1731724512523036832_17&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Superhost
+                          - generic [aria-hidden]: Superhost
+                      - 'button "Add to wishlist: Condo in Nha Trang" [ref=e1708] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=e1713] [cursor=pointer]
+                      - 'button "Next photo: Condo in Nha Trang" [ref=e1718] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Photo 1 of 6"
+                - generic [ref=e1722]:
+                  - generic [ref=e1723]: Condo in Nha Trang
+                  - generic [ref=e1724]: Marina Suites 2Brs Sea View at the Center - 77m2
+                  - generic [ref=e1726]:
+                    - generic [ref=e1727]:
+                      - generic [ref=e1728]: 2 bedrooms
+                      - generic [aria-hidden] [ref=e1729]: 2 bedrooms
+                    - generic [ref=e1730]:
+                      - generic [ref=e1731]: ","
+                      - generic [aria-hidden] [ref=e1732]: ·
+                      - generic [ref=e1733]: 3 beds
+                      - generic [aria-hidden] [ref=e1734]: 3 beds
+                    - generic [ref=e1735]:
+                      - generic [ref=e1736]: ","
+                      - generic [aria-hidden] [ref=e1737]: ·
+                      - generic [ref=e1738]: 2 baths
+                      - generic [aria-hidden] [ref=e1739]: 2 baths
+                  - generic [ref=e1740]:
+                    - generic [ref=e1746]:
+                      - generic [ref=e1747]:
+                        - generic [ref=e1748]: ₫58,373,194
+                        - button "₫46,985,640 monthly, originally ₫58,373,194" [ref=e1751] [cursor=pointer]:
+                          - generic [ref=e1752]:
+                            - text: ₫46,985,640
+                            - generic [ref=e1753]: ₫46,985,640 monthly, originally ₫58,373,194
+                      - generic [ref=e1754]: monthly
+                    - generic [ref=e1757]: Monthly discount
+            - group [ref=e1781]:
+              - link "Apartment in Nha Trang" [ref=e1782] [cursor=pointer]:
+                - /url: /rooms/1162714176078163916?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1162714176078163916_18&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+              - generic [ref=e1783]:
+                - generic [ref=e1788]:
+                  - generic [ref=e1789]: Photo 1 of 6
+                  - generic [ref=e1790]:
+                    - link [aria-hidden] [ref=e1791] [cursor=pointer]:
+                      - /url: /rooms/1162714176078163916?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1162714176078163916_18&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1795] [cursor=pointer]:
+                      - /url: /rooms/1162714176078163916?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1162714176078163916_18&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1797] [cursor=pointer]:
+                      - /url: /rooms/1162714176078163916?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1162714176078163916_18&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1799] [cursor=pointer]:
+                      - /url: /rooms/1162714176078163916?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1162714176078163916_18&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1801] [cursor=pointer]:
+                      - /url: /rooms/1162714176078163916?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1162714176078163916_18&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                    - link [aria-hidden] [ref=e1803] [cursor=pointer]:
+                      - /url: /rooms/1162714176078163916?adults=2&check_in=2026-11-20&check_out=2026-12-20&children=1&search_mode=regular_search&source_impression_id=p3_b591a68b-5b6c-48c6-8f04-cb9f2cff2c98_f7f689df-2b97-4f1a-bb6c-c14568aef45a_0_1162714176078163916_18&previous_page_section_name=1000&federated_search_id=b591a68b-5b6c-48c6-8f04-cb9f2cff2c98
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Guest favorite
+                          - generic [aria-hidden]: Guest favorite
+                      - 'button "Add to wishlist: Apartment in Nha Trang" [ref=e1806] [cursor=pointer]'
+                    - generic:
+                      - button [disabled] [aria-hidden] [ref=e1811] [cursor=pointer]
+                      - 'button "Next photo: Apartment in Nha Trang" [ref=e1816] [cursor=pointer]'
+                    - generic:
+                      - generic:
+                        - img "Photo 1 of 6"
+                - generic [ref=e1820]:
+                  - generic [ref=e1821]: Apartment in Nha Trang
+                  - generic [ref=e1822]:
+                    - generic:
+                      - generic: 4.95 out of 5 average rating, 19 reviews
+                      - generic [aria-hidden]: 4.95 (19)
+                  - generic [ref=e1823]: Luxury 2BR Apt Marina Suites - Enjoy Every Moment
+                  - generic [ref=e1825]:
+                    - generic [ref=e1826]:
+                      - generic [ref=e1827]: 2 bedrooms
+                      - generic [aria-hidden] [ref=e1828]: 2 bedrooms
+                    - generic [ref=e1829]:
+                      - generic [ref=e1830]: ","
+                      - generic [aria-hidden] [ref=e1831]: ·
+                      - generic [ref=e1832]: 2 king beds
+                      - generic [aria-hidden] [ref=e1833]: 2 king beds
+                    - generic [ref=e1834]:
+                      - generic [ref=e1835]: ","
+                      - generic [aria-hidden] [ref=e1836]: ·
+                      - generic [ref=e1837]: 2 baths
+                      - generic [aria-hidden] [ref=e1838]: 2 baths
+                  - generic [ref=e1839]:
+                    - generic [ref=e1845]:
+                      - generic [ref=e1846]:
+                        - generic [ref=e1847]: ₫61,850,000
+                        - button "₫39,041,010 monthly, originally ₫61,850,000" [ref=e1850] [cursor=pointer]:
+                          - generic [ref=e1851]:
+                            - text: ₫39,041,010
+                            - generic [ref=e1852]: ₫39,041,010 monthly, originally ₫61,850,000
+                      - generic [ref=e1853]: monthly
+                    - generic [ref=e1856]: Monthly discount
+        - region "Google Map" [ref=e1863]:
+          - heading "Google map Showing 20 stays." [level=2] [ref=e1865]
+          - button "Map settings" [ref=e1866] [cursor=pointer]
+          - generic [ref=e1869]:
+            - button "Show fullscreen map" [ref=e1872] [cursor=pointer]
+            - generic [ref=e1882]:
+              - button "Zoom in" [ref=e1883] [cursor=pointer]
+              - button "Zoom out" [ref=e1887] [cursor=pointer]
+          - generic [ref=e1890]:
+            - generic "Map" [ref=e1891]
+            - generic [ref=e1892]:
+              - generic [ref=e1895]:
+                - generic:
+                  - generic:
+                    - generic:
+                      - button "Condo in Nha Trang, ₫42,741,187":
+                        - generic [ref=e1903] [cursor=pointer]:
+                          - generic [ref=e1904]: Condo in Nha Trang, ₫42,741,187
+                          - text: ₫42,741,187
+                      - button "Apartment in Nha Trang, ₫35,460,555":
+                        - generic [ref=e1911] [cursor=pointer]:
+                          - generic [ref=e1912]: Apartment in Nha Trang, ₫35,460,555
+                          - text: ₫35,460,555
+                      - button "Condo in Nha Trang, ₫39,049,731":
+                        - generic [ref=e1919] [cursor=pointer]:
+                          - generic [ref=e1920]: Condo in Nha Trang, ₫39,049,731
+                          - text: ₫39,049,731
+                      - button "Condo in Nha Trang, ₫25,202,199":
+                        - generic [ref=e1927] [cursor=pointer]:
+                          - generic [ref=e1928]: Condo in Nha Trang, ₫25,202,199
+                          - text: ₫25,202,199
+                      - button "Apartment in Nha Trang, ₫38,624,340":
+                        - generic [ref=e1935] [cursor=pointer]:
+                          - generic [ref=e1936]: Apartment in Nha Trang, ₫38,624,340
+                          - text: ₫38,624,340
+                      - button "Apartment in Nha Trang, ₫36,225,583":
+                        - generic [ref=e1943] [cursor=pointer]:
+                          - generic [ref=e1944]: Apartment in Nha Trang, ₫36,225,583
+                          - text: ₫36,225,583
+                      - button "Condo in Nha Trang, ₫56,279,520":
+                        - generic [ref=e1951] [cursor=pointer]:
+                          - generic [ref=e1952]: Condo in Nha Trang, ₫56,279,520
+                          - text: ₫56,279,520
+                      - button "Apartment in Nha Trang, ₫38,850,002":
+                        - generic [ref=e1959] [cursor=pointer]:
+                          - generic [ref=e1960]: Apartment in Nha Trang, ₫38,850,002
+                          - text: ₫38,850,002
+                      - button "Condo in Nha Trang, ₫41,906,510":
+                        - generic [ref=e1967] [cursor=pointer]:
+                          - generic [ref=e1968]: Condo in Nha Trang, ₫41,906,510
+                          - text: ₫41,906,510
+                      - button "Condo in Nha Trang, ₫46,576,587":
+                        - generic [ref=e1975] [cursor=pointer]:
+                          - generic [ref=e1976]: Condo in Nha Trang, ₫46,576,587
+                          - text: ₫46,576,587
+                      - button "Apartment in Nha Trang, ₫48,585,660":
+                        - generic [ref=e1983] [cursor=pointer]:
+                          - generic [ref=e1984]: Apartment in Nha Trang, ₫48,585,660
+                          - text: ₫48,585,660
+                      - button "Apartment in Nha Trang, ₫48,498,450":
+                        - generic [ref=e1991] [cursor=pointer]:
+                          - generic [ref=e1992]: Apartment in Nha Trang, ₫48,498,450
+                          - text: ₫48,498,450
+                      - button "Apartment in Nha Trang, ₫49,199,041":
+                        - generic [ref=e1999] [cursor=pointer]:
+                          - generic [ref=e2000]: Apartment in Nha Trang, ₫49,199,041
+                          - text: ₫49,199,041
+                      - button "Condo in Nha Trang, ₫49,907,801":
+                        - generic [ref=e2007] [cursor=pointer]:
+                          - generic [ref=e2008]: Condo in Nha Trang, ₫49,907,801
+                          - text: ₫49,907,801
+                      - button "Apartment in Nha Trang, ₫65,078,040":
+                        - generic [ref=e2015] [cursor=pointer]:
+                          - generic [ref=e2016]: Apartment in Nha Trang, ₫65,078,040
+                          - text: ₫65,078,040
+                      - button "Apartment in Nha Trang, ₫31,151,412":
+                        - generic [ref=e2023] [cursor=pointer]:
+                          - generic [ref=e2024]: Apartment in Nha Trang, ₫31,151,412
+                          - text: ₫31,151,412
+                      - button "Apartment in Nha Trang, ₫39,041,010":
+                        - generic [ref=e2031] [cursor=pointer]:
+                          - generic [ref=e2032]: Apartment in Nha Trang, ₫39,041,010
+                          - text: ₫39,041,010
+                      - button "Apartment in Nha Trang, ₫36,485,272":
+                        - generic [ref=e2039] [cursor=pointer]:
+                          - generic [ref=e2040]: Apartment in Nha Trang, ₫36,485,272
+                          - text: ₫36,485,272
+                      - button "Condo in Nha Trang, ₫46,985,640":
+                        - generic [ref=e2047] [cursor=pointer]:
+                          - generic [ref=e2048]: Condo in Nha Trang, ₫46,985,640
+                          - text: ₫46,985,640
+                      - button "Condo in Nha Trang, ₫42,741,187":
+                        - generic [ref=e2055] [cursor=pointer]:
+                          - generic [ref=e2056]: Condo in Nha Trang, ₫42,741,187
+                          - text: ₫42,741,187
+                      - button "Nha Trang Center The location you searched":
+                        - generic [ref=e2059] [cursor=pointer]:
+                          - generic "Nha Trang Center" [ref=e2061]
+                          - img "The location you searched" [ref=e2072]
+                      - button:
+                        - generic [ref=e2073] [cursor=pointer]
+              - iframe [aria-hidden] [ref=e2077]
+      - contentinfo [ref=e2083]:
+        - generic [ref=e2084]:
+          - heading "Site Footer" [level=2] [ref=e2086]
+          - generic [ref=e2087]:
+            - generic [ref=e2088]:
+              - heading "Support" [level=3] [ref=e2089]
+              - list [ref=e2090]:
+                - listitem [ref=e2091]:
+                  - link "Help Center" [ref=e2092] [cursor=pointer]:
+                    - /url: /help/home?from=footer
+                - listitem [ref=e2093]:
+                  - link "Get help with a safety issue" [ref=e2094] [cursor=pointer]:
+                    - /url: /help/contact-us?entry=DESKTOP_FOOTER_SAFETY
+                - listitem [ref=e2095]:
+                  - link "AirCover" [ref=e2096] [cursor=pointer]:
+                    - /url: /help/article/3218
+                - listitem [ref=e2097]:
+                  - link "Travel insurance" [ref=e2098] [cursor=pointer]:
+                    - /url: /travelinsurance
+                - listitem [ref=e2099]:
+                  - link "Anti-discrimination" [ref=e2100] [cursor=pointer]:
+                    - /url: /against-discrimination
+                - listitem [ref=e2101]:
+                  - link "Disability support" [ref=e2102] [cursor=pointer]:
+                    - /url: /accessibility
+                - listitem [ref=e2103]:
+                  - link "Cancellation options" [ref=e2104] [cursor=pointer]:
+                    - /url: /help/article/2701/extenuating-circumstances-policy-and-the-coronavirus-covid19
+                - listitem [ref=e2105]:
+                  - link "Report neighborhood concern" [ref=e2106] [cursor=pointer]:
+                    - /url: /neighbors
+            - generic [ref=e2107]:
+              - heading "Hosting" [level=3] [ref=e2108]
+              - list [ref=e2109]:
+                - listitem [ref=e2110]:
+                  - link "Airbnb your home" [ref=e2111] [cursor=pointer]:
+                    - /url: /host/homes?from_footer=1
+                - listitem [ref=e2112]:
+                  - link "Airbnb your hotel" [ref=e2113] [cursor=pointer]:
+                    - /url: /e/host-hotels
+                - listitem [ref=e2114]:
+                  - link "Airbnb your experience" [ref=e2115] [cursor=pointer]:
+                    - /url: /host/experiences
+                - listitem [ref=e2116]:
+                  - link "Airbnb your service" [ref=e2117] [cursor=pointer]:
+                    - /url: /host/services
+                - listitem [ref=e2118]:
+                  - link "AirCover for Hosts" [ref=e2119] [cursor=pointer]:
+                    - /url: /aircover-for-hosts
+                - listitem [ref=e2120]:
+                  - link "Earnings Protection" [ref=e2121] [cursor=pointer]:
+                    - /url: /earnings-protection-insurance
+                - listitem [ref=e2122]:
+                  - link "Hosting resources" [ref=e2123] [cursor=pointer]:
+                    - /url: /resources
+                - listitem [ref=e2124]:
+                  - link "Community Center" [ref=e2125] [cursor=pointer]:
+                    - /url: https://community.withairbnb.com/t5/Community-Center/ct-p/community-center
+                - listitem [ref=e2126]:
+                  - link "Hosting responsibly" [ref=e2127] [cursor=pointer]:
+                    - /url: /help/responsible-hosting
+                - listitem [ref=e2128]:
+                  - link "Airbnb-friendly apartments" [ref=e2129] [cursor=pointer]:
+                    - /url: /airbnb-friendly
+                - listitem [ref=e2130]:
+                  - link "Join a free hosting class" [ref=e2131] [cursor=pointer]:
+                    - /url: /e/intro-to-hosting
+                - listitem [ref=e2132]:
+                  - link "Find a co‑host" [ref=e2133] [cursor=pointer]:
+                    - /url: /host/co-hosts
+                - listitem [ref=e2134]:
+                  - link "Refer a host" [ref=e2135] [cursor=pointer]:
+                    - /url: /refer
+            - generic [ref=e2136]:
+              - heading "Airbnb" [level=3] [ref=e2137]
+              - list [ref=e2138]:
+                - listitem [ref=e2139]:
+                  - link "2026 Summer Release" [ref=e2140] [cursor=pointer]:
+                    - /url: /release
+                - listitem [ref=e2141]:
+                  - link "Newsroom" [ref=e2142] [cursor=pointer]:
+                    - /url: /press/news
+                - listitem [ref=e2143]:
+                  - link "Careers" [ref=e2144] [cursor=pointer]:
+                    - /url: /careers
+                - listitem [ref=e2145]:
+                  - link "Investors" [ref=e2146] [cursor=pointer]:
+                    - /url: https://investors.airbnb.com
+                - listitem [ref=e2147]:
+                  - link "Gift cards" [ref=e2148] [cursor=pointer]:
+                    - /url: /giftcards
+                - listitem [ref=e2149]:
+                  - link "Airbnb.org emergency stays" [ref=e2150] [cursor=pointer]:
+                    - /url: https://www.airbnb.org?locale=en
+          - generic [ref=e2151]:
+            - generic [ref=e2152]: Footer section
+            - generic [ref=e2154]:
+              - generic [ref=e2156]:
+                - generic [ref=e2157]: © 2026 Airbnb, Inc.
+                - generic [ref=e2158]:
+                  - generic [aria-hidden] [ref=e2160]: ·
+                  - list [ref=e2162]:
+                    - listitem [ref=e2163]:
+                      - link "Privacy" [ref=e2164] [cursor=pointer]:
+                        - /url: /terms/privacy_policy
+                      - generic [ref=e2165]:
+                        - generic [aria-hidden]:
+                          - generic [aria-hidden]: ·
+                    - listitem [ref=e2166]:
+                      - link "Terms" [ref=e2167] [cursor=pointer]:
+                        - /url: /terms
+                      - generic [ref=e2168]:
+                        - generic [aria-hidden]:
+                          - generic [aria-hidden]: ·
+                    - listitem [ref=e2169]:
+                      - link "Your Privacy Choices" [ref=e2170] [cursor=pointer]:
+                        - /url: /help/sale-share-opt-out
+              - generic [ref=e2180]:
+                - generic [ref=e2182]:
+                  - button "Choose a language" [ref=e2184] [cursor=pointer]:
+                    - generic [ref=e2185]: English (US)
+                  - button "Choose a currency" [ref=e2187] [cursor=pointer]:
+                    - generic [ref=e2189]:
+                      - generic [ref=e2190]: ₫
+                      - generic [ref=e2191]: VND
+                - list [ref=e2193]:
+                  - listitem [ref=e2194]:
+                    - link "Navigate to Facebook" [ref=e2195] [cursor=pointer]:
+                      - /url: https://www.facebook.com/airbnb
+                  - listitem [ref=e2199]:
+                    - link "Navigate to Twitter" [ref=e2200] [cursor=pointer]:
+                      - /url: https://twitter.com/airbnb
+                  - listitem [ref=e2204]:
+                    - link "Navigate to Instagram" [ref=e2205] [cursor=pointer]:
+                      - /url: https://instagram.com/airbnb
+    - generic [ref=e2209]: Loading

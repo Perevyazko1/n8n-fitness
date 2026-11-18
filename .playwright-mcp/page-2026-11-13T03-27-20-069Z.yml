@@ -1,0 +1,246 @@
+- generic [ref=f1e5]:
+  - banner:
+    - generic [ref=f1e8]:
+      - generic [ref=f1e10]:
+        - generic [aria-hidden]:
+          - button [disabled]
+        - button "Facebook" [ref=f1e12] [cursor=pointer]:
+          - img "Facebook" [ref=f1e13]
+      - generic [ref=f1e18]:
+        - textbox "Электронный адрес или номер телефона" [ref=f1e21]
+        - textbox "Пароль" [ref=f1e24]
+        - button "Вход" [ref=f1e27] [cursor=pointer]
+        - link "Забыли аккаунт?" [ref=f1e34] [cursor=pointer]:
+          - /url: https://www.facebook.com/recover/initiate?ars=royal_blue_bar
+  - generic [ref=f1e39]:
+    - navigation [ref=f1e40]:
+      - generic [ref=f1e41]:
+        - generic [ref=f1e44]:
+          - heading [level=1] [ref=f1e49]: Marketplace
+          - button [ref=f1e52] [cursor=pointer]
+        - combobox [ref=f1e66]
+        - generic [ref=f1e71]:
+          - link [ref=f1e73] [cursor=pointer]:
+            - /url: /marketplace/
+            - generic [ref=f1e74]: Просмотреть все
+          - link [ref=f1e86] [cursor=pointer]:
+            - /url: /marketplace/you/selling/
+            - generic [ref=f1e87]: Ваш аккаунт
+          - link [ref=f1e100] [cursor=pointer]:
+            - /url: /marketplace/create/
+            - generic [ref=f1e101]: Создать новое объявление
+          - generic [ref=f1e106]:
+            - generic [ref=f1e107]: Местоположение
+            - generic [ref=f1e121]:
+              - button [ref=f1e122] [cursor=pointer]:
+                - generic [ref=f1e123]: Сан-Франциско
+              - button [ref=f1e129] [cursor=pointer]:
+                - generic [ref=f1e130]: Укажите город для просмотра местных результатов
+          - generic [ref=f1e133]: Категории
+          - list [ref=f1e147]:
+            - listitem [ref=f1e148]:
+              - link [ref=f1e150] [cursor=pointer]:
+                - /url: /marketplace/sanfrancisco/search/?category_id=546583916084032&query=%D0%A2%D1%80%D0%B0%D0%BD%D1%81%D0%BF%D0%BE%D1%80%D1%82%D0%BD%D1%8B%D0%B5%20%D1%81%D1%80%D0%B5%D0%B4%D1%81%D1%82%D0%B2%D0%B0&referral_ui_component=category_menu_item
+                - generic [ref=f1e151]: Транспортные средства
+            - listitem [ref=f1e162]:
+              - link [ref=f1e164] [cursor=pointer]:
+                - /url: /marketplace/category/propertyrentals/
+                - generic [ref=f1e165]: Аренда недвижимости
+            - listitem [ref=f1e176]:
+              - link [ref=f1e178] [cursor=pointer]:
+                - /url: /marketplace/category/free/
+                - generic [ref=f1e179]: Бесплатные предложения
+            - listitem [ref=f1e191]:
+              - link [ref=f1e193] [cursor=pointer]:
+                - /url: /marketplace/sanfrancisco/search/?category_id=199404184572737&query=%D0%98%D0%B3%D1%80%D1%83%D1%88%D0%BA%D0%B8%20%D0%B8%20%D0%B8%D0%B3%D1%80%D1%8B&referral_ui_component=category_menu_item
+                - generic [ref=f1e194]: Игрушки и игры
+            - listitem [ref=f1e204]:
+              - link [ref=f1e206] [cursor=pointer]:
+                - /url: /marketplace/sanfrancisco/search/?category_id=1078592699170502&query=%D0%9C%D1%83%D0%B7%D1%8B%D0%BA%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B5%20%D0%B8%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8B&referral_ui_component=category_menu_item
+                - generic [ref=f1e207]: Музыкальные инструменты
+            - listitem [ref=f1e218]:
+              - link [ref=f1e220] [cursor=pointer]:
+                - /url: /marketplace/sanfrancisco/search/?category_id=476291743038859&query=%D0%9E%D0%B1%D1%83%D1%81%D1%82%D1%80%D0%BE%D0%B9%D1%81%D1%82%D0%B2%D0%BE%20%D0%B4%D0%BE%D0%BC%D0%B0&referral_ui_component=category_menu_item
+                - generic [ref=f1e221]: Обустройство дома
+            - listitem [ref=f1e232]:
+              - link [ref=f1e234] [cursor=pointer]:
+                - /url: /marketplace/sanfrancisco/search/?category_id=759201041254543&query=%D0%9E%D0%B1%D1%8A%D1%8F%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F&referral_ui_component=category_menu_item
+                - generic [ref=f1e235]: Объявления
+            - listitem [ref=f1e246]:
+              - link [ref=f1e248] [cursor=pointer]:
+                - /url: /marketplace/sanfrancisco/search/?category_id=677457442746983&query=%D0%9E%D0%B4%D0%B5%D0%B6%D0%B4%D0%B0&referral_ui_component=category_menu_item
+                - generic [ref=f1e249]: Одежда
+            - listitem [ref=f1e259]:
+              - link [ref=f1e261] [cursor=pointer]:
+                - /url: /marketplace/sanfrancisco/search/?category_id=1270772586445798&query=%D0%9F%D1%80%D0%BE%D0%B4%D0%B0%D0%B6%D0%B0%20%D0%BD%D0%B5%D0%B4%D0%B2%D0%B8%D0%B6%D0%B8%D0%BC%D0%BE%D1%81%D1%82%D0%B8&referral_ui_component=category_menu_item
+                - generic [ref=f1e262]: Продажа недвижимости
+            - listitem [ref=f1e273]:
+              - link [ref=f1e275] [cursor=pointer]:
+                - /url: /marketplace/sanfrancisco/search/?category_id=529595287638583&query=%D0%A0%D0%B0%D0%B7%D0%B2%D0%BB%D0%B5%D1%87%D0%B5%D0%BD%D0%B8%D1%8F&referral_ui_component=category_menu_item
+                - generic [ref=f1e276]: Развлечения
+            - listitem [ref=f1e287]:
+              - link [ref=f1e289] [cursor=pointer]:
+                - /url: /marketplace/sanfrancisco/search/?category_id=891748581240437&query=%D0%A1%D0%B5%D0%BC%D1%8C%D1%8F&referral_ui_component=category_menu_item
+                - generic [ref=f1e290]: Семья
+            - listitem [ref=f1e301]:
+              - link [ref=f1e303] [cursor=pointer]:
+                - /url: /marketplace/sanfrancisco/search/?category_id=391335928190702&query=%D0%A1%D0%BF%D0%BE%D1%80%D1%82%D0%B8%D0%B2%D0%BD%D1%8B%D0%B5%20%D1%82%D0%BE%D0%B2%D0%B0%D1%80%D1%8B&referral_ui_component=category_menu_item
+                - generic [ref=f1e304]: Спортивные товары
+            - listitem [ref=f1e316]:
+              - link [ref=f1e318] [cursor=pointer]:
+                - /url: /marketplace/sanfrancisco/search/?category_id=753380185098614&query=%D0%A2%D0%BE%D0%B2%D0%B0%D1%80%D1%8B%20%D0%B4%D0%BB%D1%8F%20%D0%B4%D0%BE%D0%BC%D0%B0&referral_ui_component=category_menu_item
+                - generic [ref=f1e319]: Товары для дома
+            - listitem [ref=f1e330]:
+              - link [ref=f1e332] [cursor=pointer]:
+                - /url: /marketplace/sanfrancisco/search/?category_id=197143151659643&query=%D0%A2%D0%BE%D0%B2%D0%B0%D1%80%D1%8B%20%D0%B4%D0%BB%D1%8F%20%D0%B4%D0%BE%D0%BC%D0%B0%D1%88%D0%BD%D0%B8%D1%85%20%D0%B6%D0%B8%D0%B2%D0%BE%D1%82%D0%BD%D1%8B%D1%85&referral_ui_component=category_menu_item
+                - generic [ref=f1e333]: Товары для домашних животных
+            - listitem [ref=f1e344]:
+              - link [ref=f1e346] [cursor=pointer]:
+                - /url: /marketplace/sanfrancisco/search/?category_id=586894672179024&query=%D0%A2%D0%BE%D0%B2%D0%B0%D1%80%D1%8B%20%D0%B4%D0%BB%D1%8F%20%D0%BE%D1%84%D0%B8%D1%81%D0%B0&referral_ui_component=category_menu_item
+                - generic [ref=f1e347]: Товары для офиса
+            - listitem [ref=f1e358]:
+              - link [ref=f1e360] [cursor=pointer]:
+                - /url: /marketplace/sanfrancisco/search/?category_id=1109541402725436&query=%D0%A2%D0%BE%D0%B2%D0%B0%D1%80%D1%8B%20%D0%B4%D0%BB%D1%8F%20%D1%83%D0%BB%D0%B8%D1%86%D1%8B%20%D0%B8%20%D1%81%D0%B0%D0%B4%D0%B0&referral_ui_component=category_menu_item
+                - generic [ref=f1e361]: Товары для улицы и сада
+            - listitem [ref=f1e372]:
+              - link [ref=f1e374] [cursor=pointer]:
+                - /url: /marketplace/sanfrancisco/search/?category_id=459026188375950&query=%D0%A5%D0%BE%D0%B1%D0%B1%D0%B8&referral_ui_component=category_menu_item
+                - generic [ref=f1e375]: Хобби
+            - listitem [ref=f1e385]:
+              - link [ref=f1e387] [cursor=pointer]:
+                - /url: /marketplace/sanfrancisco/search/?category_id=479353692612078&query=%D0%AD%D0%BB%D0%B5%D0%BA%D1%82%D1%80%D0%BE%D0%BD%D0%B8%D0%BA%D0%B0&referral_ui_component=category_menu_item
+                - generic [ref=f1e388]: Электроника
+    - main [ref=f1e400]:
+      - generic [ref=f1e408]:
+        - generic [ref=f1e417]:
+          - generic [ref=f1e419]:
+            - heading [level=2] [ref=f1e420]:
+              - generic [ref=f1e421]: Выбор дня
+            - button [ref=f1e423] [cursor=pointer]:
+              - generic [ref=f1e424]: San Francisco
+          - generic [ref=f1e429]:
+            - link [ref=f1e438] [cursor=pointer]:
+              - /url: /marketplace/item/2630553517374862/?ref=browse_tab&referral_code=marketplace_top_picks&referral_story_type=top_picks&__tn__=!%3AD
+              - generic [ref=f1e447]:
+                - generic [ref=f1e448]: 20 $
+                - generic [ref=f1e452]: Like new Cricut Mini
+                - generic [ref=f1e457]: Mountain View, CA
+            - link [ref=f1e470] [cursor=pointer]:
+              - /url: /marketplace/item/1659187142421585/?ref=browse_tab&referral_code=marketplace_top_picks&referral_story_type=top_picks&__tn__=!%3AD
+              - generic [ref=f1e479]:
+                - generic [ref=f1e480]: 30 $
+                - generic [ref=f1e484]: REAL Yeezy Slides
+                - generic [ref=f1e489]: Petaluma, CA
+            - link [ref=f1e502] [cursor=pointer]:
+              - /url: /marketplace/item/2206637070228278/?ref=browse_tab&referral_code=marketplace_top_picks&referral_story_type=top_picks&__tn__=!%3AD
+              - generic [ref=f1e511]:
+                - generic [ref=f1e512]: 225 $
+                - generic [ref=f1e516]: Vintage hats
+                - generic [ref=f1e521]: Fairfield, CA
+            - link [ref=f1e534] [cursor=pointer]:
+              - /url: /marketplace/item/1181866214167905/?ref=browse_tab&referral_code=marketplace_top_picks&referral_story_type=top_picks&__tn__=!%3AD
+              - generic [ref=f1e543]:
+                - generic [ref=f1e544]: 13 $
+                - generic [ref=f1e548]: Pandeyucas colombianos
+                - generic [ref=f1e553]: Antioch, CA
+            - link [ref=f1e566] [cursor=pointer]:
+              - /url: /marketplace/item/995205893050390/?ref=browse_tab&referral_code=marketplace_top_picks&referral_story_type=top_picks&__tn__=!%3AD
+              - generic [ref=f1e575]:
+                - generic [ref=f1e576]: БЕСПЛАТНО
+                - generic [ref=f1e580]: cat tree
+                - generic [ref=f1e585]: Palo Alto, CA
+            - link [ref=f1e598] [cursor=pointer]:
+              - /url: /marketplace/item/2176248699933275/?ref=browse_tab&referral_code=marketplace_top_picks&referral_story_type=top_picks&__tn__=!%3AD
+              - generic [ref=f1e607]:
+                - generic [ref=f1e608]: 20 $
+                - generic [ref=f1e615]: Tv!
+                - generic [ref=f1e620]: San Francisco, CA
+            - link [ref=f1e633] [cursor=pointer]:
+              - /url: /marketplace/item/1707448000998425/?ref=browse_tab&referral_code=marketplace_top_picks&referral_story_type=top_picks&__tn__=!%3AD
+              - generic [ref=f1e642]:
+                - generic [ref=f1e643]: БЕСПЛАТНО
+                - generic [ref=f1e647]: FREE Refrigerator!
+                - generic [ref=f1e652]: Palo Alto, CA
+            - link [ref=f1e665] [cursor=pointer]:
+              - /url: /marketplace/item/1447863596800512/?ref=browse_tab&referral_code=marketplace_top_picks&referral_story_type=top_picks&__tn__=!%3AD
+              - generic [ref=f1e674]:
+                - generic [ref=f1e675]: 800 $
+                - generic [ref=f1e679]: 4x8 utility trailer
+                - generic [ref=f1e684]: Richmond, CA
+            - link [ref=f1e697] [cursor=pointer]:
+              - /url: /marketplace/item/2190803838978172/?ref=browse_tab&referral_code=marketplace_top_picks&referral_story_type=top_picks&__tn__=!%3AD
+              - generic [ref=f1e706]:
+                - generic [ref=f1e707]: 30 $
+                - generic [ref=f1e711]: Dressing table
+                - generic [ref=f1e716]: Sunnyvale, CA
+            - link [ref=f1e729] [cursor=pointer]:
+              - /url: /marketplace/item/1459257646331957/?ref=browse_tab&referral_code=marketplace_top_picks&referral_story_type=top_picks&__tn__=!%3AD
+              - generic [ref=f1e738]:
+                - generic [ref=f1e739]: 5 $
+                - generic [ref=f1e746]: Pfaltzgraff Serving Pieces
+                - generic [ref=f1e751]: Napa, CA
+            - link [ref=f1e764] [cursor=pointer]:
+              - /url: /marketplace/item/1356894586388809/?ref=browse_tab&referral_code=marketplace_top_picks&referral_story_type=top_picks&__tn__=!%3AD
+              - generic [ref=f1e773]:
+                - generic [ref=f1e774]: 500 $
+                - generic [ref=f1e778]: PS5 1 TB
+                - generic [ref=f1e783]: Fremont, CA
+            - link [ref=f1e796] [cursor=pointer]:
+              - /url: /marketplace/item/1779334686452501/?ref=browse_tab&referral_code=marketplace_top_picks&referral_story_type=top_picks&__tn__=!%3AD
+              - generic [ref=f1e805]:
+                - generic [ref=f1e806]: 1 $
+                - generic [ref=f1e810]: 2005 22ft Rv
+                - generic [ref=f1e815]: San Jose, CA
+            - link [ref=f1e828] [cursor=pointer]:
+              - /url: /marketplace/item/1171062169207703/?ref=browse_tab&referral_code=marketplace_top_picks&referral_story_type=top_picks&__tn__=!%3AD
+              - generic [ref=f1e837]:
+                - generic [ref=f1e838]: БЕСПЛАТНО
+                - generic [ref=f1e845]: Vendo mi trompeta en buen estado
+                - generic [ref=f1e850]: Fairfield, CA
+            - link [ref=f1e863] [cursor=pointer]:
+              - /url: /marketplace/item/1840216827012058/?ref=browse_tab&referral_code=marketplace_top_picks&referral_story_type=top_picks&__tn__=!%3AD
+              - generic [ref=f1e872]:
+                - generic [ref=f1e873]: 80 $
+                - generic [ref=f1e877]: Corsair vengeance lpx ddr416gb(2x8) 2800 Mhz
+                - generic [ref=f1e882]: Sunnyvale, CA
+            - link [ref=f1e895] [cursor=pointer]:
+              - /url: /marketplace/item/1436295748671925/?ref=browse_tab&referral_code=marketplace_top_picks&referral_story_type=top_picks&__tn__=!%3AD
+              - generic [ref=f1e904]:
+                - generic [ref=f1e905]: 20 $
+                - generic [ref=f1e909]: 2 Gain pods 42 fillings Both for $20
+                - generic [ref=f1e914]: Fairfield, CA
+            - link [ref=f1e927] [cursor=pointer]:
+              - /url: /marketplace/item/2025405818099745/?ref=browse_tab&referral_code=marketplace_top_picks&referral_story_type=top_picks&__tn__=!%3AD
+              - generic [ref=f1e936]:
+                - generic [ref=f1e937]: БЕСПЛАТНО
+                - generic [ref=f1e941]: Piano
+                - generic [ref=f1e946]: Atherton, CA
+            - link [ref=f1e959] [cursor=pointer]:
+              - /url: /marketplace/item/1656695369459889/?ref=browse_tab&referral_code=marketplace_top_picks&referral_story_type=top_picks&__tn__=!%3AD
+              - generic [ref=f1e968]:
+                - generic [ref=f1e969]: БЕСПЛАТНО
+                - generic [ref=f1e973]: Vintage sewing machine
+                - generic [ref=f1e978]: Petaluma, CA
+            - link [ref=f1e991] [cursor=pointer]:
+              - /url: /marketplace/item/3774922319313699/?ref=browse_tab&referral_code=marketplace_top_picks&referral_story_type=top_picks&__tn__=!%3AD
+              - generic [ref=f1e1000]:
+                - generic [ref=f1e1001]: 1 $
+                - generic [ref=f1e1005]: Keon Coleman uptown
+                - generic [ref=f1e1010]: Daly City, CA
+        - status [ref=f1e1016]
+  - dialog [ref=f1e1058]:
+    - button "Закрыть" [ref=f1e1060] [cursor=pointer]
+    - generic [ref=f1e1067]:
+      - generic [ref=f1e1068]: Войдите на Facebook
+      - generic [ref=f1e1075]:
+        - generic: Электронный адрес или номер телефона
+        - textbox "Электронный адрес или номер телефона" [active] [ref=f1e1076]
+      - generic [ref=f1e1081]:
+        - generic: Пароль
+        - textbox "Пароль" [ref=f1e1082]
+      - button "Войти на Facebook" [ref=f1e1084] [cursor=pointer]:
+        - generic [ref=f1e1085]: Вход
+      - link "Забыли пароль?" [ref=f1e1089] [cursor=pointer]:
+        - /url: https://www.facebook.com/recover/initiate?ars=royal_blue_bar
+      - generic [ref=f1e1091]: или
+      - button "Создать новый аккаунт" [ref=f1e1100] [cursor=pointer]

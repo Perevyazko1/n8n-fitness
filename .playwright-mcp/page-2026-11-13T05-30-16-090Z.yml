@@ -1,0 +1,151 @@
+- generic [ref=e5]:
+  - banner:
+    - generic [ref=e8]:
+      - generic [ref=e10]:
+        - generic [aria-hidden]:
+          - button [disabled]
+        - button "Facebook" [ref=e12] [cursor=pointer]:
+          - img "Facebook" [ref=e13]
+      - generic [ref=e18]:
+        - textbox "Электронный адрес или номер телефона" [ref=e21]
+        - textbox "Пароль" [ref=e24]
+        - button "Вход" [ref=e27] [cursor=pointer]
+        - link "Забыли аккаунт?" [ref=e34] [cursor=pointer]:
+          - /url: https://www.facebook.com/recover/initiate?ars=royal_blue_bar
+  - main [ref=e39]:
+    - generic [ref=e40]:
+      - generic [ref=e51]:
+        - link [ref=e52] [cursor=pointer]:
+          - /url: https://www.facebook.com/photo/?fbid=1875311050118549&set=p.1875311050118549
+        - generic [ref=e61]:
+          - text: "Создатель группы:"
+          - button [ref=e64] [cursor=pointer]: Nha Trang Apartment Bich Pham
+      - generic [ref=e69]:
+        - generic [ref=e75]:
+          - heading [level=1] [ref=e77]:
+            - generic [ref=e78]: Nha Trang Apartment And House For Rent ✅
+          - generic [ref=e84]:
+            - generic [ref=e85]: Общедоступная группа
+            - generic [ref=e91]: ·
+            - button [ref=e95] [cursor=pointer]: 170,4 тыс. в группе
+        - generic [ref=e97]:
+          - button [ref=e99] [cursor=pointer]:
+            - generic [ref=e100]: Присоединиться к группе
+          - button [ref=e110] [cursor=pointer]
+    - tablist [ref=e127]:
+      - generic [ref=e129]:
+        - generic [ref=e130]: Ещё
+        - tab [ref=e136] [cursor=pointer]:
+          - generic [ref=e137]: Информация
+        - tab [selected] [ref=e140] [cursor=pointer]:
+          - generic [ref=e141]: Обсуждение
+        - tab [ref=e144] [cursor=pointer]:
+          - generic [ref=e145]: Покупка и продажа
+        - tab [ref=e148] [cursor=pointer]:
+          - generic [ref=e149]: Актуальное
+        - tab [ref=e152] [cursor=pointer]:
+          - generic [ref=e153]: Медиафайлы
+    - generic [ref=e161]:
+      - generic [ref=e163]:
+        - generic [ref=e169]:
+          - generic [ref=e170]: Актуальное
+          - button [ref=e175] [cursor=pointer]
+          - button [ref=e179] [cursor=pointer]
+        - feed [ref=e182]:
+          - article [ref=e187]:
+            - generic [ref=e195]:
+              - generic [ref=e197]:
+                - link [ref=e201] [cursor=pointer]:
+                  - /url: "#"
+                - generic [ref=e208]:
+                  - heading [level=2] [ref=e212]:
+                    - generic [ref=e213]: Trương Nguyên Gia Trang
+                  - generic [ref=e219]:
+                    - generic [ref=e222]:
+                      - generic [aria-hidden] [ref=e223]: Четверг, 12 ноябрь 2026 г. в 21:29
+                      - link [ref=e224] [cursor=pointer]:
+                        - /url: https://www.facebook.com/groups/nhatrang.apartment.and.house/posts/2779010569197884/?__cft__[0]=AZjZWEGFWp2Ft72lqouzkEVmZdd-J8DgyenBhkYTW1AQ6-lM9QuctQIY5EgaYpUV5EGmpjqLCRNXX3ZtlaNdfsBfsrTOdgBLFTECE87aOSSjkzSTNUzmh2UFUonEwazTjpfGqRbEO5BBelST7-Sj9nM-K6CzR8dCNezgLOganQzeyzXAxuqJdQ5Q64h67GMM&__tn__=%2CO%2CP-R
+                        - text: Только что
+                    - generic [ref=e225]: ·
+              - generic [ref=e237]:
+                - generic [ref=e241]:
+                  - heading [level=3] [ref=e243]:
+                    - strong [ref=e246]: CHO THUÊ NHÀ RIÊNG – KHU MỸ GIA (ĐƯỜNG 35)
+                  - generic [ref=e249]: "Giá Thuê: 30 triệu/tháng"
+                  - generic [ref=e254]: Cọc 2 – thanh toán 2
+                  - generic [ref=e259]: Gần công viên, sân bóng, spa, quán cà phê, chợ, sân pickleball
+                  - generic [ref=e264]: 3+ phòng ngủ, Full nội thất
+                  - button [ref=e269] [cursor=pointer]: Ещё
+                - generic [ref=e274]:
+                  - link [ref=e276] [cursor=pointer]:
+                    - /url: https://www.facebook.com/photo/?fbid=3118706335127976&set=pcb.2779010569197884&__cft__[0]=AZjZWEGFWp2Ft72lqouzkEVmZdd-J8DgyenBhkYTW1AQ6-lM9QuctQIY5EgaYpUV5EGmpjqLCRNXX3ZtlaNdfsBfsrTOdgBLFTECE87aOSSjkzSTNUzmh2UFUonEwazTjpfGqRbEO5BBelST7-Sj9nM-K6CzR8dCNezgLOganQzeyzXAxuqJdQ5Q64h67GMM&__tn__=*b0H-R
+                  - link [ref=e281] [cursor=pointer]:
+                    - /url: https://www.facebook.com/photo/?fbid=3118706325127977&set=pcb.2779010569197884&__cft__[0]=AZjZWEGFWp2Ft72lqouzkEVmZdd-J8DgyenBhkYTW1AQ6-lM9QuctQIY5EgaYpUV5EGmpjqLCRNXX3ZtlaNdfsBfsrTOdgBLFTECE87aOSSjkzSTNUzmh2UFUonEwazTjpfGqRbEO5BBelST7-Sj9nM-K6CzR8dCNezgLOganQzeyzXAxuqJdQ5Q64h67GMM&__tn__=*b1H-R
+                  - link [ref=e286] [cursor=pointer]:
+                    - /url: https://www.facebook.com/photo/?fbid=3118706331794643&set=pcb.2779010569197884&__cft__[0]=AZjZWEGFWp2Ft72lqouzkEVmZdd-J8DgyenBhkYTW1AQ6-lM9QuctQIY5EgaYpUV5EGmpjqLCRNXX3ZtlaNdfsBfsrTOdgBLFTECE87aOSSjkzSTNUzmh2UFUonEwazTjpfGqRbEO5BBelST7-Sj9nM-K6CzR8dCNezgLOganQzeyzXAxuqJdQ5Q64h67GMM&__tn__=*b2H-R
+                  - link [ref=e291] [cursor=pointer]:
+                    - /url: https://www.facebook.com/photo/?fbid=3118706328461310&set=pcb.2779010569197884&__cft__[0]=AZjZWEGFWp2Ft72lqouzkEVmZdd-J8DgyenBhkYTW1AQ6-lM9QuctQIY5EgaYpUV5EGmpjqLCRNXX3ZtlaNdfsBfsrTOdgBLFTECE87aOSSjkzSTNUzmh2UFUonEwazTjpfGqRbEO5BBelST7-Sj9nM-K6CzR8dCNezgLOganQzeyzXAxuqJdQ5Q64h67GMM&__tn__=*b3H-R
+                  - link [ref=e296] [cursor=pointer]:
+                    - /url: https://www.facebook.com/photo/?fbid=3118706321794644&set=pcb.2779010569197884&__cft__[0]=AZjZWEGFWp2Ft72lqouzkEVmZdd-J8DgyenBhkYTW1AQ6-lM9QuctQIY5EgaYpUV5EGmpjqLCRNXX3ZtlaNdfsBfsrTOdgBLFTECE87aOSSjkzSTNUzmh2UFUonEwazTjpfGqRbEO5BBelST7-Sj9nM-K6CzR8dCNezgLOganQzeyzXAxuqJdQ5Q64h67GMM&__tn__=*b4H-R
+                    - generic: и ещё 7
+              - generic [ref=e306]:
+                - button [ref=e308] [cursor=pointer]:
+                  - generic [ref=e309]: Поставить "Нравится"
+                - button [ref=e315] [cursor=pointer]:
+                  - generic [ref=e316]: Комментировать
+                - button [ref=e322] [cursor=pointer]:
+                  - generic [ref=e323]: Поделиться
+          - generic [ref=e329]:
+            - article [ref=e330]:
+              - status [ref=e331]
+            - article [ref=e344]:
+              - status [ref=e345]
+      - generic [ref=e359]:
+        - generic [ref=e365]:
+          - heading [level=2] [ref=e375]:
+            - generic [ref=e376]: Информация
+          - generic [ref=e378]:
+            - generic [ref=e388]:
+              - generic [ref=e389]: Chào mừng bạn đến với cộng đồng chia sẻ thông tin thuê căn hộ và nhà ở tại Nha Trang!
+              - generic [ref=e392]:
+                - text: 📌 Mục tiêu của nhóm:...
+                - button [ref=e393] [cursor=pointer]: Ещё
+            - generic [ref=e403]:
+              - generic [ref=e404]: Общедоступная
+              - generic [ref=e407]: Кто угодно может видеть участников группы и их публикации.
+            - generic [ref=e419]:
+              - generic [ref=e420]: Видимая
+              - generic [ref=e423]: Кто угодно может найти группу.
+            - generic [ref=e425]: Нячанг
+        - generic [ref=e441]:
+          - heading [level=2] [ref=e451]:
+            - generic [ref=e452]: Недавние медиафайлы
+          - generic [ref=e454]:
+            - generic [ref=e456]:
+              - link [ref=e462] [cursor=pointer]:
+                - /url: /photo/?fbid=3616369338533197&set=g.441562856276012
+              - link [ref=e469] [cursor=pointer]:
+                - /url: /photo/?fbid=3616369331866531&set=g.441562856276012
+              - link [ref=e476] [cursor=pointer]:
+                - /url: /photo/?fbid=3616369325199865&set=g.441562856276012
+              - link [ref=e483] [cursor=pointer]:
+                - /url: /photo/?fbid=3616369318533199&set=g.441562856276012
+            - link [ref=e486] [cursor=pointer]:
+              - /url: /groups/nhatrang.apartment.and.house/media/
+              - generic [ref=e487]: Смотреть все
+  - dialog [ref=e498]:
+    - button "Закрыть" [ref=e500] [cursor=pointer]
+    - generic [ref=e507]:
+      - generic [ref=e508]: Войдите на Facebook
+      - generic [ref=e515]:
+        - generic: Электронный адрес или номер телефона
+        - textbox "Электронный адрес или номер телефона" [active] [ref=e516]
+      - generic [ref=e521]:
+        - generic: Пароль
+        - textbox "Пароль" [ref=e522]
+      - button "Войти на Facebook" [ref=e524] [cursor=pointer]:
+        - generic [ref=e525]: Вход
+      - link "Забыли пароль?" [ref=e529] [cursor=pointer]:
+        - /url: https://www.facebook.com/recover/initiate?ars=royal_blue_bar
+      - generic [ref=e531]: или
+      - button "Создать новый аккаунт" [ref=e540] [cursor=pointer]

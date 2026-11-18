@@ -1,0 +1,320 @@
+{
+  "name": "HouseWatch_FB",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "housewatch-fb",
+        "authentication": "headerAuth",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "hwfb-webhook",
+      "name": "FB Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "9b1f6c2e-4a7d-4e8b-9c3f-5a1e3c7d9b20"
+    },
+    {
+      "id": "hwfb-cbr",
+      "name": "CBR Rate",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "url": "https://www.cbr-xml-daily.ru/daily_json.js",
+        "options": {
+          "timeout": 15000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// HouseWatch FB: посты из групп аренды Facebook (их шлёт сборщик housewatch/fb-collector с Mac).\n// Грубый отсев регулярками → один запрос к GPT на выживших → FB Format решает и шлёт в Telegram.\n// Все настройки — здесь.\nconst cfg = {\n  MAX_RENT_VND: 10000000, // потолок аренды; коммуналка сверху (13.11: «до 10 млн, мне ещё за коммуналку платить»)\n  MIN_RENT_VND: 3000000,  // ниже — комнаты/мусор\n  UTIL_VND: 2500000,      // оценка света и воды, для «под ключ» в ₽\n  MIN_BEDROOMS: 2,\n  MAX_ALERTS: 10,         // постов в Telegram за прогон\n  LLM_MAX: 40,            // постов в GPT за прогон\n  DEDUP_DAYS: 30,         // один и тот же текст агенты постят в 5 групп и повторяют — шлём один раз\n  LLM_MODEL: 'gpt-5-mini',\n  CHATS: ['648226895', '893232025'], // как в HouseWatch_VN\n};\nconst v = $('CBR Rate').first().json?.Valute?.VND;\nconst vndPerRub = v && v.Value ? v.Nominal / v.Value : 312;\nconst body = $('FB Webhook').first().json.body || {};\n\nif (body.type === 'login_required') {\n  return [{ json: { cfg, vndPerRub, service: true, text: '⚠️ <b>HouseWatch FB</b>: Facebook просит заново войти. На Mac: <code>cd housewatch/fb-collector &amp;&amp; node collect.mjs --login</code>' } }];\n}\nconst posts = Array.isArray(body.posts) ? body.posts : [];\n\n// --- цена из текста, млн ₫ (первое упоминание суммы аренды) ---\nfunction priceVnd(t) {\n  const s = t.replace(/(\\d),(\\d{3})/g, '$1.$2');\n  let m = s.match(/(\\d{1,3}(?:[.,]\\d{1,2})?)\\s*(?:tr\\b|tr\\/|triệu|trieu|млн|миллион|million|mil\\b|m\\s*\\/\\s*(?:th|month))/i);\n  if (m) return Math.round(parseFloat(m[1].replace(',', '.')) * 1e6);\n  m = s.match(/(\\d{1,3})[.\\s](\\d{3})[.\\s](\\d{3})\\s*(?:đ|₫|vnđ|vnd|донг)?/i);\n  if (m) return Number(m[1] + m[2] + m[3]);\n  m = s.match(/#\\s*(\\d{1,2})\\s*tri/i);\n  if (m) return Number(m[1]) * 1e6;\n  return null;\n}\nconst TWO = /\\b([2-9])\\s*(pn|phòng ngủ|phong ngu|bedrooms?|br\\b|спальн|-?комнатн)|\\b[2-9]PN\\b|[2-9]-BEDROOM/i;\nconst ONE = /\\b1\\s*(pn|phòng ngủ|phong ngu|bedroom|спальн)|\\bstudio\\b|студи/i;\nconst RULES = [\n  ['продажа', t => /(bán nhà|bán căn|bán đất|cần bán|giá bán|продаю|продаётся|продается|for sale)/i.test(t) && !/cho thuê|for rent|аренд/i.test(t)],\n  ['ищут жильё', t => /^\\s*(cần thuê|cần tìm|tìm nhà|tìm căn|ищу|ищем|looking for|need)(?![\\p{L}])/iu.test(t)],\n  ['1 спальня / студия', t => ONE.test(t) && !TWO.test(t)],\n  ['только вьетнамцам', t => /(chỉ|chi)\\s*(cho\\s*)?(nhận\\s*)?khách\\s*(việt|viet)|nhận khách việt|khách việt nam|only vietnamese|только (для )?вьетнам/i.test(t)],\n  ['оплата раз в 2+ мес', t => /(thanh toán|thanh toan|(?<!\\p{L})tt|đóng|trả)\\s*([2-9]|1[0-2])(?!\\d)/iu.test(t) || /(pay|payment)\\s*(every\\s*)?[2-9]\\s*months?|[2-9]\\s*months?\\s*(prepay|in advance|payment)|оплат\\w*\\s*(за|раз в|каждые)\\s*[2-9]/i.test(t)],\n];\nconst sd = $getWorkflowStaticData('global');\nsd.texts = sd.texts || {};\nconst now = Date.now();\nfor (const [k, t] of Object.entries(sd.texts)) if (now - t > cfg.DEDUP_DAYS * 86400e3) delete sd.texts[k];\nconst norm = t => t.toLowerCase().replace(/[^\\p{L}\\p{N}]/gu, '').slice(0, 160);\n\nconst stats = { in: posts.length, dup: 0 };\nconst keep = [];\nfor (const p of posts) {\n  const t = String(p.text || '');\n  if (t.length < 30) continue;\n  const key = norm(t);\n  if (sd.texts[key]) { stats.dup++; continue; }\n  const why = (RULES.find(([, f]) => f(t)) || [])[0];\n  const price = priceVnd(t);\n  const reason = why || (price != null && price > cfg.MAX_RENT_VND * 1.05 ? 'дороже лимита'\n    : price != null && price < cfg.MIN_RENT_VND ? 'слишком дёшево (комната?)' : null);\n  if (reason) { stats[reason] = (stats[reason] || 0) + 1; sd.texts[key] = now; continue; }\n  // Цены нет и про 2 спальни ни слова — вероятно мусор, но обрезанные посты даём GPT.\n  if (price == null && !TWO.test(t) && !p.truncated) { stats['нет цены и спален'] = (stats['нет цены и спален'] || 0) + 1; sd.texts[key] = now; continue; }\n  sd.texts[key] = now; // сразу: дубли внутри одной пачки тоже склеиваются\n  keep.push({ ...p, price_guess: price });\n}\nconst batch = keep.slice(0, cfg.LLM_MAX);\n// Хвост сверх LLM_MAX теряется (сборщик пост повторно не пришлёт) — при 6 группах раз в 1,5 ч столько не набирается.\nif (!batch.length) return [];\n\nconst N = t => ({ type: [t, 'null'] });\nconst request = {\n  model: cfg.LLM_MODEL,\n  reasoning_effort: 'low',\n  response_format: { type: 'json_schema', json_schema: { name: 'fbposts', strict: true, schema: {\n    type: 'object', additionalProperties: false, required: ['items'],\n    properties: { items: { type: 'array', items: { type: 'object', additionalProperties: false,\n      required: ['id', 'is_rent_offer', 'rent_vnd', 'bedrooms', 'foreigners_ok', 'deposit_months', 'pay_every_months', 'min_term_months', 'kind', 'place', 'contacts', 'summary_ru'],\n      properties: {\n        id: { type: 'string' }, is_rent_offer: { type: 'boolean' }, rent_vnd: N('number'), bedrooms: N('number'),\n        foreigners_ok: N('boolean'), deposit_months: N('number'), pay_every_months: N('number'), min_term_months: N('number'),\n        kind: { type: ['string', 'null'], enum: ['apartment', 'house', 'room', 'other', null] },\n        place: { type: 'string' }, contacts: { type: 'string' }, summary_ru: { type: 'string' } } } } },\n  } } },\n  messages: [\n    { role: 'system', content:\n      'Ты читаешь посты из групп аренды жилья в Нячанге (Вьетнам) — по-вьетнамски, по-английски или по-русски, часто с опечатками. ' +\n      'Семья (2 взрослых + ребёнок) снимает на несколько месяцев, платит только помесячно, нужна аренда целиком на 2+ спальни. ' +\n      'Для каждого поста верни поля по его id. Ничего не выдумывай: нет в тексте — null.\\n' +\n      '- is_rent_offer: true, если это предложение сдать жильё в аренду целиком на месяцы (не продажа, не поиск жилья, не посуточно-только, не комната/койка).\\n' +\n      '- rent_vnd: месячная аренда в донгах для долгого срока (если цен несколько — за самый длинный срок; «10tr» = 10000000). Отдельная цена для иностранцев — бери её.\\n' +\n      '- bedrooms: число спален («2PN», «2 phòng ngủ», «2-комнатная» = 2; «1PN+1» = 1).\\n' +\n      '- foreigners_ok: false, если сдают только вьетнамцам (chỉ khách Việt); true, если явно рады иностранцам; иначе null.\\n' +\n      '- deposit_months: залог (cọc) в месяцах. pay_every_months: раз во сколько месяцев платить («cọc 1 thanh toán 1» = 1, «cọc 2 tt 3» = 3). ' +\n      'min_term_months: минимальный срок договора (HĐ 1 năm = 12, «3-6-12 tháng» = 3).\\n' +\n      '- kind: apartment (căn hộ, chung cư), house (nhà nguyên căn), room (phòng trọ, комната), other.\\n' +\n      '- place: ЖК / улица / район коротко латиницей как в тексте (пример: «Hoàng Quân, Bắc Nha Trang»), иначе пустая строка.\\n' +\n      '- contacts: телефоны/Zalo/WhatsApp/Telegram из текста через запятую, иначе пустая строка.\\n' +\n      '- summary_ru: до 140 символов по-русски — полезное для семьи (площадь, мебель, до моря, этаж/лифт, питомцы, свет по госцене, бассейн). Без цены и контактов.' },\n    { role: 'user', content: JSON.stringify(batch.map(p => ({ id: p.id, text: String(p.text).slice(0, 1800) }))) },\n  ],\n};\nreturn [{ json: { cfg, vndPerRub, stats, posts: batch, request } }];\n"
+      },
+      "id": "hwfb-filter",
+      "name": "FB Filter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "hwfb-svc",
+              "leftValue": "={{ $json.service === true }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "hwfb-if",
+      "name": "Service?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        660,
+        0
+      ]
+    },
+    {
+      "id": "hwfb-llm",
+      "name": "FB LLM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        100
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.request) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "SkPovYGQlL1P1Ft5",
+          "name": "OpenAI account"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Решение по каждому посту по ответу GPT и карточки в Telegram.\n// GPT не ответил — шлём то, что прошло регулярки, с куском текста (лучше лишнее, чем пропустить).\nconst f = $('FB Filter').first().json;\nconst { cfg, vndPerRub } = f;\nif (f.service) return cfg.CHATS.map(chat_id => ({ json: { chat_id, text: f.text } }));\n\nconst G = {};\nlet llmOk = false;\ntry {\n  for (const t of JSON.parse($input.first().json.choices[0].message.content).items) G[t.id] = t;\n  llmOk = true;\n} catch (e) { /* фолбэк */ }\n\nconst esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst mln = n => String(Math.round(n / 1e5) / 10).replace('.', ',');\nconst mo = n => (n == null ? '—' : `${String(n).replace('.', ',')} мес`);\nconst pay = n => (n == null ? 'не указана' : n === 1 ? 'помесячно ✅' : `раз в ${mo(n)}`);\nconst KIND = { apartment: 'квартира', house: 'дом', room: 'комната', other: '' };\n\nconst out = [];\nconst skipped = {};\nconst skip = r => { skipped[r] = (skipped[r] || 0) + 1; };\nfor (const p of f.posts) {\n  const g = G[p.id];\n  const rent = g?.rent_vnd ?? p.price_guess;\n  if (g) {\n    if (!g.is_rent_offer) { skip('не аренда'); continue; }\n    if (g.kind === 'room') { skip('комната'); continue; }\n    if (g.bedrooms != null && g.bedrooms < cfg.MIN_BEDROOMS) { skip('мало спален'); continue; }\n    if (g.foreigners_ok === false) { skip('только вьетнамцам'); continue; }\n    if (g.pay_every_months != null && g.pay_every_months > 1) { skip('оплата не помесячно'); continue; }\n    if (rent != null && rent > cfg.MAX_RENT_VND) { skip('дороже лимита'); continue; }\n  }\n  const warn = [];\n  if (rent == null) warn.push('цена не указана');\n  if (g && g.bedrooms == null) warn.push('спальни не указаны');\n  if (g && g.pay_every_months == null) warn.push('оплату уточнить (нужно помесячно)');\n  if (g && g.min_term_months >= 12) warn.push('договор от года — спросить про 3–6 мес');\n  const rub = rent != null ? Math.round((rent + cfg.UTIL_VND) / vndPerRub / 1000) : null;\n  const head = g ? [KIND[g.kind], g.bedrooms ? `${g.bedrooms} спальни` : '', g.place].filter(Boolean).join(' · ') : '';\n  const text =\n    `🏠 <b>FB · Нячанг</b>${head ? ' — ' + esc(head) : ''}\\n` +\n    (rent != null ? `💰 ${mln(rent)} млн ₫ · под ключ ≈ ${rub} тыс. ₽\\n` : '') +\n    (g ? `🔐 Залог: ${mo(g.deposit_months)} · оплата: ${pay(g.pay_every_months)} · договор: ${g.min_term_months == null ? 'не указан' : 'от ' + mo(g.min_term_months)}\\n` : '') +\n    (g?.summary_ru ? `📝 ${esc(g.summary_ru)}\\n` : '') +\n    (g?.contacts ? `📞 ${esc(g.contacts)}\\n` : '') +\n    (!g ? `📝 ${esc(String(p.text).slice(0, 400))}${String(p.text).length > 400 ? '…' : ''}\\n` : '') +\n    (warn.length ? `⚠️ ${warn.join(' · ')}\\n` : '') +\n    `<a href=\"${esc(p.link)}\">Пост в группе «${esc(p.groupName || p.group)}»</a>`;\n  out.push({ rent: rent ?? 1e12, text });\n}\nconst send = out.sort((a, b) => a.rent - b.rent).slice(0, cfg.MAX_ALERTS);\nif (!llmOk && send.length) send.push({ text: '(HouseWatch FB: GPT не ответил — посты выше прошли только регулярки, условия не разобраны)' });\nreturn send.flatMap(o => cfg.CHATS.map(chat_id => ({ json: { chat_id, text: o.text } })));\n"
+      },
+      "id": "hwfb-format",
+      "name": "FB Format",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        0
+      ]
+    },
+    {
+      "id": "hwfb-tg",
+      "name": "Telegram Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1320,
+        0
+      ],
+      "webhookId": "hwvn-alert-hook",
+      "credentials": {
+        "telegramApi": {
+          "id": "xI8aQzM6Sgc5I2Tw",
+          "name": "Telegram FlightWatch"
+        }
+      },
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML",
+          "disable_web_page_preview": true
+        }
+      }
+    },
+    {
+      "id": "hwfb-onerr",
+      "name": "On Error",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        320
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "hwfb-fmterr",
+      "name": "Format Error",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        320
+      ],
+      "parameters": {
+        "jsCode": "// Уведомление о падении воркфлоу. Троттлинг на ноду — 30 мин (как во FlightWatch).\nconst QUIET_MS = 30 * 60 * 1000;\nconst e = $json.execution || {};\nconst err = e.error || {};\nconst wf = $json.workflow || {};\nconst node = e.lastNodeExecuted || '?';\nconst s = $getWorkflowStaticData('global');\nif (!s.errAlerts) s.errAlerts = {};\nconst st = s.errAlerts[node] || { last: 0, suppressed: 0 };\nconst now = Date.now();\nif (now - st.last < QUIET_MS) { st.suppressed += 1; s.errAlerts[node] = st; return []; }\nconst repeats = st.suppressed;\ns.errAlerts[node] = { last: now, suppressed: 0 };\nconst text =\n  `⚠️ HouseWatch VN упал\\nВоркфлоу: ${wf.name || '?'}\\nНода: ${node}\\n` +\n  `Ошибка: ${err.message || 'без текста'}` +\n  (repeats ? `\\n(за последние 30 мин ещё ${repeats} таких, они скрыты)` : '') +\n  (e.url ? `\\n${e.url}` : '');\nreturn [{ json: { chat_id: '648226895', text } }];"
+      }
+    },
+    {
+      "id": "hwfb-tgerr",
+      "name": "Telegram Error",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        440,
+        320
+      ],
+      "webhookId": "hwvn-error-hook",
+      "credentials": {
+        "telegramApi": {
+          "id": "xI8aQzM6Sgc5I2Tw",
+          "name": "Telegram FlightWatch"
+        }
+      },
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "FB Webhook": {
+      "main": [
+        [
+          {
+            "node": "CBR Rate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CBR Rate": {
+      "main": [
+        [
+          {
+            "node": "FB Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FB Filter": {
+      "main": [
+        [
+          {
+            "node": "Service?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Service?": {
+      "main": [
+        [
+          {
+            "node": "FB Format",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "FB LLM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FB LLM": {
+      "main": [
+        [
+          {
+            "node": "FB Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FB Format": {
+      "main": [
+        [
+          {
+            "node": "Telegram Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On Error": {
+      "main": [
+        [
+          {
+            "node": "Format Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Error": {
+      "main": [
+        [
+          {
+            "node": "Telegram Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "pinData": {}
+}

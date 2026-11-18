@@ -1,0 +1,183 @@
+- generic [active] [ref=f10e1]:
+  - link "Skip to content" [ref=f10e2] [cursor=pointer]:
+    - /url: "#site-content"
+  - alert
+  - generic [ref=f10e14]:
+    - banner [ref=f10e15]:
+      - generic [ref=f10e19]:
+        - link "Airbnb homepage" [ref=f10e21] [cursor=pointer]:
+          - /url: /
+        - search [ref=f10e25]:
+          - generic:
+            - generic:
+              - generic:
+                - tablist:
+                  - tab "Homes" [selected]
+                  - tab "Experiences"
+                  - tab "Services"
+              - search "Start your search" [ref=f10e27] [cursor=pointer]:
+                - generic [ref=f10e29]:
+                  - button "Location" [disabled] [ref=f10e30]
+                  - button "Check in / Check out" [disabled] [ref=f10e36]
+                  - button "Guests" [disabled] [ref=f10e41]
+        - navigation "Profile" [ref=f10e53]:
+          - generic [ref=f10e54]:
+            - link "Become a host" [ref=f10e55] [cursor=pointer]:
+              - /url: "#guest-header-become-a-host-menu"
+            - button "Log in or sign up" [ref=f10e58] [cursor=pointer]
+          - generic [ref=f10e65]:
+            - link "Main navigation menu" [ref=f10e66] [cursor=pointer]:
+              - /url: "#guest-header-dropdownmenu"
+            - link "Close":
+              - /url: "#"
+      - group "filters" [ref=f10e75]:
+        - generic [ref=f10e77]:
+          - button "Filters" [ref=f10e81] [cursor=pointer]
+          - generic [ref=f10e86]:
+            - checkbox "Fake title 1" [ref=f10e89] [cursor=pointer]
+            - checkbox "Fake title 2" [ref=f10e93] [cursor=pointer]
+            - checkbox "Fake title 3" [ref=f10e97] [cursor=pointer]
+            - checkbox "Fake title 4" [ref=f10e101] [cursor=pointer]
+            - checkbox "Fake title 5" [ref=f10e105] [cursor=pointer]
+            - checkbox "Fake title 6" [ref=f10e109] [cursor=pointer]
+            - checkbox "Fake title 7" [ref=f10e113] [cursor=pointer]
+            - checkbox "Fake title 8" [ref=f10e117] [cursor=pointer]
+            - checkbox "Fake title 9" [ref=f10e121] [cursor=pointer]
+            - checkbox "Fake title 10" [ref=f10e125] [cursor=pointer]
+    - main [ref=f10e127]:
+      - application "Google Map" [ref=f10e134]
+    - contentinfo [ref=f10e141]:
+      - generic [ref=f10e142]:
+        - heading "Site Footer" [level=2] [ref=f10e144]
+        - generic [ref=f10e145]:
+          - generic [ref=f10e146]:
+            - heading "Support" [level=3] [ref=f10e147]
+            - list [ref=f10e148]:
+              - listitem [ref=f10e149]:
+                - link "Help Center" [ref=f10e150] [cursor=pointer]:
+                  - /url: /help/home?from=footer
+              - listitem [ref=f10e151]:
+                - link "Get help with a safety issue" [ref=f10e152] [cursor=pointer]:
+                  - /url: /help/contact-us?entry=DESKTOP_FOOTER_SAFETY
+              - listitem [ref=f10e153]:
+                - link "AirCover" [ref=f10e154] [cursor=pointer]:
+                  - /url: /help/article/3218
+              - listitem [ref=f10e155]:
+                - link "Travel insurance" [ref=f10e156] [cursor=pointer]:
+                  - /url: /travelinsurance
+              - listitem [ref=f10e157]:
+                - link "Anti-discrimination" [ref=f10e158] [cursor=pointer]:
+                  - /url: /against-discrimination
+              - listitem [ref=f10e159]:
+                - link "Disability support" [ref=f10e160] [cursor=pointer]:
+                  - /url: /accessibility
+              - listitem [ref=f10e161]:
+                - link "Cancellation options" [ref=f10e162] [cursor=pointer]:
+                  - /url: /help/article/2701/extenuating-circumstances-policy-and-the-coronavirus-covid19
+              - listitem [ref=f10e163]:
+                - link "Report neighborhood concern" [ref=f10e164] [cursor=pointer]:
+                  - /url: /neighbors
+          - generic [ref=f10e165]:
+            - heading "Hosting" [level=3] [ref=f10e166]
+            - list [ref=f10e167]:
+              - listitem [ref=f10e168]:
+                - link "Airbnb your home" [ref=f10e169] [cursor=pointer]:
+                  - /url: /host/homes?from_footer=1
+              - listitem [ref=f10e170]:
+                - link "Airbnb your hotel" [ref=f10e171] [cursor=pointer]:
+                  - /url: /e/host-hotels
+              - listitem [ref=f10e172]:
+                - link "Airbnb your experience" [ref=f10e173] [cursor=pointer]:
+                  - /url: /host/experiences
+              - listitem [ref=f10e174]:
+                - link "Airbnb your service" [ref=f10e175] [cursor=pointer]:
+                  - /url: /host/services
+              - listitem [ref=f10e176]:
+                - link "AirCover for Hosts" [ref=f10e177] [cursor=pointer]:
+                  - /url: /aircover-for-hosts
+              - listitem [ref=f10e178]:
+                - link "Earnings Protection" [ref=f10e179] [cursor=pointer]:
+                  - /url: /earnings-protection-insurance
+              - listitem [ref=f10e180]:
+                - link "Hosting resources" [ref=f10e181] [cursor=pointer]:
+                  - /url: /resources
+              - listitem [ref=f10e182]:
+                - link "Community Center" [ref=f10e183] [cursor=pointer]:
+                  - /url: https://community.withairbnb.com/t5/Community-Center/ct-p/community-center
+              - listitem [ref=f10e184]:
+                - link "Hosting responsibly" [ref=f10e185] [cursor=pointer]:
+                  - /url: /help/responsible-hosting
+              - listitem [ref=f10e186]:
+                - link "Airbnb-friendly apartments" [ref=f10e187] [cursor=pointer]:
+                  - /url: /airbnb-friendly
+              - listitem [ref=f10e188]:
+                - link "Join a free hosting class" [ref=f10e189] [cursor=pointer]:
+                  - /url: /e/intro-to-hosting
+              - listitem [ref=f10e190]:
+                - link "Find a co‑host" [ref=f10e191] [cursor=pointer]:
+                  - /url: /host/co-hosts
+              - listitem [ref=f10e192]:
+                - link "Refer a host" [ref=f10e193] [cursor=pointer]:
+                  - /url: /refer
+          - generic [ref=f10e194]:
+            - heading "Airbnb" [level=3] [ref=f10e195]
+            - list [ref=f10e196]:
+              - listitem [ref=f10e197]:
+                - link "2026 Summer Release" [ref=f10e198] [cursor=pointer]:
+                  - /url: /release
+              - listitem [ref=f10e199]:
+                - link "Newsroom" [ref=f10e200] [cursor=pointer]:
+                  - /url: /press/news
+              - listitem [ref=f10e201]:
+                - link "Careers" [ref=f10e202] [cursor=pointer]:
+                  - /url: /careers
+              - listitem [ref=f10e203]:
+                - link "Investors" [ref=f10e204] [cursor=pointer]:
+                  - /url: https://investors.airbnb.com
+              - listitem [ref=f10e205]:
+                - link "Gift cards" [ref=f10e206] [cursor=pointer]:
+                  - /url: /giftcards
+              - listitem [ref=f10e207]:
+                - link "Airbnb.org emergency stays" [ref=f10e208] [cursor=pointer]:
+                  - /url: https://www.airbnb.org?locale=en
+        - generic [ref=f10e209]:
+          - generic [ref=f10e210]: Footer section
+          - generic [ref=f10e212]:
+            - generic [ref=f10e214]:
+              - generic [ref=f10e215]: © 2026 Airbnb, Inc.
+              - generic [ref=f10e216]:
+                - generic [aria-hidden] [ref=f10e218]: ·
+                - list [ref=f10e220]:
+                  - listitem [ref=f10e221]:
+                    - link "Privacy" [ref=f10e222] [cursor=pointer]:
+                      - /url: /terms/privacy_policy
+                    - generic [ref=f10e223]:
+                      - generic [aria-hidden]:
+                        - generic [aria-hidden]: ·
+                  - listitem [ref=f10e224]:
+                    - link "Terms" [ref=f10e225] [cursor=pointer]:
+                      - /url: /terms
+                    - generic [ref=f10e226]:
+                      - generic [aria-hidden]:
+                        - generic [aria-hidden]: ·
+                  - listitem [ref=f10e227]:
+                    - link "Your Privacy Choices" [ref=f10e228] [cursor=pointer]:
+                      - /url: /help/sale-share-opt-out
+            - generic [ref=f10e238]:
+              - generic [ref=f10e240]:
+                - button "Choose a language" [ref=f10e242] [cursor=pointer]:
+                  - generic [ref=f10e243]: English (US)
+                - button "Choose a currency" [ref=f10e245] [cursor=pointer]:
+                  - generic [ref=f10e247]:
+                    - generic [ref=f10e248]: ₫
+                    - generic [ref=f10e249]: VND
+              - list [ref=f10e251]:
+                - listitem [ref=f10e252]:
+                  - link "Navigate to Facebook" [ref=f10e253] [cursor=pointer]:
+                    - /url: https://www.facebook.com/airbnb
+                - listitem [ref=f10e257]:
+                  - link "Navigate to Twitter" [ref=f10e258] [cursor=pointer]:
+                    - /url: https://twitter.com/airbnb
+                - listitem [ref=f10e262]:
+                  - link "Navigate to Instagram" [ref=f10e263] [cursor=pointer]:
+                    - /url: https://instagram.com/airbnb

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  launchd-задание сборщика HouseWatch FB. Тик каждые 2 мин: скрипт сам решает, пора ли искать
+  (≥30 мин с прошлого поиска, часы 8–23). Тик без поиска — доля секунды. После сна launchd
+  запускает пропущенный тик при пробуждении, поэтому поиск стартует сразу.
+  Установка:
+    cp ru.n8n-fitness.housewatch-fb.plist ~/Library/LaunchAgents/
+    launchctl load ~/Library/LaunchAgents/ru.n8n-fitness.housewatch-fb.plist
+  Остановить:
+    launchctl unload ~/Library/LaunchAgents/ru.n8n-fitness.housewatch-fb.plist
+  Лог: ~/Library/Logs/housewatch-fb.log
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>ru.n8n-fitness.housewatch-fb</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/local/bin/node</string>
+    <string>/Users/perevyazko/WebstormProjects/n8n-fitness/housewatch/fb-collector/collect.mjs</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>/Users/perevyazko/WebstormProjects/n8n-fitness/housewatch/fb-collector</string>
+  <key>StartInterval</key>
+  <integer>120</integer>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>ProcessType</key>
+  <string>Background</string>
+  <key>LowPriorityIO</key>
+  <true/>
+  <key>Nice</key>
+  <integer>10</integer>
+  <key>StandardOutPath</key>
+  <string>/Users/perevyazko/Library/Logs/housewatch-fb.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/perevyazko/Library/Logs/housewatch-fb.log</string>
+</dict>
+</plist>

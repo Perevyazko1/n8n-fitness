@@ -1,0 +1,633 @@
+- generic [active] [ref=f12e1]:
+  - banner [ref=f12e3]:
+    - generic [ref=f12e5]:
+      - list [ref=f12e9]:
+        - listitem [ref=f12e10]:
+          - link "Hotels & Homes" [ref=f12e11] [cursor=pointer]:
+            - /url: /hotels/?locale=en-US&curr=VND
+        - listitem [ref=f12e12]:
+          - link "Flights" [ref=f12e13] [cursor=pointer]:
+            - /url: /flights/?locale=en-US&curr=VND
+        - listitem [ref=f12e14]:
+          - link "Trains" [ref=f12e15] [cursor=pointer]:
+            - /url: /trains/?locale=en-US&curr=VND
+        - listitem [ref=f12e16]:
+          - link "Cars" [ref=f12e17] [cursor=pointer]:
+            - /url: /carhire/?locale=en-US&curr=VND
+        - listitem [ref=f12e18]:
+          - link "Attractions & Tours" [ref=f12e19] [cursor=pointer]:
+            - /url: /things-to-do/?locale=en-US&curr=VND
+        - listitem [ref=f12e20]:
+          - button "More" [ref=f12e21] [cursor=pointer]
+      - generic [ref=f12e26]:
+        - generic [ref=f12e27]: App
+        - link "List your property" [ref=f12e29] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f12e30]: List your property
+          - text: 
+        - button "Language/Currency" [ref=f12e32] [cursor=pointer]
+        - link "Customer support" [ref=f12e37] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f12e38]: Customer support
+          - text: 
+        - generic [ref=f12e39]: Find bookings
+  - generic [ref=f12e40]:
+    - generic [ref=f12e41]:
+      - region "Search properties" [ref=f12e43]:
+        - generic [ref=f12e45]:
+          - generic [ref=f12e48] [cursor=pointer]:
+            - generic [aria-hidden] [ref=f12e49]: 󱱿
+            - generic [ref=f12e50]:
+              - textbox "Where to?" [ref=f12e51]: Nha Trang
+              - generic: Nha Trang
+            - button [ref=f12e52]:
+              - generic [aria-hidden] [ref=f12e53]: 󱔥
+          - generic [ref=f12e56] [cursor=pointer]:
+            - generic [aria-hidden] [ref=f12e57]: 󱯙
+            - generic [ref=f12e58]:
+              - textbox "Select date" [ref=f12e59]: Fri, Nov 20
+              - generic: Fri, Nov 20
+            - generic [ref=f12e60]: "-"
+            - generic [ref=f12e61]:
+              - textbox "Select date" [ref=f12e62]: Sun, Dec 20
+              - generic: Sun, Dec 20
+            - generic [ref=f12e63]: 30 nights
+          - button "1 room, 2 adults, 1 child" [ref=f12e66] [cursor=pointer]:
+            - generic [ref=f12e67]:
+              - generic [aria-hidden] [ref=f12e68]: 󱨰
+              - generic [ref=f12e69]: 1 room, 2 adults, 1 child
+          - button "Search" [ref=f12e71]:
+            - button "Search" [ref=f12e72] [cursor=pointer]:
+              - generic [ref=f12e73]:
+                - generic [aria-hidden] [ref=f12e75]: 󱖍
+                - generic [ref=f12e76]: Search
+      - generic [ref=f12e77]:
+        - region [ref=f12e78]:
+          - generic [ref=f12e79]:
+            - button [ref=f12e80]:
+              - button "Show on Map" [ref=f12e82] [cursor=pointer]
+            - generic [ref=f12e85]:
+              - generic [ref=f12e87]:
+                - generic "Popular filters for Nha Trang" [ref=f12e89]:
+                  - paragraph [aria-hidden] [ref=f12e90]:
+                    - generic [ref=f12e91]: Popular filters for Nha Trang
+                - generic [ref=f12e93]:
+                  - checkbox "Breakfast included" [ref=f12e94] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f12e95]: 󱵓
+                    - generic [aria-hidden] [ref=f12e97]: Breakfast included
+                  - checkbox "5 out of 5 stars" [ref=f12e98] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f12e99]: 󱵓
+                    - generic [aria-hidden] [ref=f12e101]:
+                      - generic [aria-hidden] [ref=f12e102]: 󱐨
+                      - generic [aria-hidden] [ref=f12e103]: 󱐨
+                      - generic [aria-hidden] [ref=f12e104]: 󱐨
+                      - generic [aria-hidden] [ref=f12e105]: 󱐨
+                      - generic [aria-hidden] [ref=f12e106]: 󱐨
+                  - checkbox "11.11 Mega Sale" [ref=f12e107] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f12e108]: 󱵓
+                    - generic [aria-hidden] [ref=f12e110]: 11.11 Mega Sale
+                  - checkbox "Very Good 8+" [ref=f12e111] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f12e112]: 󱵓
+                    - generic [ref=f12e113]:
+                      - generic [aria-hidden] [ref=f12e114]: Very Good 8+
+                      - generic [aria-hidden] [ref=f12e115]: Based on guest reviews
+                  - checkbox "Villa" [ref=f12e116] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f12e117]: 󱵓
+                    - generic [aria-hidden] [ref=f12e119]: Villa
+                  - checkbox "Near Beach" [ref=f12e120] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f12e121]: 󱵓
+                    - generic [aria-hidden] [ref=f12e123]: Near Beach
+                  - checkbox "Hotel" [ref=f12e124] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f12e125]: 󱵓
+                    - generic [aria-hidden] [ref=f12e127]: Hotel
+                  - checkbox "Free cancellation" [ref=f12e128] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f12e129]: 󱵓
+                    - generic [aria-hidden] [ref=f12e131]: Free cancellation
+                  - checkbox "Balcony" [ref=f12e132] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f12e133]: 󱵓
+                    - generic [aria-hidden] [ref=f12e135]: Balcony
+                  - checkbox "Pool" [ref=f12e136] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f12e137]: 󱵓
+                    - generic [aria-hidden] [ref=f12e139]: Pool
+              - generic [ref=f12e141]:
+                - generic [ref=f12e142]:
+                  - paragraph [ref=f12e143]: Budget
+                  - generic [ref=f12e144]: (VND 0 - VND 5,200,000+)
+                - generic [ref=f12e145]:
+                  - combobox "Price per room per night (excl. taxes & fees)" [ref=f12e147] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f12e149]: 󱌾
+                    - text: 󱟆
+                  - generic [ref=f12e151]:
+                    - slider [ref=f12e155]
+                    - slider [ref=f12e156]
+                  - generic [ref=f12e157]:
+                    - generic [ref=f12e158] [cursor=pointer]: VND 0 - VND 500,000
+                    - generic [ref=f12e159] [cursor=pointer]: VND 500,000 - VND 900,000
+                    - generic [ref=f12e160] [cursor=pointer]: VND 900,000 - VND 1,400,000
+                    - generic [ref=f12e161] [cursor=pointer]: VND 1,400,000 - VND 2,600,000
+                    - generic [ref=f12e162] [cursor=pointer]: VND 2,600,000 - VND 5,200,000
+                    - generic [ref=f12e163] [cursor=pointer]: "> VND 5,200,000"
+              - generic [ref=f12e165]:
+                - paragraph [ref=f12e168]: Property Type
+                - generic [ref=f12e170]:
+                  - checkbox "Hotels, Including hotels, resorts, and more" [ref=f12e172] [cursor=pointer]:
+                    - generic [ref=f12e173]:
+                      - generic [aria-hidden] [ref=f12e174]: 󱵓
+                      - generic [aria-hidden] [ref=f12e175]: Hotels
+                    - generic [aria-hidden] [ref=f12e176]: Including hotels, resorts, and more
+                  - checkbox "Homes & apts, Including homes, apartments, villas, and more" [ref=f12e178] [cursor=pointer]:
+                    - generic [ref=f12e179]:
+                      - generic [aria-hidden] [ref=f12e180]: 󱵓
+                      - generic [aria-hidden] [ref=f12e181]: Homes & apts
+                    - generic [aria-hidden] [ref=f12e182]: Including homes, apartments, villas, and more
+                  - checkbox "Hostels, Including hostels, inns, and more" [ref=f12e184] [cursor=pointer]:
+                    - generic [ref=f12e185]:
+                      - generic [aria-hidden] [ref=f12e186]: 󱵓
+                      - generic [aria-hidden] [ref=f12e187]: Hostels
+                    - generic [aria-hidden] [ref=f12e188]: Including hostels, inns, and more
+                  - generic [ref=f12e189] [cursor=pointer]: Show More
+              - generic [ref=f12e191]:
+                - generic "Star rating" [ref=f12e193]:
+                  - paragraph [aria-hidden] [ref=f12e194]:
+                    - generic [ref=f12e195]: Star rating
+                    - generic [ref=f12e196] [cursor=pointer]: 󱊕
+                - generic [ref=f12e198]:
+                  - checkbox "5 out of 5 stars" [ref=f12e199] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f12e200]: 󱵓
+                    - generic [aria-hidden] [ref=f12e202]:
+                      - generic [aria-hidden] [ref=f12e203]: 󱐨
+                      - generic [aria-hidden] [ref=f12e204]: 󱐨
+                      - generic [aria-hidden] [ref=f12e205]: 󱐨
+                      - generic [aria-hidden] [ref=f12e206]: 󱐨
+                      - generic [aria-hidden] [ref=f12e207]: 󱐨
+                  - checkbox "4 out of 5 stars" [ref=f12e208] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f12e209]: 󱵓
+                    - generic [aria-hidden] [ref=f12e211]:
+                      - generic [aria-hidden] [ref=f12e212]: 󱐨
+                      - generic [aria-hidden] [ref=f12e213]: 󱐨
+                      - generic [aria-hidden] [ref=f12e214]: 󱐨
+                      - generic [aria-hidden] [ref=f12e215]: 󱐨
+                  - checkbox "3 out of 5 stars" [ref=f12e216] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f12e217]: 󱵓
+                    - generic [aria-hidden] [ref=f12e219]:
+                      - generic [aria-hidden] [ref=f12e220]: 󱐨
+                      - generic [aria-hidden] [ref=f12e221]: 󱐨
+                      - generic [aria-hidden] [ref=f12e222]: 󱐨
+                  - checkbox "2 out of 5 stars" [ref=f12e223] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f12e224]: 󱵓
+                    - generic [aria-hidden] [ref=f12e226]:
+                      - generic [aria-hidden] [ref=f12e227]: 󱐨
+                      - generic [aria-hidden] [ref=f12e228]: 󱐨
+              - generic [ref=f12e230]:
+                - generic "Beach vacation" [ref=f12e232]:
+                  - paragraph [aria-hidden] [ref=f12e233]:
+                    - generic [ref=f12e234]: Beach vacation
+                - generic [ref=f12e238]:
+                  - checkbox "Near Beach" [ref=f12e239] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f12e240]: 󱵓
+                    - generic [aria-hidden] [ref=f12e242]: Near Beach
+                  - checkbox "Pool" [ref=f12e243] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f12e244]: 󱵓
+                    - generic [aria-hidden] [ref=f12e246]: Pool
+                  - checkbox "Oceanview room" [ref=f12e247] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f12e248]: 󱵓
+                    - generic [aria-hidden] [ref=f12e250]: Oceanview room
+                  - button "Show More" [ref=f12e251] [cursor=pointer]
+              - generic [ref=f12e253]:
+                - generic "Location" [ref=f12e255]:
+                  - paragraph [aria-hidden] [ref=f12e256]: Location
+                - generic [ref=f12e257]:
+                  - generic [ref=f12e258]:
+                    - 'generic "Straight-line distance from {0}city center{/0}" [ref=f12e259]': Straight-line distance from city center
+                    - combobox "No distance limit" [ref=f12e263] [cursor=pointer]:
+                      - generic [aria-hidden] [ref=f12e265]: 󱌾
+                      - text: 󱟆
+                  - generic [ref=f12e266]:
+                    - radio "Nha Trang beach" [ref=f12e267] [cursor=pointer]:
+                      - generic [aria-hidden] [ref=f12e268]: 󱣣
+                      - generic [aria-hidden] [ref=f12e270]: Nha Trang beach
+                    - radio "Nha Trang City Center" [ref=f12e271] [cursor=pointer]:
+                      - generic [aria-hidden] [ref=f12e272]: 󱣣
+                      - generic [aria-hidden] [ref=f12e274]: Nha Trang City Center
+                    - radio "Vinpearl Habour Nha Trang" [ref=f12e275] [cursor=pointer]:
+                      - generic [aria-hidden] [ref=f12e276]: 󱣣
+                      - generic [aria-hidden] [ref=f12e278]: Vinpearl Habour Nha Trang
+                    - button "Show More" [ref=f12e279] [cursor=pointer]
+        - region [ref=f12e280]:
+          - generic [ref=f12e282] [cursor=pointer]:
+            - generic [ref=f12e283]:
+              - generic [ref=f12e284]:
+                - generic [ref=f12e285]: First booking offer!
+                - generic [ref=f12e286]:
+                  - generic [ref=f12e287]: 󱳯
+                  - generic [ref=f12e288]: We'll apply the best discount for you at check-out
+              - button "Claim All" [ref=f12e289]
+            - generic [ref=f12e291]:
+              - generic [ref=f12e293]:
+                - img "Up to VND 140,000 off" [ref=f12e294]
+                - generic [ref=f12e295]:
+                  - generic [ref=f12e296]: Up to VND 140,000 off
+                  - generic [ref=f12e297]: New user promo code
+              - generic [ref=f12e299]:
+                - img "Up to 20% off" [ref=f12e300]
+                - generic [ref=f12e301]:
+                  - generic [ref=f12e302]: Up to 20% off
+                  - generic [ref=f12e303]: First Booking Deal
+              - generic [ref=f12e305]:
+                - generic [ref=f12e306]: 󱳎
+                - generic [ref=f12e307]: Use your promo code
+          - generic [ref=f12e310]:
+            - heading "788 properties found" [level=1] [ref=f12e311]
+            - combobox "Recommended for Families" [ref=f12e314] [cursor=pointer]:
+              - generic [ref=f12e315]:
+                - generic [ref=f12e316]: 󱷛
+                - generic [ref=f12e317]: Recommended for Families
+              - generic [aria-hidden] [ref=f12e318]: 󱌾
+              - text: 󱟆
+          - generic [ref=f12e319]:
+            - generic [ref=f12e320]:
+              - generic [ref=f12e322] [cursor=pointer]:
+                - group "Photo gallery for Moonlight Nha Trang Hotel" [ref=f12e325]:
+                  - button "Previous":
+                    - generic [aria-hidden]: 󱊙
+                  - button "Next":
+                    - generic [aria-hidden]: 󱌽
+                  - generic [aria-hidden] [ref=f12e350]: 󱌍
+                - generic [ref=f12e351]:
+                  - generic [ref=f12e353]:
+                    - generic [ref=f12e354]:
+                      - generic [ref=f12e356]:
+                        - text: Moonlight Nha Trang Hotel
+                        - img "4 out of 5 rating" [ref=f12e358]:
+                          - generic [aria-hidden] [ref=f12e359]: 󱐨
+                          - generic [aria-hidden] [ref=f12e360]: 󱐨
+                          - generic [aria-hidden] [ref=f12e361]: 󱐨
+                          - generic [aria-hidden] [ref=f12e362]: 󱐨
+                        - generic [ref=f12e363]: Renovated in 2025
+                      - generic [ref=f12e366]:
+                        - generic [aria-hidden] [ref=f12e367]: 󲍷
+                        - generic [ref=f12e368]:
+                          - text: Nha Trang City CenterNha Trang Beach
+                          - button "Map" [ref=f12e371]
+                    - generic [ref=f12e373]:
+                      - generic [ref=f12e376]:
+                        - generic "Rated %1$s" [ref=f12e377]: Very good
+                        - generic [ref=f12e378]: 200 reviews
+                      - generic "8.2 out of 10" [ref=f12e380]:
+                        - generic [aria-hidden] [ref=f12e381]: "8.2"
+                  - generic [ref=f12e384]:
+                    - generic [ref=f12e385]:
+                      - generic [ref=f12e387]:
+                        - generic [aria-hidden] [ref=f12e388]: 󱱹
+                        - generic [ref=f12e389]: Family-friendlyChildren's poolMini golf
+                      - generic [ref=f12e395]:
+                        - generic [ref=f12e396]:
+                          - generic [ref=f12e397]: Superior Double Room with City view
+                          - generic [ref=f12e398]:
+                            - generic [aria-hidden] [ref=f12e399]: 󱨰
+                            - generic [aria-hidden] [ref=f12e400]: 󱨰
+                            - generic [aria-hidden] [ref=f12e401]: 󱳎
+                            - generic [aria-hidden] [ref=f12e402]: 󲚤
+                        - generic [ref=f12e403]: 1 double bed
+                        - generic [ref=f12e404]: Free Cancellation
+                        - generic [ref=f12e407]: Only 2 left at this price
+                    - generic [ref=f12e411]:
+                      - generic [ref=f12e412]:
+                        - generic [ref=f12e413]:
+                          - generic "Original price VND 336,349" [ref=f12e414]:
+                            - generic [aria-hidden] [ref=f12e415]: VND 336,349
+                          - generic "Current price VND 304,694" [ref=f12e416]: VND 304,694
+                        - 'button "Total price: VND 9,872,078 1 room × 30 nights incl. taxes & fees" [ref=f12e417]'
+                        - generic [ref=f12e418]:
+                          - generic [ref=f12e419]: Special Discount
+                          - generic [ref=f12e421]: 9% off
+                      - button "Check Availability" [ref=f12e424]:
+                        - text: Check Availability
+                        - generic [aria-hidden] [ref=f12e426]: 󱌽
+              - generic [ref=f12e428] [cursor=pointer]:
+                - group "Photo gallery for Vinpearl Resort & Spa Nha Trang Bay" [ref=f12e431]:
+                  - button "Previous":
+                    - generic [aria-hidden]: 󱊙
+                  - button "Next":
+                    - generic [aria-hidden]: 󱌽
+                  - generic [aria-hidden] [ref=f12e456]: 󱌍
+                - generic [ref=f12e457]:
+                  - generic [ref=f12e459]:
+                    - generic [ref=f12e460]:
+                      - generic [ref=f12e462]:
+                        - text: Vinpearl Resort & Spa Nha Trang Bay
+                        - img "5 out of 5 rating" [ref=f12e464]:
+                          - generic [aria-hidden] [ref=f12e465]: 󱐨
+                          - generic [aria-hidden] [ref=f12e466]: 󱐨
+                          - generic [aria-hidden] [ref=f12e467]: 󱐨
+                          - generic [aria-hidden] [ref=f12e468]: 󱐨
+                          - generic [aria-hidden] [ref=f12e469]: 󱐨
+                      - generic [ref=f12e470]:
+                        - generic [aria-hidden] [ref=f12e471]: 󲍷
+                        - generic [ref=f12e472]:
+                          - text: Near Hon TreVinWonders Nha Trang
+                          - button "Map" [ref=f12e475]
+                    - generic [ref=f12e477]:
+                      - generic [ref=f12e480]:
+                        - generic "Rated %1$s" [ref=f12e481]: Great
+                        - generic [ref=f12e482]: 975 reviews
+                      - generic "9.2 out of 10" [ref=f12e484]:
+                        - generic [aria-hidden] [ref=f12e485]: "9.2"
+                  - generic [ref=f12e488]:
+                    - generic [ref=f12e489]:
+                      - generic [ref=f12e490]:
+                        - generic [ref=f12e491]:
+                          - generic [aria-hidden] [ref=f12e492]: 󱱹
+                          - generic [ref=f12e493]: Family-friendlyWater parkArts & crafts experience
+                        - generic [ref=f12e496]:
+                          - generic [aria-hidden] [ref=f12e497]: 󲍸
+                          - generic [ref=f12e498]: 2026 Asia 100 - Family Hotels
+                      - generic [ref=f12e502]:
+                        - generic [ref=f12e503]:
+                          - generic [ref=f12e504]: Deluxe Twin Bed
+                          - generic [ref=f12e505]:
+                            - generic [aria-hidden] [ref=f12e506]: 󱨰
+                            - generic [aria-hidden] [ref=f12e507]: 󱨰
+                            - generic [aria-hidden] [ref=f12e508]: 󱳎
+                            - generic [aria-hidden] [ref=f12e509]: 󲚤
+                        - generic [ref=f12e510]: 2 single beds
+                        - generic [ref=f12e511]:
+                          - generic [ref=f12e512]: Free Cancellation
+                          - generic [ref=f12e514]: Breakfast included
+                        - generic [ref=f12e516]: Last booked 1 hr ago
+                    - generic [ref=f12e520]:
+                      - generic [ref=f12e521]:
+                        - generic [ref=f12e522]:
+                          - generic "Original price VND 3,054,801" [ref=f12e523]:
+                            - generic [aria-hidden] [ref=f12e524]: VND 3,054,801
+                          - generic "Current price VND 2,727,501" [ref=f12e525]: VND 2,727,501
+                        - 'button "Total price: VND 88,371,000 1 room × 30 nights incl. taxes & fees" [ref=f12e526]'
+                        - generic [ref=f12e527]:
+                          - generic [ref=f12e528]: Special Discount
+                          - generic [ref=f12e530]: 10% off
+                      - button "Check Availability" [ref=f12e533]:
+                        - text: Check Availability
+                        - generic [aria-hidden] [ref=f12e535]: 󱌽
+              - generic [ref=f12e537] [cursor=pointer]:
+                - group "Photo gallery for Sea Pearl Hotel" [ref=f12e540]:
+                  - button "Previous":
+                    - generic [aria-hidden]: 󱊙
+                  - button "Next":
+                    - generic [aria-hidden]: 󱌽
+                  - generic [aria-hidden] [ref=f12e565]: 󱌍
+                - generic [ref=f12e566]:
+                  - generic [ref=f12e568]:
+                    - generic [ref=f12e569]:
+                      - generic [ref=f12e571]:
+                        - text: Sea Pearl Hotel
+                        - img "4 out of 5 rating" [ref=f12e573]:
+                          - generic [aria-hidden] [ref=f12e574]: 󱐨
+                          - generic [aria-hidden] [ref=f12e575]: 󱐨
+                          - generic [aria-hidden] [ref=f12e576]: 󱐨
+                          - generic [aria-hidden] [ref=f12e577]: 󱐨
+                      - generic [ref=f12e578]:
+                        - generic [aria-hidden] [ref=f12e579]: 󲍷
+                        - generic [ref=f12e580]:
+                          - text: Nha Trang City CenterNha Trang Beach
+                          - button "Map" [ref=f12e583]
+                    - generic [ref=f12e585]:
+                      - generic [ref=f12e588]:
+                        - generic "Rated %1$s" [ref=f12e589]: Very good
+                        - generic [ref=f12e590]: 405 reviews
+                      - generic "8.4 out of 10" [ref=f12e592]:
+                        - generic [aria-hidden] [ref=f12e593]: "8.4"
+                  - generic [ref=f12e596]:
+                    - generic [ref=f12e597]:
+                      - generic [ref=f12e599]:
+                        - generic [aria-hidden] [ref=f12e600]: 󱱹
+                        - generic [ref=f12e601]: Family-friendlyIdeal locationPublic beach
+                      - generic [ref=f12e607]:
+                        - generic [ref=f12e608]:
+                          - generic [ref=f12e609]: Superior Room
+                          - generic [ref=f12e610]:
+                            - generic [aria-hidden] [ref=f12e611]: 󱨰
+                            - generic [aria-hidden] [ref=f12e612]: 󱨰
+                            - generic [aria-hidden] [ref=f12e613]: 󱳎
+                            - generic [aria-hidden] [ref=f12e614]: 󲚤
+                        - generic [ref=f12e615]: 2 single beds
+                        - generic [ref=f12e616]: Only 4 left at this price
+                    - generic [ref=f12e620]:
+                      - generic [ref=f12e621]:
+                        - generic [ref=f12e622]:
+                          - generic "Original price VND 385,155" [ref=f12e623]:
+                            - generic [aria-hidden] [ref=f12e624]: VND 385,155
+                          - generic "Current price VND 324,455" [ref=f12e625]: VND 324,455
+                        - 'button "Total price: VND 10,512,309 1 room × 30 nights incl. taxes & fees" [ref=f12e626]'
+                        - generic [ref=f12e627]:
+                          - generic [ref=f12e628]: Special Discount
+                          - generic [ref=f12e630]: 15% off
+                      - button "Check Availability" [ref=f12e633]:
+                        - text: Check Availability
+                        - generic [aria-hidden] [ref=f12e635]: 󱌽
+              - generic [ref=f12e637] [cursor=pointer]:
+                - group "Photo gallery for Rembrandt Hotel Nha Trang" [ref=f12e640]:
+                  - button "Previous":
+                    - generic [aria-hidden]: 󱊙
+                  - button "Next":
+                    - generic [aria-hidden]: 󱌽
+                  - generic [aria-hidden] [ref=f12e665]: 󱌍
+                - generic [ref=f12e666]:
+                  - generic [ref=f12e668]:
+                    - generic [ref=f12e669]:
+                      - generic [ref=f12e671]:
+                        - text: Rembrandt Hotel Nha Trang
+                        - img "4 out of 5 rating" [ref=f12e673]:
+                          - generic [aria-hidden] [ref=f12e674]: 󱐨
+                          - generic [aria-hidden] [ref=f12e675]: 󱐨
+                          - generic [aria-hidden] [ref=f12e676]: 󱐨
+                          - generic [aria-hidden] [ref=f12e677]: 󱐨
+                      - generic [ref=f12e678]:
+                        - generic [aria-hidden] [ref=f12e679]: 󲍷
+                        - generic [ref=f12e680]:
+                          - text: Nha Trang City CenterNha Trang Beach
+                          - button "Map" [ref=f12e683]
+                    - generic [ref=f12e685]:
+                      - generic [ref=f12e688]:
+                        - generic "Rated %1$s" [ref=f12e689]: Very good
+                        - generic [ref=f12e690]: 220 reviews
+                      - generic "8.7 out of 10" [ref=f12e692]:
+                        - generic [aria-hidden] [ref=f12e693]: "8.7"
+                  - generic [ref=f12e696]:
+                    - generic [ref=f12e697]:
+                      - generic [ref=f12e699]:
+                        - generic [aria-hidden] [ref=f12e700]: 󱱹
+                        - generic [ref=f12e701]: Family-friendlyVintage vibesIdeal location
+                      - generic [ref=f12e707]:
+                        - generic [ref=f12e708]:
+                          - generic [ref=f12e709]: Superior Double With Window
+                          - generic [ref=f12e710]:
+                            - generic [aria-hidden] [ref=f12e711]: 󱨰
+                            - generic [aria-hidden] [ref=f12e712]: 󱨰
+                            - generic [aria-hidden] [ref=f12e713]: 󱳎
+                            - generic [aria-hidden] [ref=f12e714]: 󲚤
+                        - generic [ref=f12e715]: 1 queen bed
+                        - generic [ref=f12e716]: Free Cancellation
+                        - generic [ref=f12e719]: Only 2 left at this price
+                    - generic [ref=f12e723]:
+                      - generic [ref=f12e724]:
+                        - generic [ref=f12e725]:
+                          - generic "Original price VND 1,309,560" [ref=f12e726]:
+                            - generic [aria-hidden] [ref=f12e727]: VND 1,309,560
+                          - generic "Current price VND 335,571" [ref=f12e728]: VND 335,571
+                        - 'button "Total price: VND 10,872,476 1 room × 30 nights incl. taxes & fees" [ref=f12e729]'
+                        - generic [ref=f12e730]:
+                          - generic [ref=f12e731]: 11.11 Mega Sale
+                          - generic [ref=f12e733]: 73% off
+                      - button "Check Availability" [ref=f12e736]:
+                        - text: Check Availability
+                        - generic [aria-hidden] [ref=f12e738]: 󱌽
+              - generic [ref=f12e740] [cursor=pointer]:
+                - group "Photo gallery for The Trăng Villas" [ref=f12e743]:
+                  - button "Previous":
+                    - generic [aria-hidden]: 󱊙
+                  - button "Next":
+                    - generic [aria-hidden]: 󱌽
+                  - generic [aria-hidden] [ref=f12e768]: 󱌍
+                - generic [ref=f12e769]:
+                  - generic [ref=f12e771]:
+                    - generic [ref=f12e772]:
+                      - generic [ref=f12e774]:
+                        - text: The Trăng Villas
+                        - img "4 out of 5 diamonds" [ref=f12e776]:
+                          - generic [aria-hidden] [ref=f12e777]: 󱑆
+                          - generic [aria-hidden] [ref=f12e778]: 󱑆
+                          - generic [aria-hidden] [ref=f12e779]: 󱑆
+                          - generic [aria-hidden] [ref=f12e780]: 󱑆
+                        - generic [ref=f12e781]: New to Trip.com
+                      - generic [ref=f12e784]:
+                        - generic [aria-hidden] [ref=f12e785]: 󲍷
+                        - generic [ref=f12e786]:
+                          - text: Near Chùa Ngọc SơnTịnh xá Ngọc Hải
+                          - button "Map" [ref=f12e789]
+                    - generic [ref=f12e791]:
+                      - generic [ref=f12e794]:
+                        - generic "Rated %1$s" [ref=f12e795]: Outstanding
+                        - generic [ref=f12e796]: 25 reviews
+                      - generic "10.0 out of 10" [ref=f12e798]:
+                        - generic [aria-hidden] [ref=f12e799]: "10.0"
+                  - generic [ref=f12e802]:
+                    - generic [ref=f12e803]:
+                      - generic [ref=f12e805]:
+                        - generic [aria-hidden] [ref=f12e806]: 󱱹
+                        - generic [ref=f12e807]: Family-friendlyChildcare servicePrivate pool
+                      - generic [ref=f12e813]:
+                        - generic [ref=f12e814]:
+                          - generic [ref=f12e815]: Sen Villa
+                          - generic [ref=f12e816]:
+                            - generic [aria-hidden] [ref=f12e817]: 󱨰
+                            - generic [aria-hidden] [ref=f12e818]: 󱨰
+                            - generic [aria-hidden] [ref=f12e819]: 󱳎
+                            - generic [aria-hidden] [ref=f12e820]: 󲚤
+                        - generic [ref=f12e821]: 1 queen bed
+                        - generic [ref=f12e822]: Breakfast included
+                        - generic [ref=f12e825]: Only 1 left at this price
+                    - generic [ref=f12e829]:
+                      - generic [ref=f12e830]:
+                        - generic [ref=f12e831]:
+                          - generic "Original price VND 1,594,304" [ref=f12e832]:
+                            - generic [aria-hidden] [ref=f12e833]: VND 1,594,304
+                          - generic "Current price VND 1,392,038" [ref=f12e834]: VND 1,392,038
+                        - 'button "Total price: VND 45,101,993 1 room × 30 nights incl. taxes & fees" [ref=f12e835]'
+                        - generic [ref=f12e836]:
+                          - generic [ref=f12e837]: Special Discount
+                          - generic [ref=f12e839]: 12% off
+                      - button "Check Availability" [ref=f12e842]:
+                        - text: Check Availability
+                        - generic [aria-hidden] [ref=f12e844]: 󱌽
+            - navigation [ref=f12e845]:
+              - list [ref=f12e846]:
+                - listitem [ref=f12e847]:
+                  - link "Trip.com" [ref=f12e848] [cursor=pointer]:
+                    - /url: https://us.trip.com
+                - generic [ref=f12e849]: ">"
+                - listitem [ref=f12e850]:
+                  - link "Hotels" [ref=f12e851] [cursor=pointer]:
+                    - /url: https://us.trip.com/hotels/
+                - generic [ref=f12e852]: ">"
+                - listitem [ref=f12e853]:
+                  - link "Hotels in Vietnam" [ref=f12e854] [cursor=pointer]:
+                    - /url: https://us.trip.com/hotels/country/vietnam.html
+                - generic [ref=f12e855]: ">"
+                - listitem [ref=f12e856]:
+                  - link "Hotels in Khanh Hoa Province" [ref=f12e857] [cursor=pointer]:
+                    - /url: https://us.trip.com/hotels/province/vn-khanh-hoa-province.html
+                - generic [ref=f12e858]: ">"
+                - listitem [ref=f12e859]: Hotels in Nha Trang
+    - contentinfo [ref=f12e861]:
+      - generic [ref=f12e862]:
+        - generic [ref=f12e863]:
+          - generic [ref=f12e864]:
+            - generic [ref=f12e865]:
+              - heading "Contact us" [level=3] [ref=f12e866]
+              - list [ref=f12e867]:
+                - listitem [ref=f12e868]:
+                  - link "Customer support" [ref=f12e869] [cursor=pointer]:
+                    - /url: /pages/support/?locale=en-US&curr=VND
+                - listitem [ref=f12e870]:
+                  - link "Service Guarantee" [ref=f12e871] [cursor=pointer]:
+                    - /url: /pages/customer-service/?locale=en-US&curr=VND
+                - listitem [ref=f12e872]:
+                  - link "More service info" [ref=f12e873] [cursor=pointer]:
+                    - /url: /pages/service/?locale=en-US&curr=VND
+              - list
+            - generic [ref=f12e874]:
+              - heading "About" [level=3] [ref=f12e875]
+              - list [ref=f12e876]:
+                - listitem [ref=f12e877]:
+                  - link "About Trip.com" [ref=f12e878] [cursor=pointer]:
+                    - /url: /pages/about-us/?locale=en-US&curr=VND
+                - listitem [ref=f12e879]:
+                  - link "News" [ref=f12e880] [cursor=pointer]:
+                    - /url: /newsroom/?locale=en-US&curr=VND
+                - listitem [ref=f12e881]:
+                  - link "Careers" [ref=f12e882] [cursor=pointer]:
+                    - /url: https://careers.trip.com/?locale=en-US&curr=VND
+                - listitem [ref=f12e883]:
+                  - link "Terms & Conditions" [ref=f12e884] [cursor=pointer]:
+                    - /url: /contents/service-guideline/terms.html?locale=en-US&curr=VND
+                - listitem [ref=f12e885]:
+                  - link "Privacy Statement" [ref=f12e886] [cursor=pointer]:
+                    - /url: /contents/service-guideline/privacy-policy.html?locale=en-US&curr=VND
+                - listitem [ref=f12e887]:
+                  - link "Do Not Sell or Share My Personal Information" [ref=f12e888] [cursor=pointer]:
+                    - /url: https://us.trip.com/pages/treatyforcookie/?locale=en-US&curr=VND
+                - listitem [ref=f12e889]:
+                  - link "AI generated personalized content" [ref=f12e890] [cursor=pointer]:
+                    - /url: /pages/personalization-settings?locale=en-US&curr=VND
+                - listitem [ref=f12e891]:
+                  - link "About Trip.com Group" [ref=f12e892] [cursor=pointer]:
+                    - /url: https://group.trip.com/?locale=en-US&curr=VND
+            - generic [ref=f12e893]:
+              - heading "Other services" [level=3] [ref=f12e894]
+              - list [ref=f12e895]:
+                - listitem [ref=f12e896]:
+                  - link "Investor relations" [ref=f12e897] [cursor=pointer]:
+                    - /url: https://investors.trip.com?locale=en-US&curr=VND
+                - listitem [ref=f12e898]:
+                  - link "Trip.com Rewards" [ref=f12e899] [cursor=pointer]:
+                    - /url: /customer/loyalty/?locale=en-us&curr=VND
+                - listitem [ref=f12e900]:
+                  - link "Affiliate program" [ref=f12e901] [cursor=pointer]:
+                    - /url: https://www.trip.com/partners/index?locale=en-US&curr=VND
+                - listitem [ref=f12e902]:
+                  - link "List your property" [ref=f12e903] [cursor=pointer]:
+                    - /url: /list-your-property?channel=2&locale=en-US&curr=VND
+                - listitem [ref=f12e904]:
+                  - link "All hotels" [ref=f12e905] [cursor=pointer]:
+                    - /url: /hotels/all-cities/?locale=en-us&curr=VND
+                - listitem [ref=f12e906]:
+                  - link "Become a supplier" [ref=f12e907] [cursor=pointer]:
+                    - /url: /m/vbooking/home?locale=en-US&curr=VND
+                - listitem [ref=f12e908]:
+                  - link "Security" [ref=f12e909] [cursor=pointer]:
+                    - /url: https://src.trip.com/?locale=en-US&curr=VND#/Home
+          - generic [ref=f12e910]:
+            - heading "Payment methods" [level=3] [ref=f12e912]
+            - heading "Our partners" [level=3] [ref=f12e914]
+        - generic [ref=f12e916]:
+          - list
+        - 'contentinfo "Copyright © 2026 Trip.com Travel Singapore Pte. Ltd. All rights reserved<br>Site Operator: Trip.com Travel Singapore Pte. Ltd." [ref=f12e917]':
+          - generic [aria-hidden] [ref=f12e918]: "Copyright © 2026 Trip.com Travel Singapore Pte. Ltd. All rights reserved Site Operator: Trip.com Travel Singapore Pte. Ltd."
